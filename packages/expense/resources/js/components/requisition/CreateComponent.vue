@@ -1,0 +1,990 @@
+<template>
+    <div v-loading="loading">
+        <form id="create-form">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> แหล่งเงิน <span class="text-danger"> *</span></strong>
+                            </label><br>
+                            <budgetSource 
+                                :setData="requisition.budget_source"
+                                :error="errors.budget_source"
+                                :editFlag="true"
+                                @setBudgetSource="setBudgetSource"
+                            ></budgetSource>
+                            <div id="el_explode_budget_source" class="text-danger text-left"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ประเภท <span class="text-danger"> *</span></strong>
+                            </label><br>
+                            <el-select v-model="requisition.invoice_type" placeholder="" style="width: 100%;" ref="invoice_type">
+                                <el-option
+                                    v-for="type in invoiceTypes"
+                                    :key="type.lookup_code"
+                                    :label="type.description"
+                                    :value="type.lookup_code"
+                                />
+                            </el-select>
+                            <div id="el_explode_invoice_type" class="text-danger text-left"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> สำนักงานผู้เบิกจ่าย <span class="text-danger"> *</span></strong>
+                            </label><br>
+                            <documentCategory
+                                :setData="requisition.document_category"
+                                :error="errors.document_category"
+                                :editFlag="true"
+                                @setDocumentCate="setDocumentCate"
+                            ></documentCategory>
+                            <div id="el_explode_document_category" class="text-danger text-left"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> วันที่เอกสารส่งเบิก <span class="text-danger"> *</span></strong>
+                            </label><br>
+                            <el-date-picker
+                                v-model="requisition.req_date"
+                                ref="req_date"
+                                placeholder=""
+                                clearable
+                                format="DD-MM-YYYY"
+                                style="width: 100%;"
+                            />
+                            <div id="el_explode_req_date" class="text-danger text-left"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ประเภทการขอเบิก <span class="text-danger"> *</span></strong>
+                            </label><br>
+                            <paymentType
+                                :setData="requisition.payment_type"
+                                :error="errors.payment_type"
+                                :editFlag="true"
+                                @setPaymentType="setPaymentType"
+                            ></paymentType>
+                            <div id="el_explode_payment_type" class="text-danger text-left"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ชื่อสั่งจ่าย <span class="text-danger"> *</span></strong> &nbsp;
+                                    <el-radio v-model="requisition.multiple_supplier" label="ONE" @change="changeSupplierType">
+                                        รายเดียว
+                                    </el-radio>
+                                    <el-radio v-model="requisition.multiple_supplier" label="MORE" @change="changeSupplierType">
+                                        หลายราย (กรอกข้อมูลระดับรายการ)
+                                    </el-radio>
+                            </label><br>
+                            <supplier
+                                :setData="requisition.supplier"
+                                :error="errors.supplier"
+                                :editFlag="true"
+                                @setSupplier="setSupplierHeader"
+                            ></supplier>
+                            <div id="el_explode_supplier" class="text-danger text-left"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> คำอธิบาย </strong>
+                            </label><br>
+                            <el-input v-model="requisition.description" type="textarea" :rows="2" style="width: 100%;" placeholder="" maxlength="240" show-word-limit/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> 
+                                    <template v-if="requisition.payment_type == 'PAYMENT'"> เลขที่เอกสารส่งเบิก </template>
+                                    <template v-else> เลขที่ใบสำคัญ </template>
+                                </strong>
+                            </label><br>
+                            <el-input v-model="requisition.req_number" style="width: 100%;" placeholder="" disabled/>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ผู้รับผิดชอบ </strong>
+                            </label><br>
+                            <el-input v-model="requisition.requester" style="width: 100%;" placeholder="" disabled/>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> สถานะ </strong>
+                            </label><br>
+                            <el-input v-model="requisition.status" style="width: 100%;" placeholder="" disabled/>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> เลขที่ใบกำกับ </strong>
+                            </label><br>
+                            <el-input v-model="requisition.invioce_no_ref" style="width: 100%;" placeholder="" disabled/>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="card row" style="background-color: #8cbbff; border: 1px solid #8cbbff;">
+                    <div class="card-header" style="background-color: #8cbbff; padding: 10px;">
+                        <strong> รายการเอกสารส่งเบิก </strong>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label" style="margin-bottom: 0.4rem;">
+                                <!-- เพิ่มเงื่อนไขเช็ค multi -->
+                                <strong> ชื่อสั่งจ่าย <span class="text-danger"> * </span></strong> &nbsp;
+                            </label><br>
+                            <supplier
+                                :setData="reqLine.supplier"
+                                :error="errors.supplier_detail"
+                                :editFlag="requisition.multiple_supplier == 'MORE'? true: false"
+                                @setSupplier="setSupplierLine"
+                            ></supplier>
+                            <div id="el_explode_supplier_detail" class="text-danger text-left"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> เลขที่บัญชีธนาคาร <span class="text-danger"> *</span></strong>
+                            </label><br>
+                            <!-- เพิ่มเงื่อนไขเช็ค multi -->
+                            <supplierBank
+                                :parent="reqLine.supplier"
+                                :setData="reqLine.supplier_bank"
+                                :error="errors.supplier_bank"
+                                :editFlag="true"
+                                @setSupplierBank="setSupplierBank"
+                            ></supplierBank>
+                            <div id="el_explode_supplier_bank" class="text-danger text-left"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label" style="margin: 3px;">
+                                &nbsp; <br>
+                            </label><br>
+                            <detailComp
+                                :requisition="requisition"
+                                :reqLine="reqLine"
+                                :errors="errors"
+                            ></detailComp>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> แผนงาน <span class="text-danger"> * </span></strong>
+                            </label><br>
+                            <budgetPlan 
+                                :setData="reqLine.budget_plan"
+                                :error="errors.budget_plan"
+                                :editFlag="true"
+                                @setBudgetPlan="setBudgetPlan"
+                            ></budgetPlan>
+                            <div id="el_explode_budget_plan" class="text-danger text-left"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ประเภทรายจ่าย <span class="text-danger"> * </span></strong>
+                            </label><br>
+                            <budgetType
+                                :parent="reqLine.budget_plan"
+                                :setData="reqLine.budget_type"
+                                :error="errors.budget_type"
+                                :editFlag="true"
+                                @setBudgetType="setBudgetType"
+                            ></budgetType>
+                            <div id="el_explode_budget_type" class="text-danger text-left"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ประเภทค่าใช้จ่าย <span class="text-danger"> * </span></strong>
+                            </label><br>
+                            <expenseType
+                                :parent="reqLine.budget_type"
+                                :setData="reqLine.expense_type"
+                                :error="errors.expense_type"
+                                :editFlag="true"
+                                @setExpenseType="setExpenseType"
+                            ></expenseType>
+                            <div id="el_explode_expense_type" class="text-danger text-left"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> จำนวนเงิน <span class="text-danger"> * </span></strong>
+                            </label><br>
+                            <!-- <el-input v-model="reqLine.amount" style="width: 100%;" placeholder="" ref="amount"/> -->
+                            <vue-numeric style="width: 100%;"
+                                name="amount"
+                                v-bind:minus="false"
+                                v-bind:precision="2"
+                                :min="0"
+                                :max="999999999"
+                                class="form-control text-right"
+                                v-model="reqLine.amount"
+                                ref="amount"
+                                autocomplete="off"
+                            ></vue-numeric>
+                            <div id="el_explode_amount" class="text-danger text-left"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> คำอธิบายรายการ </strong>
+                            </label><br>
+                            <el-input v-model="reqLine.description" type="textarea" :rows="2" style="width: 100%;" placeholder="" maxlength="240" show-word-limit/>
+                        </div>
+                    </div>
+                </div>
+                <div align="right">
+                    <button type="submit" class="btn btn-sm btn-success" @click.prevent="addRequisitionLine()">เพิ่มรายการ</button>
+                </div>
+                <br>
+                <!-- TABLE LINE LISTS-->
+                <table class="table table-responsive-sm">
+                    <thead>
+                        <tr>
+                            <th class="text-center" width="3%"> รายการที่ </th>
+                            <th class="text-left" width="15%"> ประเภทค่าใช้จ่าย </th>
+                            <th class="text-center" width="10%"> จำนวนเงิน </th>
+                            <th class="text-center" width="15%"> ชื่อสั่งจ่าย </th>
+                            <th class="text-center" width="15%"> เลขที่บัญชีธนาคาร </th>
+                            <th class="text-center" width="3%"> </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <listComp
+                            v-for="(row, index) in linelists"
+                            :key="index"
+                            :index="index"
+                            :requisition="requisition"
+                            :attribute="row"
+                            @updateRow="updateRow"
+                            @copyRow="copyRow"
+                            @removeRow="removeRow"
+                        />
+                    </tbody>
+                </table>
+                <div class="row m-t-sm">
+                    <div class="col-sm-9"> </div>
+                    <div class="col-sm-3 text-right">
+                        <div class="card">
+                            <table class="table" style="margin: 0px;">
+                                <tbody>
+                                    <tr>
+                                        <td class="mb-0 tw-text-grey-darker tw-text-bold" style="width:40%; font-size:15px !important;">
+                                            <strong> รวมทั้งสิ้น : </strong>
+                                        </td>
+                                        <td class="mb-0 tw-text-grey-darker tw-text-bold" style="width:60%; font-size:15px !important;" >
+                                            {{ numberFormat(totalApply) }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div align="center">
+                    <button type="button" class="btn btn-primary" @click.prevent="store()"> ส่งเบิก </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</template>
+
+<script>
+    import moment   from "moment";
+    import numeral  from "numeral";
+    import Swal     from 'sweetalert2';
+    import {ElNotification} from 'element-plus';
+    //========================================================
+    import budgetSource     from "../lov/BudgetSource.vue";
+    import documentCategory from "../lov/DocumentCategory.vue";
+    import paymentType      from "../lov/PaymentType.vue";
+    import supplier         from "../lov/Supplier.vue";
+    import supplierBank     from "../lov/SupplierBank.vue";
+    import budgetPlan       from "../lov/BudgetPlan.vue";
+    import budgetType       from "../lov/BudgetType.vue";
+    import expenseType      from "../lov/ExpenseType.vue";
+    import detailComp       from "./DetailComponent.vue";
+    import listComp         from "./ListComponent.vue";
+
+    export default {
+        components: {
+            budgetSource, documentCategory, paymentType, supplier, supplierBank, budgetPlan, budgetType, expenseType, detailComp, listComp
+        },
+        props: ['referenceNo', 'invoiceTypes'],
+        data() {
+            return {
+                budgetSource: ['510', '520', '530', '540', '550'],
+                errors: {
+                    budget_source: false,
+                    invoice_type: false,
+                    document_category: false,
+                    req_date: false,
+                    payment_type: false,
+                    supplier: false,
+                    supplier_detail: false,
+                    supplier_bank: false,
+                    budget_plan: false,
+                    budget_type: false,
+                    expense_type: false,
+                    amount: false,
+                    remaining_receipt: false,
+                },
+                requisition: {
+                    reference_no: this.referenceNo,
+                    budget_source: '000',
+                    invoice_type: 'STANDARD',
+                    document_category: '000_สกค_ขอเบิก', // หยิบจาก login
+                    req_date: new Date(),
+                    payment_type: 'PAYMENT',
+                    supplier: 1200,
+                    supplier_name: 'ssss',
+                    multiple_supplier: 'ONE',
+                    description: '',
+                    req_number: '',
+                    requester: '',
+                    status: '',
+                    invioce_no_ref: '',
+                },
+                reqLine: {
+                    supplier: 1200,
+                    supplier_name: 'sss',
+                    supplier_bank: 'sss123',
+                    budget_plan: '',
+                    budget_type: '',
+                    expense_type: '',
+                    expense_description: '',
+                    amount: '',
+                    description: '',
+                    vehicle_no: '',
+                    policy_no: '',
+                    vehicle_oil_type: '',
+                    utility_type: '',
+                    utility_detail: '',
+                    unit_quantity: '',
+                    invoice_no: '',
+                    invoice_date: '',
+                    receipt_no: '',
+                    receipt_date: '',
+                    remaining_receipt_flag: false,
+                    remaining_receipt: 'AR00001',
+                },
+                loading: false,
+                linelists: [],
+            };
+        },
+        mounted(){
+        },
+        computed: {
+            totalApply() {
+                return this.linelists.reduce((accumulator, line) => {
+                    this.totalApplyAmount = accumulator + parseFloat(line.amount);
+                    return accumulator + parseFloat(line.amount);
+                }, 0);
+            },
+        },
+        watch:{
+            // totalApply(newVal){
+            //     return newVal;
+            // },
+            errors: {
+                handler(val){
+                    val.invoice_type? this.setError('invoice_type') : this.resetError('invoice_type');
+                    val.amount? this.setError('amount') : this.resetError('amount');
+                },
+                deep: true,
+            },
+        },
+        methods: {
+            numberFormat(value) {
+                if (!value) return "0.00";
+                return numeral(value).format("0,0.00");
+            },
+            setError(ref_name){
+                let ref =  this.$refs[ref_name].$refs.referenceRef
+                        ? this.$refs[ref_name].$refs.referenceRef.$refs.wrapperRef
+                        : (this.$refs[ref_name].$refs.textareaRef
+                            ? this.$refs[ref_name].$refs.textareaRef
+                            : (this.$refs[ref_name].$refs.numeric
+                                ? this.$refs[ref_name].$refs.numeric
+                                : (this.$refs[ref_name].$refs.wrapperRef.$refs
+                                    ? this.$refs[ref_name].$refs.wrapperRef.$refs.wrapperRef
+                                    : this.$refs[ref_name].$refs.wrapperRef )));
+                ref.style = "border: 1px solid red;";
+            },
+            resetError(ref_name){
+                let ref = this.$refs[ref_name].$refs.referenceRef
+                        ? this.$refs[ref_name].$refs.referenceRef.$refs.wrapperRef
+                        : (this.$refs[ref_name].$refs.textareaRef
+                            ? this.$refs[ref_name].$refs.textareaRef
+                            : (this.$refs[ref_name].$refs.numeric
+                                ? this.$refs[ref_name].$refs.numeric
+                                : (this.$refs[ref_name].$refs.wrapperRef.$refs
+                                    ? this.$refs[ref_name].$refs.wrapperRef.$refs.wrapperRef
+                                    : this.$refs[ref_name].$refs.wrapperRef )));
+                ref.style = "";
+            },
+            setBudgetSource(res){
+                this.requisition.budget_source = res.budget_source;
+                this.isARReceipt(res.budget_source);
+            },
+            setDocumentCate(res){
+                this.requisition.document_category = res.document_category;
+            },
+            setPaymentType(res){
+                this.requisition.payment_type = res.payment_type;
+            },
+            setSupplierHeader(res){
+                this.requisition.supplier = res.supplier;
+                this.requisition.supplier_name = res.vendor_name;
+                if(this.requisition.multiple_supplier == 'ONE'){
+                    this.reqLine.supplier = res.supplier;
+                    this.reqLine.supplier_name = res.vendor_name;
+                }
+            },
+            setSupplierLine(res){
+                this.reqLine.supplier = res.supplier;
+                this.reqLine.supplier_name = res.vendor_name;
+            },
+            setSupplierBank(res){
+                this.reqLine.supplier_bank = res.supplier_bank;
+            },
+            setBudgetPlan(res){
+                this.reqLine.budget_plan = res.budget_plan;
+            },
+            setBudgetType(res){
+                this.reqLine.budget_type = res.budget_type;
+            },
+            setExpenseType(res){
+                this.reqLine.expense_type = res.expense_type;
+                this.reqLine.expense_description = res.expense_description;
+            },
+            setRemainingReceipt(res){
+                this.reqLine.remaining_receipt = res.remaining_receipt;
+            },
+            changeSupplierType(){
+                this.resetValues();
+                if(this.requisition.multiple_supplier == 'ONE'){
+                    this.reqLine.supplier = this.requisition.supplier;
+                    this.reqLine.supplier_name = this.requisition.supplier_name;
+                }else{
+                    this.reqLine.supplier = '';
+                    this.reqLine.supplier_name = '';
+                    this.reqLine.supplier_bank = '';
+                }
+            },
+            addRequisitionLine() {
+                var vm = this;
+                var form = $('#create-form');
+                let errorMsg = '';
+                this.resetValues();
+                let valid = true;
+                if (vm.requisition.supplier == '') {
+                    vm.errors.supplier = true;
+                    valid = false;
+                    errorMsg = "กรุณาเลือกผู้สั่งจ่าย";
+                    $(form).find("div[id='el_explode_supplier']").html(errorMsg);
+                }
+                if (vm.reqLine.supplier == '' && vm.requisition.multiple_supplier == 'MORE') {
+                    vm.errors.supplier_detail = true;
+                    valid = false;
+                    errorMsg = "กรุณาเลือกผู้สั่งจ่าย";
+                    $(form).find("div[id='el_explode_supplier_detail']").html(errorMsg);
+                }
+                if (vm.reqLine.supplier_bank == '' && vm.requisition.multiple_supplier == 'MORE') {
+                    vm.errors.supplier_bank = true;
+                    valid = false;
+                    errorMsg = "กรุณาเลือกเลขที่บัญชีธนาคาร";
+                    $(form).find("div[id='el_explode_supplier_bank']").html(errorMsg);
+                }
+                if (vm.reqLine.budget_plan == '') {
+                    vm.errors.budget_plan = true;
+                    valid = false;
+                    errorMsg = "กรุณาเลือกแผนงาน";
+                    $(form).find("div[id='el_explode_budget_plan']").html(errorMsg);
+                }
+                if (vm.reqLine.budget_type == '') {
+                    vm.errors.budget_type = true;
+                    valid = false;
+                    errorMsg = "กรุณาเลือกประเภทรายจ่าย";
+                    $(form).find("div[id='el_explode_budget_type']").html(errorMsg);
+                }
+                if (vm.reqLine.expense_type == '') {
+                    vm.errors.expense_type = true;
+                    valid = false;
+                    errorMsg = "กรุณาเลือกประเภทค่าใช้จ่าย";
+                    $(form).find("div[id='el_explode_expense_type']").html(errorMsg);
+                }
+                if (vm.reqLine.amount == '') {
+                    vm.errors.amount = true;
+                    valid = false;
+                    errorMsg = "กรุณากรอกจำนวนเงิน";
+                    $(form).find("div[id='el_explode_amount']").html(errorMsg);
+                }
+                if (vm.reqLine.remaining_receipt_flag && vm.reqLine.remaining_receipt == '') {
+                    vm.errors.remaining_receipt = true;
+                    valid = false;
+                    errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ ระดับรายละเอียดเพิ่มเติม";
+                    ElNotification({
+                        title: 'ข้อผิดผลาด',
+                        message: errorMsg,
+                        type: 'error',
+                    });
+                }
+                if (!valid) {
+                    return;
+                }
+                // INSERT RECEIPT TEMP WHEN IN_ARRAY
+                if (vm.reqLine.remaining_receipt_flag) {
+                    axios.post('/expense/requisition/use-ar-receipt', {
+                        header: this.requisition,
+                        line: this.reqLine,
+                        seq: this.linelists.length
+                    })
+                    .then(function (res) {
+                        vm.loading = false;
+                        if (res.data.message) {
+                            Swal.fire({
+                                title: "มีข้อผิดพลาด",
+                                text: res.data.message,
+                                icon: "error",
+                                showCancelButton: false,
+                                confirmButtonColor: "#3085d6",
+                                confirmButtonText: "ตกลง",
+                                allowOutsideClick: false
+                            });
+                        } else {
+                            console.log(JSON.stringify(this.reqLine));
+                            console.log(JSON.parse(JSON.stringify(this.reqLine)));
+                            this.linelists.push(JSON.parse(JSON.stringify(this.reqLine)));
+                            let defaultLine = {
+                                budget_plan: '',
+                                budget_type: '',
+                                supplier: this.requisition.multiple_supplier == 'ONE' ? this.requisition.supplier : 'sss',
+                                supplier_name: this.requisition.multiple_supplier == 'ONE' ? this.requisition.supplier_name : 'sss',
+                                supplier_bank: this.requisition.multiple_supplier == 'ONE' ? this.reqLine.supplier_bank : 'sss123',
+                                expense_type: '',
+                                expense_description: '',
+                                amount: '',
+                                description: '',
+                                vehicle_no: '',
+                                policy_no: '',
+                                vehicle_oil_type: '',
+                                utility_type: '',
+                                utility_detail: '',
+                                unit_quantity: '',
+                                invoice_no: '',
+                                invoice_date: '',
+                                receipt_no: '',
+                                receipt_date: '',
+                                remaining_receipt_flag: this.budgetSource.indexOf(this.requisition.budget_source) !== -1,
+                                remaining_receipt: '',
+                            };
+                            Object.assign(this.reqLine, defaultLine);
+                        }
+                    }.bind(vm))
+                    .catch(err => {
+                        let msg = err.response;
+                        Swal.fire({
+                            title: "มีข้อผิดพลาด",
+                            text: msg.message,
+                            icon: "error",
+                            showCancelButton: false,
+                            confirmButtonColor: "#3085d6",
+                            confirmButtonText: "ตกลง",
+                            allowOutsideClick: false
+                        });
+                    });
+                }else{
+                    console.log(JSON.stringify(this.reqLine));
+                    console.log(JSON.parse(JSON.stringify(this.reqLine)));
+                    this.linelists.push(JSON.parse(JSON.stringify(this.reqLine)));
+                    let defaultLine = {
+                        budget_plan: '',
+                        budget_type: '',
+                        supplier: this.requisition.multiple_supplier == 'ONE' ? this.requisition.supplier : 'sss',
+                        supplier_name: this.requisition.multiple_supplier == 'ONE' ? this.requisition.supplier_name : 'sss',
+                        supplier_bank: this.requisition.multiple_supplier == 'ONE' ? this.reqLine.supplier_bank : 'sss123',
+                        expense_type: '',
+                        expense_description: '',
+                        amount: '',
+                        description: '',
+                        vehicle_no: '',
+                        policy_no: '',
+                        vehicle_oil_type: '',
+                        utility_type: '',
+                        utility_detail: '',
+                        unit_quantity: '',
+                        invoice_no: '',
+                        invoice_date: '',
+                        receipt_no: '',
+                        receipt_date: '',
+                        remaining_receipt_flag: this.budgetSource.indexOf(this.requisition.budget_source) !== -1,
+                        remaining_receipt: '',
+                    };
+                    Object.assign(this.reqLine, defaultLine);
+                }
+            },
+            updateRow(response){
+                var vm = this;
+                let index = response.index;
+                let line = response.line;
+                console.log(response);
+                if (vm.linelists[index].remaining_receipt_flag) {
+                    axios.post('/expense/requisition/update-ar-receipt', {
+                        header: vm.requisition,
+                        line: line,
+                        seq: index,
+                    })
+                    .then(function (res) {
+                        vm.loading = false;
+                        if (res.data.message) {
+                            Swal.fire({
+                                title: "มีข้อผิดพลาด",
+                                text: res.data.message,
+                                icon: "error",
+                                showCancelButton: false,
+                                confirmButtonColor: "#3085d6",
+                                confirmButtonText: "ตกลง",
+                                allowOutsideClick: false
+                            });
+                        } else {
+                            console.log(line);
+                            vm.linelists[index] = line;
+                        }
+                    }.bind(vm))
+                    .catch(err => {
+                        let msg = err.response;
+                        Swal.fire({
+                            title: "มีข้อผิดพลาด",
+                            text: msg.message,
+                            icon: "error",
+                            showCancelButton: false,
+                            confirmButtonColor: "#3085d6",
+                            confirmButtonText: "ตกลง",
+                            allowOutsideClick: false
+                        });
+                    })
+                    .then(() => {
+                        vm.loading = false;
+                    });
+                }else{
+                    console.log(line)
+                    vm.linelists[index] = line;
+                }
+            },
+            copyRow(index) {
+                var vm = this;
+                let copyLine = JSON.parse(JSON.stringify(vm.linelists[index]));
+                if (copyLine.remaining_receipt_flag) {
+                    axios.post('/expense/requisition/use-ar-receipt', {
+                        header: vm.requisition,
+                        line: copyLine,
+                        seq: vm.linelists.length
+                    })
+                    .then(function (res) {
+                        vm.loading = false;
+                        if (res.data.message) {
+                            Swal.fire({
+                                title: "มีข้อผิดพลาด",
+                                text: res.data.message,
+                                icon: "error",
+                                showCancelButton: false,
+                                confirmButtonColor: "#3085d6",
+                                confirmButtonText: "ตกลง",
+                                allowOutsideClick: false
+                            });
+                        } else {
+                            vm.linelists.push(JSON.parse(JSON.stringify(copyLine)));
+                        }
+                    }.bind(vm))
+                    .catch(err => {
+                        let msg = err.response;
+                        Swal.fire({
+                            title: "มีข้อผิดพลาด",
+                            text: msg.message,
+                            icon: "error",
+                            showCancelButton: false,
+                            confirmButtonColor: "#3085d6",
+                            confirmButtonText: "ตกลง",
+                            allowOutsideClick: false // ป้องกันการปิด alert เมื่อคลิกนอกกรอบ
+                        });
+                    });
+                }else{
+                    vm.linelists.push(JSON.parse(JSON.stringify(copyLine)));
+                }
+            },
+            removeRow(index) {
+                var vm = this;
+                if (vm.linelists[index].remaining_receipt_flag) {
+                    axios.post('/expense/requisition/remove-ar-receipt', {
+                        header: vm.requisition,
+                        line: vm.linelists[index],
+                        seq: index,
+                    })
+                    .then(function (res) {
+                        vm.loading = false;
+                        if (res.data.message) {
+                            Swal.fire({
+                                title: "มีข้อผิดพลาด",
+                                text: res.data.message,
+                                icon: "error",
+                                showCancelButton: false,
+                                confirmButtonColor: "#3085d6",
+                                confirmButtonText: "ตกลง",
+                                allowOutsideClick: false
+                            });
+                        } else {
+                            vm.linelists.splice(index, 1);
+                        }
+                    }.bind(vm))
+                    .catch(err => {
+                        let msg = err.response;
+                        Swal.fire({
+                            title: "มีข้อผิดพลาด",
+                            text: msg.message,
+                            icon: "error",
+                            showCancelButton: false,
+                            confirmButtonColor: "#3085d6",
+                            confirmButtonText: "ตกลง",
+                            allowOutsideClick: false
+                        });
+                    })
+                    .then(() => {
+                        vm.loading = false;
+                    });
+                }else{
+                    vm.linelists.splice(index, 1);
+                }
+            },
+            resetValues(){
+                var vm = this;
+                var form = $('#create-form');
+                vm.errors.invoice_type = false;
+                vm.errors.document_category = false;
+                vm.errors.req_date = false;
+                vm.errors.payment_type = false;
+                vm.errors.supplier = false;
+                vm.errors.supplier_detail = false;
+                vm.errors.supplier_bank = false;
+                vm.errors.budget_plan = false;
+                vm.errors.budget_type = false;
+                vm.errors.expense_type = false;
+                vm.errors.amount = false;
+                $(form).find("div[id='el_explode_invoice_type']").html("");
+                $(form).find("div[id='el_explode_document_category']").html("");
+                $(form).find("div[id='el_explode_req_date']").html("");
+                $(form).find("div[id='el_explode_payment_type']").html("");
+                $(form).find("div[id='el_explode_supplier']").html("");
+                $(form).find("div[id='el_explode_supplier_detail']").html("");
+                $(form).find("div[id='el_explode_supplier_bank']").html("");
+                $(form).find("div[id='el_explode_budget_plan']").html("");
+                $(form).find("div[id='el_explode_budget_type']").html("");
+                $(form).find("div[id='el_explode_expense_type']").html("");
+                $(form).find("div[id='el_explode_amount']").html("");
+            },
+            async store(){
+                var vm = this;
+                var form = $('#create-form');
+                let errorMsg = '';
+                this.resetValues();
+                let valid = true;
+                if (vm.requisition.budget_source == '') {
+                    vm.errors.budget_source = true;
+                    valid = false;
+                    errorMsg = "กรุณาเลือกแหล่งเงิน";
+                    $(form).find("div[id='el_explode_budget_source']").html(errorMsg);
+                }
+                if (vm.requisition.invoice_type == '') {
+                    vm.errors.invoice_type = true;
+                    valid = false;
+                    errorMsg = "กรุณาเลือกประเภท";
+                    $(form).find("div[id='el_explode_invoice_type']").html(errorMsg);
+                }
+                if (vm.requisition.document_category == '') {
+                    vm.errors.document_category = true;
+                    valid = false;
+                    errorMsg = "กรุณาเลือกสำนักงานผู้เบิกจ่าย";
+                    $(form).find("div[id='el_explode_document_category']").html(errorMsg);
+                }
+                if (vm.requisition.req_date == '') {
+                    vm.errors.req_date = true;
+                    valid = false;
+                    errorMsg = "กรุณาเลือกวันที่เอกสาร";
+                    $(form).find("div[id='el_explode_req_date']").html(errorMsg);
+                }
+                if (vm.requisition.payment_type == '') {
+                    vm.errors.payment_type = true;
+                    valid = false;
+                    errorMsg = "กรุณาเลือกประเภทการขอเบิก";
+                    $(form).find("div[id='el_explode_payment_type']").html(errorMsg);
+                }
+                if (vm.requisition.supplier == '') {
+                    vm.errors.supplier = true;
+                    valid = false;
+                    errorMsg = "กรุณาเลือกผู้สั่งจ่าย";
+                    $(form).find("div[id='el_explode_supplier']").html(errorMsg);
+                }
+                if (vm.linelists.length == 0) {
+                    valid = false;
+                    this.$notify({
+                        title: 'แจ้งเตือน',
+                        message: 'ไม่พบข้อมูลรายการ กรุณาตรวจสอบ',
+                        type: 'warning'
+                    });
+                }
+                if (!valid) {
+                    return;
+                }
+                Swal.fire({
+                    title: "ยืนยันส่งเบิกเอกสาร",
+                    html: "ต้องการ <b>ยืนยัน</b> ส่งเบิกเอกสารใช่หรือไม่?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "ใช่",
+                    cancelButtonText: "ไม่",
+                    allowOutsideClick: false // ป้องกันการปิด alert เมื่อคลิกนอกกรอบ
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.importData();
+                    }
+                });
+            },
+            async importData(){
+                var vm = this;
+                vm.loading = true;
+                // POST METHOD
+                axios.post('/expense/requisition/', {
+                    header: this.requisition,
+                    lines: this.linelists,
+                    totalApply: this.totalApply,
+                })
+                .then(function (res) {
+                    vm.loading = false;
+                    if (res.data.message) {
+                        Swal.fire({
+                            title: "มีข้อผิดพลาด",
+                            text: res.data.message,
+                            icon: "error",
+                            showCancelButton: false,
+                            confirmButtonColor: "#3085d6",
+                            confirmButtonText: "ตกลง",
+                            allowOutsideClick: false // ป้องกันการปิด alert เมื่อคลิกนอกกรอบ
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "ยืนยันส่งเบิกเอกสาร",
+                            html: "ส่งเบิกเอกสารเรียบร้อยแล้ว",
+                            icon: "success",
+                            showCancelButton: false,
+                            confirmButtonColor: "#3085d6",
+                            confirmButtonText: "ตกลง",
+                            allowOutsideClick: false // ป้องกันการปิด alert เมื่อคลิกนอกกรอบ
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                setTimeout(function() {
+                                    location.href = res.data.redirect_show_page;
+                                }, 500);
+                            }
+                        });
+                    }
+                }.bind(vm))
+                .catch(err => {
+                    let msg = err.response;
+                    Swal.fire({
+                        title: "มีข้อผิดพลาด",
+                        text: msg.message,
+                        icon: "error",
+                        showCancelButton: false,
+                        confirmButtonColor: "#3085d6",
+                        confirmButtonText: "ตกลง",
+                        allowOutsideClick: false // ป้องกันการปิด alert เมื่อคลิกนอกกรอบ
+                    });
+                })
+                .then(() => {
+                    vm.loading = false;
+                });
+            },
+            isARReceipt(budgetSource) {
+                this.reqLine.remaining_receipt_flag = this.budgetSource.indexOf(budgetSource) !== -1;
+            },
+        },
+    }
+</script>
+
+<style type="text/css" scope>
+    .el-select__wrapper {
+        font-size: 12px;
+    }
+    .el-input__wrapper {
+        font-size: 12px;
+        /*padding: 0px;*/
+    }
+    /*.el-input {
+      border: 1px solid red !important;
+      border-radius: 5px;
+    }*/
+   /* .el-message {
+        min-width: 1000px;
+        z-index: 9999 !important;
+    }
+    .el-message--error {
+        background-color: #E22427;
+        border-color: #E22427;
+    }
+    .el-message--error .el-message__content {
+        color: #ffffff;
+        font-size: 20px;
+        font-weight: bold;
+    }
+    .el-message .el-icon-error {
+        color: #ffffff;
+        font-size: 25px;
+    }
+    .el-message__closeBtn {
+        color: #ffffff;
+        font-weight: bold;
+    }*/
+</style>

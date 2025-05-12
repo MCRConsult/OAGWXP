@@ -1,0 +1,52 @@
+
+// Body
+// $body-bg: #f8fafc;
+$body-bg: #ececec;
+
+// // Typography
+// $font-family-sans-serif: "Nunito", sans-serif;
+// $font-size-base: 0.9rem;
+// $line-height-base: 1.6;
+// Colors
+$blue: #3490dc;
+$indigo: #6574cd;
+$purple: #9561e2;
+$pink: #f66D9b;
+$red: #e3342f;
+$orange: #f6993f;
+$yellow: #ffed4a;
+$green: #38c172;
+$teal: #4dc0b5;
+$cyan: #6cb2eb;
+
+$primary: #8b0000;
+
+// top nav header
+$navbar-bg: #8b0000;
+$navbar-border: (
+  bottom: (
+    size:                             px,
+    style:                            solid,
+    color:                            #8b0000
+  )
+)  !default;
+$navbar-color: #c7aeae;
+$navbar-hover-color: #fff;
+$dropdown-link-active-bg: #8b0000;
+
+
+
+// sidebar
+// $sidebar-nav-title-color: #600;
+$sidebar-bg: #8b0000;
+$sidebar-nav-link-color: #c7aeae; 
+$sidebar-nav-link-hover-bg: #660000;
+$sidebar-nav-dropdown-indicator-color: #c7aeae;
+$sidebar-nav-link-active-bg: #521414;
+
+// Form
+$input-colorr: #333;
+$input-placeholder-color: #aaa;
+$input-focus-border-color: $teal;
+$input-btn-focus-width: 0;
+$input-border-color: #c2c9d0;

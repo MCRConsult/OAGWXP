@@ -1,0 +1,98 @@
+@tailwind preflight;
+@tailwind components;
+
+.page-title {
+    @apply tw-mb-4 tw-text-grey-darker;
+}
+
+@import '@coreui/icons/css/coreui-icons.min.css';
+@import 'flag-icon-css/css/flag-icon.min.css';
+@import 'font-awesome/css/font-awesome.min.css';
+@import 'simple-line-icons/css/simple-line-icons.css';
+
+@tailwind utilities;
+
+//@import 'variables';
+
+//@import '@coreui/coreui/scss/coreui';
+//@import 'pretty-checkbox/src/pretty-checkbox.scss';
+
+// Fonts
+// @import url('https://fonts.googleapis.com/css?family=Nunito');
+
+// Bootstrap
+// @import '~bootstrap/scss/bootstrap';
+
+[v-cloak] {display: none}
+
+label.required::after {
+    content: ' *';
+    color: red;
+}
+
+input[required], select[required], textarea[required] {
+    background: #fff6db;
+}
+
+.sidebar .nav-title {
+    color: #ccb0b08a;
+    // background: #751818;
+}
+
+.input-group >  .input-group-append > select.form-control {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.btn-outline-primary {
+    background: #fff;
+}
+
+.ck.ck-content.ck-editor__editable
+{
+    height: 250px;
+}
+.padding-table
+{
+    padding: 50em;
+}
+
+.card {
+    .card-header {
+        // background-color: transparent;
+        border-bottom: none;
+        padding: 16px 20px;
+    }
+
+.text-red{
+    color : red;
+    }
+}
+
+.nav-link.active-c {
+    font-weight: bold;
+    //border-left: 3px solid $primary;
+    border-radius: 0;
+    padding-left: 0.5rem;
+}
+
+.el-date-editor .el-input__inner {
+    height: 36px;
+}
+
+.el-date-editor .el-input__inner {
+    height: 36px;
+}
+.el-date-editor[required] .el-input__inner {
+    background: #fff6db;
+}
+
+.fix-last-column {
+    right: 0px;
+    background: #ffffff;
+    // position: absolute;
+    position: sticky;
+    display: inline-block;
+    width: 200px;
+    border-top: 0px solid ;
+}

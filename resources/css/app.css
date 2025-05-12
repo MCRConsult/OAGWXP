@@ -1,0 +1,62 @@
+
+@import "/node_modules/@coreui/icons/css/coreui-icons.min.css";
+@import "/node_modules/flag-icon-css/css/flag-icon.min.css";
+@import "/node_modules/font-awesome/css/font-awesome.min.css";
+@import "/node_modules/simple-line-icons/css/simple-line-icons.css";
+
+/* 
+@import "../assets/css/bootstrap/bootstrap.min.css";
+@import "../assets/css/icon/themify-icons/themify-icons.css";
+@import "../assets/css/icon/icofont/css/icofont.css";
+@import "../assets/css/pages/flag-icon/flag-icon.min.css";
+@import "../assets/css/pages/menu-search/css/component.css";
+@import "../assets/css/css/style.css";
+@import "../assets/css/css/simple-line-icons.css";
+@import "../assets/css/css/ionicons.css";
+@import "../assets/css/css/jquery.mCustomScrollbar.css";
+
+
+.pcoded .pcoded-header .navbar-logo[logo-theme="theme1"] {
+    background-color: #fff;
+    overflow: hidden;
+}
+[class^="ti-"], [class*=" ti-"] {
+    line-height: 1.5;
+}
+.pcoded .pcoded-header[header-theme=theme1] .navbar-logo a {
+    color: #000 !important;
+}
+.common-img-bg{ 
+    background-image: url('/public/images/pe-about.jpg') !important;
+    background-repeat: no-repeat !important; 
+    background-size: cover !important;
+}
+.pcoded .pcoded-item.pcoded-left-item > li > a > .pcoded-micon {
+    background-color: #6666668a !important;
+}
+.gap-1 {
+    gap:1rem;
+}
+.gap-3 {
+    gap:3rem;
+}
+
+.filter-box  .el-button, .filter-box .el-button.is-round{
+    padding: 0px 8px;
+    line-height: 1px;
+    height: 24px;
+    border: 0px;
+    border-radius:0px;
+}
+.filter-box  .el-button.active{
+    border-bottom: 1px solid var(--el-button-hover-link-text-color);
+}
+.filter-box  .el-button:focus {
+    outline: none;
+}
+/* .filter-box  .el-button:active, .filter-box  .el-button:hover {
+    background-color: transparent;
+} */
+.table td, .table th {
+    font-size: 0.8rem;
+} */

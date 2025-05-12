@@ -1,0 +1,307 @@
+<?php
+
+namespace Packages\expense\app\Http\Controllers\Api;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+
+use PDF;
+use Auth;
+use Carbon\Carbon;
+
+use Packages\expense\app\Models\RequisitionHeader;
+use Packages\expense\app\Models\DocumentCategory;
+use Packages\expense\app\Models\Supplier;
+use Packages\expense\app\Models\SupplierBank;
+use Packages\expense\app\Models\PaymentMethod;
+use Packages\expense\app\Models\Currency;
+use Packages\expense\app\Models\FlexValueV;
+use Packages\expense\app\Models\LookupV;
+use Packages\expense\app\Models\MTLCategoriesV;
+use Packages\expense\app\Models\ARBudgetReceiptV;
+
+class LovController extends Controller
+{
+    // LOV
+    public function getDocumentType(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $docCategory = DocumentCategory::selectRaw('distinct category_code')
+                        ->whereNotNull('attribute1')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(category_code) like ?', ['%'.strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->orderBy('category_code')
+                        ->limit(50)
+                        ->get();
+
+        return response()->json(['data' => $docCategory]);
+    }
+
+    public function getSupplier(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $suppliers = Supplier::selectRaw('distinct vendor_id, vendor_name')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(vendor_name) like ?', ['%'.strtoupper($keyword).'%'])
+                                    ->orWhereRaw('vendor_id like ?', [$keyword.'%']);
+                            });
+                        })
+                        ->orderBy('vendor_name')
+                        ->limit(50)
+                        ->get();
+
+        return response()->json(['data' => $suppliers]);
+    }
+
+    public function getSupplierBank(Request $request)
+    {
+        $supplier = $request->parent;
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        if (!$supplier) {
+            $supplierBanks = [];
+        }else{
+            $supplierBanks = SupplierBank::selectRaw('distinct org_id, bank_name, bank_account_num, order_of_preference')
+                            ->when($keyword, function ($query, $keyword) {
+                                return $query->where(function($r) use ($keyword) {
+                                        $r->whereRaw('UPPER(bank_account_num) like ?', ['%'.$keyword.'%'])
+                                        ->orWhereRaw('UPPER(bank_name) like ?', ['%'.$keyword.'%']);
+                                });
+                            })
+                            ->when($supplier, function ($query, $supplier) {
+                                return $query->where('vendor_id', $supplier)
+                                            ->where('org_id', '221');
+                            })
+                            ->orderBy('order_of_preference')
+                            ->limit(50)
+                            ->get();
+        }
+
+        return response()->json(['data' => $supplierBanks]);
+    }
+
+    public function getPaymentType(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $paymentTypes = LookupV::selectRaw('distinct lookup_code, meaning, description')
+                        ->where('lookup_type', 'OAG_AP_PAYMENT_TYPE')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%'])
+                                    ->orWhereRaw('UPPER(lookup_code) like ?', [strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->orderBy('description')
+                        ->limit(50)
+                        ->get();
+
+        return response()->json(['data' => $paymentTypes]);
+    }
+
+    public function getPaymentMethod(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $paymentMethods = PaymentMethod::selectRaw('distinct description, payment_method_code')
+                        ->whereNull('inactive_date')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%'])
+                                ->orWhereRaw('UPPER(payment_method_code) like ?', [strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->orderBy('payment_method_code')
+                        ->limit(50)
+                        ->get();
+
+        return response()->json(['data' => $paymentMethods]);
+    }
+
+    public function getCurrency(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $currency = Currency::selectRaw('distinct currency_code')
+                        ->enabled()
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(currency_code) like ?', ['%'.strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->orderBy('currency_code')
+                        ->limit(50)
+                        ->get();
+
+        return response()->json(['data' => $currency]);
+    }
+
+    public function getYesNoType(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $yesnoTypes = FlexValueV::selectRaw('distinct flex_value, description')
+                        ->where('flex_value_set_name', 'OAG_AP_TH_YES_NO')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->orderBy('description')
+                        ->get();
+
+        return response()->json(['data' => $yesnoTypes]);
+    }
+
+    public function getVehicleOilType(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $oilTypes = FlexValueV::selectRaw('distinct flex_value, description')
+                        ->where('flex_value_set_name', 'OAG_VEH_OIL_TYPE')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->orderBy('description')
+                        ->get();
+
+        return response()->json(['data' => $oilTypes]);
+    }
+
+    public function getUtilityType(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $utilityTypes = FlexValueV::selectRaw('distinct flex_value, description')
+                        ->where('flex_value_set_name', 'OAG_AP_PUBLIC_UTILITIES')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->orderBy('description')
+                        ->get();
+
+        return response()->json(['data' => $utilityTypes]);
+    }
+
+    public function getUtilityDetail(Request $request)
+    {
+        $parent = $request->parent;
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $utilityDetails = FlexValueV::selectRaw('distinct flex_value, description, parent_flex_value_low')
+                        ->where('flex_value_set_name', 'OAG_AP_BUILDING/CODE/DAD')
+                        ->where('parent_flex_value_low', $parent)
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->orderBy('description')
+                        ->get();
+
+        return response()->json(['data' => $utilityDetails]);
+    }
+
+    public function getBudgetSource(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $budgetSource = FlexValueV::selectRaw('distinct flex_value, description')
+                        ->where('flex_value_set_name', 'OAG_GL_BUDGET_SOURCE')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%'])
+                                    ->orWhereRaw('UPPER(flex_value) like ?', ['%'.strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->orderBy('flex_value')
+                        ->get();
+
+        return response()->json(['data' => $budgetSource]);
+    }
+
+    public function getBudgetPlan(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $budgetSource = MTLCategoriesV::selectRaw('distinct category_concat_segs, description')
+                            ->where('structure_name', 'OAG Item Category Set')
+                            ->where('attribute1', 'Yes')
+                            ->when($keyword, function ($query, $keyword) {
+                                return $query->where(function($r) use ($keyword) {
+                                    $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%'])
+                                        ->orWhereRaw('UPPER(category_concat_segs) like ?', ['%'.strtoupper($keyword).'%']);
+                                });
+                            })
+                            ->orderBy('category_concat_segs')
+                            ->get();
+
+        return response()->json(['data' => $budgetSource]);
+    }
+
+    public function getBudgetType(Request $request)
+    {
+        $budgetPlan = $request->parent;
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        if (!$budgetPlan) {
+            $budgetType = [];
+        }else{
+                $budgetType = MTLCategoriesV::selectRaw('distinct category_concat_segs, description')
+                            ->where('structure_name', 'OAG Item Category Set')
+                            ->where('attribute2', 'Yes')
+                            ->when($keyword, function ($query, $keyword) {
+                                return $query->where(function($r) use ($keyword) {
+                                    $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%'])
+                                        ->orWhereRaw('UPPER(category_concat_segs) like ?', ['%'.strtoupper($keyword).'%']);
+                                });
+                            })
+                            ->when($budgetPlan, function ($query, $budgetPlan) {
+                                return $query->where('attribute3', $budgetPlan);
+                            })
+                            ->orderBy('category_concat_segs')
+                            ->get();
+        }
+
+        return response()->json(['data' => $budgetType]);
+    }
+
+    public function getExpenseType(Request $request)
+    {
+        $budgetType = $request->parent;
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        if (!$budgetType) {
+            $expeseType = [];
+        }else{
+            $expeseType = MTLCategoriesV::selectRaw('distinct category_concat_segs, description')
+                            ->where('structure_name', 'OAG Item Category Set')
+                            ->where('segment1', 'EXP')
+                            ->when($keyword, function ($query, $keyword) {
+                                return $query->where(function($r) use ($keyword) {
+                                    $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%'])
+                                        ->orWhereRaw('UPPER(category_concat_segs) like ?', ['%'.strtoupper($keyword).'%']);
+                                });
+                            })
+                            ->when($budgetType, function ($query, $budgetType) {
+                                return $query->where('attribute4', $budgetType);
+                            })
+                            ->orderBy('category_concat_segs')
+                            ->get();
+        }
+
+        return response()->json(['data' => $expeseType]);
+    }
+
+    public function getRemainingReceipt(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $budgetSource = ARBudgetReceiptV::where('remaining_amount', '>', 0)
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(receipt_number) like ?', ['%'.strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->orderBy('receipt_number')
+                        ->get();
+
+        return response()->json(['data' => $budgetSource]);
+    }
+}
