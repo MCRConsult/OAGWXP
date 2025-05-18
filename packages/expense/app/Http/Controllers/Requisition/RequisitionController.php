@@ -165,7 +165,7 @@ class RequisitionController extends Controller
             $segments[8] = $budgetSource;
         }elseif(in_array($budgetSource, [520, 530, 550])){
             $segments[5] = '00000';
-            $segments[6] = $accountRules[6];
+            $segments[6] = isset($accountRules[6])? $accountRules[6]: '00000';
             $segments[7] = '00000';
             $segments[8] = $budgetType;
         }elseif($budgetSource == 540){

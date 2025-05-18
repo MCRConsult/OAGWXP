@@ -11,7 +11,7 @@ import th from "element-plus/es/locale/lang/th";
 // import ExpensePackage from '../../packages/expense/resources/js/app.js'
 
 import $ from 'jquery';
-import 'popper.js';
+// import 'popper.js';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import 'pace-progress/pace.min.js';
 import 'perfect-scrollbar';
