@@ -1,0 +1,52 @@
+{
+  "resources/fonts/CoreUI-Icons-Linear-Free.ttf": {
+    "file": "assets/CoreUI-Icons-Linear-Free-DoY_2vS7.ttf",
+    "src": "resources/fonts/CoreUI-Icons-Linear-Free.ttf"
+  },
+  "resources/fonts/CoreUI-Icons-Linear-Free.woff": {
+    "file": "assets/CoreUI-Icons-Linear-Free-Cz-_famC.woff",
+    "src": "resources/fonts/CoreUI-Icons-Linear-Free.woff"
+  },
+  "resources/fonts/Sarabun-Bold.ttf": {
+    "file": "assets/Sarabun-Bold-DhEnVaQL.ttf",
+    "src": "resources/fonts/Sarabun-Bold.ttf"
+  },
+  "resources/fonts/Sarabun-BoldItalic.ttf": {
+    "file": "assets/Sarabun-BoldItalic-BANPBwfZ.ttf",
+    "src": "resources/fonts/Sarabun-BoldItalic.ttf"
+  },
+  "resources/fonts/Sarabun-Italic.ttf": {
+    "file": "assets/Sarabun-Italic-DpSbf8Kj.ttf",
+    "src": "resources/fonts/Sarabun-Italic.ttf"
+  },
+  "resources/fonts/Sarabun-Regular.ttf": {
+    "file": "assets/Sarabun-Regular-CAictqTk.ttf",
+    "src": "resources/fonts/Sarabun-Regular.ttf"
+  },
+  "resources/fonts/fontawesome-webfont.ttf": {
+    "file": "assets/fontawesome-webfont-CQDK8MU3.ttf",
+    "src": "resources/fonts/fontawesome-webfont.ttf"
+  },
+  "resources/fonts/fontawesome-webfont.woff": {
+    "file": "assets/fontawesome-webfont-CDK5bt4p.woff",
+    "src": "resources/fonts/fontawesome-webfont.woff"
+  },
+  "resources/fonts/fontawesome-webfont.woff2": {
+    "file": "assets/fontawesome-webfont-F4ciScQw.woff2",
+    "src": "resources/fonts/fontawesome-webfont.woff2"
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-DP2trOKj.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "css": [
+      "assets/app-DAKGLMKI.css"
+    ]
+  },
+  "resources/sass/app.css": {
+    "file": "assets/app-DEWFOiul.css",
+    "src": "resources/sass/app.css",
+    "isEntry": true
+  }
+}
