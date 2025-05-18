@@ -35,6 +35,11 @@ class RequisitionHeader extends Model
         return $this->hasOne(Supplier::class, 'vendor_id', 'supplier_id');
     }
 
+    public function paymentType()
+    {
+        return $this->hasOne(LookupV::class, 'lookup_code', 'payment_type')->where('lookup_type', 'OAG_AP_PAYMENT_TYPE')->select('description');
+    }
+
     public function getInvRef($invType)
     {
         if($invType == 'PREPAYMENT') {

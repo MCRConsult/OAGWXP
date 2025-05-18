@@ -26,7 +26,7 @@
                             <label class="control-label">
                                 <strong> ประเภท </strong>
                             </label><br>
-                            {{ $requisition->invoice_type }}
+                            {{ $requisition->invoiceType->description }}
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -50,7 +50,7 @@
                             <label class="control-label">
                                 <strong> ประเภทการขอเบิก </strong>
                             </label><br>
-                            {{ $requisition->payment_type }}
+                            {{ $requisition->paymentType->description }}
                         </div>
                     </div>
                 </div>
@@ -147,7 +147,7 @@
                         @foreach ($requisition->lines as $line)
                             <tr>
                                 <td class="text-center" style="vertical-align: middle;"> {{ $line->seq_number }} </td>
-                                <td class="text-center" style="vertical-align: middle;"> {{ $line->expense_type }} </td>
+                                <td class="text-center" style="vertical-align: middle;"> {{ $line->expenseType->description }} </td>
                                 <td class="text-center" style="vertical-align: middle;"> {{ number_format($line->amount, 2) }} </td>
                                 <td class="text-center" style="vertical-align: middle;"> {{ $line->supplier_name }} </td>
                                 <td class="text-center" style="vertical-align: middle;"> {{ $line->bank_account_number }} </td>
