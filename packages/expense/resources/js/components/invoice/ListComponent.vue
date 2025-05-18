@@ -1,11 +1,11 @@
 <template>
     <tr v-loading="loading">
         <td class="text-center"> {{ index + 1 }} </td>
-        <td class="text-center">
-            {{ line.expense_type }}
+        <td class="text-left">
+            {{ line.expense.description }}
         </td>
-        <td class="text-center">
-            {{ line.account_segment }}
+        <td class="text-left small wrap-text">
+            {{ line.expense_account }}
         </td>
         <td class="text-center">
             {{ numberFormat(line.amount) }}
@@ -18,9 +18,12 @@
         </td>
         <td style="padding-top: 5px">
             <div class="row text-center" style="border-collapse: collapse; width: 250px; display:inline-block; flex-direction: row;">
-                <button type="button" class="btn btn-sm btn-warning m-1" data-toggle="collapse" @click.prevent="openModal()">
-                    แก้ไข
-                </button>
+                <modalEditComp
+                    :index="index"
+                    :invoiceLine="line"
+                    :defaultSetName="defaultSetName"
+                />
+                    <!-- @updateRow="updateRow" -->
                 <button type="button" @click.prevent="copy(index)" class="btn btn-sm btn-primary m-1" style="">
                     คัดลอก
                 </button>
@@ -28,27 +31,24 @@
                     ลบรายการ
                 </button>
             </div>
-            <editComp
-                :requisition="requisition"
-                :reqLine="line"
-            />
         </td>
     </tr>
 </template>
 <script>
     import numeral from "numeral";
     import Swal from 'sweetalert2';
-    import editComp from "./EditComponent.vue";
+    import modalEditComp from "./_ModalEditComponent.vue";
 
     export default {
         components: {
-            editComp
+            modalEditComp
         },
-        props: ['index', 'attribute', 'requisition'],
+        props: ['index', 'attribute', 'defaultSetName'],
+        emits: ['updateRow', 'copyRow', 'removeRow'],
         data() {
             return {
-                line: this.attribute,
                 loading: false,
+                line: this.attribute,
             };
         },
         mounted() {
@@ -76,19 +76,58 @@
                     cancelButtonColor: "#d33",
                     confirmButtonText: "ใช่",
                     cancelButtonText: "ไม่",
-                    allowOutsideClick: false // ป้องกันการปิด alert เมื่อคลิกนอกกรอบ
+                    allowOutsideClick: false
                 }).then((result) => {
                     if (result.isConfirmed) {
                         this.$emit("removeRow", this.index);
                     }
                 });
             },
-            openModal(){
-                $('#modal-edit').modal('show');
-            },
-            confirm(){
-                $('#modal-edit').modal('hide');
-            },
+
+
+
+
+
+
+
+
+
+
+            
+            // openModal(index){
+            //     this.temp = { ...this.line };
+            //     $('.modal-edit'+index).modal('show');
+            // },
+            // confirm() {
+            //     if (this.temp) {
+            //         this.line = {...this.temp};
+            //         this.temp = null;
+            //         console.log(this.line);
+            //         $('.modal-edit'+this.index).modal('hide');
+            //         this.$emit("updateRow", {index: this.index, line: this.line});
+            //     }
+            // },
+            // cancel() {
+            //     this.temp = null;
+            //     $('.modal-edit'+this.index).modal('hide');
+            // },
+            // setSupplierLine(res){
+            //     this.line.supplier = res.supplier;
+            //     this.line.supplier_name = res.vendor_name;
+            // },
+            // setSupplierBank(res){
+            //     this.line.supplier_bank = res.supplier_bank;
+            // },
+            // setBudgetPlan(res){
+            //     this.line.budget_plan = res.budget_plan;
+            // },
+            // setBudgetType(res){
+            //     this.line.budget_type = res.budget_type;
+            // },
+            // setExpenseType(res){
+            //     this.line.expense_type = res.expense_type;
+            //     this.line.expense_description = res.expense_description;
+            // },
         }
     };
 </script>
@@ -96,5 +135,11 @@
 <style>
     .el-popper{
         z-index: 9999 !important;
+    }
+    .wrap-text {
+      overflow-wrap: break-word; /* Modern equivalent of word-wrap */
+      word-wrap: break-word; /* For older browsers */
+      word-break: break-word; /* Optional for certain cases */
+      white-space: normal; /* Ensures text wraps */
     }
 </style>

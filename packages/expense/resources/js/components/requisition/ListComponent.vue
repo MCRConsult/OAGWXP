@@ -15,7 +15,7 @@
         </td>
         <td style="padding-top: 5px">
             <div class="row text-center" style="border-collapse: collapse; width: 250px; display:inline-block; flex-direction: row;">
-                <editComp :key="index"
+                <modalEditComp :key="index"
                     :index="index"
                     :requisition="requisition"
                     :reqLine="line"
@@ -34,11 +34,11 @@
 <script>
     import numeral from "numeral";
     import Swal from 'sweetalert2';
-    import editComp from "./EditComponent.vue";
+    import modalEditComp from "./_ModalEditComponent.vue";
 
     export default {
         components: {
-            editComp
+            modalEditComp
         },
         props: ['index', 'requisition', 'attribute'],
         emits: ['updateRow', 'copyRow', 'removeRow'],

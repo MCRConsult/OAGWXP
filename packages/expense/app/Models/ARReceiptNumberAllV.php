@@ -4,8 +4,8 @@ namespace Packages\expense\app\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class POExpenseAccountRuleV extends Model
+class ARReceiptNumberAllV extends Model
 {
-    protected $table = 'oag_po_expense_account_rule_v';
+    protected $table = 'OAG_AR_RECEIPT_NUMBER_ALL_V';
     protected $connection = 'oracle';
 }

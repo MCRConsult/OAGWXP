@@ -21,19 +21,18 @@ return new class extends Migration
         Schema::connection('oracle_oagwxp')->create($this->tableName, function (Blueprint $table) {
             $table->increments('id');
             $table->string('name')->unique();
+            $table->integer('org_id');
+            $table->integer('location_id');
             $table->string('email')->unique()->nullable();
             $table->string('password')->unique()->nullable();
-            $table->boolean('is_active');
             $table->integer('fnd_user_id');
             $table->integer('person_id')->nullable();
+            $table->boolean('is_active');
             $table->json('responsibility')->nullable();
             $table->json('operating_unit')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
-
-        // $sql = "create synonym {$this->databaseUserMain}.{$this->tableName} for {$this->databaseUserDev}.{$this->tableName}";
-        // DB::connection('oracle')->statement($sql);
     }
 
     public function down(): void

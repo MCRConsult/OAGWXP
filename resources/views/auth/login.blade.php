@@ -48,7 +48,7 @@
                                     </div>
                                     <div class="form-group{{ $errors->has('username') ? ' has-error' : '' }}">
                                         <div class="col-md-12">
-                                            <input id="username" placeholder="Username" type="text" class="form-control" name="username" value="{{ old('username') }}" required autofocus>
+                                            <input id="username" placeholder="ชื่อผู้ใช้งาน" type="text" class="form-control" name="username" value="{{ old('username') }}" required autofocus>
                                             @if ($errors->has('username'))
                                                 <span class="help-block">
                                                     <strong>{{ $errors->first('username') }}</strong>
@@ -58,7 +58,7 @@
                                     </div>
                                     <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
                                         <div class="col-md-12">
-                                            <input id="password" placeholder="Password" type="password" class="form-control" name="password" autocomplete="off" required>
+                                            <input id="password" placeholder="รหัสผ่านผู้ใช้งาน" type="password" class="form-control" name="password" autocomplete="off" required>
                                             <i class="bi bi-eye-slash bi-xl"
                                                 id="togglePassword"
                                                 style="

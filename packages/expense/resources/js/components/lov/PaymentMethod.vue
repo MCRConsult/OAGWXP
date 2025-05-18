@@ -1,7 +1,7 @@
 <template>
     <div class="el_select">
         <el-select v-model="value"
-                name="supplier"
+                name="payment_method"
                 placeholder=""
                 :remote-method="getDataRows"
                 :loading="loading"
@@ -66,7 +66,7 @@ export default {
             .then(res => {
                 this.loading = false;
                 this.dataRows = res.data.data;
-                // this.$emit('setBranch', {branch: this.value});
+                this.$emit('setPaymentMethod', {payment_method: this.value});
             })
             .catch((error) => {
                 console.log('มีข้อผิดพลาด', error, 'error');

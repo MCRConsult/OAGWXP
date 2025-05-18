@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
 use Packages\expense\app\Models\RequisitionHeader;
+use Packages\expense\app\Models\LookupV;
 
 class RequisitionController extends Controller
 {
@@ -23,5 +24,19 @@ class RequisitionController extends Controller
                         ->get();
 
         return response()->json(['data' => $reqNumber]);
+    }
+
+    public function getDocumentCategory(Request $request)
+    {
+        $budgetSource = $request->budget_source;
+        $default = [];
+        // if (auth()->user()->org_id == 82) {
+            $default = LookupV::selectRaw('distinct lookup_code, tag')
+                            ->where('lookup_type', 'OAG_AP_SOURCE_CATEGORY')
+                            ->where('lookup_code', $budgetSource)
+                            ->first();
+        // }
+
+        return response()->json(['data' => $default]);
     }
 }

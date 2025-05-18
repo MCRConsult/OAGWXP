@@ -8,12 +8,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 use App\Models\User;
 
-class RequisitionHeader extends Model
+class InvoiceHeader extends Model
 {
-    protected $table = 'oagwxp_requisition_headers';
+    protected $table = 'oagwxp_invoice_headers';
     protected $connection = 'oracle_oagwxp';
-    protected $dates = ['req_date', 'clear_date'];
-    protected $appends = ['status_icon', 'req_date_format'];
+    protected $appends = ['status_text', 'status_icon', 'invoice_date_format', 'clear_date_format'];
 
     public function user()
     {
@@ -22,17 +21,12 @@ class RequisitionHeader extends Model
 
     public function lines()
     {
-        return $this->hasMany(RequisitionLine::class, 'req_header_id');
+        return $this->hasMany(InvoiceLine::class, 'invoice_header_id');
     }
 
     public function invoiceType()
     {
         return $this->hasOne(InvoiceType::class, 'lookup_code', 'invoice_type');
-    }
-
-    public function supplier()
-    {
-        return $this->hasOne(Supplier::class, 'vendor_id', 'supplier_id');
     }
 
     public function getInvRef($invType)
@@ -50,7 +44,7 @@ class RequisitionHeader extends Model
         do {
             $runningTranId = \Packages\expense\app\Models\TransactionSeq::getTranID(
                 $orgId,
-                'Packages\expense\app\Models\RequisitionHeader',
+                'Packages\expense\app\Models\InvoiceHeader',
                 $date,
                 $prefix
             );
@@ -69,6 +63,32 @@ class RequisitionHeader extends Model
     public function getStatusIconAttribute()
     {
         return $this->getStatusIcon($this->status);
+    }
+
+    public function getStatusTextAttribute()
+    {
+        return $this->getStatusText($this->status);
+    }
+
+    function getStatusText()
+    {
+        $status = $this->status;
+        $result = "";
+        switch ($status) {
+            case "DISBURSEMENT":
+                $result = 'รอเบิกจ่าย';
+                break;
+            case "ALLOCATE":
+                $result = 'รอจัดสรร';
+                break;
+            case "CANCELLED":
+                $result = 'ยกเลิก';
+                break;
+            default:
+                $result = 'รายการใหม่';
+                break;
+        }
+        return $result;
     }
 
     function getStatusIcon()
@@ -92,23 +112,28 @@ class RequisitionHeader extends Model
         return $result;
     }
 
-    public function getReqDateFormatAttribute()
+    public function getInvoiceDateFormatAttribute()
     {
-        return date('d-m-Y', strtotime($this->req_date));
+        return date('d-m-Y', strtotime($this->invoice_date));
+    }
+
+    public function getClearDateFormatAttribute()
+    {
+        return $this->clear_date? date('d-m-Y', strtotime($this->clear_date)): '';
     }
 
     public function scopeSearch($q, $search)
     {
-        $cols = ['req_number', 'invoice_type', 'status'];
+        $cols = ['invoice_number', 'invoice_type', 'status'];
         foreach ($search as $key => $value) {
             $value = trim($value);
             if ($value) {
                 if (in_array($key, $cols)) {
                     $q->where($key, 'like', "%$value%");
-                } else if ($key == 'req_date') {
+                } else if ($key == 'invoice_date') {
                     // $date = \DateTime::createFromFormat(trans('date.format'), $value);
                     $date = date('Y-m-d', strtotime($value));
-                    $q->whereDate('req_date', $date);
+                    $q->whereDate('invoice_date', $date);
                 }
             }
         }

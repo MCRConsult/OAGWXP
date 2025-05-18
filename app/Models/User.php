@@ -35,7 +35,7 @@ class User extends Authenticatable
     public function fndUser()
     {
         return $this->belongsTo(FNDUser::class, 'fnd_user_id', 'user_id');
-        return $this->hasOne(FNDUser::class, 'user_id', 'fnd_user_id');
+        // return $this->hasOne(FNDUser::class, 'user_id', 'fnd_user_id');
     }
 
     public function employee()
@@ -46,6 +46,11 @@ class User extends Authenticatable
     public function hrEmployee()
     {
         return $this->belongsTo(EmployeesV::class, 'person_id', 'person_id');
+    }
+
+    public function location()
+    {
+        return $this->hasOne(Location::class, 'location_id', 'location_id');
     }
 
     public function scopeActive($q)

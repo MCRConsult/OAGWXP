@@ -8,5 +8,4 @@ class PaymentMethod extends Model
 {
     protected $table = 'iby_payment_methods_vl';
     protected $connection = 'oracle';
-    // protected $connection = 'oracle_oagwxp';
 }

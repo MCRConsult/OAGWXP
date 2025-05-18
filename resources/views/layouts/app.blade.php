@@ -26,10 +26,17 @@
         @include('layouts._sidebar')
         <main class="main">
             @include('layouts._breadcrumb')
+            @if (session('db_name') != 'PROD')
+                <div class="row">
+                    <div class="col-12 p-2 p-xs b-r-sm" style="background-color: #e3302f;">
+                        <h5 class="no-margins text-center mb-0" style="color: #fff;">
+                            *** สำหรับทดสอบระบบเท่านั้น-(DB : {{ session('db_name') }}) ***
+                        </h5>
+                    </div>
+                </div>
+            @endif
             <div class="container-fluid">
                 <div class="animated fadeIn">
-                    {{-- @include('shared._errors') --}}
-                    {{-- @include('shared._success') --}}
                     @yield('content')
                 </div>
             </div>

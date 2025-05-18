@@ -56,8 +56,9 @@ class RequisitionController extends Controller
         \DB::beginTransaction();
         try {
             $headerTemp                             = new RequisitionHeader;
-            $headerTemp->org_id                     = 101;
-            $headerTemp->reference_no               = $header['reference_no'];
+            $headerTemp->org_id                     = $user->org_id;
+            $headerTemp->reference_number           = $header['reference_number'];
+            $headerTemp->source_type                = 'REQUISITION';
             $headerTemp->budget_source              = $header['budget_source'];
             $headerTemp->invoice_type               = $header['invoice_type'];
             $headerTemp->document_category          = $header['document_category'];
@@ -82,7 +83,7 @@ class RequisitionController extends Controller
                 $accountConcate = $this->concateAccount($line['expense_type'], $user, $header['budget_source'], $line['budget_plan'], $line['budget_type'], $header['document_category']);
                 $lineTemp                           = new RequisitionLine;
                 $lineTemp->req_header_id            = $headerTemp->id;
-                $lineTemp->seq_no                   = $key+1;
+                $lineTemp->seq_number               = $key+1;
                 $lineTemp->supplier_id              = $line['supplier'];
                 $lineTemp->supplier_name            = $line['supplier_name'];
                 $lineTemp->bank_account_number      = $line['supplier_bank'];
@@ -90,21 +91,21 @@ class RequisitionController extends Controller
                 $lineTemp->budget_type              = $line['budget_type'];
                 $lineTemp->expense_type             = $line['expense_type'];
                 $lineTemp->expense_description      = $line['expense_description'];
+                $lineTemp->expense_account          = $accountConcate;
                 $lineTemp->amount                   = $line['amount'];
-                $lineTemp->segment_account          = $accountConcate;
                 $lineTemp->description              = $line['description'];
-                $lineTemp->vehicle_no               = $line['vehicle_no'];
-                $lineTemp->policy_no                = $line['policy_no'];
+                $lineTemp->vehicle_number           = $line['vehicle_number'];
+                $lineTemp->policy_number            = $line['policy_number'];
                 $lineTemp->vehicle_oil_type         = $line['vehicle_oil_type'];
                 $lineTemp->utility_type             = $line['utility_type'];
                 $lineTemp->utility_detail           = $line['utility_detail'];
                 $lineTemp->unit_quantity            = $line['unit_quantity'];
-                $lineTemp->invoice_no               = $line['invoice_no'];
+                $lineTemp->invoice_number           = $line['invoice_number'];
                 $lineTemp->invoice_date             = $line['invoice_date']? date('Y-m-d', strtotime($line['invoice_date'])): '';
-                $lineTemp->receipt_no               = $line['receipt_no'];
+                $lineTemp->receipt_number           = $line['receipt_number'];
                 $lineTemp->receipt_date             = $line['receipt_date']? date('Y-m-d', strtotime($line['receipt_date'])): '';
                 $lineTemp->remaining_receipt_flag   = $line['remaining_receipt_flag'] == true? 'Y': 'N';
-                $lineTemp->remaining_receipt_no     = $line['remaining_receipt'];
+                $lineTemp->remaining_receipt_number = $line['remaining_receipt'];
                 $lineTemp->save();
             }
             // IF INTERFACE ERROR UPDATE HEADER STATUS TO ALLOCATE
@@ -166,17 +167,17 @@ class RequisitionController extends Controller
             $segments[5] = '00000';
             $segments[6] = $accountRules[6];
             $segments[7] = '00000';
-            $segments[8] = '';
+            $segments[8] = $budgetType;
         }elseif($budgetSource == 540){
             $segments[5] = '00000';
             $segments[6] = '00000';
             $segments[7] = '00000';
-            $segments[8] = '';
-        }elseif($docCate[1] == 'สบพ'){
+            $segments[8] = $budgetType;
+        }elseif($docCate[1] == 'สบพ.'){
             $segments[5] = $budgetSource;
             $segments[6] = $budgetSource;
             $segments[7] = $budgetSource;
-            $segments[8] = $accountRules[8];
+            $segments[8] = $budgetType;
         }else{
             $segments[5] = $budgetPlan;
             $segments[6] = '00000';
@@ -186,9 +187,9 @@ class RequisitionController extends Controller
         // SEGMENT9
         $segments[9] = '00000000000000000000';
         // SEGMENT10
-        $segments[10] = $accountRules[10];
+        $segments[10] = isset($accountRules[10])? $accountRules[10]: '0000000000';
         // SEGMENT11
-        $segments[11] = $accountRules[11];
+        $segments[11] = isset($accountRules[11])? $accountRules[11]: '0000000000';
         // SEGMENT12
         $segments[12] = '00';
         // SEGMENT13
@@ -208,10 +209,10 @@ class RequisitionController extends Controller
         try {
             $headerTemp                             = new RequisitionReceiptTemp;
             $headerTemp->org_id                     = 101;
-            $headerTemp->reference_no               = $header['reference_no'];
-            $headerTemp->seq_no                     = $request->seq+1;
+            $headerTemp->reference_number               = $header['reference_number'];
+            $headerTemp->seq_number                     = $request->seq+1;
             $headerTemp->remaining_receipt_flag     = $line['remaining_receipt_flag']? 'Y': 'N';
-            $headerTemp->remaining_receipt_no       = $line['remaining_receipt'];
+            $headerTemp->remaining_receipt_number       = $line['remaining_receipt'];
             $headerTemp->amount                     = $line['amount'];
             $headerTemp->created_by                 = $user->id;
             $headerTemp->updated_by                 = $user->id;
@@ -241,12 +242,12 @@ class RequisitionController extends Controller
         $line = $request->line;
         \DB::beginTransaction();
         try {
-            RequisitionReceiptTemp::where('reference_no', $header['reference_no'])
-                                ->where('remaining_receipt_no', $line['remaining_receipt'])
-                                ->where('seq_no', $request->index+1)
+            RequisitionReceiptTemp::where('reference_number', $header['reference_number'])
+                                ->where('remaining_receipt_number', $line['remaining_receipt'])
+                                ->where('seq_number', $request->index+1)
                                 ->update([
-                                    'remaining_receipt_no' => $line['remaining_receipt']
-                                    , 'amount'             => $line['amount']
+                                    'remaining_receipt_number' => $line['remaining_receipt']
+                                    , 'amount'                  => $line['amount']
                                 ]);
             \DB::commit();
             $data = [
@@ -270,9 +271,9 @@ class RequisitionController extends Controller
         $line = $request->line;
         \DB::beginTransaction();
         try {
-            $receiptTemp = RequisitionReceiptTemp::where('reference_no', $header['reference_no'])
-                                            ->where('remaining_receipt_no', $line['remaining_receipt'])
-                                            ->where('seq_no', $request->index+1)
+            $receiptTemp = RequisitionReceiptTemp::where('reference_number', $header['reference_number'])
+                                            ->where('remaining_receipt_number', $line['remaining_receipt'])
+                                            ->where('seq_number', $request->index+1)
                                             ->delete();
             \DB::commit();
             $data = [

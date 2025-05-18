@@ -21,7 +21,8 @@ return new class extends Migration
         Schema::connection('oracle_oagwxp')->create($this->tableName, function (Blueprint $table) {
             $table->increments('id');
             $table->integer('org_id')->nullable();
-            $table->string('reference_no')->nullable();
+            $table->string('reference_number')->nullable();
+            $table->string('source_type')->nullable();
             $table->string('budget_source');
             $table->string('invoice_type');
             $table->string('document_category');
@@ -35,9 +36,9 @@ return new class extends Migration
             $table->integer('total_amount', 18, 2)->nullable();
             $table->string('requester');
             $table->string('status');
-            $table->string('encumbrance_flag');
+            $table->string('encumbrance_flag')->nullable();
             $table->integer('invoice_reference_id')->nullable(); // invoice update
-            $table->string('invioce_no_ref')->nullable(); // invoice update
+            $table->string('invioce_number_ref')->nullable(); // invoice update
             $table->date('clear_reference_id')->nullable(); // clear update
 
             $table->integer('created_by');

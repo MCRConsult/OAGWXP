@@ -75,7 +75,7 @@
                                                     :key="header.id"
                                                     v-model="selectedReq[header.source_type == 'REQUISITION'? header.req_number: header.invoice_num]" 
                                                     :name="'check-req_'+ (header.source_type == 'REQUISITION'? header.req_number: header.invoice_num)"
-                                                    size="mini"
+                                                    size="default"
                                                     @change="chooseReq(header)"
                                                     :disabled="header.status == 'ALLOCATE'"
                                                 />
@@ -117,12 +117,7 @@
                                                 </div>
                                                 <div class="row">
                                                     <span class="col-md-3 text-right text-sm text-grey-dark"> สั่งจ่าย :</span>
-                                                    <template v-if="header.source_type == 'REQUISITION'">
-                                                       {{ header.req_date_format }}
-                                                    </template>
-                                                    <template v-else>
-                                                        {{ header.inv_date_format }}
-                                                    </template>
+                                                    {{ header.supplier.vendor_name }} 
                                                 </div>
                                             </div>
                                             <div class="col-md-2">
@@ -225,9 +220,6 @@
         mounted(){
             this.getRequisition();
         },
-        computed: {
-            //
-        },
         watch:{
             errors: {
                 handler(val){
@@ -311,9 +303,7 @@
                 this.loading = true;
                 await axios
                     .post(url, {
-                        
-                            search: this.search
-                        
+                        search: this.search
                     })
                     .then((res) => res.data)
                     .then((res) => {
@@ -327,7 +317,6 @@
                 .catch((error) => {
                     console.error(error);
                 });
-
                 this.loading = false;
             },
             clear(){
@@ -384,8 +373,8 @@
                                 });
                             } else {
                                 Swal.fire({
-                                    title: "ยืนยันส่งเบิกเอกสาร",
-                                    html: "ส่งเบิกเอกสารเรียบร้อยแล้ว",
+                                    title: "ยืนยันสร้างเอกสารขอเบิก",
+                                    html: "สร้างเอกสารขอเบิกเรียบร้อยแล้ว",
                                     icon: "success",
                                     showCancelButton: false,
                                     confirmButtonColor: "#3085d6",
@@ -394,7 +383,7 @@
                                 }).then((result) => {
                                     if (result.isConfirmed) {
                                         setTimeout(function() {
-                                            location.href = res.data.redirect_show_page;
+                                            location.href = res.data.redirect_page;
                                         }, 500);
                                     }
                                 });
@@ -428,31 +417,5 @@
     }
     .el-input__wrapper {
         font-size: 12px;
-        /*padding: 0px;*/
     }
-    /*.el-input {
-      border: 1px solid red !important;
-      border-radius: 5px;
-    }*/
-   /* .el-message {
-        min-width: 1000px;
-        z-index: 9999 !important;
-    }
-    .el-message--error {
-        background-color: #E22427;
-        border-color: #E22427;
-    }
-    .el-message--error .el-message__content {
-        color: #ffffff;
-        font-size: 20px;
-        font-weight: bold;
-    }
-    .el-message .el-icon-error {
-        color: #ffffff;
-        font-size: 25px;
-    }
-    .el-message__closeBtn {
-        color: #ffffff;
-        font-weight: bold;
-    }*/
 </style>

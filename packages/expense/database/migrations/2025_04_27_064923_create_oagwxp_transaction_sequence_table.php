@@ -22,9 +22,9 @@ return new class extends Migration
             $table->increments('id');
             $table->string('org_id');
             $table->string('prefix');
-            $table->string('name'); // name of model that use seq
-            $table->string('year'); // ex. 16,17
-            $table->bigInteger('tran_id')->default(0); // running tran id seq
+            $table->string('name');
+            $table->string('year');
+            $table->bigInteger('tran_id')->default(0);
             $table->timestamps();
         });
     }

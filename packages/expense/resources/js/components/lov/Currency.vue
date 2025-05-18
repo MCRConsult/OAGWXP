@@ -66,7 +66,7 @@ export default {
             .then(res => {
                 this.loading = false;
                 this.dataRows = res.data.data;
-                // this.$emit('setBranch', {branch: this.value});
+                this.$emit('setCurrency', {currency: this.value});
             })
             .catch((error) => {
                 console.log('มีข้อผิดพลาด', error, 'error');

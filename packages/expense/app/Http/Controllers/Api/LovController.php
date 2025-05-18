@@ -14,12 +14,14 @@ use Packages\expense\app\Models\RequisitionHeader;
 use Packages\expense\app\Models\DocumentCategory;
 use Packages\expense\app\Models\Supplier;
 use Packages\expense\app\Models\SupplierBank;
-use Packages\expense\app\Models\PaymentMethod;
 use Packages\expense\app\Models\Currency;
 use Packages\expense\app\Models\FlexValueV;
 use Packages\expense\app\Models\LookupV;
 use Packages\expense\app\Models\MTLCategoriesV;
 use Packages\expense\app\Models\ARBudgetReceiptV;
+use Packages\expense\app\Models\PaymentMethod;
+use Packages\expense\app\Models\PaymentTerm;
+use Packages\expense\app\Models\COAListV;
 
 class LovController extends Controller
 {
@@ -102,24 +104,6 @@ class LovController extends Controller
         return response()->json(['data' => $paymentTypes]);
     }
 
-    public function getPaymentMethod(Request $request)
-    {
-        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
-        $paymentMethods = PaymentMethod::selectRaw('distinct description, payment_method_code')
-                        ->whereNull('inactive_date')
-                        ->when($keyword, function ($query, $keyword) {
-                            return $query->where(function($r) use ($keyword) {
-                                $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%'])
-                                ->orWhereRaw('UPPER(payment_method_code) like ?', [strtoupper($keyword).'%']);
-                            });
-                        })
-                        ->orderBy('payment_method_code')
-                        ->limit(50)
-                        ->get();
-
-        return response()->json(['data' => $paymentMethods]);
-    }
-
     public function getCurrency(Request $request)
     {
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
@@ -141,7 +125,7 @@ class LovController extends Controller
     {
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
         $yesnoTypes = FlexValueV::selectRaw('distinct flex_value, description')
-                        ->where('flex_value_set_name', 'OAG_AP_TH_YES_NO')
+                        ->where('flex_value_set_name', 'OAG_VALUE_SET_Y_N')
                         ->when($keyword, function ($query, $keyword) {
                             return $query->where(function($r) use ($keyword) {
                                 $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%']);
@@ -223,8 +207,7 @@ class LovController extends Controller
     public function getBudgetPlan(Request $request)
     {
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
-        $budgetSource = MTLCategoriesV::selectRaw('distinct category_concat_segs, description')
-                            ->where('structure_name', 'OAG Item Category Set')
+        $budgetSource = MTLCategoriesV::where('structure_name', 'OAG Item Category Set')
                             ->where('attribute1', 'Yes')
                             ->when($keyword, function ($query, $keyword) {
                                 return $query->where(function($r) use ($keyword) {
@@ -245,8 +228,7 @@ class LovController extends Controller
         if (!$budgetPlan) {
             $budgetType = [];
         }else{
-                $budgetType = MTLCategoriesV::selectRaw('distinct category_concat_segs, description')
-                            ->where('structure_name', 'OAG Item Category Set')
+                $budgetType = MTLCategoriesV::where('structure_name', 'OAG Item Category Set')
                             ->where('attribute2', 'Yes')
                             ->when($keyword, function ($query, $keyword) {
                                 return $query->where(function($r) use ($keyword) {
@@ -271,8 +253,7 @@ class LovController extends Controller
         if (!$budgetType) {
             $expeseType = [];
         }else{
-            $expeseType = MTLCategoriesV::selectRaw('distinct category_concat_segs, description')
-                            ->where('structure_name', 'OAG Item Category Set')
+            $expeseType = MTLCategoriesV::where('structure_name', 'OAG Item Category Set')
                             ->where('segment1', 'EXP')
                             ->when($keyword, function ($query, $keyword) {
                                 return $query->where(function($r) use ($keyword) {
@@ -303,5 +284,105 @@ class LovController extends Controller
                         ->get();
 
         return response()->json(['data' => $budgetSource]);
+    }
+
+    public function getPaymentMethod(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $paymentMethods = PaymentMethod::selectRaw('distinct description, payment_method_code')
+                        ->whereNull('inactive_date')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%'])
+                                ->orWhereRaw('UPPER(payment_method_code) like ?', [strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->orderBy('payment_method_code')
+                        ->limit(50)
+                        ->get();
+
+        return response()->json(['data' => $paymentMethods]);
+    }
+
+    public function getPaymentTerm(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $paymentTerms = PaymentTerm::selectRaw('term_id, description')
+                        ->whereNull('end_date_active')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%'])
+                                ->orWhereRaw('UPPER(term_id) like ?', [strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->orderBy('term_id')
+                        ->get();
+
+        return response()->json(['data' => $paymentTerms]);
+    }
+
+    public function getReceipt(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $budgetSource = ARReceiptNumberAllV::where('org_id', 81)
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(receipt_number) like ?', ['%'.strtoupper($keyword).'%'])
+                                ->orWhereRaw('UPPER(cash_receipt_id) like ?', [strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->orderBy('receipt_number')
+                        ->get();
+
+        return response()->json(['data' => $budgetSource]);
+    }
+
+    public function getExpenseAccount(Request $request)
+    {
+        $setName = $request->flex_value_set_name;
+        $setValue = $request->flex_value_set_data;
+        $text  = $request->get('query');
+        $flexValue = [];
+        if ($setName == 'OAG_GL_DEPARTMENT') {
+            $flexValue = (new COAListV)->LOVResult($setName, $setValue, $text);
+        }
+        if ($setName == 'OAG_GL_COST_CENTER') {
+            $flexValue = (new COAListV)->LOVResult($setName, $setValue, $text);
+        }
+        if ($setName == 'OAG_GL_BUDGET_YEAR') {
+            $flexValue = (new COAListV)->LOVResult($setName, $setValue, $text);
+        }
+        if ($setName == 'OAG_GL_BUDGET_SOURCE') {
+            $flexValue = (new COAListV)->LOVResult($setName, $setValue, $text);
+        }
+        if ($setName == 'OAG_GL_BUDGET_PLAN') {
+            $flexValue = (new COAListV)->LOVResult($setName, $setValue, $text);
+        }
+        if ($setName == 'OAG_GL_BUDGET_PRODUCT') {
+            $flexValue = (new COAListV)->LOVResult($setName, $setValue, $text);
+        }
+        if ($setName == 'OAG_GL_BUDGET_ACTIVITY') {
+            $flexValue = (new COAListV)->LOVResult($setName, $setValue, $text);
+        }
+        if ($setName == 'OAG_GL_BUDGET_TYPE') {
+            $flexValue = (new COAListV)->LOVResult($setName, $setValue, $text);
+        }
+        if ($setName == 'OAG_GL_BUDGET_CODE') {
+            $flexValue = (new COAListV)->LOVResult($setName, $setValue, $text);
+        }
+        if ($setName == 'OAG_GL_ACCOUNT') {
+            $flexValue = (new COAListV)->LOVResult($setName, $setValue, $text);
+        }
+        if ($setName == 'OAG_GL_SUB_ACCOUNT') {
+            $flexValue = (new COAListV)->LOVResult($setName, $setValue, $text);
+        }
+        if ($setName == 'OAG_GL_RESERVE_1') {
+            $flexValue = (new COAListV)->LOVResult($setName, $setValue, $text);
+        }
+        if ($setName == 'OAG_GL_RESERVE_2') {
+            $flexValue = (new COAListV)->LOVResult($setName, $setValue, $text);
+        }
+
+        return $flexValue;
     }
 }

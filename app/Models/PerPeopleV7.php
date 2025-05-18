@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class FNDUser extends Model
+class PerPeopleV7 extends Model
 {
     protected $table        = 'per_people_v7';
     protected $connection   = 'oracle';

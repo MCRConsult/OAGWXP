@@ -122,7 +122,7 @@
                             <label class="control-label">
                                 <strong> เลขที่ใบกำกับ </strong>
                             </label><br>
-                            {{ $requisition->invioce_no_ref }}
+                            {{ $requisition->invioce_number_ref }}
                         </div>
                     </div>
                 </div>
@@ -146,7 +146,7 @@
                     <tbody>
                         @foreach ($requisition->lines as $line)
                             <tr>
-                                <td class="text-center" style="vertical-align: middle;"> {{ $line->seq_no }} </td>
+                                <td class="text-center" style="vertical-align: middle;"> {{ $line->seq_number }} </td>
                                 <td class="text-center" style="vertical-align: middle;"> {{ $line->expense_type }} </td>
                                 <td class="text-center" style="vertical-align: middle;"> {{ number_format($line->amount, 2) }} </td>
                                 <td class="text-center" style="vertical-align: middle;"> {{ $line->supplier_name }} </td>

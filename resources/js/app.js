@@ -22,7 +22,10 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 // COMPONENT
 import SearchRequisitionComponent from '/packages/expense/resources/js/components/requisition/SearchComponent.vue';
 import CreateRequisitionComponent from '/packages/expense/resources/js/components/requisition/CreateComponent.vue';
+
+import SearchInvoiceComponent from '/packages/expense/resources/js/components/invoice/SearchComponent.vue';
 import CreateInvoiceComponent from '/packages/expense/resources/js/components/invoice/CreateComponent.vue';
+import EditInvoiceComponent from '/packages/expense/resources/js/components/invoice/EditComponent.vue';
 
 
 
@@ -35,7 +38,10 @@ app.use(ElementPlus);
 app.component("vue-numeric", VueNumeric)
 app.component('requisition-search-component', SearchRequisitionComponent);
 app.component('requisition-create-component', CreateRequisitionComponent);
+
+app.component('invoice-search-component', SearchInvoiceComponent);
 app.component('invoice-create-component', CreateInvoiceComponent);
+app.component('invoice-edit-component', EditInvoiceComponent);
 
 
 // ## Register Component is here

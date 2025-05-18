@@ -4,8 +4,8 @@ namespace Packages\expense\app\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class POExpenseAccountRuleV extends Model
+class PaymentTerm extends Model
 {
-    protected $table = 'oag_po_expense_account_rule_v';
+    protected $table = 'AP_TERMS';
     protected $connection = 'oracle';
 }

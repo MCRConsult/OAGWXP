@@ -14,6 +14,11 @@ class FNDUser extends Model
         return $this->belongsTo(PerPeopleV7::class, 'employee_id', 'person_id');
     }
 
+    public function hrEmployee()
+    {
+        return $this->hasOne(EmployeesV::class, 'person_id', 'employee_id');
+    }
+
     public function users()
     {
         return $this->hasMany(User::class, 'fnd_user_id', 'user_id');

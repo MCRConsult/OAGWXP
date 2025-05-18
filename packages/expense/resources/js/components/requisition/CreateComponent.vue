@@ -143,7 +143,7 @@
                             <label class="control-label">
                                 <strong> เลขที่ใบกำกับ </strong>
                             </label><br>
-                            <el-input v-model="requisition.invioce_no_ref" style="width: 100%;" placeholder="" disabled/>
+                            <el-input v-model="requisition.invioce_number_ref" style="width: 100%;" placeholder="" disabled/>
                         </div>
                     </div>
                 </div>
@@ -371,43 +371,43 @@
                     remaining_receipt: false,
                 },
                 requisition: {
-                    reference_no: this.referenceNo,
-                    budget_source: '000',
+                    reference_number: this.referenceNo,
+                    budget_source: '',
                     invoice_type: 'STANDARD',
-                    document_category: '000_สกค_ขอเบิก', // หยิบจาก login
+                    document_category: '', // หยิบจาก login
                     req_date: new Date(),
                     payment_type: 'PAYMENT',
-                    supplier: 1200,
-                    supplier_name: 'ssss',
+                    supplier: '',
+                    supplier_name: '',
                     multiple_supplier: 'ONE',
                     description: '',
                     req_number: '',
                     requester: '',
                     status: '',
-                    invioce_no_ref: '',
+                    invioce_number_ref: '',
                 },
                 reqLine: {
-                    supplier: 1200,
-                    supplier_name: 'sss',
-                    supplier_bank: 'sss123',
+                    supplier: '',
+                    supplier_name: '',
+                    supplier_bank: '',
                     budget_plan: '',
                     budget_type: '',
                     expense_type: '',
                     expense_description: '',
                     amount: '',
                     description: '',
-                    vehicle_no: '',
-                    policy_no: '',
+                    vehicle_number: '',
+                    policy_number: '',
                     vehicle_oil_type: '',
                     utility_type: '',
                     utility_detail: '',
                     unit_quantity: '',
-                    invoice_no: '',
+                    invoice_number: '',
                     invoice_date: '',
-                    receipt_no: '',
+                    receipt_number: '',
                     receipt_date: '',
                     remaining_receipt_flag: false,
-                    remaining_receipt: 'AR00001',
+                    remaining_receipt: '',
                 },
                 loading: false,
                 linelists: [],
@@ -424,9 +424,6 @@
             },
         },
         watch:{
-            // totalApply(newVal){
-            //     return newVal;
-            // },
             errors: {
                 handler(val){
                     val.invoice_type? this.setError('invoice_type') : this.resetError('invoice_type');
@@ -467,6 +464,7 @@
             setBudgetSource(res){
                 this.requisition.budget_source = res.budget_source;
                 this.isARReceipt(res.budget_source);
+                this.getDocumentCate(res.budget_source);
             },
             setDocumentCate(res){
                 this.requisition.document_category = res.document_category;
@@ -607,15 +605,15 @@
                                 expense_description: '',
                                 amount: '',
                                 description: '',
-                                vehicle_no: '',
-                                policy_no: '',
+                                vehicle_number: '',
+                                policy_number: '',
                                 vehicle_oil_type: '',
                                 utility_type: '',
                                 utility_detail: '',
                                 unit_quantity: '',
-                                invoice_no: '',
+                                invoice_number: '',
                                 invoice_date: '',
-                                receipt_no: '',
+                                receipt_number: '',
                                 receipt_date: '',
                                 remaining_receipt_flag: this.budgetSource.indexOf(this.requisition.budget_source) !== -1,
                                 remaining_receipt: '',
@@ -649,15 +647,15 @@
                         expense_description: '',
                         amount: '',
                         description: '',
-                        vehicle_no: '',
-                        policy_no: '',
+                        vehicle_number: '',
+                        policy_number: '',
                         vehicle_oil_type: '',
                         utility_type: '',
                         utility_detail: '',
                         unit_quantity: '',
-                        invoice_no: '',
+                        invoice_number: '',
                         invoice_date: '',
-                        receipt_no: '',
+                        receipt_number: '',
                         receipt_date: '',
                         remaining_receipt_flag: this.budgetSource.indexOf(this.requisition.budget_source) !== -1,
                         remaining_receipt: '',
@@ -668,12 +666,10 @@
             updateRow(response){
                 var vm = this;
                 let index = response.index;
-                let line = response.line;
-                console.log(response);
                 if (vm.linelists[index].remaining_receipt_flag) {
                     axios.post('/expense/requisition/update-ar-receipt', {
                         header: vm.requisition,
-                        line: line,
+                        line: response.line,
                         seq: index,
                     })
                     .then(function (res) {
@@ -689,8 +685,44 @@
                                 allowOutsideClick: false
                             });
                         } else {
-                            console.log(line);
-                            vm.linelists[index] = line;
+                            let valUpdate = response.line;
+                            if (typeof this.linelists === 'object' && this.linelists !== null && response.index in this.linelists) {
+                                const currentItem = this.linelists[response.index];
+                                if (currentItem) {
+                                    if (valUpdate && typeof valUpdate === 'object') {
+                                        // Object.assign(currentItem, valUpdate);
+                                        Object.assign(currentItem, {
+                                            supplier: valUpdate.supplier,
+                                            supplier_name: valUpdate.supplier_name,
+                                            supplier_bank: valUpdate.supplier_bank,
+                                            budget_plan: valUpdate.budget_plan,
+                                            budget_type: valUpdate.budget_type,
+                                            expense_type: valUpdate.expense_type,
+                                            expense_description: valUpdate.expense_description,
+                                            amount: valUpdate.amount,
+                                            description: valUpdate.description,
+                                            vehicle_number: valUpdate.vehicle_number,
+                                            policy_number: valUpdate.policy_number,
+                                            vehicle_oil_type: valUpdate.vehicle_oil_type,
+                                            utility_type: valUpdate.utility_type,
+                                            utility_detail: valUpdate.utility_detail,
+                                            unit_quantity: valUpdate.unit_quantity,
+                                            invoice_number: valUpdate.invoice_number,
+                                            invoice_date: valUpdate.invoice_date,
+                                            receipt_number: valUpdate.receipt_number,
+                                            receipt_date: valUpdate.receipt_date,
+                                            remaining_receipt_flag: valUpdate.remaining_receipt_flag,
+                                            remaining_receipt: valUpdate.remaining_receipt
+                                        });
+                                    } else {
+                                        console.error('valUpdate is invalid:', valUpdate);
+                                    }
+                                } else {
+                                    console.error(`No item found at index ${response.index}`);
+                                }
+                            } else {
+                                console.error('Invalid response or linelists object.');
+                            }
                         }
                     }.bind(vm))
                     .catch(err => {
@@ -709,8 +741,44 @@
                         vm.loading = false;
                     });
                 }else{
-                    console.log(line)
-                    vm.linelists[index] = line;
+                    let valUpdate = response.line;
+                    if (typeof this.linelists === 'object' && this.linelists !== null && response.index in this.linelists) {
+                        const currentItem = this.linelists[response.index];
+                        if (currentItem) {
+                            if (valUpdate && typeof valUpdate === 'object') {
+                                // Object.assign(currentItem, valUpdate);
+                                Object.assign(currentItem, {
+                                    supplier: valUpdate.supplier,
+                                    supplier_name: valUpdate.supplier_name,
+                                    supplier_bank: valUpdate.supplier_bank,
+                                    budget_plan: valUpdate.budget_plan,
+                                    budget_type: valUpdate.budget_type,
+                                    expense_type: valUpdate.expense_type,
+                                    expense_description: valUpdate.expense_description,
+                                    amount: valUpdate.amount,
+                                    description: valUpdate.description,
+                                    vehicle_number: valUpdate.vehicle_number,
+                                    policy_number: valUpdate.policy_number,
+                                    vehicle_oil_type: valUpdate.vehicle_oil_type,
+                                    utility_type: valUpdate.utility_type,
+                                    utility_detail: valUpdate.utility_detail,
+                                    unit_quantity: valUpdate.unit_quantity,
+                                    invoice_number: valUpdate.invoice_number,
+                                    invoice_date: valUpdate.invoice_date,
+                                    receipt_number: valUpdate.receipt_number,
+                                    receipt_date: valUpdate.receipt_date,
+                                    remaining_receipt_flag: valUpdate.remaining_receipt_flag,
+                                    remaining_receipt: valUpdate.remaining_receipt
+                                });
+                            } else {
+                                console.error('valUpdate is invalid:', valUpdate);
+                            }
+                        } else {
+                            console.error(`No item found at index ${response.index}`);
+                        }
+                    } else {
+                        console.error('Invalid response or linelists object.');
+                    }
                 }
             },
             copyRow(index) {
@@ -950,6 +1018,35 @@
             isARReceipt(budgetSource) {
                 this.reqLine.remaining_receipt_flag = this.budgetSource.indexOf(budgetSource) !== -1;
             },
+            getDocumentCate(budgetSource){
+                this.loading = true;
+                axios.get(`/expense/api/requisition/get-document-category`, {
+                    params: {
+                        budget_source: budgetSource
+                    }
+                })
+                .then(res => {
+                    this.loading = false;
+                    // if(budgetSource != null && res.data.data == null){
+                    //     this.$notify({
+                    //         title: 'แจ้งเตือน',
+                    //         message: 'ไม่พบข้อมูล กรุณาตรวจสอบ',
+                    //         type: 'warning'
+                    //     });
+                    // }else if(budgetSource != null || budgetSource != ''){
+                        // console.log(res.data.data);
+                        this.requisition.document_category = res.data.data? res.data.data.tag: '';
+                    // }
+                })
+                .catch((error) => {
+                    this.loading = false;
+                    this.$notify({
+                        title: 'แจ้งเตือน',
+                        message: error,
+                        type: 'warning'
+                    });
+                })
+            }
         },
     }
 </script>

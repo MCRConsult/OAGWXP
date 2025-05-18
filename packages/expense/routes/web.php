@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => ['web', 'auth']], function () {
-    // Budget Requisition
     Route::prefix('expense')->namespace('Expense')->name('expense.')->group(function() {
         Route::prefix('api')->namespace('Api')->name('api.')->group(function() {
             Route::get('/get-document-category', '\Packages\expense\app\Http\Controllers\Api\LovController@getDocumentType');
@@ -11,6 +10,7 @@ Route::group(['middleware' => ['web', 'auth']], function () {
             Route::get('/get-supplier-bank', '\Packages\expense\app\Http\Controllers\Api\LovController@getSupplierBank');
             Route::get('/get-payment-type', '\Packages\expense\app\Http\Controllers\Api\LovController@getPaymentType');
             Route::get('/get-payment-method', '\Packages\expense\app\Http\Controllers\Api\LovController@getPaymentMethod');
+            Route::get('/get-payment-term', '\Packages\expense\app\Http\Controllers\Api\LovController@getPaymentTerm');
             Route::get('/get-currency', '\Packages\expense\app\Http\Controllers\Api\LovController@getCurrency');
             Route::get('/get-yesno-type', '\Packages\expense\app\Http\Controllers\Api\LovController@getYesNoType');
             Route::get('/get-vehicle-oil-type', '\Packages\expense\app\Http\Controllers\Api\LovController@getVehicleOilType');
@@ -21,18 +21,19 @@ Route::group(['middleware' => ['web', 'auth']], function () {
             Route::get('/get-budget-type', '\Packages\expense\app\Http\Controllers\Api\LovController@getBudgetType');
             Route::get('/get-expense-type', '\Packages\expense\app\Http\Controllers\Api\LovController@getExpenseType');
             Route::get('/get-remaining-receipt', '\Packages\expense\app\Http\Controllers\Api\LovController@getRemainingReceipt');
+            Route::get('/get-receipt', '\Packages\expense\app\Http\Controllers\Api\LovController@getReceipt');
+            Route::get('/get-expense-account', '\Packages\expense\app\Http\Controllers\Api\LovController@getExpenseAccount');
             
             Route::prefix('requisition')->namespace('Requisition')->name('requisition.')->group(function() {
                 Route::get('/get-requisition', '\Packages\expense\app\Http\Controllers\Api\RequisitionController@getRequisition');
+                Route::get('/get-document-category', '\Packages\expense\app\Http\Controllers\Api\RequisitionController@getDocumentCategory');
             });
 
             Route::prefix('invoice')->namespace('Invoice')->name('invoice.')->group(function() {
-                Route::get('/get-requisition', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@getRequisition')
-                    ->name('get-requisition');
-                Route::get('/fetch-requisition', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@fetchRequisition')
-                    ->name('fetch-requisition');
-                Route::post('/index-render-page', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@fetchRequisitionRenderPage')
-                    ->name('index-render-page');
+                Route::get('/get-requisition', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@getRequisition');
+                Route::get('/get-voucher', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@getVoucher');
+                Route::get('/fetch-requisition', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@fetchRequisition');
+                Route::post('/index-render-page', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@fetchRequisitionRenderPage');
             });
         });
 
@@ -50,10 +51,16 @@ Route::group(['middleware' => ['web', 'auth']], function () {
             Route::get('/', '\Packages\expense\app\Http\Controllers\Invoice\InvoiceController@index')->name('index');
             Route::get('/create', '\Packages\expense\app\Http\Controllers\Invoice\InvoiceController@create')->name('create');
             Route::post('/group-invoice', '\Packages\expense\app\Http\Controllers\Invoice\InvoiceController@groupInvoice');
+            Route::get('/{invoice_id}', '\Packages\expense\app\Http\Controllers\Invoice\InvoiceController@show')->name('show');
+            Route::get('/{invoice_id}/edit', '\Packages\expense\app\Http\Controllers\Invoice\InvoiceController@edit')->name('edit');
+            Route::post('/{invoice_id}/update', '\Packages\expense\app\Http\Controllers\Invoice\InvoiceController@update')->name('update');
+
+
+
+
+
             // Route::post('/', '\Packages\expense\app\Http\Controllers\Invoice\InvoiceController@store')->name('store');
-            // Route::get('/{req_id}', '\Packages\expense\app\Http\Controllers\Invoice\InvoiceController@show')->name('show');
             // Route::get('/{req_id}/edit', '\Packages\expense\app\Http\Controllers\Invoice\InvoiceController@show')->name('edit');
-            // Route::post('/{req_id}/update', '\Packages\expense\app\Http\Controllers\Invoice\Invoice@show')->name('update');
         });
     });
 

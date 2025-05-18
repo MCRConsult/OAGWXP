@@ -8,7 +8,6 @@ class Currency extends Model
 {
     protected $table = 'fnd_currencies_vl';
     protected $connection = 'oracle';
-    // protected $connection = 'oracle_oagwxp';
 
     public function scopeEnabled($q)
     {

@@ -17,7 +17,7 @@
                                         <label class="control-label">
                                             <strong> ทะเบียนรถยนต์ </strong>
                                         </label><br>
-                                        <el-input v-model="line.vehicle_no" style="width: 100%;" placeholder=""/>
+                                        <el-input v-model="line.vehicle_number" style="width: 100%;" placeholder=""/>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
@@ -25,7 +25,7 @@
                                         <label class="control-label">
                                             <strong> เลขที่กรมธรรม์ </strong>
                                         </label><br>
-                                        <el-input v-model="line.policy_no" style="width: 100%;" placeholder=""/>
+                                        <el-input v-model="line.policy_number" style="width: 100%;" placeholder=""/>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
@@ -72,7 +72,7 @@
                                         <label class="control-label">
                                             <strong> เลขที่ใบแจ้งหนี้ </strong>
                                         </label><br>
-                                        <el-input v-model="line.invoice_no" style="width: 100%;" placeholder=""/>
+                                        <el-input v-model="line.invoice_number" style="width: 100%;" placeholder=""/>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
@@ -120,7 +120,7 @@
                                         <label class="control-label">
                                             <strong> เลขที่หนังลือ </strong>
                                         </label><br>
-                                        <el-input v-model="line.receipt_no" style="width: 100%;" placeholder=""/>
+                                        <el-input v-model="line.receipt_number" style="width: 100%;" placeholder=""/>
                                     </div>
                                 </div>
                                 <div class="col-md-3">

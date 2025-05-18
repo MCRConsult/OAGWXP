@@ -15,7 +15,7 @@
                                 <label class="control-label">
                                     <strong> ทะเบียนรถยนต์ </strong>
                                 </label><br>
-                                {{ $line->vehicle_no }}
+                                {{ $line->vehicle_number }}
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -23,7 +23,7 @@
                                 <label class="control-label">
                                     <strong> เลขที่กรมธรรม์ </strong>
                                 </label><br>
-                                {{ $line->policy_no }}
+                                {{ $line->policy_number }}
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -57,7 +57,7 @@
                                 <label class="control-label">
                                     <strong> เลขที่ใบแจ้งหนี้ </strong>
                                 </label><br>
-                                {{ $line->invoice_no }}
+                                {{ $line->invoice_number }}
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -91,7 +91,7 @@
                                 <label class="control-label">
                                     <strong> เลขที่หนังลือ </strong>
                                 </label><br>
-                                {{ $line->receipt_no }}
+                                {{ $line->receipt_number }}
                             </div>
                         </div>
                     </div>

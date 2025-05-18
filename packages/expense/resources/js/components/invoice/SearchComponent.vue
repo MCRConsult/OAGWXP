@@ -1,19 +1,19 @@
 <template>
-    <div class="" v-loading="loading">
-        <div :class="showSearch? ' collapse mb-2 show': ' collapse mb-2'" id="search_form" >
+    <div v-loading="loading">
+        <div :class="showSearch? 'collapse show mb-2 ': 'collapse mb-2'" id="search_form">
             <div class="card-body tw-bg-yellow-200" style="border: 2px solid #ddd; border-radius: 5px;">
                 <form :action="pFormUrl">
                     <div class="row">
                         <div class="form-group col-md-3">
                             <label class="control-label">
-                                <strong> เลขที่เอกสารส่งเบิก </strong>
+                                <strong> เลขที่ใบสำคัญ </strong>
                             </label>
-                            <input type="hidden" name="req_number" :value="search.req_number">
-                            <lovRequisition
-                                :setData="search.req_number"
+                            <input type="hidden" name="voucher_number" :value="search.voucher_number">
+                            <lovVoucher
+                                :setData="search.voucher_number"
                                 :error="false"
                                 :editFlag="true"
-                                @setRequisition="setRequisition"
+                                @setVoucher="setVoucher"
                             />
                         </div>
 
@@ -22,7 +22,7 @@
                                 <strong> ประเภทการขอเบิก </strong>
                             </label>
                             <input type="hidden" name="invoice_type" :value="search.invoice_type">
-                            <el-select v-model="search.invoice_type" style="width: 100%" size="medium" placeholder="" filterable>
+                            <el-select v-model="search.invoice_type" style="width: 100%" size="default" placeholder="" filterable>
                                 <el-option
                                     v-for="(type, index) in pInvoiceTypes"
                                     :key="index"
@@ -37,23 +37,16 @@
                                 <strong> วันที่การขอเบิก </strong>
                             </label>
                             <div class="">
-                                <input type="hidden" name="req_date" :value="search.req_date">
+                                <input type="hidden" name="invoice_date" :value="search.invoice_date">
                                 <el-date-picker
-                                    v-model="req_date_input"
+                                    v-model="invoice_date_input"
                                     style="width: 100%"
                                     type="date"
                                     placeholder=""
-                                    size="medium"
+                                    size="default"
                                     format="DD-MM-YYYY"
                                     @change="changeDateFormat"
                                 />
-                                <!-- <input id="req_date"
-                                    autocomplete="off"
-                                    :value="search.req_date"
-                                    name="req_date"
-                                    type="text"
-                                    class="form-control"
-                                    style="border: 1px solid #dcdfe6; "> -->
                             </div>
                         </div>
 
@@ -63,7 +56,7 @@
                             </label>
                             <div class="">
                                 <input type="hidden" name="status" :value="search.status">
-                                <el-select v-model="search.status" style="width: 100%" size="medium" placeholder="" filterable>
+                                <el-select v-model="search.status" style="width: 100%" size="default" placeholder="" filterable>
                                     <el-option
                                         v-for="(status, index) in pStatuses"
                                         :key="index"
@@ -93,58 +86,50 @@
 </template>
 
 <script>
-import lovRequisition from "../lov/Requisition.vue";
 import moment from "moment";
+import lovVoucher from "./lov/Voucher.vue";
 
 export default {
     props: ['pFormUrl', 'pToken', 'pSearch', 'pInvoiceTypes', 'pStatuses', 'pDateJsFormat'],
     components: {
-        lovRequisition
+        lovVoucher
     },
     data() {
         return {
             loading: false,
             showSearch: false,
-            req_date_input: '',
+            invoice_date_input: '',
             search: {
-                req_number: '',
+                voucher_number: '',
                 invoice_type: '',
-                req_date: '',
+                invoice_date: '',
                 status: '',
             },
         };
     },
     mounted() {
-        this.search.req_number = this.pSearch.length <= 0? '' : this.pSearch.req_number;
+        this.search.voucher_number = this.pSearch.length <= 0? '' : this.pSearch.voucher_number;
         this.search.invoice_type = this.pSearch.length <= 0? '' : this.pSearch.invoice_type;
-        this.req_date_input = this.pSearch.length <= 0? '' : (this.pSearch.req_date = ''? '': moment(new Date(this.pSearch.req_date)));
-        // this.search.req_date = this.pSearch.length <= 0? '' : (this.pSearch.req_date = ''? '': moment(this.pSearch.req_date, 'YYYY-MM-DD'));
+        this.invoice_date_input = this.invoice_date_input = this.pSearch && this.pSearch.invoice_date
+                                ? moment(this.pSearch.invoice_date, 'YYYY-MM-DD') : '';
         this.changeDateFormat();
         this.search.status = this.pSearch.length <= 0? '' : this.pSearch.status;
         if (this.pSearch.length <= 0) {
             this.showSearch = true;
         }
-        let vm = this;
-        // $('#req_date').datepicker({
-        //     format: this.pDateJsFormat,
-        //     todayBtn: true,
-        //     multidate: false,
-        //     keyboardNavigation: false,
-        //     autoclose: true,
-        //     todayBtn: "linked"
-        // }).on('changeDate', function(e) {
-        //     vm.search.req_date = e.format();
-        // });
     },
     watch: {
     },
     methods: {
-        setRequisition(res) {
-            this.search.req_number = res.requisition;
+        setVoucher(res) {
+            this.search.voucher_number = res.voucher;
         },
         changeDateFormat() {
-            const formattedDate = moment(this.req_date_input, "DD-MM-YYYY").format("YYYY-MM-DD");
-            this.search.req_date = formattedDate;
+            this.search.invoice_date = '';
+            if(this.invoice_date_input){
+                const formattedDate = moment(this.invoice_date_input, "DD-MM-YYYY").format("YYYY-MM-DD");
+                this.search.invoice_date = formattedDate;
+            }
         },
     }
 };

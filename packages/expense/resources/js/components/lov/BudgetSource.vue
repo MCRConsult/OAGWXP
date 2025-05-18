@@ -45,7 +45,7 @@ export default {
     watch: {
         setData() {
             this.value = this.setData;
-            this.getDataRows(this.value);
+            // this.getDataRows(this.value);
         },
         error() {
             let ref = this.$refs['input'].$refs.wrapperRef;

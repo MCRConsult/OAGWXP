@@ -69,6 +69,7 @@ class LoginController extends Controller
 
         if ($login->auth == 'Y') {
             \Auth::login($user, $request->remember);
+            $this->setSession();
             return redirect('/');
         } else {
             return redirect()->route('login')->withErrors('login failed Oracle : these credentials do not match')->withInput();
@@ -104,6 +105,17 @@ class LoginController extends Controller
         $route = '/login';
         \Auth::guard()->logout();
         $request->session()->flush();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
         return redirect($route);
+    }
+
+    public function setSession()
+    {
+        $db = \DB::connection('oracle')->table('v$database')->first();
+        session([
+            'db_name' => $db->name
+        ]);
     }
 }

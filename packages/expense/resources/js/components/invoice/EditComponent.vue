@@ -1,302 +1,598 @@
 <template>
     <div>
-        
-        <div id="modal-edit" class="modal fade" aria-labelledby="myModalLabel" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title"> แก้ไขรายละเอียด </h4>
+        <form id="edit-form">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> เลขที่ใบสำคัญ </strong>
+                            </label><br>
+                            <el-input v-model="header.voucher_number" style="width: 100%;" placeholder="" disabled/>
+                        </div>
                     </div>
-                    <div class="modal-body m-2">
-                        <form id='edit-form'>
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <div class="form-group" style="padding: 5px;">
-                                        <label class="control-label" style="margin-bottom: 0.4rem;">
-                                            <strong> ชื่อสั่งจ่าย <span class="text-danger"> * </span></strong> &nbsp;
-                                        </label><br>
-                                        <supplier
-                                            :setData="tempData.supplier"
-                                            :error="errors.supplier_detail"
-                                            :editFlag="requisition.multiple_supplier == 'MORE'? true: false"
-                                            @setSupplier="setSupplierLine"
-                                        ></supplier>
-                                        <div id="el_explode_supplier_detail" class="text-danger text-left"></div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group" style="padding: 5px;">
-                                        <label class="control-label">
-                                            <strong> เลขที่บัญชีธนาคาร <span class="text-danger"> *</span></strong>
-                                        </label><br>
-                                        <supplierBank
-                                            :parent="tempData.supplier"
-                                            :setData="tempData.supplier_bank"
-                                            :error="errors.supplier_bank"
-                                            :editFlag="requisition.multiple_supplier == 'MORE'? true: false"
-                                            @setSupplierBank="setSupplierBank"
-                                        ></supplierBank>
-                                        <div id="el_explode_supplier_bank" class="text-danger text-left"></div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group" style="padding: 5px;">
-                                        <label class="control-label">
-                                            <strong> ประเภทค่าใช้จ่าย <span class="text-danger"> *</span></strong>
-                                        </label><br>
-                                        <!-- <paymentMethod
-                                            :setData="tempData.expense_type"
-                                            :error="errors.expense_type"
-                                            :editFlag="true"
-                                        ></paymentMethod> -->
-                                        <div id="el_explode_expense_type" class="text-danger text-left"></div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group" style="padding: 5px;">
-                                        <label class="control-label">
-                                            <strong> จำนวนเงิน <span class="text-danger"> *</span></strong>
-                                        </label><br>
-                                        <el-input v-model="tempData.amount" style="width: 100%;" placeholder=""/>
-                                        <div id="el_explode_amount" class="text-danger text-left"></div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group" style="padding: 5px;">
-                                        <label class="control-label">
-                                            <strong> คำอธิบายรายการ </strong>
-                                        </label><br>
-                                        <el-input v-model="tempData.description" type="textarea" :rows="1" style="width: 100%;" placeholder="" maxlength="240" show-word-limit/>
-                                    </div>
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <div class="form-group" style="padding: 5px;">
-                                        <label class="control-label">
-                                            <strong> ทะเบียนรถยนต์ </strong>
-                                        </label><br>
-                                        <el-input v-model="line.vehicle_no" style="width: 100%;" placeholder=""/>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group" style="padding: 5px;">
-                                        <label class="control-label">
-                                            <strong> เลขที่กรมธรรม์ </strong>
-                                        </label><br>
-                                        <el-input v-model="line.policy_no" style="width: 100%;" placeholder=""/>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group" style="padding: 5px;">
-                                        <label class="control-label">
-                                            <strong> ประเภทน้ำมัน </strong>
-                                        </label><br>
-                                        <vehicleOilType
-                                            :setData="line.vehicle_oil_type"
-                                            :editFlag="true"
-                                            @setVehicleOilType="setVehicleOilType"
-                                        ></vehicleOilType>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <div class="form-group" style="padding: 5px;">
-                                        <label class="control-label">
-                                            <strong> ประเภทค่าสาธารณูปโภค </strong>
-                                        </label><br>
-                                        <utilityType
-                                            :setData="line.utility_type"
-                                            :editFlag="true"
-                                            @setUtilityType="setUtilityType"
-                                        ></utilityType>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group" style="padding: 5px;">
-                                        <label class="control-label">
-                                            <strong> อาคาร/รหัสลูกค้า/ธพส. </strong>
-                                        </label><br>
-                                        <utilityDetail
-                                            :parent="line.utility_type"
-                                            :setData="line.utility_detail"
-                                            :editFlag="true"
-                                            @setUtilityDetail = "setUtilityDetail"
-                                        ></utilityDetail>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group" style="padding: 5px;">
-                                        <label class="control-label">
-                                            <strong> เลขที่ใบแจ้งหนี้ </strong>
-                                        </label><br>
-                                        <el-input v-model="line.invoice_no" style="width: 100%;" placeholder=""/>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group" style="padding: 5px;">
-                                        <label class="control-label">
-                                            <strong> วันที่ใบแจ้งหนี้ </strong>
-                                        </label><br>
-                                        <el-date-picker
-                                            v-model="line.invoice_date"
-                                            type="date"
-                                            placeholder=""
-                                            clearable
-                                            format="DD-MM-YYYY"
-                                            style="width: 100%;;"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <div class="form-group" style="padding: 5px;">
-                                        <label class="control-label">
-                                            <strong> จำนวนหน่วยที่ใช้ </strong>
-                                        </label><br>
-                                        <el-input v-model="line.unit_quantity" style="width: 100%;" placeholder=""/>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group" style="padding: 5px;">
-                                        <label class="control-label">
-                                            <strong> วันที่รับ </strong>
-                                        </label><br>
-                                        <el-date-picker
-                                            v-model="line.receipt_date"
-                                            type="date"
-                                            placeholder=""
-                                            clearable
-                                            format="DD-MM-YYYY"
-                                            style="width: 100%;"
-                                        />
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group" style="padding: 5px;">
-                                        <label class="control-label">
-                                            <strong> เลขที่หนังลือ </strong>
-                                        </label><br>
-                                        <el-input v-model="line.receipt_no" style="width: 100%;" placeholder=""/>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ผู้รับผิดชอบ </strong>
+                            </label><br>
+                            <el-input v-model="header.user.name" style="width: 100%;" placeholder="" disabled/>
+                        </div>
                     </div>
-                    <div class="modal-footer pt-2">
-                        <button type="button" class="btn btn-primary btn-sm" @click.private="confirm"
-                            style="color: #fff; background-color: #01b471; border-color: #01b471;">
-                            ตกลง
-                        </button>
-                        <button type="button" class="btn btn-warning btn-sm" @click.private="confirm">
-                            ยกเลิก
-                        </button>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> สถานะ </strong>
+                            </label><br>
+                            <el-input v-model="header.status_text" style="width: 100%;" placeholder="" disabled/>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ประเภท </strong>
+                            </label><br>
+                            <el-select v-model="header.invoice_type" placeholder="" style="width: 100%;" disabled>
+                                <el-option
+                                    v-for="type in invoiceTypes"
+                                    :key="type.lookup_code"
+                                    :label="type.description"
+                                    :value="type.lookup_code"
+                                />
+                            </el-select>
+                        </div>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> สำนักงานผู้เบิกจ่าย </strong>
+                            </label><br>
+                            <documentCategory
+                                :setData="header.document_category"
+                                :error="errors.document_category"
+                                :editFlag="false"
+                                @setDocumentCate="setDocumentCate"
+                            ></documentCategory>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> วันที่เอกสารส่งเบิก <span class="text-danger"> *</span></strong>
+                            </label><br>
+                            <el-date-picker
+                                v-model="header.invoice_date"
+                                ref="invoice_date"
+                                placeholder=""
+                                clearable
+                                format="DD-MM-YYYY"
+                                style="width: 100%;"
+                            />
+                            <div id="el_explode_invoice_date" class="text-danger text-left"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ชื่อผู้สั่งจ่าย </strong>
+                            </label><br>
+                            <supplier
+                                :setData="header.supplier"
+                                :error="errors.supplier"
+                                :editFlag="false"
+                                @setSupplier="setSupplierHeader"
+                            ></supplier>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> เลขที่ใบกำกับ </strong>
+                            </label><br>
+                            <el-input v-model="header.invoice_number" style="width: 100%;" placeholder="" disabled/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> สกุลเงิน <span class="text-danger"> *</span></strong>
+                            </label><br>
+                            <currency
+                                :setData="header.currency"
+                                :error="errors.currency"
+                                :editFlag="true"
+                                @setCurrency="setCurrency"
+                            ></currency>
+                            <div id="el_explode_currency" class="text-danger text-left"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> วิธีการจ่ายเงิน <span class="text-danger"> *</span></strong>
+                            </label><br>
+                            <paymentMethod
+                                :setData="header.payment_method"
+                                :error="errors.payment_method"
+                                :editFlag="true"
+                                @setPaymentMethod="setPaymentMethod"
+                            />
+                            <div id="el_explode_payment_method" class="text-danger text-left"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> เทอมการชำระเงิน <span class="text-danger"> *</span></strong>
+                            </label><br>
+                            <paymentTerm
+                                :setData="header.payment_term"
+                                :error="errors.payment_term"
+                                :editFlag="true"
+                                @setPaymentTerm="setPaymentTerm"
+                            />
+                            <div id="el_explode_payment_term" class="text-danger text-left"></div>
+                        </div>
+                    </div>
+                     <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> วันที่เคลียร์เงินยืม </strong>
+                            </label><br>
+                            <el-date-picker
+                                v-model="header.clear_date"
+                                placeholder=""
+                                clearable
+                                format="DD-MM-YYYY"
+                                style="width: 100%;"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> วันที่สัญญายืมเงิน </strong>
+                            </label><br>
+                            <el-date-picker
+                                v-model="header.contact_date"
+                                placeholder=""
+                                clearable
+                                format="DD-MM-YYYY"
+                                style="width: 100%;"
+                            />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ใบโอนล้างถึงที่สุด (บอ.) </strong>
+                            </label><br>
+                            <yesnoType
+                                :setData="header.final_judgment"
+                                :error="errors.final_judgment"
+                                :editFlag="true"
+                                @setFinalJudgment="setFinalJudgment"
+                            ></yesnoType>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> เลขที่เอกสาร JV/KL (GFMIS) </strong>
+                            </label><br>
+                            <el-input v-model="header.gfmis_document_number" style="width: 100%;" placeholder=""/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> คำอธิบาย </strong>
+                            </label><br>
+                            <el-input v-model="header.description" type="textarea" :rows="2" style="width: 100%;" placeholder="" maxlength="240" show-word-limit/>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> หมายเหตุ </strong>
+                            </label><br>
+                            <el-input v-model="header.note" type="textarea" :rows="2" style="width: 100%;" placeholder="" maxlength="150" show-word-limit/>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="card row" style="background-color: #8cbbff; border: 1px solid #8cbbff;">
+                    <div class="card-header" style="background-color: #8cbbff; padding: 10px;">
+                        <strong> ข้อมูลรายการขอเบิก </strong>
+                    </div>
+                </div>
+                <!-- TABLE LINE LISTS-->
+                <table class="table table-responsive-sm">
+                    <thead>
+                        <tr>
+                            <th class="text-center" width="7%"> รายการที่ </th>
+                            <th class="text-left" width="15%"> ประเภทค่าใช้จ่าย </th>
+                            <th class="text-left" width="26%"> รายการบัญชี </th>
+                            <th class="text-center" width="10%"> จำนวนเงิน </th>
+                            <th class="text-center" width="15%"> ชื่อสั่งจ่าย </th>
+                            <th class="text-center" width="15%"> เลขที่บัญชีธนาคาร </th>
+                            <th class="text-center" width="3%"> </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <listComp
+                            v-for="(row, index) in linelists"
+                            :key="index"
+                            :index="index"
+                            :attribute="row"
+                            :defaultSetName="defaultSetName"
+                            @updateRow="updateRow"
+                            @copyRow="copyRow"
+                            @removeRow="removeRow"
+                        />
+                    </tbody>
+                </table>
+                <div class="row m-t-sm">
+                    <div class="col-sm-9"> </div>
+                    <div class="col-sm-3 text-right">
+                        <div class="card">
+                            <table class="table" style="margin: 0px;">
+                                <tbody>
+                                    <tr>
+                                        <td class="mb-0 tw-text-grey-darker tw-text-bold" style="width:40%; font-size:15px !important;">
+                                            <strong> รวมทั้งสิ้น : </strong>
+                                        </td>
+                                        <td class="mb-0 tw-text-grey-darker tw-text-bold" style="width:60%; font-size:15px !important;" >
+                                            {{ numberFormat(totalApply) }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div align="center">
+                    <button type="button" class="btn btn-primary" @click.prevent="update()"> บันทึกรายการ </button>
+                    <button type="button" class="btn btn-success ml-1" @click.prevent="interface()"> ขอเบิก </button>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 </template>
+
 <script>
-    import supplier from "../lov/Supplier.vue";
-    import supplierBank from "../lov/SupplierBank.vue";
-    import vehicleOilType from "../lov/vehicleOilType.vue";
-    import utilityType from "../lov/UtilityType.vue";
-    import utilityDetail from "../lov/UtilityDetail.vue";
+    import moment           from "moment";
+    import numeral          from "numeral";
+    import Swal             from 'sweetalert2';
+
+    import documentCategory from "../lov/DocumentCategory.vue";
+    import supplier         from "../lov/Supplier.vue";
+    import supplierBank     from "../lov/SupplierBank.vue";
+    import budgetPlan       from "../lov/BudgetPlan.vue";
+    import budgetType       from "../lov/BudgetType.vue";
+    import expenseType      from "../lov/ExpenseType.vue";
+    import paymentMethod    from "../lov/PaymentMethod.vue";
+    import paymentTerm      from "../lov/PaymentTerm.vue";
+    import currency         from "../lov/Currency.vue";
+    import yesnoType        from "../lov/YesNoType.vue";
+    import listComp         from "./ListComponent.vue";
 
     export default {
         components: {
-            supplier, supplierBank, vehicleOilType, utilityType, utilityDetail
+            documentCategory, supplier, supplierBank, budgetPlan, budgetType, expenseType, paymentMethod, paymentTerm, currency, yesnoType, listComp
         },
-        props: ['requisition', 'reqLine'],
+        props: ['invoice', 'invoiceTypes', 'defaultSetName'],
         data() {
             return {
-                line: this.reqLine,
-                loading: false,
-                tempData: {},
                 errors: {
-                    supplier_detail: false,
-                    supplier_bank: false,
-                    expense_type: false,
-                    amount: false,
+                    invoice_date: false,
+                    currency: false,
+                    payment_method: false,
+                    payment_term: false,
                 },
+                loading: false,
+                header: this.invoice,
+                linelists: this.invoice.lines,
             };
         },
-        mounted() {
-            this.copyDataForEdit();
+        mounted(){
+            //
         },
-        watch: {
+        computed: {
+            totalApply() {
+                return this.linelists.reduce((accumulator, line) => {
+                    this.totalApplyAmount = accumulator + parseFloat(line.amount);
+                    return accumulator + parseFloat(line.amount);
+                }, 0);
+            },
+        },
+        watch:{
             errors: {
                 handler(val){
-                    val.segmentOverride? this.setError('segmentOverride') : this.resetError('segmentOverride');
+                    // val.invoice_date? this.setError('invoice_date') : this.resetError('invoice_date');
+                    // val.payment_method? this.setError('payment_method') : this.resetError('payment_method');
+                    // val.payment_term? this.setError('payment_term') : this.resetError('payment_term');
                 },
                 deep: true,
             },
         },
         methods: {
-            copyDataForEdit() {
-              // คัดลอกข้อมูลเดิมไปยัง tempData
-              this.tempData = { ...this.reqLine };
+            numberFormat(value) {
+                if (!value) return "0.00";
+                return numeral(value).format("0,0.00");
             },
-            saveEditedData() {
-              // บันทึกค่าแก้ไขแทนที่ค่าเดิม
-              if (this.tempData) {
-                this.reqLine = { ...this.tempData };
-                this.tempData = null; // รีเซ็ต tempData หลังบันทึก
-              }
-            },
-            cancelEdit() {
-              // ยกเลิกการแก้ไขและรีเซ็ต tempData
-              this.tempData = null;
+            changeDateFormat() {
+                const formattedDate = moment(this.req_date_input, "DD-MM-YYYY").format("YYYY-MM-DD");
+                this.search.req_date = formattedDate;
             },
             setError(ref_name){
-                let ref = this.$refs[ref_name].$refs.reference 
-                        ? this.$refs[ref_name].$refs.reference.$refs.input 
-                        : (this.$refs[ref_name].$refs.textarea 
-                            ? this.$refs[ref_name].$refs.textarea 
-                            : (this.$refs[ref_name].$refs.input.$refs 
-                                ? this.$refs[ref_name].$refs.input.$refs.input 
-                                : this.$refs[ref_name].$refs.wrapperRef ));
+                let ref =  this.$refs[ref_name].$refs.referenceRef
+                        ? this.$refs[ref_name].$refs.referenceRef.$refs.wrapperRef
+                        : (this.$refs[ref_name].$refs.textareaRef
+                            ? this.$refs[ref_name].$refs.textareaRef
+                            : (this.$refs[ref_name].$refs.numeric
+                                ? this.$refs[ref_name].$refs.numeric
+                                : (this.$refs[ref_name].$refs.wrapperRef.$refs
+                                    ? this.$refs[ref_name].$refs.wrapperRef.$refs.wrapperRef
+                                    : this.$refs[ref_name].$refs.wrapperRef )));
                 ref.style = "border: 1px solid red;";
             },
             resetError(ref_name){
-                let ref = this.$refs[ref_name].$refs.reference 
-                        ? this.$refs[ref_name].$refs.reference.$refs.input 
-                        : (this.$refs[ref_name].$refs.textarea 
-                            ? this.$refs[ref_name].$refs.textarea
-                            : (this.$refs[ref_name].$refs.input.$refs 
-                                ? this.$refs[ref_name].$refs.input.$refs.input 
-                                : this.$refs[ref_name].$refs.wrapperRef ));
+                let ref = this.$refs[ref_name].$refs.referenceRef
+                        ? this.$refs[ref_name].$refs.referenceRef.$refs.wrapperRef
+                        : (this.$refs[ref_name].$refs.textareaRef
+                            ? this.$refs[ref_name].$refs.textareaRef
+                            : (this.$refs[ref_name].$refs.numeric
+                                ? this.$refs[ref_name].$refs.numeric
+                                : (this.$refs[ref_name].$refs.wrapperRef.$refs
+                                    ? this.$refs[ref_name].$refs.wrapperRef.$refs.wrapperRef
+                                    : this.$refs[ref_name].$refs.wrapperRef )));
                 ref.style = "";
             },
-            confirm(){
-                $('#modal-edit').modal('hide');
+            setDocumentCate(res){
+                this.requisition.document_category = res.document_category;
             },
-            setSupplierLine(res){
-                this.line.supplier = res.supplier;
-                this.line.supplier_name = res.vendor_name;
+            setPaymentType(res){
+                this.requisition.payment_type = res.payment_type;
             },
-            setSupplierBank(res){
-                this.line.supplier_bank = res.supplier_bank;
+            setSupplierHeader(res){
+                this.requisition.supplier = res.supplier;
+                this.requisition.supplier_name = res.vendor_name;
+                if(this.requisition.multiple_supplier == 'ONE'){
+                    this.reqLine.supplier = res.supplier;
+                    this.reqLine.supplier_name = res.vendor_name;
+                }
             },
-            setVehicleOilType(res){
-                this.line.vehicle_oil_type = res.vehicle_oil_type;
+            setPaymentMethod(res){
+                this.temp.payment_method = res.payment_method;
             },
-            setUtilityType(res){
-                this.line.utility_type = res.utility_type;
+            setPaymentTerm(res){
+                this.temp.payment_term = res.payment_term;
             },
-            setUtilityDetail(res){
-                this.line.utility_detail = res.utility_detail;
+            setCurrency(res){
+                this.temp.currency = res.currency;
             },
-        }
-    };
+            setFinalJudgment(res){
+                this.temp.final_judgment = res.final_judgment;
+            },
+            updateRow(res){
+                var vm = this;
+                let index = res.index;
+                let line = res.line;
+                vm.linelists[index] = line;
+            },
+            copyRow(index) {
+                let copyLine = JSON.parse(JSON.stringify(this.linelists[index]));
+                this.linelists.push(JSON.parse(JSON.stringify(copyLine)));
+            },
+            removeRow(index) {
+                this.linelists.splice(index, 1);
+            },
+           async update(){
+                var vm = this;
+                var form = $('#edit-form');
+                let errorMsg = '';
+                let valid = true;
+                vm.errors.invoice_date = false;
+                vm.errors.currency = false;
+                vm.errors.invoice_date = false;
+                vm.errors.payment_term = false;
+                $(form).find("div[id='el_explode_invoice_date']").html(errorMsg);
+                $(form).find("div[id='el_explode_currency']").html(errorMsg);
+                $(form).find("div[id='el_explode_payment_method']").html(errorMsg);
+                $(form).find("div[id='el_explode_payment_term']").html(errorMsg);
+                // if (vm.header.invoice_date == '' || vm.header.invoice_date == null) {
+                //     vm.errors.invoice_date = true;
+                //     valid = false;
+                //     errorMsg = "กรุณาระบุวันที่เอกสาร";
+                //     $(form).find("div[id='el_explode_invoice_date']").html(errorMsg);
+                // }
+                if (vm.header.currency == '' || vm.header.currency == null) {
+                    vm.errors.currency = true;
+                    valid = false;
+                    errorMsg = "กรุณาระบุสกลเงิน";
+                    $(form).find("div[id='el_explode_currency']").html(errorMsg);
+                }
+                if (vm.header.payment_method == '' || vm.header.payment_method == null) {
+                    vm.errors.payment_method = true;
+                    valid = false;
+                    errorMsg = "กรุณาระบุวิธีการจ่ายเงิน";
+                    $(form).find("div[id='el_explode_payment_method']").html(errorMsg);
+                }
+                if (vm.header.payment_term == '' || vm.header.payment_term == null) {
+                    vm.errors.payment_term = true;
+                    valid = false;
+                    errorMsg = "กรุณาระบุเทอมการชำระเงิน";
+                    $(form).find("div[id='el_explode_payment_term']").html(errorMsg);
+                }
+                if (vm.linelists.length == 0) {
+                    valid = false;
+                    this.$notify({
+                        title: 'แจ้งเตือน',
+                        message: 'ไม่พบข้อมูลรายการ กรุณาตรวจสอบ',
+                        type: 'warning'
+                    });
+                }
+                if (!valid) {
+                    return;
+                }
+                Swal.fire({
+                    title: "ยืนยันบันทึกเอกสารขอเบิก",
+                    html: "ต้องการ <b>ยืนยัน</b> บันทึกเอกสารขอเบิกใช่หรือไม่?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "ใช่",
+                    cancelButtonText: "ไม่",
+                    allowOutsideClick: false // ป้องกันการปิด alert เมื่อคลิกนอกกรอบ
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.importData();
+                    }
+                });
+            },
+            async importData(){
+                var vm = this;
+                vm.loading = true;
+                axios.post('/expense/invoice/'+vm.header.id+'/update', {
+                    header: vm.header,
+                    lines: vm.linelists,
+                    totalApply: vm.totalApply,
+                })
+                .then(function (res) {
+                    vm.loading = false;
+                    if (res.data.message) {
+                        Swal.fire({
+                            title: "มีข้อผิดพลาด",
+                            text: res.data.message,
+                            icon: "error",
+                            showCancelButton: false,
+                            confirmButtonColor: "#3085d6",
+                            confirmButtonText: "ตกลง",
+                            allowOutsideClick: false
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "ยืนยันบันทึกเอกสารขอเบิก",
+                            html: "บันทึกเอกสารขอเบิกเรียบร้อยแล้ว",
+                            icon: "success",
+                            showCancelButton: false,
+                            confirmButtonColor: "#3085d6",
+                            confirmButtonText: "ตกลง",
+                            allowOutsideClick: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                setTimeout(function() {
+                                    location.reload();
+                                }, 500);
+                            }
+                        });
+                    }
+                }.bind(vm))
+                .catch(err => {
+                    let msg = err.response;
+                    Swal.fire({
+                        title: "มีข้อผิดพลาด",
+                        text: msg.message,
+                        icon: "error",
+                        showCancelButton: false,
+                        confirmButtonColor: "#3085d6",
+                        confirmButtonText: "ตกลง",
+                        allowOutsideClick: false
+                    });
+                })
+                .then(() => {
+                    vm.loading = false;
+                });
+            },
+            async interface(){
+                var vm = this;
+                vm.loading = true;
+                Swal.fire({
+                    title: "ขอเบิกเอกสาร",
+                    html: "ต้องการขอเบิกเอกสารใช่หรือไม่?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "ใช่",
+                    cancelButtonText: "ไม่",
+                    allowOutsideClick: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.post('/expense/invoice/'+vm.header.id+'/update', {
+                            header: vm.header,
+                            lines: vm.linelists,
+                            totalApply: vm.totalApply,
+                        })
+                        .then(function (res) {
+                            vm.loading = false;
+                            if (res.data.message) {
+                                Swal.fire({
+                                    title: "มีข้อผิดพลาด",
+                                    text: res.data.message,
+                                    icon: "error",
+                                    showCancelButton: false,
+                                    confirmButtonColor: "#3085d6",
+                                    confirmButtonText: "ตกลง",
+                                    allowOutsideClick: false
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: "ขอเบิกเอกสาร",
+                                    html: "ขอเบิกเอกสารเรียบร้อยแล้ว",
+                                    icon: "success",
+                                    showCancelButton: false,
+                                    confirmButtonColor: "#3085d6",
+                                    confirmButtonText: "ตกลง",
+                                    allowOutsideClick: false
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        setTimeout(function() {
+                                            location.reload();
+                                        }, 500);
+                                    }
+                                });
+                            }
+                        }.bind(vm))
+                        .catch(err => {
+                            let msg = err.response;
+                            Swal.fire({
+                                title: "มีข้อผิดพลาด",
+                                text: msg.message,
+                                icon: "error",
+                                showCancelButton: false,
+                                confirmButtonColor: "#3085d6",
+                                confirmButtonText: "ตกลง",
+                                allowOutsideClick: false
+                            });
+                        })
+                        .then(() => {
+                            vm.loading = false;
+                        });
+                    }
+                });
+            }
+        },
+    }
 </script>
 
-<style>
-    .el-popper{
-        z-index: 9999 !important;
+<style type="text/css" scope>
+    .el-select__wrapper {
+        font-size: 12px;
+    }
+    .el-input__wrapper {
+        font-size: 12px;
+        /*padding: 0px;*/
     }
 </style>

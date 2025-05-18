@@ -1,7 +1,7 @@
 <template>
     <div class="el_select">
         <el-select v-model="value"
-                name="yesno_type"
+                name="payment_term"
                 placeholder=""
                 :remote-method="getDataRows"
                 :loading="loading"
@@ -16,9 +16,9 @@
             >
             <el-option
                 v-for="(row, index) in dataRows"
-                :key="row.flex_value"
+                :key="row.term_id"
                 :label="row.description"
-                :value="row.flex_value"
+                :value="row.term_id"
             >
             </el-option>
         </el-select>
@@ -58,7 +58,7 @@ export default {
     methods: {
         getDataRows (query) {
             this.loading = true;
-            axios.get(`/expense/api/get-yesno-type`, {
+            axios.get(`/expense/api/get-payment-term`, {
                 params: {
                     keyword: query
                 }
@@ -66,7 +66,7 @@ export default {
             .then(res => {
                 this.loading = false;
                 this.dataRows = res.data.data;
-                this.$emit('setFinalJudgment', {final_judgment: this.value});
+                this.$emit('setPaymentTerm', {payment_term: this.value});
             })
             .catch((error) => {
                 console.log('มีข้อผิดพลาด', error, 'error');

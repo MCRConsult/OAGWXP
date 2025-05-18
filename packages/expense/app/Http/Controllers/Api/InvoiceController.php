@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
 use Packages\expense\app\Models\RequisitionHeader;
+use Packages\expense\app\Models\InvoiceHeader;
 use Packages\expense\app\Models\MappingAutoInvoiceV;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -54,11 +55,27 @@ class InvoiceController extends Controller
         return response()->json(['data' => $requistion]);
     }
 
+    public function getVoucher(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $vouchers = InvoiceHeader::selectRaw('distinct voucher_number')
+                    ->when($keyword, function ($query, $keyword) {
+                        return $query->where(function($r) use ($keyword) {
+                            $r->whereRaw('UPPER(voucher_number) like ?', ['%'.strtoupper($keyword).'%']);
+                        });
+                    })
+                    ->orderBy('voucher_number')
+                    ->limit(25)
+                    ->get();
+
+        return response()->json(['data' => $vouchers]);
+    }
+
     public function fetchRequisition(Request $request)
     {
         $invMapping = [];
         $requistion = RequisitionHeader::search($request->search)
-                            ->with(['user', 'invoiceType'])
+                            ->with(['user', 'invoiceType', 'supplier'])
                             ->whereIn('status', ['ALLOCATE', 'DISBURSEMENT'])
                             ->orderBy('req_number')
                             ->get();

@@ -31,10 +31,16 @@ class UserRepo {
                         $user->person_id = $fndUser->employee_id;
                     }
 
-                    // if ($user->email != $fndUser->email_address) {
-                    //     $updateFlag = true;
-                    //     $user->email = $fndUser->email_address;
-                    // }
+                    if ($user->org_id != $fndUser->hrEmployee->organization_id) {
+                        $updateFlag = true;
+                        $user->org_id = $fndUser->hrEmployee->organization_id;
+                    }
+
+                    if ($user->location_id != $fndUser->hrEmployee->location_id) {
+                        $updateFlag = true;
+                        $user->location_id = $fndUser->hrEmployee->location_id;
+                    }
+
                     if (is_null($user->email)) {
                         $updateFlag = true;
                         $user->email = $fndUser->email_address;
@@ -66,6 +72,8 @@ class UserRepo {
                 if ($active) {
                     $user               = new User;
                     $user->name         = strtoupper($fndUser->user_name);
+                    $user->org_id       = $fndUser->hrEmployee->organization_id;
+                    $user->location_id  = $fndUser->hrEmployee->location_id;
                     $user->fnd_user_id  = $fndUser->user_id;
                     $user->person_id    = $fndUser->employee_id;
                     $user->email        = $fndUser->email_address;

@@ -21,10 +21,10 @@ return new class extends Migration
         Schema::connection('oracle_oagwxp')->create($this->tableName, function (Blueprint $table) {
             $table->increments('id');
             $table->integer('org_id')->nullable();
-            $table->integer('seq_no');
-            $table->string('reference_no');
+            $table->integer('seq_number');
+            $table->string('reference_number');
             $table->boolean('remaining_receipt_flag')->nullable();
-            $table->string('remaining_receipt_no')->nullable();
+            $table->string('remaining_receipt_number')->nullable();
             $table->string('amount', 18, 2);
             $table->integer('created_by');
             $table->integer('updated_by')->nullable();
