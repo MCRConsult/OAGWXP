@@ -16,9 +16,9 @@
             >
             <el-option
                 v-for="(row, index) in dataRows"
-                :key="row.cash_receipt_id"
-                :label="row.receipt_number"
-                :value="row.cash_receipt_id"
+                :key="row.tax_id"
+                :label="row.tax"
+                :value="row.tax"
             >
             </el-option>
         </el-select>
@@ -58,7 +58,7 @@ export default {
     methods: {
         getDataRows (query) {
             this.loading = true;
-            axios.get(`/expense/api/get-receipt`, {
+            axios.get(`/expense/api/get-taxes`, {
                 params: {
                     keyword: query
                 }
@@ -66,7 +66,7 @@ export default {
             .then(res => {
                 this.loading = false;
                 this.dataRows = res.data.data;
-                this.$emit('setReceipt', {receipt: this.value});
+                this.$emit('setTax', {tax_code: this.value});
             })
             .catch((error) => {
                 console.log('มีข้อผิดพลาด', error, 'error');

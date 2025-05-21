@@ -40,12 +40,12 @@ export default {
     mounted() {
         this.loading = true;
         this.value = this.setData;
-        // this.getDataRows(this.value);
+        this.getDataRows(this.value);
     },
     watch: {
         setData() {
             this.value = this.setData;
-            this.getDataRows(this.value);
+            // this.getDataRows(this.value);
         },
         error() {
             let ref = this.$refs['input'].$refs.wrapperRef;
@@ -75,7 +75,7 @@ export default {
                 this.$emit('setSupplier', {supplier: this.value, vendor_name: vendor_name});
             })
             .catch((error) => {
-                 this.$message({
+                this.$message({
                     showClose: true,
                     message: error,
                     type: 'error',

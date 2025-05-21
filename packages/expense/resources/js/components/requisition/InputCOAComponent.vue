@@ -10,10 +10,11 @@
             :remote-method="getValueSetList"
             :loading="loading"
             size="default"
-            @change="changeCoa"
             class="w-100 el-select-input-segment"
+            remote-show-suffix
             style="width: 100%;"
             ref="input"
+            @change="changeCoa"
         >
             <el-option
                 v-for="(item, key) in options"
@@ -26,8 +27,8 @@
 </template>
 <script>
 export default {
-    props: ['setName', 'setData', 'setParent', 'error', 'defaultSetName', 'setOptions'],
-    // , "setOptions"
+    props: ['setName', 'parent', 'setData', 'error', 'defaultSetName'],
+    emits: ['coa'],
     data() {
         return {
             options: [],
@@ -44,24 +45,22 @@ export default {
         setData() {
             this.value = this.setData;
             this.getValueSetList(this.value);
-            this.options = this.setOptions;
         },
         error() {
-            let ref = this.$refs['input'].$refs.reference.$refs.input;
+            let ref = this.$refs['input'].$refs.wrapperRef;
             ref.style = "";
-            if(this.error && (this.value === '' || this.value === null)){
+            if(this.error && (this.value === '' || this.value === null || this.value === undefined)){
                 ref.style = "border: 1px solid red;";
             }
         },
     },
     methods: {
         async getValueSetList(query) {
-            // this.loading = true;
-            await axios.get("/ajax/inquiry-funds", {
+            await axios.get("/expense/api/get-expense-account", {
                 params: {
                     flex_value_set_name: this.setName,
+                    flex_value_set_parent: this.parent,
                     flex_value_set_data: this.value,
-                    flex_value_parent: this.setParent,
                     query: query,
                 }
             })
@@ -77,25 +76,43 @@ export default {
         },
         changeCoa() {
             if (this.setName == this.defaultSetName.segment1) {
-                this.$emit("coa", {name: this.setName, segment1: this.value, options: this.options});
+                this.$emit("coa", {name: this.setName, segment1: this.value});
             }
             if (this.setName == this.defaultSetName.segment2) {
-                this.$emit("coa", {name: this.setName, segment2: this.value, options: this.options});
+                this.$emit("coa", {name: this.setName, segment2: this.value});
             }
             if (this.setName == this.defaultSetName.segment3) {
-                this.$emit("coa", {name: this.setName, segment3: this.value, options: this.options});
+                this.$emit("coa", {name: this.setName, segment3: this.value});
             }
             if (this.setName == this.defaultSetName.segment4) {
-                this.$emit("coa", {name: this.setName, segment4: this.value, options: this.options});
+                this.$emit("coa", {name: this.setName, segment4: this.value});
             }
             if (this.setName == this.defaultSetName.segment5) {
-                this.$emit("coa", {name: this.setName, segment5: this.value, options: this.options});
+                this.$emit("coa", {name: this.setName, segment5: this.value});
             }
             if (this.setName == this.defaultSetName.segment6) {
-                this.$emit("coa", {name: this.setName, segment6: this.value, options: this.options});
+                this.$emit("coa", {name: this.setName, segment6: this.value});
             }
             if (this.setName == this.defaultSetName.segment7) {
-                this.$emit("coa", {name: this.setName, segment7: this.value, options: this.options});
+                this.$emit("coa", {name: this.setName, segment7: this.value});
+            }
+            if (this.setName == this.defaultSetName.segment8) {
+                this.$emit("coa", {name: this.setName, segment8: this.value});
+            }
+            if (this.setName == this.defaultSetName.segment9) {
+                this.$emit("coa", {name: this.setName, segment9: this.value});
+            }
+            if (this.setName == this.defaultSetName.segment10) {
+                this.$emit("coa", {name: this.setName, segment10: this.value});
+            }
+            if (this.setName == this.defaultSetName.segment11) {
+                this.$emit("coa", {name: this.setName, segment11: this.value});
+            }
+            if (this.setName == this.defaultSetName.segment12) {
+                this.$emit("coa", {name: this.setName, segment12: this.value});
+            }
+            if (this.setName == this.defaultSetName.segment13) {
+                this.$emit("coa", {name: this.setName, segment13: this.value});
             }
         }
     }

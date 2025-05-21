@@ -22,6 +22,8 @@ use Packages\expense\app\Models\PaymentMethod;
 use Packages\expense\app\Models\Currency;
 use Packages\expense\app\Models\FlaxValueV;
 use Packages\expense\app\Models\POExpenseAccountRuleV;
+use Packages\expense\app\Models\GLPeriod;
+use Packages\expense\app\Models\COAListV;
 
 class RequisitionController extends Controller
 {
@@ -31,8 +33,9 @@ class RequisitionController extends Controller
                                     ->orderBy('req_number', 'desc')
                                     ->paginate(15);
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
-        $statuses = ['DISBURSEMENT' => 'รอเบิกจ่าย'
-                    , 'ALLOCATE'    => 'รอจัดสรร'
+        $statuses = ['COMPLETED'    => 'รอเบิกจ่าย'
+                    , 'PENDING'     => 'รอจัดสรร'
+                    , 'HOLD'        => 'รอตรวจสอบ'
                     , 'CANCELLED'   => 'ยกเลิก'];
 
         return view('expense::requisition.index', compact('requisitions', 'invoiceTypes', 'statuses'));
@@ -42,7 +45,8 @@ class RequisitionController extends Controller
     {
         $referenceNo = date('YmdHis').'-'.Str::random(5);
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
-        return view('expense::requisition.create', compact('invoiceTypes', 'referenceNo'));
+        $defaultSetName = (new COAListV)->getDefaultSetName();
+        return view('expense::requisition.create', compact('invoiceTypes', 'referenceNo', 'defaultSetName'));
     }
 
     public function store(Request $request)
@@ -69,7 +73,7 @@ class RequisitionController extends Controller
             $headerTemp->supplier_name              = $header['supplier_name'];
             $headerTemp->multiple_supplier          = $header['multiple_supplier'];
             $headerTemp->total_amount               = $request->totalApply;
-            $headerTemp->status                     = 'DISBURSEMENT';
+            $headerTemp->status                     = 'COMPLETED';
             $headerTemp->description                = $header['description'];
             $headerTemp->requester                  = $user->id;
             $headerTemp->created_by                 = $user->id;
@@ -80,7 +84,7 @@ class RequisitionController extends Controller
 
             foreach ($lines as $key => $line) {
                 // GET CONCATE SEGMENT
-                $accountConcate = $this->concateAccount($line['expense_type'], $user, $header['budget_source'], $line['budget_plan'], $line['budget_type'], $header['document_category']);
+                // $accountConcate = $this->concateAccount($line['expense_type'], $user, $header['budget_source'], $header['document_category']);
                 $lineTemp                           = new RequisitionLine;
                 $lineTemp->req_header_id            = $headerTemp->id;
                 $lineTemp->seq_number               = $key+1;
@@ -91,7 +95,7 @@ class RequisitionController extends Controller
                 $lineTemp->budget_type              = $line['budget_type'];
                 $lineTemp->expense_type             = $line['expense_type'];
                 $lineTemp->expense_description      = $line['expense_description'];
-                $lineTemp->expense_account          = $accountConcate;
+                $lineTemp->expense_account          = $line['expense_account'];
                 $lineTemp->amount                   = $line['amount'];
                 $lineTemp->description              = $line['description'];
                 $lineTemp->vehicle_number           = $line['vehicle_number'];
@@ -134,7 +138,7 @@ class RequisitionController extends Controller
         return view('expense::requisition.show', compact('requisition'));
     }
 
-    private function concateAccount($itemCate, $user, $budgetSource, $budgetPlan, $budgetType, $documentCategory)
+    private function concateAccount($itemCate, $user, $budgetSource, $documentCategory)
     {
         $docCate = explode('_', $documentCategory);
         $employee = $user->hrEmployee;
@@ -142,7 +146,9 @@ class RequisitionController extends Controller
                                             ->orderBy('segment_num')
                                             ->get()
                                             ->pluck('segment_value', 'segment_num');
-
+        //YEAR
+        $year = strtoupper(date('M-y'));
+        $period = GLPeriod::selectRaw("period_year+543 period_year")->where('period_name', $year)->first();
         $concatenatedSegments = '';
         $segments = [];
         // SEGMENT1
@@ -150,7 +156,7 @@ class RequisitionController extends Controller
         // SEGMENT2
         $segments[2] = $employee->segment2;
         // SEGMENT3
-        $segments[3] = date('Y');
+        $segments[3] = date('y', strtotime($period->period_year));
         // SEGMENT4
         $segments[4] = $budgetSource;
         // SEGMENT5-8
@@ -159,41 +165,41 @@ class RequisitionController extends Controller
         $segments[7] = null;
         $segments[8] = null;
         if ($budgetSource == 510) {
-            $segments[5] = $budgetSource;
-            $segments[6] = $budgetSource;
-            $segments[7] = $budgetSource;
-            $segments[8] = $budgetSource;
+            $segments[5] = isset($accountRules[5])? $accountRules[5]: '00000';
+            $segments[6] = isset($accountRules[6])? $accountRules[6]: '00000';
+            $segments[7] = isset($accountRules[7])? $accountRules[7]: '00000';
+            $segments[8] = isset($accountRules[8])? $accountRules[8]: '000000';
         }elseif(in_array($budgetSource, [520, 530, 550])){
             $segments[5] = '00000';
             $segments[6] = isset($accountRules[6])? $accountRules[6]: '00000';
             $segments[7] = '00000';
-            $segments[8] = $budgetType;
+            $segments[8] = isset($accountRules[8])? $accountRules[8]: '000000';
         }elseif($budgetSource == 540){
-            $segments[5] = '00000';
-            $segments[6] = '00000';
-            $segments[7] = '00000';
-            $segments[8] = $budgetType;
+            $segments[5] = isset($accountRules[5])? $accountRules[5]: '00000';
+            $segments[6] = isset($accountRules[6])? $accountRules[6]: '00000';
+            $segments[7] = isset($accountRules[7])? $accountRules[7]: '00000';
+            $segments[8] = isset($accountRules[8])? $accountRules[8]: '000000';
         }elseif($docCate[1] == 'สบพ.'){
-            $segments[5] = $budgetSource;
-            $segments[6] = $budgetSource;
-            $segments[7] = $budgetSource;
-            $segments[8] = $budgetType;
+            $segments[5] = isset($accountRules[5])? $accountRules[5]: '00000';
+            $segments[6] = isset($accountRules[6])? $accountRules[6]: '00000';
+            $segments[7] = isset($accountRules[7])? $accountRules[7]: '00000';
+            $segments[8] = isset($accountRules[8])? $accountRules[8]: '000000';
         }else{
-            $segments[5] = $budgetPlan;
+            $segments[5] = isset($accountRules[5])? $accountRules[5]: '00000';
             $segments[6] = '00000';
             $segments[7] = '00000';
-            $segments[8] = $budgetType;
+            $segments[8] = isset($accountRules[8])? $accountRules[8]: '000000';
         }
         // SEGMENT9
         $segments[9] = '00000000000000000000';
         // SEGMENT10
         $segments[10] = isset($accountRules[10])? $accountRules[10]: '0000000000';
         // SEGMENT11
-        $segments[11] = isset($accountRules[11])? $accountRules[11]: '0000000000';
+        $segments[11] = isset($accountRules[11])? $accountRules[11]: '000000';
         // SEGMENT12
         $segments[12] = '00';
         // SEGMENT13
-        $segments[13] = '000';
+        $segments[13] = '00';
 
         $concatenatedSegments = $segments[1].'.'.$segments[2].'.'.$segments[3].'.'.$segments[4].'.'.$segments[5].'.'.$segments[6].'.'.$segments[7].'.'.$segments[8].'.'.$segments[9].'.'.$segments[10].'.'.$segments[11].'.'.$segments[12].'.'.$segments[13];
 
@@ -208,11 +214,11 @@ class RequisitionController extends Controller
         \DB::beginTransaction();
         try {
             $headerTemp                             = new RequisitionReceiptTemp;
-            $headerTemp->org_id                     = 101;
-            $headerTemp->reference_number               = $header['reference_number'];
-            $headerTemp->seq_number                     = $request->seq+1;
+            $headerTemp->org_id                     = $user->org_id;
+            $headerTemp->reference_number           = $header['reference_number'];
+            $headerTemp->seq_number                 = $request->seq+1;
             $headerTemp->remaining_receipt_flag     = $line['remaining_receipt_flag']? 'Y': 'N';
-            $headerTemp->remaining_receipt_number       = $line['remaining_receipt'];
+            $headerTemp->remaining_receipt_number   = $line['remaining_receipt'];
             $headerTemp->amount                     = $line['amount'];
             $headerTemp->created_by                 = $user->id;
             $headerTemp->updated_by                 = $user->id;

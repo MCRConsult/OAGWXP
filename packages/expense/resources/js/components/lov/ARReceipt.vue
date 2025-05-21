@@ -1,7 +1,7 @@
 <template>
     <div class="el_select">
         <el-select v-model="value"
-                name="payment_term"
+                name="receipt"
                 placeholder=""
                 :remote-method="getDataRows"
                 :loading="loading"
@@ -16,9 +16,9 @@
             >
             <el-option
                 v-for="(row, index) in dataRows"
-                :key="row.term_id"
-                :label="row.description"
-                :value="row.term_id"
+                :key="row.cash_receipt_id"
+                :label="row.receipt_number"
+                :value="row.cash_receipt_id"
             >
             </el-option>
         </el-select>
@@ -40,12 +40,12 @@ export default {
     mounted() {
         this.loading = true;
         this.value = this.setData;
-        this.getDataRows(this.value);
+        // this.getDataRows(this.value);
     },
     watch: {
         setData() {
             this.value = this.setData;
-            // this.getDataRows(this.value);
+            this.getDataRows(this.value);
         },
         error() {
             let ref = this.$refs['input'].$refs.wrapperRef;
@@ -58,7 +58,7 @@ export default {
     methods: {
         getDataRows (query) {
             this.loading = true;
-            axios.get(`/expense/api/get-payment-term`, {
+            axios.get(`/expense/api/get-receipt`, {
                 params: {
                     keyword: query
                 }
@@ -66,7 +66,13 @@ export default {
             .then(res => {
                 this.loading = false;
                 this.dataRows = res.data.data;
-                this.$emit('setPaymentTerm', {payment_term: this.value});
+                let receipt_number = '';
+                res.data.data.filter((value) => {
+                    if(value.cash_receipt_id == this.value){
+                        receipt_number = value.receipt_number;
+                    }
+                });
+                this.$emit('setArReceipt', {receipt: this.value, receipt_number: receipt_number});
             })
             .catch((error) => {
                 console.log('มีข้อผิดพลาด', error, 'error');

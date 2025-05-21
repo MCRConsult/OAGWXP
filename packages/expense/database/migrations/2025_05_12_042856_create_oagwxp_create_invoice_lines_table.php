@@ -21,10 +21,10 @@ return new class extends Migration
         Schema::connection('oracle_oagwxp')->create($this->tableName, function (Blueprint $table) {
             $table->increments('id');
             $table->integer('invoice_header_id');
-            $table->integer('seq_no');
+            $table->integer('seq_number');
             $table->integer('supplier_id');
             $table->string('supplier_name')->nullable();
-            $table->string('bank_account_number');
+            $table->string('bank_account_number')->nullable();;
             $table->string('budget_plan');
             $table->string('budget_type');
             $table->string('expense_type');

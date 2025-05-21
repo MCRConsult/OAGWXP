@@ -1,7 +1,7 @@
 <template>
     <div class="el_select">
         <el-select v-model="value"
-                name="payment_term"
+                name="receipt"
                 placeholder=""
                 :remote-method="getDataRows"
                 :loading="loading"
@@ -16,9 +16,9 @@
             >
             <el-option
                 v-for="(row, index) in dataRows"
-                :key="row.term_id"
-                :label="row.description"
-                :value="row.term_id"
+                :key="row.tax_id"
+                :label="row.name+' : '+row.description"
+                :value="row.name"
             >
             </el-option>
         </el-select>
@@ -40,12 +40,12 @@ export default {
     mounted() {
         this.loading = true;
         this.value = this.setData;
-        this.getDataRows(this.value);
+        // this.getDataRows(this.value);
     },
     watch: {
         setData() {
             this.value = this.setData;
-            // this.getDataRows(this.value);
+            this.getDataRows(this.value);
         },
         error() {
             let ref = this.$refs['input'].$refs.wrapperRef;
@@ -58,7 +58,7 @@ export default {
     methods: {
         getDataRows (query) {
             this.loading = true;
-            axios.get(`/expense/api/get-payment-term`, {
+            axios.get(`/expense/api/get-wht`, {
                 params: {
                     keyword: query
                 }
@@ -66,7 +66,7 @@ export default {
             .then(res => {
                 this.loading = false;
                 this.dataRows = res.data.data;
-                this.$emit('setPaymentTerm', {payment_term: this.value});
+                this.$emit('setWht', {wht_code: this.value});
             })
             .catch((error) => {
                 console.log('มีข้อผิดพลาด', error, 'error');

@@ -19,7 +19,8 @@ class InvoiceController extends Controller
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
         if ($request->keyword == null) {
             $requistion = RequisitionHeader::selectRaw('distinct req_number trans_number')
-                        ->whereIn('status', ['ALLOCATE', 'DISBURSEMENT'])
+                        ->whereIn('status', ['PENDING', 'COMPLETED'])
+                        ->whereNull('invoice_reference_id')
                         ->when($keyword, function ($query, $keyword) {
                             return $query->where(function($r) use ($keyword) {
                                 $r->whereRaw('UPPER(req_number) like ?', ['%'.strtoupper($keyword).'%']);
@@ -30,7 +31,8 @@ class InvoiceController extends Controller
                         ->get();
         }else{
             $requistion = RequisitionHeader::selectRaw('distinct req_number trans_number')
-                            ->whereIn('status', ['ALLOCATE', 'DISBURSEMENT'])
+                            ->whereIn('status', ['PENDING', 'COMPLETED'])
+                            ->whereNull('invoice_reference_id')
                             ->when($keyword, function ($query, $keyword) {
                                 return $query->where(function($r) use ($keyword) {
                                     $r->whereRaw('UPPER(req_number) like ?', ['%'.strtoupper($keyword).'%']);
@@ -76,7 +78,8 @@ class InvoiceController extends Controller
         $invMapping = [];
         $requistion = RequisitionHeader::search($request->search)
                             ->with(['user', 'invoiceType', 'supplier'])
-                            ->whereIn('status', ['ALLOCATE', 'DISBURSEMENT'])
+                            ->whereIn('status', ['PENDING', 'COMPLETED'])
+                            ->whereNull('invoice_reference_id')
                             ->orderBy('req_number')
                             ->get();
         // $invMapping = MappingAutoInvoiceV::selectRaw('distinct invoice_type_lookup_code, invoice_num, sum(remaining_amount) remaining_amount')
@@ -107,7 +110,8 @@ class InvoiceController extends Controller
         $invMapping =[];
         $requistion = RequisitionHeader::search($request->search)
                             ->with(['user', 'invoiceType'])
-                            ->whereIn('status', ['ALLOCATE', 'DISBURSEMENT'])
+                            ->whereIn('status', ['PENDING', 'COMPLETED'])
+                            ->whereNull('invoice_reference_id')
                             ->orderBy('req_number')
                             ->get();
         // $invMapping = MappingAutoInvoiceV::selectRaw('distinct invoice_type_lookup_code, invoice_num, sum(remaining_amount) remaining_amount')

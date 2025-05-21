@@ -75,11 +75,11 @@ class InvoiceHeader extends Model
         $status = $this->status;
         $result = "";
         switch ($status) {
-            case "DISBURSEMENT":
+            case "NEW":
                 $result = 'รอเบิกจ่าย';
                 break;
-            case "ALLOCATE":
-                $result = 'รอจัดสรร';
+            case "INTERFACED":
+                $result = 'เบิกจ่ายแล้ว';
                 break;
             case "CANCELLED":
                 $result = 'ยกเลิก';
@@ -96,11 +96,11 @@ class InvoiceHeader extends Model
         $status = $this->status;
         $result = "";
         switch ($status) {
-            case "DISBURSEMENT":
+            case "NEW":
                 $result = "<span class='badge badge-success' style='padding: 5px;'> รอเบิกจ่าย </span>";
                 break;
-            case "ALLOCATE":
-                $result = "<span class='badge badge-warning' style='padding: 5px;'> รอจัดสรร </span>";
+            case "INTERFACED":
+                $result = "<span class='badge badge-warning' style='padding: 5px;'> เบิกจ่ายแล้ว </span>";
                 break;
             case "CANCELLED":
                 $result = "<span class='badge badge-danger' style='padding: 5px;'> ยกเลิก </span>";

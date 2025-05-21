@@ -21,7 +21,11 @@ use Packages\expense\app\Models\MTLCategoriesV;
 use Packages\expense\app\Models\ARBudgetReceiptV;
 use Packages\expense\app\Models\PaymentMethod;
 use Packages\expense\app\Models\PaymentTerm;
+use Packages\expense\app\Models\ARReceiptNumberAllV;
+use Packages\expense\app\Models\Tax;
+use Packages\expense\app\Models\WHT;
 use Packages\expense\app\Models\COAListV;
+use Packages\expense\app\Models\GLSubAccountV;
 
 class LovController extends Controller
 {
@@ -337,9 +341,41 @@ class LovController extends Controller
         return response()->json(['data' => $budgetSource]);
     }
 
+    public function getTaxes(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $taxes = Tax::selectRaw('tax_id, tax')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->WhereRaw('UPPER(tax) like ?', [strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->orderBy('tax')
+                        ->get();
+
+        return response()->json(['data' => $taxes]);
+    }
+
+    public function getWht(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $wht = WHT::selectRaw('tax_id, name, description')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->WhereRaw('UPPER(name) like ?', [strtoupper($keyword).'%'])
+                                ->orWhereRaw('UPPER(description) like ?', [strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->orderBy('name')
+                        ->get();
+
+        return response()->json(['data' => $wht]);
+    }
+
     public function getExpenseAccount(Request $request)
     {
         $setName = $request->flex_value_set_name;
+        $parent = $request->flex_value_set_parent;
         $setValue = $request->flex_value_set_data;
         $text  = $request->get('query');
         $flexValue = [];
@@ -374,7 +410,7 @@ class LovController extends Controller
             $flexValue = (new COAListV)->LOVResult($setName, $setValue, $text);
         }
         if ($setName == 'OAG_GL_SUB_ACCOUNT') {
-            $flexValue = (new COAListV)->LOVResult($setName, $setValue, $text);
+            $flexValue = (new GLSubAccountV)->LOVResult($setName, $parent, $setValue, $text);
         }
         if ($setName == 'OAG_GL_RESERVE_1') {
             $flexValue = (new COAListV)->LOVResult($setName, $setValue, $text);

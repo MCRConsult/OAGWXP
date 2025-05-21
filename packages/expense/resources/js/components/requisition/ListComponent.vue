@@ -19,6 +19,7 @@
                     :index="index"
                     :requisition="requisition"
                     :reqLine="line"
+                    :defaultSetName="defaultSetName"
                     @updateRow="updateRow"
                 />
                 <button type="button" @click.prevent="copy(index)" class="btn btn-sm btn-primary m-1" style="">
@@ -40,7 +41,7 @@
         components: {
             modalEditComp
         },
-        props: ['index', 'requisition', 'attribute'],
+        props: ['index', 'requisition', 'attribute', 'defaultSetName'],
         emits: ['updateRow', 'copyRow', 'removeRow'],
         data() {
             return {

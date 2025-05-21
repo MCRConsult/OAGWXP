@@ -29,8 +29,8 @@ class InvoiceController extends Controller
                                     ->orderBy('voucher_number', 'desc')
                                     ->paginate(15);
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
-        $statuses = ['DISBURSEMENT' => 'รอเบิกจ่าย'
-                    , 'ALLOCATE'    => 'รอจัดสรร'
+        $statuses = ['NEW'          => 'รอเบิกจ่าย'
+                    , 'INTERFACED'  => 'เบิกจ่ายแล้ว'
                     , 'CANCELLED'   => 'ยกเลิก'];
 
         return view('expense::invoice.index', compact('invoices', 'invoiceTypes', 'statuses'));
@@ -57,8 +57,30 @@ class InvoiceController extends Controller
                                 ->where('invoice_num', $req)
                                 ->get();
             }
-            $mergeReqs = collect($requistion)->merge($invMapping)->all();
+            if ($key == 0) {
+                $mergeReqs = collect($requistion)->merge($invMapping)->all();
+            }else{
+                $mergeReqs = collect($mergeReqs)->merge($requistion)->merge($invMapping)->all();
+            }
         }
+        // VALIDATE : เช็คเงื่อนไขให้เลือกรายการได้เฉพาะรายการที่มีประเภทและชื่อสั่งจ่ายเดียวกันเท่านั้น
+        $suppliers = collect($mergeReqs)->pluck('supplier_id')->toArray();
+        $invoiceTypes = collect($mergeReqs)->pluck('invoice_type')->toArray();
+        if (count(array_unique($suppliers)) > 1) {
+            $data = [
+                'status' => 'ERROR',
+                'message' => 'รายการที่เลือกมีชื่อสั่งจ่ายมากกว่า 1 ชื่อสั่งจ่าย กรุณาตรวจสอบ',
+            ];
+            return response()->json($data);
+        }
+        if (count(array_unique($invoiceTypes)) > 1) {
+            $data = [
+                'status' => 'ERROR',
+                'message' => 'รายการที่เลือกมีประเภทเอกสารมากกว่า 1 ประเภท กรุณาตรวจสอบ',
+            ];
+            return response()->json($data);
+        }
+
         \DB::beginTransaction();
         try{
             $header = collect($mergeReqs)->first();
@@ -72,17 +94,18 @@ class InvoiceController extends Controller
             $headerTemp->document_category          = $header->document_category;
             $headerTemp->supplier_id                = $header->supplier_id;
             $headerTemp->supplier_name              = $header->supplier_name;
-            $headerTemp->payment_method             = ''; //SUPPLIER
-            $headerTemp->payment_term               = ''; //SUPPLIER
-            $headerTemp->clear_date                 = '';
+            // GET FROM SUPPLIER
+            $headerTemp->payment_method             = $header->supplier->payment_method_lookup_code;
+            $headerTemp->payment_term               = $header->supplier->terms_id;
             $headerTemp->currency                   = $header->supplier->payment_currency_code;
             $headerTemp->contact_date               = '';
             $headerTemp->final_judgment             = '';
             $headerTemp->gfmis_document_number      = '';
             $headerTemp->total_amount               = collect($mergeReqs)->sum('total_amount'); // SUM LINE
+            $headerTemp->clear_date                 = '';
             $headerTemp->description                = '';
             $headerTemp->note                       = '';        
-            $headerTemp->status                     = 'DISBURSEMENT';
+            $headerTemp->status                     = 'NEW';
             $headerTemp->requester                  = $user->id;
             $headerTemp->created_by                 = $user->id;
             $headerTemp->updated_by                 = $user->id;
@@ -115,11 +138,8 @@ class InvoiceController extends Controller
                     $lineTemp->req_invoice_date         = $line->invoice_date? date('Y-m-d', strtotime($line->invoice_date)): '';
                     $lineTemp->req_receipt_number       = $line->receipt_number;
                     $lineTemp->req_receipt_date         = $line->receipt_date? date('Y-m-d', strtotime($line->receipt_date)): '';
-                    $lineTemp->remaining_receipt_flag   = $line->remaining_receipt_flag == true? 'Y': 'N';
+                    $lineTemp->remaining_receipt_flag   = $line->remaining_receipt_flag;
                     $lineTemp->remaining_receipt_number = $line->remaining_receipt_number;
-                    // GET FROM SUPPLIER
-                    $lineTemp->payment_method           = $line->supplier->payment_method_lookup_code;
-                    $lineTemp->payment_term             = $line->supplier->terms_id;
                     $lineTemp->save();
                 }
                 // UPDATE REQUISITION
@@ -171,7 +191,7 @@ class InvoiceController extends Controller
         $invioceLines = $request->lines;
 
         \DB::beginTransaction();
-        try{
+        try {
             InvoiceHeader::where('id', $invoiceId)
                     ->update([
                         'invoice_date'            => $invioce['invoice_date']? date('Y-m-d', strtotime($invioce['invoice_date'])): ''
@@ -245,4 +265,42 @@ class InvoiceController extends Controller
         return response()->json($data);
     }
 
+    public function cancel(Request $request, $invoiceId)
+    {
+        $user = auth()->user();
+        $invioce = $request->header;
+        $invioceLines = $request->lines;
+        \DB::beginTransaction();
+        try {
+            $invoice = InvoiceHeader::where('id', $invoiceId)
+                        ->update([
+                            'status'        => 'CANCELLED'
+                            , 'updated_by'  => $user->id
+                            , 'updation_by' => $user->person_id
+                        ]);
+
+            // UPDATE REQUISITION
+            $requistion = RequisitionHeader::where('invoice_reference_id', $invoiceId)
+                                    ->update([
+                                        'invoice_reference_id'  => null
+                                        , 'invioce_number_ref'  => null
+                                        , 'updated_by'          => $user->id
+                                        , 'updation_by'         => $user->person_id
+                                    ]);
+            \DB::commit();
+            $data = [
+                'status' => 'SUCCESS',
+                'message' => '',
+                'redirect_page' => route('expense.invoice.index')
+            ];
+        } catch (\Exception $e) {
+            \DB::rollback();
+            \Log::error($e);
+            $data = [
+                'status' => 'ERROR',
+                'message' => $e->getMessage(),
+            ];
+        }
+        return response()->json($data);
+    }
 }

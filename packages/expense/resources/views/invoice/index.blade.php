@@ -78,7 +78,7 @@
                                 <td class="text-center" style="vertical-align: middle;"> {{ $invoice->user->name }} </td>
                                 <td class="text-center" style="vertical-align: middle;"> {{ $invoice->invoice_type }} </td>
                                 <td class="text-center" style="vertical-align: middle;"> {{ $invoice->description }} </td>
-                                <td class="text-center" style="vertical-align: middle;"> {{ $invoice->total_amount }} </td>
+                                <td class="text-center" style="vertical-align: middle;"> {{ number_format($invoice->total_amount, 2) }} </td>
                                 <td class="text-center" style="vertical-align: middle;"> {!! $invoice->getStatusIcon() !!} </td>
                                 <td class="text-center" style="vertical-align: middle;">
                                     <div style="border-collapse: collapse; width: 160px; display:inline-block; flex-direction: row;">

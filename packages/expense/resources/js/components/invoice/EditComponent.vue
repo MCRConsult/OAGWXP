@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-loading="loading">
         <form id="edit-form">
             <div class="col-md-12">
                 <div class="row">
@@ -79,10 +79,10 @@
                                 <strong> ชื่อผู้สั่งจ่าย </strong>
                             </label><br>
                             <supplier
-                                :setData="header.supplier"
+                                :setData="header.supplier_id"
                                 :error="errors.supplier"
                                 :editFlag="false"
-                                @setSupplier="setSupplierHeader"
+                                @setSupplier="setSupplier"
                             ></supplier>
                         </div>
                     </div>
@@ -262,6 +262,7 @@
                 <br>
                 <div align="center">
                     <button type="button" class="btn btn-primary" @click.prevent="update()"> บันทึกรายการ </button>
+                    <button type="button" class="btn btn-danger ml-1" @click.prevent="cancel()"> ยกเลิกรายการ </button>
                     <button type="button" class="btn btn-success ml-1" @click.prevent="interface()"> ขอเบิก </button>
                 </div>
             </div>
@@ -359,36 +360,61 @@
                 ref.style = "";
             },
             setDocumentCate(res){
-                this.requisition.document_category = res.document_category;
+                this.header.document_category = res.document_category;
             },
             setPaymentType(res){
                 this.requisition.payment_type = res.payment_type;
             },
-            setSupplierHeader(res){
-                this.requisition.supplier = res.supplier;
-                this.requisition.supplier_name = res.vendor_name;
-                if(this.requisition.multiple_supplier == 'ONE'){
-                    this.reqLine.supplier = res.supplier;
-                    this.reqLine.supplier_name = res.vendor_name;
-                }
+            setSupplier(res){
+                this.header.supplier = res.supplier;
+                this.header.supplier_name = res.vendor_name;
             },
             setPaymentMethod(res){
-                this.temp.payment_method = res.payment_method;
+                this.header.payment_method = res.payment_method;
             },
             setPaymentTerm(res){
-                this.temp.payment_term = res.payment_term;
+                this.header.payment_term = res.payment_term;
             },
             setCurrency(res){
-                this.temp.currency = res.currency;
+                this.header.currency = res.currency;
             },
             setFinalJudgment(res){
-                this.temp.final_judgment = res.final_judgment;
+                this.header.final_judgment = res.final_judgment;
             },
-            updateRow(res){
+            updateRow(response){
                 var vm = this;
-                let index = res.index;
-                let line = res.line;
-                vm.linelists[index] = line;
+                let index = response.index;
+                let valUpdate = response.line;
+                if (typeof this.linelists === 'object' && this.linelists !== null && response.index in this.linelists) {
+                    const currentItem = this.linelists[response.index];
+                    if (currentItem) {
+                        if (valUpdate && typeof valUpdate === 'object') {
+                            // Object.assign(currentItem, valUpdate);
+                            Object.assign(currentItem, {
+                                bank_account_number: valUpdate.bank_account_number,
+                                budget_plan: valUpdate.budget_plan,
+                                budget_type: valUpdate.budget_type,
+                                expense_type: valUpdate.expense_type,
+                                expense_description: valUpdate.expense_description,
+                                expense_account: valUpdate.expense_account,
+                                amount: valUpdate.amount,
+                                description: valUpdate.description,
+                                tax_code: valUpdate.tax_code,
+                                tax_amount: valUpdate.tax_amount,
+                                wht_code: valUpdate.wht_code,
+                                wht_amount: valUpdate.wht_amount,
+                                ar_receipt_id: valUpdate.ar_receipt_id,
+                                ar_receipt_number: valUpdate.ar_receipt_number
+                            });
+                        } else {
+                            console.error('valUpdate is invalid:', valUpdate);
+                        }
+                    } else {
+                        console.error(`No item found at index ${response.index}`);
+                    }
+                } else {
+                    console.error('Invalid response or linelists object.');
+                }
             },
             copyRow(index) {
                 let copyLine = JSON.parse(JSON.stringify(this.linelists[index]));
@@ -397,7 +423,7 @@
             removeRow(index) {
                 this.linelists.splice(index, 1);
             },
-           async update(){
+            async update(){
                 var vm = this;
                 var form = $('#edit-form');
                 let errorMsg = '';
@@ -410,12 +436,6 @@
                 $(form).find("div[id='el_explode_currency']").html(errorMsg);
                 $(form).find("div[id='el_explode_payment_method']").html(errorMsg);
                 $(form).find("div[id='el_explode_payment_term']").html(errorMsg);
-                // if (vm.header.invoice_date == '' || vm.header.invoice_date == null) {
-                //     vm.errors.invoice_date = true;
-                //     valid = false;
-                //     errorMsg = "กรุณาระบุวันที่เอกสาร";
-                //     $(form).find("div[id='el_explode_invoice_date']").html(errorMsg);
-                // }
                 if (vm.header.currency == '' || vm.header.currency == null) {
                     vm.errors.currency = true;
                     valid = false;
@@ -454,7 +474,7 @@
                     cancelButtonColor: "#d33",
                     confirmButtonText: "ใช่",
                     cancelButtonText: "ไม่",
-                    allowOutsideClick: false // ป้องกันการปิด alert เมื่อคลิกนอกกรอบ
+                    allowOutsideClick: false
                 }).then((result) => {
                     if (result.isConfirmed) {
                         this.importData();
@@ -582,7 +602,73 @@
                         });
                     }
                 });
-            }
+            },
+            async cancel(){
+                var vm = this;
+                Swal.fire({
+                    title: "ยกเลิกเอกสารขอเบิก",
+                    html: "ต้องการยกเลิกเอกสารขอเบิกใช่หรือไม่?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "ใช่",
+                    cancelButtonText: "ไม่",
+                    allowOutsideClick: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        vm.loading = true;
+                        axios.post('/expense/invoice/'+vm.header.id+'/cancel', {
+                            header: vm.header
+                        })
+                        .then(function (res) {
+                            vm.loading = false;
+                            if (res.data.message) {
+                                Swal.fire({
+                                    title: "มีข้อผิดพลาด",
+                                    text: res.data.message,
+                                    icon: "error",
+                                    showCancelButton: false,
+                                    confirmButtonColor: "#3085d6",
+                                    confirmButtonText: "ตกลง",
+                                    allowOutsideClick: false
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: "ยกเลิกเอกสารขอเบิก",
+                                    html: "ยกเลิกเอกสารขอเบิกเรียบร้อยแล้ว",
+                                    icon: "success",
+                                    showCancelButton: false,
+                                    confirmButtonColor: "#3085d6",
+                                    confirmButtonText: "ตกลง",
+                                    allowOutsideClick: false
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        setTimeout(function() {
+                                            location.href = res.data.redirect_page;
+                                        }, 500);
+                                    }
+                                });
+                            }
+                        }.bind(vm))
+                        .catch(err => {
+                            let msg = err.response;
+                            Swal.fire({
+                                title: "มีข้อผิดพลาด",
+                                text: msg.message,
+                                icon: "error",
+                                showCancelButton: false,
+                                confirmButtonColor: "#3085d6",
+                                confirmButtonText: "ตกลง",
+                                allowOutsideClick: false
+                            });
+                        })
+                        .then(() => {
+                            vm.loading = false;
+                        });
+                    }
+                });
+            },
         },
     }
 </script>

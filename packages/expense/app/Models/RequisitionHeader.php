@@ -81,11 +81,14 @@ class RequisitionHeader extends Model
         $status = $this->status;
         $result = "";
         switch ($status) {
-            case "DISBURSEMENT":
+            case "COMPLETED":
                 $result = "<span class='badge badge-success' style='padding: 5px;'> รอเบิกจ่าย </span>";
                 break;
-            case "ALLOCATE":
+            case "PENDING":
                 $result = "<span class='badge badge-warning' style='padding: 5px;'> รอจัดสรร </span>";
+                break;
+            case "HOLD":
+                $result = "<span class='badge badge-warning' style='padding: 5px;'> รอตรวจสอบ </span>";
                 break;
             case "CANCELLED":
                 $result = "<span class='badge badge-danger' style='padding: 5px;'> ยกเลิก </span>";

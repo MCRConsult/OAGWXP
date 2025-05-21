@@ -8,5 +8,4 @@ class Supplier extends Model
 {
     protected $table = 'AP_SUPPLIERS';
     protected $connection = 'oracle';
-    // protected $connection = 'oracle_oagwxp';
 }

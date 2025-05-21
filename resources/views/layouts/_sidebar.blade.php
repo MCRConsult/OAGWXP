@@ -24,7 +24,7 @@
                 </a>
                 <ul class="nav-dropdown-items">
                     <li class="nav-item">
-                        <a class="nav-title nav-link" href="notifications/alerts.html">
+                        <a class="nav-title nav-link" href="{{ route('expense.report.index') }}">
                             <i class="nav-icon cui-calculator"></i> ทะเบียนคุมหลักฐานขอเบิก
                         </a>
                     </li>

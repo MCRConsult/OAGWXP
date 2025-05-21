@@ -4,39 +4,24 @@ namespace Packages\expense\app\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class COAListV extends Model
+class GLSubAccountV extends Model
 {
-    protected $table = 'OAG_COA_LIST_V';
+    protected $table = 'OAG_GL_SUB_ACCOUNT_V';
     protected $connection = 'oracle';
 
-    public function getDefaultSetName()
+    public function LOVResult($setName, $parent, $setValue, $text)
     {
-        $defaultValueSetName = (object)[];
-        $defaultValueSetName->segment1 = 'OAG_GL_DEPARTMENT';
-        $defaultValueSetName->segment2 = 'OAG_GL_COST_CENTER';
-        $defaultValueSetName->segment3 = 'OAG_GL_BUDGET_YEAR';
-        $defaultValueSetName->segment4 = 'OAG_GL_BUDGET_SOURCE';
-        $defaultValueSetName->segment5 = 'OAG_GL_BUDGET_PLAN';
-        $defaultValueSetName->segment6 = 'OAG_GL_BUDGET_PRODUCT';
-        $defaultValueSetName->segment7 = 'OAG_GL_BUDGET_ACTIVITY';
-        $defaultValueSetName->segment8 = 'OAG_GL_BUDGET_TYPE';
-        $defaultValueSetName->segment9 = 'OAG_GL_BUDGET_CODE';
-        $defaultValueSetName->segment10 = 'OAG_GL_ACCOUNT';
-        $defaultValueSetName->segment11 = 'OAG_GL_SUB_ACCOUNT';
-        $defaultValueSetName->segment12 = 'OAG_GL_RESERVE_1';
-        $defaultValueSetName->segment13 = 'OAG_GL_RESERVE_2';
-
-        return $defaultValueSetName;
-    }
-
-    public function LOVResult($setName, $setValue, $text)
-    {
-        $flexValue = self::selectRaw('flex_value, description')
+        $flexValue = self::selectRaw('flex_value, fv_description description')
             ->where('flex_value_set_name', $setName)
             ->when($text, function ($query, $text) {
                 return $query->where(function($r) use ($text) {
                     $r->where('flex_value', 'like', "${text}%")
                         ->orWhere('description', 'like', "%${text}%");
+                });
+            })
+            ->when($parent, function ($query, $parent) {
+                return $query->where(function($r) use ($parent) {
+                    $r->where('dep_flex_value', $parent);
                 });
             })
             ->where('summary_flag', 'N')

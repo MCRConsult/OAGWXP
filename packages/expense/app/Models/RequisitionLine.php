@@ -15,9 +15,18 @@ class RequisitionLine extends Model
         return $this->hasOne(Supplier::class, 'vendor_id', 'supplier_id');
     }
 
+    public function budgetPlan()
+    {
+        return $this->hasOne(MTLCategoriesV::class, 'category_concat_segs', 'budget_plan');
+    }
+
+    public function budgetType()
+    {
+        return $this->hasOne(MTLCategoriesV::class, 'category_concat_segs', 'budget_type');
+    }
+
     public function expenseType()
     {
-        return $this->hasOne(MTLCategoriesV::class, 'category_concat_segs', 'expense_type')
-            ->where('structure_name', 'OAG Item Category Set');
+        return $this->hasOne(MTLCategoriesV::class, 'category_concat_segs', 'expense_type');
     }
 }

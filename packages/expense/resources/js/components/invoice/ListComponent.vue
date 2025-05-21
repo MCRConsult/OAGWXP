@@ -22,8 +22,8 @@
                     :index="index"
                     :invoiceLine="line"
                     :defaultSetName="defaultSetName"
+                    @updateRow="updateRow"
                 />
-                    <!-- @updateRow="updateRow" -->
                 <button type="button" @click.prevent="copy(index)" class="btn btn-sm btn-primary m-1" style="">
                     คัดลอก
                 </button>
@@ -63,6 +63,9 @@
                 if (!value) return "0.00";
                 return numeral(value).format("0,0.00");
             },
+            updateRow(res){
+                this.$emit("updateRow", res);
+            },
             copy(){
                 this.$emit("copyRow", this.index);
             },
@@ -83,51 +86,6 @@
                     }
                 });
             },
-
-
-
-
-
-
-
-
-
-
-            
-            // openModal(index){
-            //     this.temp = { ...this.line };
-            //     $('.modal-edit'+index).modal('show');
-            // },
-            // confirm() {
-            //     if (this.temp) {
-            //         this.line = {...this.temp};
-            //         this.temp = null;
-            //         console.log(this.line);
-            //         $('.modal-edit'+this.index).modal('hide');
-            //         this.$emit("updateRow", {index: this.index, line: this.line});
-            //     }
-            // },
-            // cancel() {
-            //     this.temp = null;
-            //     $('.modal-edit'+this.index).modal('hide');
-            // },
-            // setSupplierLine(res){
-            //     this.line.supplier = res.supplier;
-            //     this.line.supplier_name = res.vendor_name;
-            // },
-            // setSupplierBank(res){
-            //     this.line.supplier_bank = res.supplier_bank;
-            // },
-            // setBudgetPlan(res){
-            //     this.line.budget_plan = res.budget_plan;
-            // },
-            // setBudgetType(res){
-            //     this.line.budget_type = res.budget_type;
-            // },
-            // setExpenseType(res){
-            //     this.line.expense_type = res.expense_type;
-            //     this.line.expense_description = res.expense_description;
-            // },
         }
     };
 </script>

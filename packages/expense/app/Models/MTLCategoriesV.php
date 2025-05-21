@@ -13,7 +13,8 @@ class MTLCategoriesV extends Model
     {
         static::addGlobalScope('enabledFlag', function ($q) {
             $q->selectRaw('distinct structure_name, category_concat_segs, description')
-                ->where('enabled_flag', 'Y');
+                ->where('enabled_flag', 'Y')
+                ->where('structure_name', 'OAG Item Category Set');
         });
     }
 }

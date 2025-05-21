@@ -119,7 +119,7 @@
                                     <template v-else> เลขที่ใบสำคัญ </template>
                                 </strong>
                             </label><br>
-                            <el-input v-model="requisition.req_number" style="width: 100%;" placeholder="" disabled/>
+                            <el-input v-model="requisition.req_number" style="width: 100%;" disabled/>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -127,7 +127,7 @@
                             <label class="control-label">
                                 <strong> ผู้รับผิดชอบ </strong>
                             </label><br>
-                            <el-input v-model="requisition.requester" style="width: 100%;" placeholder="" disabled/>
+                            <el-input v-model="requisition.requester" style="width: 100%;" disabled/>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -135,7 +135,7 @@
                             <label class="control-label">
                                 <strong> สถานะ </strong>
                             </label><br>
-                            <el-input v-model="requisition.status" style="width: 100%;" placeholder="" disabled/>
+                            <el-input v-model="requisition.status" style="width: 100%;" disabled/>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -143,7 +143,7 @@
                             <label class="control-label">
                                 <strong> เลขที่ใบกำกับ </strong>
                             </label><br>
-                            <el-input v-model="requisition.invioce_number_ref" style="width: 100%;" placeholder="" disabled/>
+                            <el-input v-model="requisition.invioce_number_ref" style="width: 100%;" disabled/>
                         </div>
                     </div>
                 </div>
@@ -244,11 +244,23 @@
                         </div>
                     </div>
                     <div class="col-md-3">
+                        <label class="control-label">
+                            <strong> รายการบัญชี <span class="text-danger"> * </span></strong>
+                        </label><br>
+                        <el-input v-model="reqLine.expense_account" style="width: 85%;" readonly/>
+                        <modalAccountComp
+                            :reqLine="reqLine"
+                            :defaultSetName="defaultSetName"
+                            @updateAccount="updateAccount"
+                        />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
                                 <strong> จำนวนเงิน <span class="text-danger"> * </span></strong>
                             </label><br>
-                            <!-- <el-input v-model="reqLine.amount" style="width: 100%;" placeholder="" ref="amount"/> -->
                             <vue-numeric style="width: 100%;"
                                 name="amount"
                                 v-bind:minus="false"
@@ -263,14 +275,12 @@
                             <div id="el_explode_amount" class="text-danger text-left"></div>
                         </div>
                     </div>
-                </div>
-                <div class="row">
                     <div class="col-md-6">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
                                 <strong> คำอธิบายรายการ </strong>
                             </label><br>
-                            <el-input v-model="reqLine.description" type="textarea" :rows="2" style="width: 100%;" placeholder="" maxlength="240" show-word-limit/>
+                            <el-input v-model="reqLine.description" type="textarea" size="default" :rows="2" style="width: 100%;" placeholder="" maxlength="240" show-word-limit/>
                         </div>
                     </div>
                 </div>
@@ -297,6 +307,7 @@
                             :index="index"
                             :requisition="requisition"
                             :attribute="row"
+                            :defaultSetName="defaultSetName"
                             @updateRow="updateRow"
                             @copyRow="copyRow"
                             @removeRow="removeRow"
@@ -346,12 +357,13 @@
     import expenseType      from "../lov/ExpenseType.vue";
     import detailComp       from "./DetailComponent.vue";
     import listComp         from "./ListComponent.vue";
+    import modalAccountComp from "./_ModalAccountComponent.vue";
 
     export default {
         components: {
-            budgetSource, documentCategory, paymentType, supplier, supplierBank, budgetPlan, budgetType, expenseType, detailComp, listComp
+            budgetSource, documentCategory, paymentType, supplier, supplierBank, budgetPlan, budgetType, expenseType, detailComp, listComp, modalAccountComp
         },
-        props: ['referenceNo', 'invoiceTypes'],
+        props: ['referenceNo', 'invoiceTypes', 'defaultSetName'],
         data() {
             return {
                 budgetSource: ['510', '520', '530', '540', '550'],
@@ -394,6 +406,7 @@
                     budget_type: '',
                     expense_type: '',
                     expense_description: '',
+                    expense_account: '',
                     amount: '',
                     description: '',
                     vehicle_number: '',
@@ -496,6 +509,10 @@
             setExpenseType(res){
                 this.reqLine.expense_type = res.expense_type;
                 this.reqLine.expense_description = res.expense_description;
+                // GET EXPENSE ACCOUNT WHEN CHOOSE EXPENSE_TYPE
+                if(this.reqLine.expense_type != ''){
+                    this.getExpenseAccount();
+                }
             },
             setRemainingReceipt(res){
                 this.reqLine.remaining_receipt = res.remaining_receipt;
@@ -510,6 +527,41 @@
                     this.reqLine.supplier_name = '';
                     this.reqLine.supplier_bank = '';
                 }
+            },
+            async getExpenseAccount(){
+                var vm = this;
+                if(vm.reqLine.expense_type != ''){
+                    axios.post('/expense/api/requisition/get-expense-account', {
+                        header: vm.requisition,
+                        line: vm.reqLine,
+                    })
+                    .then(function (res) {
+                        vm.loading = false;
+                        if (res.data.message) {
+                            vm.reqLine.expense_account = '';
+                        } else {
+                            vm.reqLine.expense_account = res.data.expense_account;
+                        }
+                    }.bind(vm))
+                    .catch(err => {
+                        let msg = err.response;
+                        Swal.fire({
+                            title: "มีข้อผิดพลาด",
+                            text: msg.message,
+                            icon: "error",
+                            showCancelButton: false,
+                            confirmButtonColor: "#3085d6",
+                            confirmButtonText: "ตกลง",
+                            allowOutsideClick: false
+                        });
+                    })
+                    .then(() => {
+                        vm.loading = false;
+                    });
+                }
+            },
+            updateAccount(res) {
+                this.reqLine.expense_account = res.expense_account;
             },
             addRequisitionLine() {
                 var vm = this;
@@ -640,11 +692,12 @@
                     let defaultLine = {
                         budget_plan: '',
                         budget_type: '',
-                        supplier: this.requisition.multiple_supplier == 'ONE' ? this.requisition.supplier : 'sss',
-                        supplier_name: this.requisition.multiple_supplier == 'ONE' ? this.requisition.supplier_name : 'sss',
-                        supplier_bank: this.requisition.multiple_supplier == 'ONE' ? this.reqLine.supplier_bank : 'sss123',
+                        supplier: this.requisition.multiple_supplier == 'ONE' ? this.requisition.supplier : '',
+                        supplier_name: this.requisition.multiple_supplier == 'ONE' ? this.requisition.supplier_name : '',
+                        supplier_bank: this.requisition.multiple_supplier == 'ONE' ? this.reqLine.supplier_bank : '',
                         expense_type: '',
                         expense_description: '',
+                        expense_account: '',
                         amount: '',
                         description: '',
                         vehicle_number: '',
@@ -815,7 +868,7 @@
                             showCancelButton: false,
                             confirmButtonColor: "#3085d6",
                             confirmButtonText: "ตกลง",
-                            allowOutsideClick: false // ป้องกันการปิด alert เมื่อคลิกนอกกรอบ
+                            allowOutsideClick: false
                         });
                     });
                 }else{
@@ -953,7 +1006,7 @@
                     cancelButtonColor: "#d33",
                     confirmButtonText: "ใช่",
                     cancelButtonText: "ไม่",
-                    allowOutsideClick: false // ป้องกันการปิด alert เมื่อคลิกนอกกรอบ
+                    allowOutsideClick: false
                 }).then((result) => {
                     if (result.isConfirmed) {
                         this.importData();
@@ -979,7 +1032,7 @@
                             showCancelButton: false,
                             confirmButtonColor: "#3085d6",
                             confirmButtonText: "ตกลง",
-                            allowOutsideClick: false // ป้องกันการปิด alert เมื่อคลิกนอกกรอบ
+                            allowOutsideClick: false
                         });
                     } else {
                         Swal.fire({
@@ -989,7 +1042,7 @@
                             showCancelButton: false,
                             confirmButtonColor: "#3085d6",
                             confirmButtonText: "ตกลง",
-                            allowOutsideClick: false // ป้องกันการปิด alert เมื่อคลิกนอกกรอบ
+                            allowOutsideClick: false
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 setTimeout(function() {
@@ -1008,7 +1061,7 @@
                         showCancelButton: false,
                         confirmButtonColor: "#3085d6",
                         confirmButtonText: "ตกลง",
-                        allowOutsideClick: false // ป้องกันการปิด alert เมื่อคลิกนอกกรอบ
+                        allowOutsideClick: false
                     });
                 })
                 .then(() => {
@@ -1019,14 +1072,12 @@
                 this.reqLine.remaining_receipt_flag = this.budgetSource.indexOf(budgetSource) !== -1;
             },
             getDocumentCate(budgetSource){
-                this.loading = true;
                 axios.get(`/expense/api/requisition/get-document-category`, {
                     params: {
                         budget_source: budgetSource
                     }
                 })
                 .then(res => {
-                    this.loading = false;
                     // if(budgetSource != null && res.data.data == null){
                     //     this.$notify({
                     //         title: 'แจ้งเตือน',
@@ -1039,7 +1090,6 @@
                     // }
                 })
                 .catch((error) => {
-                    this.loading = false;
                     this.$notify({
                         title: 'แจ้งเตือน',
                         message: error,
@@ -1059,29 +1109,4 @@
         font-size: 12px;
         /*padding: 0px;*/
     }
-    /*.el-input {
-      border: 1px solid red !important;
-      border-radius: 5px;
-    }*/
-   /* .el-message {
-        min-width: 1000px;
-        z-index: 9999 !important;
-    }
-    .el-message--error {
-        background-color: #E22427;
-        border-color: #E22427;
-    }
-    .el-message--error .el-message__content {
-        color: #ffffff;
-        font-size: 20px;
-        font-weight: bold;
-    }
-    .el-message .el-icon-error {
-        color: #ffffff;
-        font-size: 25px;
-    }
-    .el-message__closeBtn {
-        color: #ffffff;
-        font-weight: bold;
-    }*/
 </style>
