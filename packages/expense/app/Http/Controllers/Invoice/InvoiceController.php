@@ -168,15 +168,17 @@ class InvoiceController extends Controller
         return response()->json($data);
     }
 
-    public function show($value='')
+    public function show($invoiceId)
     {
-        //
+        $invoice = InvoiceHeader::findOrFail($invoiceId);
+
+        return view('expense::invoice.show', compact('invoice',));
     }
 
     public function edit($invoiceId)
     {
         $invoice = InvoiceHeader::where('id', $invoiceId)
-                            ->with(['lines', 'lines.expense', 'user'])
+                            ->with(['lines', 'lines.expenseType', 'user', 'user.hrEmployee'])
                             ->first();
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
         $defaultSetName = (new COAListV)->getDefaultSetName();

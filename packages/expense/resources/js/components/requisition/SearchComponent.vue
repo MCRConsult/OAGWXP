@@ -34,7 +34,7 @@
 
                         <div class="form-group col-md-3">
                             <label class="control-label">
-                                <strong> วันที่การขอเบิก </strong>
+                                <strong> วันที่เอกสาร </strong>
                             </label>
                             <div class="">
                                 <input type="hidden" name="req_date" :value="search.req_date">

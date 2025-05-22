@@ -77,7 +77,7 @@ class InvoiceController extends Controller
     {
         $invMapping = [];
         $requistion = RequisitionHeader::search($request->search)
-                            ->with(['user', 'invoiceType', 'supplier'])
+                            ->with(['user', 'user.hrEmployee', 'invoiceType', 'supplier'])
                             ->whereIn('status', ['PENDING', 'COMPLETED'])
                             ->whereNull('invoice_reference_id')
                             ->orderBy('req_number')
@@ -109,7 +109,7 @@ class InvoiceController extends Controller
     {
         $invMapping =[];
         $requistion = RequisitionHeader::search($request->search)
-                            ->with(['user', 'invoiceType'])
+                            ->with(['user', 'user.hrEmployee', 'invoiceType'])
                             ->whereIn('status', ['PENDING', 'COMPLETED'])
                             ->whereNull('invoice_reference_id')
                             ->orderBy('req_number')

@@ -10,8 +10,38 @@ class InvoiceLine extends Model
     protected $table = 'oagwxp_invoice_lines';
     protected $connection = 'oracle_oagwxp';
 
-    public function expense()
+    public function supplier()
+    {
+        return $this->hasOne(Supplier::class, 'vendor_id', 'supplier_id');
+    }
+
+    public function expenseType()
     {
         return $this->hasOne(MTLCategoriesV::class, 'category_concat_segs', 'expense_type');
+    }
+
+    public function budgetPlan()
+    {
+        return $this->hasOne(MTLCategoriesV::class, 'category_concat_segs', 'budget_plan');
+    }
+
+    public function budgetType()
+    {
+        return $this->hasOne(MTLCategoriesV::class, 'category_concat_segs', 'budget_type');
+    }
+
+    public function tax()
+    {
+        return $this->hasOne(Tax::class, 'tax_id', 'tax_code');
+    }
+
+    public function wht()
+    {
+        return $this->hasOne(WHT::class, 'tax_id', 'wht_code');
+    }
+
+    public function arReceipt()
+    {
+        return $this->hasOne(ARReceiptNumberAllV::class, 'cash_receipt_id', 'ar_receipt_id');
     }
 }

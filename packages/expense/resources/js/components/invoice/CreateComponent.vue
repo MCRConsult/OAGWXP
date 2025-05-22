@@ -19,7 +19,7 @@
                     <div class="col-md-3">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
-                                <strong> ประเภท </strong>
+                                <strong> ประเภทการขอเบิก </strong>
                             </label><br>
                             <el-select v-model="search.invoice_type" placeholder="" style="width: 100%;" ref="invoice_type">
                                 <el-option
@@ -92,10 +92,10 @@
                                                 <hr style="margin: 10px;">
                                                 <div class="row" v-if="header.source_type == 'REQUISITION'">
                                                     <span class="col-md-3 text-right text-sm text-grey-dark"> ผู้รับผิดชอบ :</span>
-                                                    {{ header.user.name }}
+                                                    {{ header.user.hr_employee.last_name }}
                                                 </div>
                                                 <div class="row">
-                                                    <span class="col-md-3 text-right text-sm text-grey-dark"> ประเภท :</span>
+                                                    <span class="col-md-3 text-right text-sm text-grey-dark"> ประเภทการขอเบิก :</span>
                                                     {{ header.invoice_type.description }}
                                                 </div>
                                                 <div class="row" v-if="header.source_type == 'REQUISITION'">
@@ -112,17 +112,17 @@
                                                     </template>
                                                 </div>
                                                 <div class="row">
-                                                    <span class="col-md-3 text-right text-sm text-grey-dark"> สถานะรอเบิกจ่าย :</span>
+                                                    <span class="col-md-3 text-right text-sm text-grey-dark"> สถานะ :</span>
                                                     <strong v-html="header? header.status_icon : ''"></strong>
                                                 </div>
                                                 <div class="row">
-                                                    <span class="col-md-3 text-right text-sm text-grey-dark"> สั่งจ่าย :</span>
+                                                    <span class="col-md-3 text-right text-sm text-grey-dark"> ชื่อสั่งจ่าย :</span>
                                                     {{ header.supplier.vendor_name }} 
                                                 </div>
                                             </div>
                                             <div class="col-md-2">
                                                 <div class="mr-3 text-right">
-                                                    <div class="font-bold text-grey">Total Amount</div>
+                                                    <div class="font-bold text-grey"> จำนวนเงิน </div>
                                                     <div class="text-2xl">
                                                         <template v-if="header.source_type == 'REQUISITION'">
                                                             {{ numberFormat(header.total_amount) }}

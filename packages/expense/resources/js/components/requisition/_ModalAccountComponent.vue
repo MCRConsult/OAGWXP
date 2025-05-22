@@ -1,6 +1,6 @@
 <template>
-    <button type="button" style="background-color: #7179d5; border-color: #7179d5;" class="btn btn-sm btn-primary m-1" data-toggle="collapse" @click.prevent="openModal">
-        <i class="fa fa-cogs"></i>
+    <button type="button" class="btn btn-sm btn-success m-1" data-toggle="collapse" @click.prevent="openModal">
+        <i class="icons cui-chevron-top"></i>
     </button>
 
     <div id="modal-account" class="modal fade" aria-labelledby="myModalLabel" tabindex="-1" role="dialog" 

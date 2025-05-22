@@ -2,7 +2,7 @@
 @section('title', 'เอกสารส่งเบิก')
 @section('breadcrumb')
     <li class="breadcrumb-item">
-        <a href="{{ route('expense.requisition.index') }}"><strong> ตรวจสอบเอกสารส่งเบิก </strong></a>
+        <a href="{{ route('expense.invoice.index') }}"><strong> ตรวจสอบเอกสารขอเบิก </strong></a>
     </li>
 @endsection
 
@@ -12,7 +12,7 @@
         <div class="row">
             <div class="col-md-6">
                 <span class="d-inline">
-                <h5> <strong> เอกสารส่งเบิก </strong> </h5>
+                <h5> <strong> เอกสารขอเบิก </strong> </h5>
             </div>
         </div>
     </div>
@@ -24,81 +24,9 @@
                     <div class="col-md-3">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
-                                <strong> ประเภท </strong>
+                                <strong> เลขที่ใบสำคัญ </strong>
                             </label><br>
-                            {{ $requisition->invoice_type }}
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group" style="padding: 5px;">
-                            <label class="control-label">
-                                <strong> สำนักงานผู้เบิกจ่าย </strong>
-                            </label><br>
-                            {{ $requisition->document_category }}
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group" style="padding: 5px;">
-                            <label class="control-label">
-                                <strong> วันที่เอกสารขอเบิก </strong>
-                            </label><br>
-                            {{ date('d-m-Y', strtotime($requisition->req_date)) }}
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group" style="padding: 5px;">
-                            <label class="control-label">
-                                <strong> ประเภทการขอเบิก </strong>
-                            </label><br>
-                            {{ $requisition->payment_type }}
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group" style="padding: 5px;">
-                            <span class="d-flex">
-                                <label class="control-label" style="margin-right: 30px;">
-                                    <strong>ชื่อสั่งจ่าย:</strong>
-                                </label>
-                                <label class="form-check-label" style="margin-right: 30px;">
-                                    <input type="radio" class="form-check-input" name="multiple_supplier" value="ONE" 
-                                        {{ $requisition->multiple_supplier == 'ONE'? 'checked': '' }}
-                                    >
-                                    <strong> รายเดียว </strong>
-                                </label>
-                                <label class="form-check-label">
-                                    <input type="radio" class="form-check-input" name="multiple_supplier" value="MORE"
-                                        {{ $requisition->multiple_supplier == 'MORE'? 'checked': '' }}
-                                    >
-                                    <strong> หลายราย (กรอกข้อมูลระดับรายการ) </strong>
-                                </label>
-                            </span>
-                            {{ $requisition->supplier_name }}
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group" style="padding: 5px;">
-                            <label class="control-label">
-                                <strong> คำอธิบาย </strong>
-                            </label><br>
-                            {{ $requisition->description }}
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="form-group" style="padding: 5px;">
-                            <label class="control-label">
-                                <strong>
-                                    @if ($requisition->payment_type == 'PAYMENT')
-                                        เลขที่เอกสารส่งเบิก
-                                    @else
-                                        เลขที่ใบสำคัญ
-                                    @endif
-                                </strong>
-                            </label><br>
-                            {{ $requisition->req_number }}
+                            {{ $invoice->voucher_number }}
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -106,7 +34,7 @@
                             <label class="control-label">
                                 <strong> ผู้รับผิดชอบ </strong>
                             </label><br>
-                            {{ $requisition->requester }}
+                            {{ $invoice->user->hrEmployee->last_name }}
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -114,7 +42,41 @@
                             <label class="control-label">
                                 <strong> สถานะ </strong>
                             </label><br>
-                            {!! $requisition->getStatusIcon() !!}
+                            {!! $invoice->getStatusIcon() !!}
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ประเภทการขอเบิก </strong>
+                            </label><br>
+                            {{ $invoice->invoiceType->description ?? '-' }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> สำนักงานผู้เบิกจ่าย </strong>
+                            </label><br>
+                            {{ $invoice->document_category ?? '-' }}
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> วันที่เอกสารขอเบิก </strong>
+                            </label><br>
+                            {{ $invoice->invoice_date? date('d-m-Y', strtotime($invoice->invoice_date)): '-' }}
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ชื่อผู้สั่งจ่าย </strong>
+                            </label><br>
+                            {{ $invoice->supplier->vendor_name ?? '-' }}
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -122,21 +84,101 @@
                             <label class="control-label">
                                 <strong> เลขที่ใบกำกับ </strong>
                             </label><br>
-                            {{ $requisition->invioce_number_ref }}
+                            {{ $invoice->invoice_number ?? '-' }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> สกุลเงิน </strong>
+                            </label><br>
+                            {{ $invoice->currency ?? '-' }}
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> วิธีการจ่ายเงิน </strong>
+                            </label><br>
+                            {{ optional($invoice->paymentMethod)->description ?? '-' }}
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> เทอมการชำระเงิน </strong>
+                            </label><br>
+                            {{ optional($invoice->paymentTerm)->description ?? '-'}}
+                        </div>
+                    </div>
+                     <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> วันที่เคลียร์เงินยืม </strong>
+                            </label><br>
+                            {{ $invoice->clear_date? date('d-m-Y', strtotime($invoice->clear_date)): '-' }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> วันที่สัญญายืมเงิน </strong>
+                            </label><br>
+                            {{ $invoice->contact_date? date('d-m-Y', strtotime($invoice->contact_date)): '-' }}
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ใบโอนล้างถึงที่สุด (บอ.) </strong>
+                            </label><br>
+                            {{ optional($invoice->finalJudgment)->description ?? '-' }}
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> เลขที่เอกสาร JV/KL (GFMIS) </strong>
+                            </label><br>
+                            {{ $invoice->gfmis_document_number ?? '-' }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> คำอธิบาย </strong>
+                            </label><br>
+                            {{ $invoice->description ?? '-' }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> หมายเหตุ </strong>
+                            </label><br>
+                            {{ $invoice->note ?? '-' }}
                         </div>
                     </div>
                 </div>
                 <hr>
                 <div class="card row" style="background-color: #8cbbff; border: 1px solid #8cbbff;">
                     <div class="card-header" style="background-color: #8cbbff; padding: 10px;">
-                        <strong> รายการเอกสารส่งเบิก </strong>
+                        <strong> ข้อมูลรายการขอเบิก </strong>
                     </div>
                 </div>
+                <!-- TABLE LINE LISTS-->
                 <table class="table table-responsive-sm">
                     <thead>
                         <tr>
-                            <th class="text-center" width="3%"> รายการที่ </th>
-                            <th class="text-center" width="15%"> ประเภทค่าใช้จ่าย </th>
+                            <th class="text-center" width="7%"> รายการที่ </th>
+                            <th class="text-left" width="15%"> ประเภทค่าใช้จ่าย </th>
+                            <th class="text-left" width="26%"> รายการบัญชี </th>
                             <th class="text-center" width="10%"> จำนวนเงิน </th>
                             <th class="text-center" width="15%"> ชื่อสั่งจ่าย </th>
                             <th class="text-center" width="15%"> เลขที่บัญชีธนาคาร </th>
@@ -144,10 +186,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($requisition->lines as $line)
+                        @foreach ($invoice->lines as $line)
                             <tr>
                                 <td class="text-center" style="vertical-align: middle;"> {{ $line->seq_number }} </td>
-                                <td class="text-center" style="vertical-align: middle;"> {{ $line->expense_type }} </td>
+                                <td class="text-left" style="vertical-align: middle;"> {{ $line->expenseType->description }} </td>
+                                <td class="text-left small wrap-text" style="vertical-align: middle;"> {{ $line->expense_account }} </td>
                                 <td class="text-center" style="vertical-align: middle;"> {{ number_format($line->amount, 2) }} </td>
                                 <td class="text-center" style="vertical-align: middle;"> {{ $line->supplier_name }} </td>
                                 <td class="text-center" style="vertical-align: middle;"> {{ $line->bank_account_number }} </td>
@@ -158,6 +201,7 @@
                                     </button>
                                 </td>
                             </tr>
+                            @include('expense::invoice._modal_detail')
                         @endforeach
                     </tbody>
                 </table>
@@ -172,7 +216,7 @@
                                             <strong> รวมทั้งสิ้น : </strong>
                                         </td>
                                         <td class="mb-0 tw-text-grey-darker tw-text-bold" style="width:60%; font-size:15px !important;" >
-                                            {{ number_format($requisition->lines->sum('amount'), 2) }}
+                                            {{ number_format($invoice->lines->sum('amount'), 2) }}
                                         </td>
                                     </tr>
                                 </tbody>
@@ -180,7 +224,7 @@
                         </div>
                     </div>
                 </div>
-                @include('expense::requisition._modal_detail')
+
             </div>
         </div>
     </div>

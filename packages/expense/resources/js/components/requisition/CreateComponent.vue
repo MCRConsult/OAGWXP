@@ -127,7 +127,7 @@
                             <label class="control-label">
                                 <strong> ผู้รับผิดชอบ </strong>
                             </label><br>
-                            <el-input v-model="requisition.requester" style="width: 100%;" disabled/>
+                            <el-input v-model="user.last_name" style="width: 100%;" disabled/>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -363,7 +363,7 @@
         components: {
             budgetSource, documentCategory, paymentType, supplier, supplierBank, budgetPlan, budgetType, expenseType, detailComp, listComp, modalAccountComp
         },
-        props: ['referenceNo', 'invoiceTypes', 'defaultSetName'],
+        props: ['user', 'referenceNo', 'invoiceTypes', 'defaultSetName'],
         data() {
             return {
                 budgetSource: ['510', '520', '530', '540', '550'],
@@ -509,6 +509,7 @@
             setExpenseType(res){
                 this.reqLine.expense_type = res.expense_type;
                 this.reqLine.expense_description = res.expense_description;
+                this.reqLine.description = res.expense_description;
                 // GET EXPENSE ACCOUNT WHEN CHOOSE EXPENSE_TYPE
                 if(this.reqLine.expense_type != ''){
                     this.getExpenseAccount();
@@ -717,6 +718,7 @@
                 }
             },
             updateRow(response){
+                console.log(response.line);
                 var vm = this;
                 let index = response.index;
                 if (vm.linelists[index].remaining_receipt_flag) {
@@ -752,6 +754,7 @@
                                             budget_type: valUpdate.budget_type,
                                             expense_type: valUpdate.expense_type,
                                             expense_description: valUpdate.expense_description,
+                                            expense_account: valUpdate.expense_account,
                                             amount: valUpdate.amount,
                                             description: valUpdate.description,
                                             vehicle_number: valUpdate.vehicle_number,
@@ -808,6 +811,7 @@
                                     budget_type: valUpdate.budget_type,
                                     expense_type: valUpdate.expense_type,
                                     expense_description: valUpdate.expense_description,
+                                    expense_account: valUpdate.expense_account,
                                     amount: valUpdate.amount,
                                     description: valUpdate.description,
                                     vehicle_number: valUpdate.vehicle_number,

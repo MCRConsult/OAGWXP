@@ -6,7 +6,7 @@
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title"> แก้ไขรายละเอียด </h4>
+                    <h4 class="modal-title"> แก้ไขรายการ </h4>
                 </div>
                 <div class="modal-body m-2">
                     <form :class="'edit-form'+index">
@@ -554,7 +554,7 @@
         },
         mounted() {
             this.line = this.reqLine;
-            this.extractAccount()
+            this.extractAccount();
         },
         watch: {
             errors: {
@@ -753,8 +753,8 @@
                 }
             },
             cancel() {
-                $('.modal-edit'+this.index).modal('hide');
                 this.temp = null;
+                $('.modal-edit'+this.index).modal('hide');
             },
             setError(ref_name){
                 let ref =  this.$refs[ref_name].$refs.referenceRef

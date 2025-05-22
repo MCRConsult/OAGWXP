@@ -24,6 +24,16 @@
                     <div class="col-md-3">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
+                                <strong> แหล่งเงิน </strong>
+                            </label><br>
+                            {{ $requisition->budgetSource->description }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
                                 <strong> ประเภท </strong>
                             </label><br>
                             {{ $requisition->invoiceType->description }}
@@ -62,13 +72,13 @@
                                     <strong>ชื่อสั่งจ่าย:</strong>
                                 </label>
                                 <label class="form-check-label" style="margin-right: 30px;">
-                                    <input type="radio" class="form-check-input" name="multiple_supplier" value="ONE" 
+                                    <input type="radio" class="form-check-input" name="multiple_supplier" value="ONE" disabled
                                         {{ $requisition->multiple_supplier == 'ONE'? 'checked': '' }}
                                     >
                                     <strong> รายเดียว </strong>
                                 </label>
                                 <label class="form-check-label">
-                                    <input type="radio" class="form-check-input" name="multiple_supplier" value="MORE"
+                                    <input type="radio" class="form-check-input" name="multiple_supplier" value="MORE" disabled
                                         {{ $requisition->multiple_supplier == 'MORE'? 'checked': '' }}
                                     >
                                     <strong> หลายราย (กรอกข้อมูลระดับรายการ) </strong>
@@ -106,7 +116,7 @@
                             <label class="control-label">
                                 <strong> ผู้รับผิดชอบ </strong>
                             </label><br>
-                            {{ $requisition->user->name }}
+                            {{ $requisition->user->hrEmployee->last_name }}
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -158,6 +168,7 @@
                                     </button>
                                 </td>
                             </tr>
+                            @include('expense::requisition._modal_detail')
                         @endforeach
                     </tbody>
                 </table>
@@ -180,7 +191,6 @@
                         </div>
                     </div>
                 </div>
-                @include('expense::requisition._modal_detail')
             </div>
         </div>
     </div>

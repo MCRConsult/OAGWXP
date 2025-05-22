@@ -16,7 +16,7 @@
                             <label class="control-label">
                                 <strong> ผู้รับผิดชอบ </strong>
                             </label><br>
-                            <el-input v-model="header.user.name" style="width: 100%;" placeholder="" disabled/>
+                            <el-input v-model="header.user.hr_employee.last_name" style="width: 100%;" placeholder="" disabled/>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -30,7 +30,7 @@
                     <div class="col-md-3">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
-                                <strong> ประเภท </strong>
+                                <strong> ประเภทการขอเบิก </strong>
                             </label><br>
                             <el-select v-model="header.invoice_type" placeholder="" style="width: 100%;" disabled>
                                 <el-option
@@ -60,7 +60,7 @@
                     <div class="col-md-3">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
-                                <strong> วันที่เอกสารส่งเบิก <span class="text-danger"> *</span></strong>
+                                <strong> วันที่เอกสารขอเบิก <span class="text-danger"> *</span></strong>
                             </label><br>
                             <el-date-picker
                                 v-model="header.invoice_date"
@@ -390,6 +390,9 @@
                     if (currentItem) {
                         if (valUpdate && typeof valUpdate === 'object') {
                             // Object.assign(currentItem, valUpdate);
+                            console.log('==========cccc=========');
+                            console.log(valUpdate);
+                            console.log(valUpdate.expense_account);
                             Object.assign(currentItem, {
                                 bank_account_number: valUpdate.bank_account_number,
                                 budget_plan: valUpdate.budget_plan,
@@ -465,25 +468,6 @@
                 if (!valid) {
                     return;
                 }
-                Swal.fire({
-                    title: "ยืนยันบันทึกเอกสารขอเบิก",
-                    html: "ต้องการ <b>ยืนยัน</b> บันทึกเอกสารขอเบิกใช่หรือไม่?",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#3085d6",
-                    cancelButtonColor: "#d33",
-                    confirmButtonText: "ใช่",
-                    cancelButtonText: "ไม่",
-                    allowOutsideClick: false
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        this.importData();
-                    }
-                });
-            },
-            async importData(){
-                var vm = this;
-                vm.loading = true;
                 axios.post('/expense/invoice/'+vm.header.id+'/update', {
                     header: vm.header,
                     lines: vm.linelists,
@@ -503,7 +487,7 @@
                         });
                     } else {
                         Swal.fire({
-                            title: "ยืนยันบันทึกเอกสารขอเบิก",
+                            title: "บันทึกเอกสารขอเบิก",
                             html: "บันทึกเอกสารขอเบิกเรียบร้อยแล้ว",
                             icon: "success",
                             showCancelButton: false,

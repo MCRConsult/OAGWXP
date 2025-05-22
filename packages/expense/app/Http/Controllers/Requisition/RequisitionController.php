@@ -43,14 +43,16 @@ class RequisitionController extends Controller
 
     public function create()
     {
+        $user = auth()->user()->hrEmployee;
         $referenceNo = date('YmdHis').'-'.Str::random(5);
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
         $defaultSetName = (new COAListV)->getDefaultSetName();
-        return view('expense::requisition.create', compact('invoiceTypes', 'referenceNo', 'defaultSetName'));
+        return view('expense::requisition.create', compact('user', 'invoiceTypes', 'referenceNo', 'defaultSetName'));
     }
 
     public function store(Request $request)
     {
+        // dd($request->lines);
         $header = $request->header;
         $lines = $request->lines;
         $user = auth()->user();
@@ -105,9 +107,9 @@ class RequisitionController extends Controller
                 $lineTemp->utility_detail           = $line['utility_detail'];
                 $lineTemp->unit_quantity            = $line['unit_quantity'];
                 $lineTemp->invoice_number           = $line['invoice_number'];
-                $lineTemp->invoice_date             = $line['invoice_date']? date('Y-m-d', strtotime($line['invoice_date'])): '';
+                $lineTemp->invoice_date             = !is_null($line['invoice_date'])? date('Y-m-d', strtotime($line['invoice_date'])): '';
                 $lineTemp->receipt_number           = $line['receipt_number'];
-                $lineTemp->receipt_date             = $line['receipt_date']? date('Y-m-d', strtotime($line['receipt_date'])): '';
+                $lineTemp->receipt_date             = !is_null($line['receipt_date'])? date('Y-m-d', strtotime($line['receipt_date'])): '';
                 $lineTemp->remaining_receipt_flag   = $line['remaining_receipt_flag'] == true? 'Y': 'N';
                 $lineTemp->remaining_receipt_number = $line['remaining_receipt'];
                 $lineTemp->save();

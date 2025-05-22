@@ -17,6 +17,7 @@
 
     <div class="card-body">
         <requisition-create-component
+            :user="{{ json_encode($user) }}"
             reference-no="{{ $referenceNo }}"
             :invoice-types="{{ json_encode($invoiceTypes) }}"
             :default-set-name="{{ json_encode($defaultSetName) }}"

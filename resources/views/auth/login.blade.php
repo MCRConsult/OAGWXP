@@ -48,7 +48,9 @@
                                     </div>
                                     <div class="form-group{{ $errors->has('username') ? ' has-error' : '' }}">
                                         <div class="col-md-12">
-                                            <input id="username" placeholder="ชื่อผู้ใช้งาน" type="text" class="form-control" name="username" value="{{ old('username') }}" required autofocus>
+                                            {{-- <input id="username" placeholder="ชื่อผู้ใช้งาน" type="text" class="form-control" name="username" value="{{ old('username') }}" required autofocus> --}}
+                                            <input id="username" placeholder="ชื่อผู้ใช้งาน" type="text" class="form-control" name="username"
+                                                value="{{ old('username', \Cookie::get('remember_username')) }}" required autofocus>
                                             @if ($errors->has('username'))
                                                 <span class="help-block">
                                                     <strong>{{ $errors->first('username') }}</strong>
@@ -58,7 +60,8 @@
                                     </div>
                                     <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
                                         <div class="col-md-12">
-                                            <input id="password" placeholder="รหัสผ่านผู้ใช้งาน" type="password" class="form-control" name="password" autocomplete="off" required>
+                                            <input id="password" placeholder="รหัสผ่านผู้ใช้งาน" type="password" class="form-control" name="password" autocomplete="off" required value="{{ old('password', Cookie::get('remember_password') ? decrypt(Cookie::get('remember_password')) : '') }}">
+                                            {{-- value="{{ old('password', Cookie::get('remember_password') ? decrypt(Cookie::get('remember_password')) : '') }}" --}}
                                             <i class="bi bi-eye-slash bi-xl"
                                                 id="togglePassword"
                                                 style="

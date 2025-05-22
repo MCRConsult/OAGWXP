@@ -46,7 +46,7 @@
                                 <div> เลขที่ใบสำคัญ </div>
                             </th>
                             <th class="text-center" width="12%">
-                                <div> วันที่เอกสาร </div>
+                                <div> วันที่เอกสารขอเบิก </div>
                             </th>
                             <th class="text-center" width="12%">
                                 <div> วันที่เคลียร์เงิน </div>
@@ -75,17 +75,26 @@
                                 <td class="text-center" style="vertical-align: middle;"> {{ $invoice->voucher_number }} </td>
                                 <td class="text-center" style="vertical-align: middle;"> {{ $invoice->invoice_date_format }} </td>
                                 <td class="text-center" style="vertical-align: middle;"> {{ $invoice->clear_date_format }} </td>
-                                <td class="text-center" style="vertical-align: middle;"> {{ $invoice->user->name }} </td>
-                                <td class="text-center" style="vertical-align: middle;"> {{ $invoice->invoice_type }} </td>
-                                <td class="text-center" style="vertical-align: middle;"> {{ $invoice->description }} </td>
+                                <td class="text-center" style="vertical-align: middle;"> {{ $invoice->user->hrEmployee->last_name }} </td>
+                                <td class="text-center" style="vertical-align: middle;"> {{ $invoice->invoiceType->description }} </td>
+                                <td class="text-left" style="vertical-align: middle;"> {{ $invoice->description }} </td>
                                 <td class="text-center" style="vertical-align: middle;"> {{ number_format($invoice->total_amount, 2) }} </td>
                                 <td class="text-center" style="vertical-align: middle;"> {!! $invoice->getStatusIcon() !!} </td>
                                 <td class="text-center" style="vertical-align: middle;">
                                     <div style="border-collapse: collapse; width: 160px; display:inline-block; flex-direction: row;">
-                                        <a class="btn btn-sm btn-light active mr-1"
-                                            href="{{ route('expense.invoice.show', $invoice->id) }}">
-                                            ตรวจสอบ
-                                        </a>
+                                        @if ($invoice->status == 'CANCELLED')
+                                            <a class="btn btn-sm btn-light active mr-1"
+                                                href="{{ route('expense.invoice.show', $invoice->id) }}">
+                                                ตรวจสอบ
+                                            </a>
+                                        @else
+                                            <a class="btn btn-sm btn-light active mr-1"
+                                                href="{{ route('expense.invoice.edit', $invoice->id) }}">
+                                                ตรวจสอบ
+                                            </a>
+                                        @endif
+
+
                                         {{-- <a class="btn btn-sm btn-danger active"
                                             href="{{ route('expense.invoice.show', $invoice->id) }}">
                                             เคลียร์เงินยืมxx

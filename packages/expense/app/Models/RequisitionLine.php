@@ -29,4 +29,19 @@ class RequisitionLine extends Model
     {
         return $this->hasOne(MTLCategoriesV::class, 'category_concat_segs', 'expense_type');
     }
+
+    public function vehicleOilType()
+    {
+        return $this->hasOne(FlexValueV::class, 'flex_value', 'vehicle_oil_type')->where('flex_value_set_name', 'OAG_VEH_OIL_TYPE');
+    }
+
+    public function utilityType()
+    {
+        return $this->hasOne(FlexValueV::class, 'flex_value', 'utility_type')->where('flex_value_set_name', 'OAG_AP_PUBLIC_UTILITIES');
+    }
+
+    public function utilityDetail()
+    {
+        return $this->hasOne(FlexValueV::class, 'flex_value', 'utility_detail')->where('flex_value_set_name', 'OAG_AP_BUILDING/CODE/DAD');
+    }
 }

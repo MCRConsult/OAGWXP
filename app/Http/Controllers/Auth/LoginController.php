@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Crypt;
 
 use App\Models\User;
 use App\Models\FNDUser;
@@ -32,17 +34,17 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        $userName = request()->input('username');
+        $username = request()->input('username');
         $password = request()->input('password');
         $syncProcess = false;
 
-        $user = User::where('name', $userName)->first();
-        $searchFndUser = FNDUser::where('user_name', $userName)->first();
+        $user = User::where('name', $username)->first();
+        $searchFndUser = FNDUser::where('user_name', $username)->first();
 
         if (is_null($user) && !is_null($searchFndUser)) {
             $syncProcess = true;
             (new \App\Repositories\UserRepo)->sync($searchFndUser->user_id);
-            $user = User::where('name', $userName)->first();
+            $user = User::where('name', $username)->first();
         }
 
         if (is_null($user)) {
@@ -69,11 +71,22 @@ class LoginController extends Controller
 
         if ($login->auth == 'Y') {
             \Auth::login($user, $request->remember);
+            // If "Remember Me" is checked, save credentials in cookies
+            if ($request->remember) {
+                // 30 Days
+                Cookie::queue('remember_username', $username, 43200);
+                Cookie::queue('remember_password', Crypt::encrypt($password), 43200); // Encrypt the password
+            }
+            // else {
+            //     // Clear cookies if "Remember Me" is unchecked
+            //     Cookie::queue(Cookie::forget('remember_username'));
+            //     Cookie::queue(Cookie::forget('remember_password'));
+            // }
             $this->setSession();
             return redirect('/');
         } else {
             return redirect()->route('login')->withErrors('login failed Oracle : these credentials do not match')->withInput();
-            if (\Auth::attempt(['name' => $userName, 'password' => $password])) {
+            if (\Auth::attempt(['name' => $username, 'password' => $password])) {
                 return redirect('/');
             }
         }

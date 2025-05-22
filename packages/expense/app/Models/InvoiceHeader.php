@@ -29,6 +29,26 @@ class InvoiceHeader extends Model
         return $this->hasOne(InvoiceType::class, 'lookup_code', 'invoice_type');
     }
 
+    public function supplier()
+    {
+        return $this->hasOne(Supplier::class, 'vendor_id', 'supplier_id');
+    }
+
+    public function paymentMethod()
+    {
+        return $this->hasOne(PaymentMethod::class, 'payment_method_code', 'payment_method')->select('description');
+    }
+
+    public function paymentTerm()
+    {
+        return $this->hasOne(PaymentTerm::class, 'term_id', 'payment_term')->select('description');
+    }
+
+    public function finalJudgment()
+    {
+        return $this->hasOne(FlexValueV::class, 'flex_value', 'final_judgment')->where('flex_value_set_name', 'OAG_VALUE_SET_Y_N')->select('description');
+    }
+
     public function getInvRef($invType)
     {
         if($invType == 'PREPAYMENT') {

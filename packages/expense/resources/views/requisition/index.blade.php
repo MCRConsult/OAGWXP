@@ -71,9 +71,9 @@
                             <tr>
                                 <td class="text-center" style="vertical-align: middle;"> {{ $requisition->req_number }} </td>
                                 <td class="text-center" style="vertical-align: middle;"> {{ $requisition->req_date_format }} </td>
-                                <td class="text-center" style="vertical-align: middle;"> {{ $requisition->user->name }} </td>
-                                <td class="text-center" style="vertical-align: middle;"> {{ $requisition->invoice_type }} </td>
-                                <td class="text-center" style="vertical-align: middle;"> {{ $requisition->description }} </td>
+                                <td class="text-center" style="vertical-align: middle;"> {{ $requisition->user->hrEmployee->last_name }} </td>
+                                <td class="text-center" style="vertical-align: middle;"> {{ $requisition->invoiceType->description }} </td>
+                                <td class="text-left" style="vertical-align: middle;"> {{ $requisition->description }} </td>
                                 <td class="text-center" style="vertical-align: middle;">
                                     {{ number_format($requisition->lines->sum('amount'), 2) }}
                                 </td>
