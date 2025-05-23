@@ -15,7 +15,7 @@ class InvoiceLine extends Model
         return $this->hasOne(Supplier::class, 'vendor_id', 'supplier_id');
     }
 
-    public function expenseType()
+    public function expense()
     {
         return $this->hasOne(MTLCategoriesV::class, 'category_concat_segs', 'expense_type');
     }

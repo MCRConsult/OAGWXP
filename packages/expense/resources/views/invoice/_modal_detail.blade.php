@@ -49,7 +49,7 @@
                                     <label class="control-label">
                                         <strong> ประเภทค่าใช้จ่าย </strong>
                                     </label><br>
-                                    {{ optional($line->expenseType)->description }}
+                                    {{ optional($line->expense)->description }}
                                 </div>
                             </div>
                             <div class="col-md-9">

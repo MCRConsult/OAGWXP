@@ -26,6 +26,7 @@ class InvoiceController extends Controller
     public function index()
     {
         $invoices = InvoiceHeader::search(request()->all())
+                                    ->orderBy('invoice_date', 'desc')
                                     ->orderBy('voucher_number', 'desc')
                                     ->paginate(15);
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
@@ -178,7 +179,7 @@ class InvoiceController extends Controller
     public function edit($invoiceId)
     {
         $invoice = InvoiceHeader::where('id', $invoiceId)
-                            ->with(['lines', 'lines.expenseType', 'user', 'user.hrEmployee'])
+                            ->with(['lines', 'lines.expense', 'user', 'user.hrEmployee'])
                             ->first();
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
         $defaultSetName = (new COAListV)->getDefaultSetName();

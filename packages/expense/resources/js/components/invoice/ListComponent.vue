@@ -2,7 +2,7 @@
     <tr v-loading="loading">
         <td class="text-center"> {{ index + 1 }} </td>
         <td class="text-left">
-            {{ line.expense_type.description }}
+            {{ line.expense.description }}
         </td>
         <td class="text-left small wrap-text">
             {{ line.expense_account }}
@@ -526,10 +526,10 @@
         mounted() {
             this.extractAccount();
         },
-        watch:{
-            attribute() {
-                return this.line = this.attribute;
-            },
+        computed: {
+            // attribute() {
+            //     return this.line = this.attribute;
+            // },
         },    
         methods: {
             numberFormat(value) {
@@ -679,11 +679,11 @@
                     this.accountCollp = false;
                     this.$emit("updateRow", {index: this.index, line: this.temp});
                     $('.modal-edit'+this.index).modal('hide');
-                    this.temp = null;
+                    // this.temp = null;
                 }
             },
             cancel(index) {
-                this.temp = null;
+                // this.temp = null;
                 this.extractAccount();
                 this.accountCollp = false;
                 $('.modal-edit'+index).modal('hide');

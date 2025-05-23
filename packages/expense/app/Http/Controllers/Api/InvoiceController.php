@@ -75,21 +75,24 @@ class InvoiceController extends Controller
 
     public function fetchRequisition(Request $request)
     {
+        $requistion = [];
         $invMapping = [];
-        $requistion = RequisitionHeader::search($request->search)
-                            ->with(['user', 'user.hrEmployee', 'invoiceType', 'supplier'])
-                            ->whereIn('status', ['PENDING', 'COMPLETED'])
-                            ->whereNull('invoice_reference_id')
-                            ->orderBy('req_number')
-                            ->get();
-        // $invMapping = MappingAutoInvoiceV::selectRaw('distinct invoice_type_lookup_code, invoice_num, sum(remaining_amount) remaining_amount')
-        //                     ->with(['invoiceType'])
-        //                     ->orderBy('invoice_num')
-        //                     ->groupBy('invoice_type_lookup_code', 'invoice_num')
-        //                     ->get();
-
+        if ($request->search['source_data'] == 'REQUISITION') {
+            $requistion = RequisitionHeader::search($request->search)
+                                ->with(['user', 'user.hrEmployee', 'invoiceType', 'supplier'])
+                                ->whereIn('status', ['PENDING', 'COMPLETED'])
+                                ->whereNull('invoice_reference_id')
+                                ->orderBy('req_number')
+                                ->get();
+        }else{
+            // $invMapping = MappingAutoInvoiceV::selectRaw('distinct invoice_type_lookup_code, invoice_num, sum(remaining_amount) remaining_amount')
+            //                     ->with(['invoiceType'])
+            //                     ->orderBy('invoice_num')
+            //                     ->groupBy('invoice_type_lookup_code', 'invoice_num')
+            //                     ->get();
+        }
         $mergeReqs = collect($requistion)->merge($invMapping)->all();
-        $perPage = 15;
+        $perPage = 25;
         // Create a LengthAwarePaginator instance
         $header = new LengthAwarePaginator(
             array_slice($mergeReqs, (1 - 1) * $perPage, $perPage), // Items for the current page
@@ -107,21 +110,25 @@ class InvoiceController extends Controller
 
     public function fetchRequisitionRenderPage(Request $request)
     {
-        $invMapping =[];
-        $requistion = RequisitionHeader::search($request->search)
-                            ->with(['user', 'user.hrEmployee', 'invoiceType'])
-                            ->whereIn('status', ['PENDING', 'COMPLETED'])
-                            ->whereNull('invoice_reference_id')
-                            ->orderBy('req_number')
-                            ->get();
-        // $invMapping = MappingAutoInvoiceV::selectRaw('distinct invoice_type_lookup_code, invoice_num, sum(remaining_amount) remaining_amount')
-        //                     ->with(['invoiceType'])
-        //                     ->orderBy('invoice_num')
-        //                     ->groupBy('invoice_type_lookup_code', 'invoice_num')
-        //                     ->get();
+        $requistion = [];
+        $invMapping = [];
+        if ($request->search['source_data'] == 'REQUISITION') {
+            $requistion = RequisitionHeader::search($request->search)
+                                ->with(['user', 'user.hrEmployee', 'invoiceType', 'supplier'])
+                                ->whereIn('status', ['PENDING', 'COMPLETED'])
+                                ->whereNull('invoice_reference_id')
+                                ->orderBy('req_number')
+                                ->get();
+        }else{
+            // $invMapping = MappingAutoInvoiceV::selectRaw('distinct invoice_type_lookup_code, invoice_num, sum(remaining_amount) remaining_amount')
+            //                     ->with(['invoiceType'])
+            //                     ->orderBy('invoice_num')
+            //                     ->groupBy('invoice_type_lookup_code', 'invoice_num')
+            //                     ->get();
+        }
 
         $mergeReqs = collect($requistion)->merge($invMapping)->all();
-        $perPage = 15;
+        $perPage = 25;
         $currPage = $request->page;
         // Create a LengthAwarePaginator instance
         $header = new LengthAwarePaginator(

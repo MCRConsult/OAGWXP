@@ -390,9 +390,6 @@
                     if (currentItem) {
                         if (valUpdate && typeof valUpdate === 'object') {
                             // Object.assign(currentItem, valUpdate);
-                            console.log('==========cccc=========');
-                            console.log(valUpdate);
-                            console.log(valUpdate.expense_account);
                             Object.assign(currentItem, {
                                 bank_account_number: valUpdate.bank_account_number,
                                 budget_plan: valUpdate.budget_plan,

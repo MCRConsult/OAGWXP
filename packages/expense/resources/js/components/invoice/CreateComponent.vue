@@ -3,7 +3,22 @@
         <form id="create-form">
             <div class="col-md-12">
                 <div class="row">
-                    <div class="col-md-3">
+                    <div class="col-md-2">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ข้อมูลต้นทาง </strong>
+                            </label><br>
+                            <el-select v-model="search.source_data" placeholder="" name="source_data">
+                                <el-option
+                                    v-for="source in sourceDatas"
+                                    :key="source.value"
+                                    :label="source.label"
+                                    :value="source.value">
+                                </el-option>
+                            </el-select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
                                 <strong> เลขที่เอกสารส่งเบิก </strong>
@@ -16,7 +31,7 @@
                             />
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
                                 <strong> ประเภทการขอเบิก </strong>
@@ -31,7 +46,7 @@
                             </el-select>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
                                 <strong> วันที่เอกสาร </strong>
@@ -48,7 +63,7 @@
                             <div id="el_explode_req_date" class="text-danger text-left"></div>
                         </div>
                     </div>
-                    <div class="col-md-3" align="right">
+                    <div class="offset-sm-2 col-md-2" align="right">
                         <p><br></p>
                         <button type="button" class="btn btn-primary btn-sm m-1" @click.prevent="getRequisition()">
                             ค้นหา
@@ -64,6 +79,16 @@
                 </template>
                 <template v-else>
                     <div class="row">
+                        <div class="col-12">
+                            <el-checkbox v-model="isAllSelected"
+                                label="เลือกทั้งหมด"
+                                name="selectAll"
+                                @change="toggleSelectAll"
+                                border
+                                size="medium"
+                                style="margin: 1rem;" 
+                            > </el-checkbox>
+                        </div>
                         <template :key="header.id" v-for="(header, index) in headers">
                             <div class="col-12">
                                 <div class="card" style="padding: 0px;">  
@@ -168,7 +193,7 @@
                 </template>
                 <br>
                 <div align="right">
-                    <button type="button" class="btn btn-primary" @click.prevent="groupInvoice()"> ถัดไป </button>
+                    <button v-if="listReq.length" type="button" class="btn btn-primary" @click.prevent="groupInvoice()"> ถัดไป </button>
                 </div>
             </div>
         </form>
@@ -188,6 +213,13 @@
         props: ['invoiceTypes'],
         data() {
             return {
+                sourceDatas: [{
+                    value: 'REQUISITION',
+                    label: 'เอกสารส่งเบิก'
+                }, {
+                    value: 'RECEIPT',
+                    label: 'ใบเสร็จรับเงิน'
+                }],
                 errors: {
                     invoice_type: false,
                     document_category: false,
@@ -202,6 +234,7 @@
                 headers: [],
                 req_date_input: '',
                 search: {
+                    source_data: 'REQUISITION',
                     req_number: '',
                     invoice_type: '',
                     req_date: '',
@@ -213,6 +246,7 @@
                     size: 0,
                     total: 0,
                 },
+                isAllSelected: false,
                 selectedReq: {},
                 listReq: [],
             };
@@ -321,11 +355,38 @@
             },
             clear(){
                 this.search = {
+                    source_data: 'REQUISITION',
                     req_number: '',
                     invoice_type: '',
                     req_date: ''
                 }
                 this.getRequisition();
+            },
+            toggleSelectAll(event) {
+                let checked = $('input[name="selectAll"]').prop('checked');
+                if(checked){
+                    if(this.listReq.length){
+                        this.headers.forEach(header => {
+                            if (!this.listReq.includes(header.req_number)) {
+                                this.selectedReq[header.req_number] = true;
+                                this.listReq.push(header.req_number);
+                            }
+                        });
+                    }else{
+                        this.headers.forEach(header => {
+                            this.selectedReq[header.req_number] = true;
+                            this.listReq.push(header.req_number);
+                        });
+                    }
+                }else{
+                    this.headers.forEach(header => {
+                        this.selectedReq[header.req_number] = false;
+                        this.listReq.push(header.req_number);
+                        this.listReq = this.listReq.filter(function(value) {
+                            return value != header.req_number
+                        });
+                    });                    
+                }                
             },
             chooseReq(header){
                 let vm = this;
@@ -341,18 +402,33 @@
                     });
                 }
             },
+            listsAsComma() {
+                return this.listReq.join(", ");
+            },
+            totalAmount() {
+                let total = 0;
+                this.listReq.filter(req => {
+                    this.headers.filter(header =>  {        
+                        if(req == header.req_number){  
+                            total += Number(header.total_amount);
+                        }
+                    });
+                });
+                return this.numberFormat(total);
+            },
             async groupInvoice(){
                 var vm = this;
                 Swal.fire({
-                    title: "ยืนยันสร้างเอกสารขอเบิก",
-                    html: "ต้องการ <b>ยืนยัน</b> สร้างเอกสารขอเบิกใช่หรือไม่?",
-                    icon: "warning",
+                    title: "",
+                    html: '<div style="font-size: 16px; text-align: left;"> <b>เลขที่เอกสารส่งเบิก : </b>'+this.listsAsComma()
+                        +'<br><br> <b>จำนวนเงิน : </b>'+this.totalAmount()+'</div>',
+                    icon: "",
                     showCancelButton: true,
                     confirmButtonColor: "#3085d6",
                     cancelButtonColor: "#d33",
-                    confirmButtonText: "ใช่",
-                    cancelButtonText: "ไม่",
-                    allowOutsideClick: false // ป้องกันการปิด alert เมื่อคลิกนอกกรอบ
+                    confirmButtonText: "ยืนยัน",
+                    cancelButtonText: "ยกเลิก",
+                    allowOutsideClick: false
                 }).then((result) => {
                     if (result.isConfirmed) {
                         vm.loading = true;

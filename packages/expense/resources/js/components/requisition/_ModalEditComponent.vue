@@ -749,11 +749,11 @@
                     // this.line = JSON.parse(JSON.stringify(this.temp));
                     $('.modal-edit'+this.index).modal('hide');
                     this.$emit("updateRow", {index: this.index, line: this.temp});
-                    this.temp = null;
+                    // this.temp = null;
                 }
             },
             cancel() {
-                this.temp = null;
+                // this.temp = null;
                 $('.modal-edit'+this.index).modal('hide');
             },
             setError(ref_name){
