@@ -62,6 +62,7 @@ Route::group(['middleware' => ['web', 'auth']], function () {
 
         Route::prefix('report')->namespace('Report')->name('report.')->group(function() {
             Route::get('/', '\Packages\expense\app\Http\Controllers\Report\ReportController@index')->name('index');
+            Route::get('/export', '\Packages\expense\app\Http\Controllers\Report\ReportController@export')->name('export');
         });
     });
 

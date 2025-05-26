@@ -19,14 +19,11 @@
         </div>
         <div class="card-body">
             <div class="ibox float-e-margins">
-                {{-- <report-component
-                    p-form-url          = "{{ route('expense.requisition.index') }}"
+                <report-component
+                    p-form-url          = "{{ route('expense.report.export') }}"
                     p-token             = "{{ csrf_token() }}"
                     :p-search           = "{{ json_encode(request()->all()) }}"
-                    :p-invoice-types    = "{{ json_encode($invoiceTypes) }}"
-                    :p-statuses         = "{{ json_encode($statuses) }}"
-                    p-date-js-format    = "{{ trans('date.js-format') }}"
-                ></report-component> --}}
+                ></report-component>
             </div>
         </div>
     </div>

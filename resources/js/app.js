@@ -27,6 +27,7 @@ import SearchInvoiceComponent from '/packages/expense/resources/js/components/in
 import CreateInvoiceComponent from '/packages/expense/resources/js/components/invoice/CreateComponent.vue';
 import EditInvoiceComponent from '/packages/expense/resources/js/components/invoice/EditComponent.vue';
 
+import ReportComponent from '/packages/expense/resources/js/components/report/ReportComponent.vue';
 
 
 const app = window.app = createApp({});
@@ -43,6 +44,7 @@ app.component('invoice-search-component', SearchInvoiceComponent);
 app.component('invoice-create-component', CreateInvoiceComponent);
 app.component('invoice-edit-component', EditInvoiceComponent);
 
+app.component('report-component', ReportComponent);
 
 // ## Register Component is here
 app.mount("#app");

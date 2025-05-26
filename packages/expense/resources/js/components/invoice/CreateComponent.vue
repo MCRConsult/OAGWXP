@@ -269,7 +269,7 @@
                 return numeral(value).format("0,0.00");
             },
             changeDateFormat() {
-                const formattedDate = moment(this.req_date_input, "DD-MM-YYYY").format("YYYY-MM-DD");
+                const formattedDate = moment(this.req_date_input, "YYYY-MM-DD").format("YYYY-MM-DD");
                 this.search.req_date = formattedDate;
             },
             setError(ref_name){

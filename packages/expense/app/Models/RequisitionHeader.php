@@ -25,6 +25,11 @@ class RequisitionHeader extends Model
         return $this->hasMany(RequisitionLine::class, 'req_header_id');
     }
 
+    public function invoices()
+    {
+        return $this->hasMany(InvoiceHeader::class, 'id', 'invoice_reference_id');
+    }
+
     public function invoiceType()
     {
         return $this->hasOne(InvoiceType::class, 'lookup_code', 'invoice_type');
