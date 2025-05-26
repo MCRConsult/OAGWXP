@@ -36,12 +36,12 @@
     "src": "resources/fonts/fontawesome-webfont.woff2"
   },
   "resources/js/app.js": {
-    "file": "assets/app-HrMmgjBT.js",
+    "file": "assets/app-CiFophot.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
     "css": [
-      "assets/app-DAKGLMKI.css"
+      "assets/app-CQN-_nOM.css"
     ]
   },
   "resources/sass/app.css": {
