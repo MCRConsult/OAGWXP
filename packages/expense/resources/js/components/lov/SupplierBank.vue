@@ -17,7 +17,7 @@
             <el-option
                 v-for="(row, index) in dataRows"
                 :key="row.bank_account_num"
-                :label="row.bank_name+': '+row.bank_account_num"
+                :label="row.bank_account_num"
                 :value="row.bank_account_num"
             >
             </el-option>
@@ -74,10 +74,16 @@ export default {
             .then(res => {
                 this.loading = false;
                 this.dataRows = res.data.data;
+                let supplier_site = '';
                 if(this.parent){
+                    res.data.data.filter((value) => {
+                        if(value.bank_account_num == this.value){
+                            supplier_site = value.vendor_site_id;
+                        }
+                    });
                     this.value = res.data.data[0].bank_account_num;
                 }
-                this.$emit('setSupplierBank', {supplier_bank: this.value});
+                this.$emit('setSupplierBank', {supplier_bank: this.value, supplier_site: supplier_site});
             })
             .catch((error) => {
                 console.log('มีข้อผิดพลาด', error, 'error');

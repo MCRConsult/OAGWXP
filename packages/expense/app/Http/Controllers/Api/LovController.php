@@ -80,7 +80,7 @@ class LovController extends Controller
                             })
                             ->when($supplier, function ($query, $supplier) {
                                 return $query->where('vendor_id', $supplier)
-                                            ->where('org_id', '221');
+                                            ->where('org_id', auth()->user()->org_id);
                             })
                             ->orderBy('order_of_preference')
                             ->limit(50)

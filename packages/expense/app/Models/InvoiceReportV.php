@@ -18,25 +18,25 @@ class InvoiceReportV extends Model
 
     public function scopeSearch($q, $search)
     {
-        $invDateFrom = request()->invoice_date_from ?? date('Y-m-d');
-        $invDateTo = request()->invoice_date_to ?? date('Y-m-d');
+        $invDateFrom = $search->invoice_date_from ?? date('Y-m-d');
+        $invDateTo = $search->invoice_date_to ?? date('Y-m-d');
         // REQ NUMBER
-        if (request()->req_number_from && request()->req_number_to) {
-            $q->whereBetween('req_number', [request()->req_number_from, request()->req_number_to]);
-        }elseif (request()->req_number_from && !request()->req_number_to) {
-            $q->where('req_number', request()->req_number_from);
+        if ($search->req_number_from && $search->req_number_to) {
+            $q->whereBetween('req_number', [$search->req_number_from, $search->req_number_to]);
+        }elseif ($search->req_number_from && !$search->req_number_to) {
+            $q->where('req_number', $search->req_number_from);
         }
         // SUPPLIER
-        if (request()->supplier_from && request()->supplier_to) {
-            $q->whereBetween('supplier_id', [request()->supplier_from, request()->supplier_to]);
-        }elseif (request()->supplier_from && !request()->supplier_to) {
-            $q->where('supplier_id', request()->supplier_from);
+        if ($search->supplier_from && $search->supplier_to) {
+            $q->whereBetween('supplier_id', [$search->supplier_from, $search->supplier_to]);
+        }elseif ($search->supplier_from && !$search->supplier_to) {
+            $q->where('supplier_id', $search->supplier_from);
         }
         // INVOICE DATE
-        if (request()->invoice_date_from && request()->invoice_date_to) {
+        if ($search->invoice_date_from && $search->invoice_date_to) {
             $q->whereRaw("trunc(invoice_date) >= TO_DATE('{$invDateFrom}','YYYY-mm-dd')")
                 ->whereRaw("trunc(invoice_date) <= TO_DATE('{$invDateTo}','YYYY-mm-dd')");
-        }elseif (request()->invoice_date_from && !request()->invoice_date_to) {
+        }elseif ($search->invoice_date_from && !$search->invoice_date_to) {
             $q->whereRaw("trunc(invoice_date) >= TO_DATE('{$invDateFrom}','YYYY-mm-dd')");
         }
                

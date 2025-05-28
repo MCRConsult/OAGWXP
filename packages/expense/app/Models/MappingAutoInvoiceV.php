@@ -8,9 +8,9 @@ class MappingAutoInvoiceV extends Model
 {
     protected $table = 'oagap_web_mapping_auto_inv_v';
     protected $connection = 'oracle';
-    protected $appends = ['source_type', 'status_icon', 'inv_date_format'];
+    protected $appends = ['source_type', 'status_icon', 'req_date_format'];
 
-    public function getInvDateFormatAttribute()
+    public function getReqDateFormatAttribute()
     {
         return date('d-m-Y');
     }
@@ -22,7 +22,12 @@ class MappingAutoInvoiceV extends Model
 
     public function invoiceType()
     {
-        return $this->hasOne(InvoiceType::class, 'lookup_code', 'invoice_type_lookup_code');
+        return $this->hasOne(InvoiceType::class, 'lookup_code', 'invoice_type');
+    }
+
+    public function supplier()
+    {
+        return $this->hasOne(Supplier::class, 'vendor_id', 'supplier_id');
     }
 
     public function getStatusIconAttribute()

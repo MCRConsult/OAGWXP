@@ -92,6 +92,7 @@ class RequisitionController extends Controller
                 $lineTemp->seq_number               = $key+1;
                 $lineTemp->supplier_id              = $line['supplier'];
                 $lineTemp->supplier_name            = $line['supplier_name'];
+                $lineTemp->supplier_site            = $line['supplier_site'];
                 $lineTemp->bank_account_number      = $line['supplier_bank'];
                 $lineTemp->budget_plan              = $line['budget_plan'];
                 $lineTemp->budget_type              = $line['budget_type'];
@@ -254,7 +255,7 @@ class RequisitionController extends Controller
                                 ->where('remaining_receipt_number', $line['remaining_receipt'])
                                 ->where('seq_number', $request->index+1)
                                 ->update([
-                                    'remaining_receipt_number' => $line['remaining_receipt']
+                                    'remaining_receipt_number'  => $line['remaining_receipt']
                                     , 'amount'                  => $line['amount']
                                 ]);
             \DB::commit();

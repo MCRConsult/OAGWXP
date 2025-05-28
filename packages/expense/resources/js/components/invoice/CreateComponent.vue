@@ -110,7 +110,7 @@
                                                             {{ header.req_number }} {{ header.description? ' : '+header.description: '' }}
                                                         </template>
                                                         <template v-else>
-                                                            {{ header.invoice_num }} {{ header.description? ' : '+header.description: '' }}
+                                                            {{ header.req_number }}
                                                         </template>
                                                     </h5>
                                                 </a>
@@ -129,12 +129,7 @@
                                                 </div>
                                                 <div class="row">
                                                     <span class="col-md-3 text-right text-sm text-grey-dark"> วันที่เอกสาร :</span>
-                                                    <template v-if="header.source_type == 'REQUISITION'">
                                                        {{ header.req_date_format }}
-                                                    </template>
-                                                    <template v-else>
-                                                        {{ header.inv_date_format }}
-                                                    </template>
                                                 </div>
                                                 <div class="row">
                                                     <span class="col-md-3 text-right text-sm text-grey-dark"> สถานะ :</span>
@@ -149,12 +144,7 @@
                                                 <div class="mr-3 text-right">
                                                     <div class="font-bold text-grey"> จำนวนเงิน </div>
                                                     <div class="text-2xl">
-                                                        <template v-if="header.source_type == 'REQUISITION'">
-                                                            {{ numberFormat(header.total_amount) }}
-                                                        </template>
-                                                        <template v-else>
-                                                            {{ numberFormat(header.remaining_amount) }}
-                                                        </template>
+                                                        {{ numberFormat(header.total_amount) }}
                                                     </div>
                                                 </div>
                                             </div>

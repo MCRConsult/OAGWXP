@@ -149,14 +149,13 @@ class InvoiceHeader extends Model
 
     public function scopeSearch($q, $search)
     {
-        $cols = ['invoice_number', 'invoice_type', 'status'];
+        $cols = ['voucher_number', 'invoice_type', 'status'];
         foreach ($search as $key => $value) {
             $value = trim($value);
             if ($value) {
                 if (in_array($key, $cols)) {
                     $q->where($key, 'like', "%$value%");
                 } else if ($key == 'invoice_date') {
-                    // $date = \DateTime::createFromFormat(trans('date.format'), $value);
                     $date = date('Y-m-d', strtotime($value));
                     $q->whereDate('invoice_date', $date);
                 }

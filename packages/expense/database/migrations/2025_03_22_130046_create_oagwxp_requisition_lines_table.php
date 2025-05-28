@@ -24,6 +24,7 @@ return new class extends Migration
             $table->integer('seq_number');
             $table->integer('supplier_id');
             $table->string('supplier_name')->nullable();
+            $table->integer('supplier_site')->nullable();
             $table->string('bank_account_number')->nullable();
             $table->string('budget_plan');
             $table->string('budget_type');

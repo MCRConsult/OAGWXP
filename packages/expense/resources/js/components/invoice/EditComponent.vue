@@ -215,32 +215,48 @@
                     </div>
                 </div>
                 <!-- TABLE LINE LISTS-->
-                <table class="table table-responsive-sm">
-                    <thead>
-                        <tr>
-                            <th class="text-center" width="7%"> รายการที่ </th>
-                            <th class="text-left" width="15%"> ประเภทค่าใช้จ่าย </th>
-                            <th class="text-left" width="26%"> รายการบัญชี </th>
-                            <th class="text-center" width="10%"> จำนวนเงิน </th>
-                            <th class="text-center" width="15%"> ชื่อสั่งจ่าย </th>
-                            <th class="text-center" width="15%"> เลขที่บัญชีธนาคาร </th>
-                            <th class="text-center" width="3%"> </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <listComp
-                            v-for="(row, index) in linelists"
-                            :key="index"
-                            :index="index"
-                            :attribute="row"
-                            :defaultSetName="defaultSetName"
-                            @updateRow="updateRow"
-                            @copyRow="copyRow"
-                            @removeRow="removeRow"
-                        />
-                    </tbody>
-                </table>
-                <div class="row m-t-sm">
+                <div class="table-responsive" style="max-height: 600px;">
+                    <table class="table text-nowrap table-hover" style="position: sticky;">
+                        <thead>
+                            <tr>
+                                <th class="text-center sticky-col">
+                                   <div style="width: 70px;"> รายการที่ </div> 
+                                </th>
+                                <th class="text-left sticky-col">
+                                    <div style="width: 170px;"> ประเภทค่าใช้จ่าย </div>
+                                </th>
+                                <th class="text-left sticky-col">
+                                    <div style="width: 300px;"> รายการบัญชี </div>
+                                </th>
+                                <th class="text-center sticky-col">
+                                    <div style="width: 120px;"> จำนวนเงิน </div>
+                                </th>
+                                <th class="text-center sticky-col">
+                                    <div style="width: 170px;"> ชื่อสั่งจ่าย </div>
+                                </th>
+                                <th class="text-center sticky-col">
+                                    <div style="width: 170px;"> เลขที่บัญชีธนาคาร </div>
+                                </th>
+                                <th class="text-center sticky-col">
+                                    <div style="width: 50px;"> </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <listComp
+                                v-for="(row, index) in linelists"
+                                :key="index"
+                                :index="index"
+                                :attribute="row"
+                                :defaultSetName="defaultSetName"
+                                @updateRow="updateRow"
+                                @copyRow="copyRow"
+                                @removeRow="removeRow"
+                            />
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row m-t-sm mt-3">
                     <div class="col-sm-9"> </div>
                     <div class="col-sm-3 text-right">
                         <div class="card">
@@ -261,9 +277,9 @@
                 </div>
                 <br>
                 <div align="center">
-                    <button type="button" class="btn btn-primary" @click.prevent="update()"> บันทึกรายการ </button>
+                    <button type="button" class="btn btn-primary" @click.prevent="update('UPDATE')"> บันทึกรายการ </button>
                     <button type="button" class="btn btn-danger ml-1" @click.prevent="cancel()"> ยกเลิกรายการ </button>
-                    <button type="button" class="btn btn-success ml-1" @click.prevent="interface()"> ขอเบิก </button>
+                    <button type="button" class="btn btn-success ml-1" @click.prevent="update('INTERFACE')"> ขอเบิก </button>
                 </div>
             </div>
         </form>
@@ -423,7 +439,7 @@
             removeRow(index) {
                 this.linelists.splice(index, 1);
             },
-            async update(){
+            async update(activity){
                 var vm = this;
                 var form = $('#edit-form');
                 let errorMsg = '';
@@ -469,6 +485,7 @@
                     header: vm.header,
                     lines: vm.linelists,
                     totalApply: vm.totalApply,
+                    activity: activity,
                 })
                 .then(function (res) {
                     vm.loading = false;
@@ -531,55 +548,71 @@
                     allowOutsideClick: false
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        axios.post('/expense/invoice/'+vm.header.id+'/update', {
-                            header: vm.header,
-                            lines: vm.linelists,
-                            totalApply: vm.totalApply,
-                        })
-                        .then(function (res) {
-                            vm.loading = false;
-                            if (res.data.message) {
-                                Swal.fire({
-                                    title: "มีข้อผิดพลาด",
-                                    text: res.data.message,
-                                    icon: "error",
-                                    showCancelButton: false,
-                                    confirmButtonColor: "#3085d6",
-                                    confirmButtonText: "ตกลง",
-                                    allowOutsideClick: false
-                                });
-                            } else {
-                                Swal.fire({
-                                    title: "ขอเบิกเอกสาร",
-                                    html: "ขอเบิกเอกสารเรียบร้อยแล้ว",
-                                    icon: "success",
-                                    showCancelButton: false,
-                                    confirmButtonColor: "#3085d6",
-                                    confirmButtonText: "ตกลง",
-                                    allowOutsideClick: false
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        setTimeout(function() {
-                                            location.reload();
-                                        }, 500);
-                                    }
-                                });
+                        // axios.post('/expense/invoice/'+vm.header.id+'/update', {
+                        //     header: vm.header,
+                        //     lines: vm.linelists,
+                        //     totalApply: vm.totalApply,
+                        // })
+                        // .then(function (res) {
+                        //     vm.loading = false;
+                        //     if (res.data.message) {
+                        //         Swal.fire({
+                        //             title: "มีข้อผิดพลาด",
+                        //             text: res.data.message,
+                        //             icon: "error",
+                        //             showCancelButton: false,
+                        //             confirmButtonColor: "#3085d6",
+                        //             confirmButtonText: "ตกลง",
+                        //             allowOutsideClick: false
+                        //         });
+                        //     } else {
+                        //         Swal.fire({
+                        //             title: "ขอเบิกเอกสาร",
+                        //             html: "ขอเบิกเอกสารเรียบร้อยแล้ว",
+                        //             icon: "success",
+                        //             showCancelButton: false,
+                        //             confirmButtonColor: "#3085d6",
+                        //             confirmButtonText: "ตกลง",
+                        //             allowOutsideClick: false
+                        //         }).then((result) => {
+                        //             if (result.isConfirmed) {
+                        //                 setTimeout(function() {
+                        //                     location.reload();
+                        //                 }, 500);
+                        //             }
+                        //         });
+                        //     }
+                        // }.bind(vm))
+                        // .catch(err => {
+                        //     let msg = err.response;
+                        //     Swal.fire({
+                        //         title: "มีข้อผิดพลาด",
+                        //         text: msg.message,
+                        //         icon: "error",
+                        //         showCancelButton: false,
+                        //         confirmButtonColor: "#3085d6",
+                        //         confirmButtonText: "ตกลง",
+                        //         allowOutsideClick: false
+                        //     });
+                        // })
+                        // .then(() => {
+                        //     vm.loading = false;
+                        // });
+                        vm.loading = false;
+                        Swal.fire({
+                            title: "ขอเบิกเอกสาร",
+                            html: "ขอเบิกเอกสารเรียบร้อยแล้ว",
+                            icon: "success",
+                            showCancelButton: false,
+                            confirmButtonColor: "#3085d6",
+                            confirmButtonText: "ตกลง",
+                            allowOutsideClick: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                setTimeout(function() {
+                                    location.reload();
+                                }, 500);
                             }
-                        }.bind(vm))
-                        .catch(err => {
-                            let msg = err.response;
-                            Swal.fire({
-                                title: "มีข้อผิดพลาด",
-                                text: msg.message,
-                                icon: "error",
-                                showCancelButton: false,
-                                confirmButtonColor: "#3085d6",
-                                confirmButtonText: "ตกลง",
-                                allowOutsideClick: false
-                            });
-                        })
-                        .then(() => {
-                            vm.loading = false;
                         });
                     }
                 });
@@ -654,12 +687,18 @@
     }
 </script>
 
-<style type="text/css" scope>
+<style scope>
     .el-select__wrapper {
         font-size: 12px;
     }
     .el-input__wrapper {
         font-size: 12px;
         /*padding: 0px;*/
+    }
+    .sticky-col {
+        position: sticky !important;
+        background-color: #FFF;
+        z-index: 9999;
+        top:0px;
     }
 </style>

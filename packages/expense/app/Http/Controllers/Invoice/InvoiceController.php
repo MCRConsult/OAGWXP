@@ -12,6 +12,7 @@ use Packages\expense\app\Models\RequisitionHeader;
 use Packages\expense\app\Models\RequisitionLine;
 use Packages\expense\app\Models\InvoiceHeader;
 use Packages\expense\app\Models\InvoiceLine;
+use Packages\expense\app\Models\MappingAutoInvoiceV;
 use Packages\expense\app\Models\InvoiceType;
 use Packages\expense\app\Models\DocumentCategory;
 use Packages\expense\app\Models\Supplier;
@@ -55,7 +56,7 @@ class InvoiceController extends Controller
                             ->get();
             if (count($requistion) <= 0) {
                 $invMapping = MappingAutoInvoiceV::with(['invoiceType'])
-                                ->where('invoice_num', $req)
+                                ->where('req_number', $req)
                                 ->get();
             }
             if ($key == 0) {
@@ -88,8 +89,8 @@ class InvoiceController extends Controller
             $prefixInvRef = (new InvoiceHeader)->getInvRef($header->invoice_type);
             // CREATE NEW INVOICE
             $headerTemp                             = new InvoiceHeader;
-            $headerTemp->invoice_number             = (new InvoiceHeader)->genDocumentNo('101', $prefixInvRef);
-            $headerTemp->org_id                     = 101;
+            $headerTemp->invoice_number             = (new InvoiceHeader)->genDocumentNo($user->org_id, $prefixInvRef);
+            $headerTemp->org_id                     = $user->org_id;
             $headerTemp->invoice_date               = date('Y-m-d');
             $headerTemp->invoice_type               = $header->invoice_type;
             $headerTemp->document_category          = $header->document_category;
@@ -121,6 +122,7 @@ class InvoiceController extends Controller
                     $lineTemp->seq_number               = $key+1;
                     $lineTemp->supplier_id              = $line->supplier_id;
                     $lineTemp->supplier_name            = $line->supplier_name;
+                    $lineTemp->supplier_site            = $line->supplier_site;
                     $lineTemp->bank_account_number      = $line->bank_account_number;
                     $lineTemp->budget_plan              = $line->budget_plan;
                     $lineTemp->budget_type              = $line->budget_type;
@@ -142,6 +144,11 @@ class InvoiceController extends Controller
                     $lineTemp->remaining_receipt_flag   = $line->remaining_receipt_flag;
                     $lineTemp->remaining_receipt_number = $line->remaining_receipt_number;
                     $lineTemp->save();
+
+                    $requistionLine = RequisitionLine::where('req_header_id', $requisition->id)
+                                        ->update([
+                                            'invl_reference_id' => $lineTemp->id
+                                        ]);
                 }
                 // UPDATE REQUISITION
                 $requistion = RequisitionHeader::where('req_number', $requisition->req_number)
@@ -223,6 +230,7 @@ class InvoiceController extends Controller
                 $lineTemp->seq_number               = $key+1;
                 $lineTemp->supplier_id              = $line['supplier_id'];
                 $lineTemp->supplier_name            = $line['supplier_name'];
+                $lineTemp->supplier_site            = $line['supplier_site'];
                 $lineTemp->bank_account_number      = $line['bank_account_number'];
                 $lineTemp->budget_plan              = $line['budget_plan'];
                 $lineTemp->budget_type              = $line['budget_type'];
@@ -250,6 +258,13 @@ class InvoiceController extends Controller
                 $lineTemp->wht_code                 = $line['wht_code'];
                 $lineTemp->wht_amount               = $line['wht_amount'];
                 $lineTemp->save();
+            }
+
+            if($request->activity == 'INTERFACE'){
+                InvoiceHeader::where('id', $invoiceId)
+                            ->update([
+                                'status' => 'INTERFACED'
+                            ]);
             }
 
             \DB::commit();
@@ -290,6 +305,12 @@ class InvoiceController extends Controller
                                         , 'updated_by'          => $user->id
                                         , 'updation_by'         => $user->person_id
                                     ]);
+            // UPDATE REQUISITION LINES                      
+            $requistion = RequisitionHeader::where('invoice_reference_id', $invoiceId)->get()->pluck('id')->toArray();
+            $requistionLine = RequisitionLine::whereIn('req_header_id', $requistion)
+                                        ->update([
+                                            'invl_reference_id' => $lineTemp->id
+                                        ]);
             \DB::commit();
             $data = [
                 'status' => 'SUCCESS',

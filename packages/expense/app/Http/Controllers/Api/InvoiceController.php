@@ -41,17 +41,17 @@ class InvoiceController extends Controller
                             ->orderBy('req_number')
                             ->limit(25)
                             ->get();
-            // if (count($requistion) <= 0) {
-            //     $requistion = MappingAutoInvoiceV::selectRaw('distinct invoice_num trans_number')
-            //                 ->when($keyword, function ($query, $keyword) {
-            //                     return $query->where(function($r) use ($keyword) {
-            //                         $r->whereRaw('UPPER(invoice_num) like ?', ['%'.strtoupper($keyword).'%']);
-            //                     });
-            //                 })
-            //                 ->orderBy('invoice_num')
-            //                 ->limit(25)
-            //                 ->get();
-            // }
+            if (count($requistion) <= 0) {
+                $requistion = MappingAutoInvoiceV::selectRaw('distinct req_number trans_number')
+                            ->when($keyword, function ($query, $keyword) {
+                                return $query->where(function($r) use ($keyword) {
+                                    $r->whereRaw('UPPER(req_number) like ?', ['%'.strtoupper($keyword).'%']);
+                                });
+                            })
+                            ->orderBy('req_number')
+                            ->limit(25)
+                            ->get();
+            }
         }
 
         return response()->json(['data' => $requistion]);
@@ -85,11 +85,11 @@ class InvoiceController extends Controller
                                 ->orderBy('req_number')
                                 ->get();
         }else{
-            // $invMapping = MappingAutoInvoiceV::selectRaw('distinct invoice_type_lookup_code, invoice_num, sum(remaining_amount) remaining_amount')
-            //                     ->with(['invoiceType'])
-            //                     ->orderBy('invoice_num')
-            //                     ->groupBy('invoice_type_lookup_code', 'invoice_num')
-            //                     ->get();
+            $invMapping = MappingAutoInvoiceV::selectRaw('distinct supplier_id, invoice_type, req_number, sum(amount) total_amount')
+                                ->with(['invoiceType', 'supplier'])
+                                ->orderBy('req_number')
+                                ->groupBy('invoice_type', 'req_number', 'supplier_id')
+                                ->get();
         }
         $mergeReqs = collect($requistion)->merge($invMapping)->all();
         $perPage = 25;
@@ -120,11 +120,11 @@ class InvoiceController extends Controller
                                 ->orderBy('req_number')
                                 ->get();
         }else{
-            // $invMapping = MappingAutoInvoiceV::selectRaw('distinct invoice_type_lookup_code, invoice_num, sum(remaining_amount) remaining_amount')
-            //                     ->with(['invoiceType'])
-            //                     ->orderBy('invoice_num')
-            //                     ->groupBy('invoice_type_lookup_code', 'invoice_num')
-            //                     ->get();
+           $invMapping = MappingAutoInvoiceV::selectRaw('distinct supplier_id, invoice_type, req_number, sum(amount) total_amount')
+                                ->with(['invoiceType', 'supplier'])
+                                ->orderBy('req_number')
+                                ->groupBy('invoice_type', 'req_number', 'supplier_id')
+                                ->get();
         }
 
         $mergeReqs = collect($requistion)->merge($invMapping)->all();

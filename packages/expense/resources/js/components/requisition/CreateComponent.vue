@@ -289,31 +289,45 @@
                 </div>
                 <br>
                 <!-- TABLE LINE LISTS-->
-                <table class="table table-responsive-sm">
-                    <thead>
-                        <tr>
-                            <th class="text-center" width="3%"> รายการที่ </th>
-                            <th class="text-left" width="15%"> ประเภทค่าใช้จ่าย </th>
-                            <th class="text-center" width="10%"> จำนวนเงิน </th>
-                            <th class="text-center" width="15%"> ชื่อสั่งจ่าย </th>
-                            <th class="text-center" width="15%"> เลขที่บัญชีธนาคาร </th>
-                            <th class="text-center" width="3%"> </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <listComp
-                            v-for="(row, index) in linelists"
-                            :key="index"
-                            :index="index"
-                            :requisition="requisition"
-                            :attribute="row"
-                            :defaultSetName="defaultSetName"
-                            @updateRow="updateRow"
-                            @copyRow="copyRow"
-                            @removeRow="removeRow"
-                        />
-                    </tbody>
-                </table>
+                <div class="table-responsive" style="max-height: 600px;">
+                    <table class="table text-nowrap table-hover" style="position: sticky;">
+                        <thead>
+                            <tr>
+                                <th class="text-center sticky-col">
+                                    รายการที่ 
+                                </th>
+                                <th class="text-left sticky-col">
+                                    ประเภทค่าใช้จ่าย 
+                                </th>
+                                <th class="text-center sticky-col">
+                                    จำนวนเงิน 
+                                </th>
+                                <th class="text-center sticky-col">
+                                    ชื่อสั่งจ่าย 
+                                </th>
+                                <th class="text-center sticky-col">
+                                    เลขที่บัญชีธนาคาร 
+                                </th>
+                                <th class="text-center sticky-col">
+                                    
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <listComp
+                                v-for="(row, index) in linelists"
+                                :key="index"
+                                :index="index"
+                                :requisition="requisition"
+                                :attribute="row"
+                                :defaultSetName="defaultSetName"
+                                @updateRow="updateRow"
+                                @copyRow="copyRow"
+                                @removeRow="removeRow"
+                            />
+                        </tbody>
+                    </table>
+                </div>
                 <div class="row m-t-sm">
                     <div class="col-sm-9"> </div>
                     <div class="col-sm-3 text-right">
@@ -402,6 +416,7 @@
                     supplier: '',
                     supplier_name: '',
                     supplier_bank: '',
+                    supplier_site: '',
                     budget_plan: '',
                     budget_type: '',
                     expense_type: '',
@@ -499,6 +514,7 @@
             },
             setSupplierBank(res){
                 this.reqLine.supplier_bank = res.supplier_bank;
+                this.reqLine.supplier_site = res.supplier_site;
             },
             setBudgetPlan(res){
                 this.reqLine.budget_plan = res.budget_plan;
@@ -576,13 +592,13 @@
                     errorMsg = "กรุณาเลือกผู้สั่งจ่าย";
                     $(form).find("div[id='el_explode_supplier']").html(errorMsg);
                 }
-                if (vm.reqLine.supplier == '' && vm.requisition.multiple_supplier == 'MORE') {
+                if (vm.reqLine.supplier == '') {
                     vm.errors.supplier_detail = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกผู้สั่งจ่าย";
                     $(form).find("div[id='el_explode_supplier_detail']").html(errorMsg);
                 }
-                if (vm.reqLine.supplier_bank == '' && vm.requisition.multiple_supplier == 'MORE') {
+                if (vm.reqLine.supplier_bank == '') {
                     vm.errors.supplier_bank = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกเลขที่บัญชีธนาคาร";
@@ -1112,5 +1128,11 @@
     .el-input__wrapper {
         font-size: 12px;
         /*padding: 0px;*/
+    }
+    .sticky-col {
+        position: sticky !important;
+        background-color: #FFF;
+        z-index: 9999;
+        top:0px;
     }
 </style>

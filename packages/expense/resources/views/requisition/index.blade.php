@@ -15,6 +15,15 @@
         </div>
     </div>
 @endsection
+<style type="text/css">
+    .sticky-col {
+        position: sticky !important;
+        background-color: #FFF;
+        z-index: 9999;
+        top:0px;
+    }
+</style>
+
 
 @section('content')
     <requisition-search-component
@@ -38,47 +47,61 @@
     </div>
     <div class="card-body">
         <div class="ibox float-e-margins">
-            <div class="table-responsive">
-                <table class="table" style="margin-bottom:0px;" id="table_group_line">
+            <div class="table-responsive" style="max-height: 600px;">
+                <table class="table text-nowrap table-hover" style="position: sticky;">
                     <thead>
                         <tr>
-                            <th class="text-center" width="12%">
-                                <div> เลขที่เอกสารส่งเบิก </div>
+                            <th class="text-center sticky-col">
+                                <div style="width: 150px;"> เลขที่เอกสารส่งเบิก </div>
                             </th>
-                            <th class="text-center" width="12%">
-                                <div> วันที่เอกสาร </div>
+                            <th class="text-center sticky-col">
+                                <div style="width: 100px;"> วันที่เอกสาร </div>
                             </th>
-                            <th class="text-center" width="15%">
-                                <div> ผู้รับผิดชอบ </div>
+                            <th class="text-center sticky-col">
+                                <div style="width: 150px;"> ผู้รับผิดชอบ </div>
                             </th>
-                            <th class="text-center" width="12%">
-                                <div> ประเภทการขอเบิก </div>
+                            <th class="text-center sticky-col">
+                                <div style="width: 120px;"> ประเภทการขอเบิก </div>
                             </th>
-                            <th class="text-center" width="10%">
-                                <div> คำอธิบาย </div>
+                            <th class="text-center sticky-col">
+                                <div style="width: 200px;"> คำอธิบาย </div>
                             </th>
-                            <th class="text-center" width="10%">
-                                <div> จำนวนเงิน </div>
+                            <th class="text-center sticky-col">
+                                <div style="width: 120px;"> จำนวนเงิน </div>
                             </th>
-                            <th class="text-center" width="10%">
-                                <div> สถานะ </div>
+                            <th class="text-center sticky-col">
+                                <div style="width: 60px;"> สถานะ </div>
                             </th>
-                            <th width="3%"> </th>
+                            <th class="text-center sticky-col">
+                                <div style="width: 10px;"> </div>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($requisitions as $requisition)
                             <tr>
-                                <td class="text-center" style="vertical-align: middle;"> {{ $requisition->req_number }} </td>
-                                <td class="text-center" style="vertical-align: middle;"> {{ $requisition->req_date_format }} </td>
-                                <td class="text-center" style="vertical-align: middle;"> {{ $requisition->user->hrEmployee->last_name }} </td>
-                                <td class="text-center" style="vertical-align: middle;"> {{ $requisition->invoiceType->description }} </td>
-                                <td class="text-left" style="vertical-align: middle;"> {{ $requisition->description }} </td>
-                                <td class="text-center" style="vertical-align: middle;">
+                                <td class="text-center text-nowrap" style="vertical-align: middle;">
+                                    {{ $requisition->req_number }}
+                                </td>
+                                <td class="text-center text-nowrap" style="vertical-align: middle;">
+                                    {{ $requisition->req_date_format }}
+                                </td>
+                                <td class="text-center text-nowrap" style="vertical-align: middle;">
+                                    {{ $requisition->user->hrEmployee->last_name }}
+                                </td>
+                                <td class="text-center text-nowrap" style="vertical-align: middle;">
+                                    {{ $requisition->invoiceType->description }}
+                                </td>
+                                <td class="text-left text-nowrap" style="vertical-align: middle;">
+                                    {{ $requisition->description }}
+                                </td>
+                                <td class="text-center text-nowrap" style="vertical-align: middle;">
                                     {{ number_format($requisition->lines->sum('amount'), 2) }}
                                 </td>
-                                <td class="text-center" style="vertical-align: middle;"> {!! $requisition->getStatusIcon() !!} </td>
-                                <td class="text-center" style="vertical-align: middle;">
+                                <td class="text-center text-nowrap" style="vertical-align: middle;">
+                                    {!! $requisition->getStatusIcon() !!}
+                                </td>
+                                <td class="text-center text-nowrap" style="vertical-align: middle;">
                                     <div style="border-collapse: collapse; width: 160px; display:inline-block; flex-direction: row;">
                                         <a class="btn btn-sm btn-light active mr-1"
                                             href="{{ route('expense.requisition.show', $requisition->id) }}">

@@ -1,7 +1,42 @@
 <template>
-    <button type="button" class="btn btn-sm btn-warning m-1" data-toggle="collapse" @click.prevent="openModal(index)">
-        แก้ไข
-    </button>
+    <tr v-loading="loading">
+        <td class="text-center"> {{ index + 1 }} </td>
+        <td class="text-left">
+            {{ line.expense.description }}
+        </td>
+        <td class="text-left small wrap-text">
+            {{ line.expense_account }}
+        </td>
+        <td class="text-center">
+            {{ numberFormat(line.amount) }}
+        </td>
+        <td class="text-center">
+            {{ line.supplier_name }}
+        </td>
+        <td class="text-center">
+            {{ line.supplier_bank }}
+        </td>
+        <td style="padding-top: 5px">
+            <div class="row text-center" style="border-collapse: collapse; width: 250px; display:inline-block; flex-direction: row;">
+                <button type="button" class="btn btn-sm btn-warning m-1" data-toggle="collapse" @click.prevent="openModal(index)">
+                    แก้ไข
+                </button>
+                <!-- <modalEditComp
+                    :index="index"
+                    :invoiceLine="line"
+                    :defaultSetName="defaultSetName"
+                    @updateRow="updateRow"
+                /> -->
+                <button type="button" @click.prevent="copy(index)" class="btn btn-sm btn-primary m-1" style="">
+                    คัดลอก
+                </button>
+                <button type="button" @click.prevent="remove(index)" class="btn btn-sm btn-danger m-1" style="">
+                    ลบรายการ
+                </button>
+            </div>
+        </td>
+    </tr>
+
     <div :class="'modal fade modal-edit'+index" aria-labelledby="myModalLabel" tabindex="-1" role="dialog" 
         data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-xl">
@@ -430,11 +465,11 @@
                     </form>
                 </div>
                 <div class="modal-footer pt-2">
-                    <button type="button" class="btn btn-primary btn-sm" @click.private="confirm(index)"
+                    <button type="button" class="btn btn-primary btn-sm" @click.prevate="confirm(index)"
                         style="color: #fff; background-color: #01b471; border-color: #01b471;">
                         ตกลง
                     </button>
-                    <button type="button" class="btn btn-warning btn-sm" @click.private="cancel">
+                    <button type="button" class="btn btn-warning btn-sm" @click.prevate="cancel(index)">
                         ยกเลิก
                     </button>
                 </div>
@@ -443,8 +478,11 @@
     </div>
 </template>
 <script>
-    import coaComponent from './InputCOAComponent.vue';
+    import numeral from "numeral";
+    import Swal from 'sweetalert2';
+    import modalEditComp from "./_ModalEditComponent.vue";
 
+    import coaComponent from './InputCOAComponent.vue';
     import supplier         from "../lov/Supplier.vue";
     import supplierBank     from "../lov/SupplierBank.vue";
     import budgetPlan       from "../lov/BudgetPlan.vue";
@@ -456,15 +494,15 @@
 
     export default {
         components: {
-            coaComponent, supplier, supplierBank, budgetPlan, budgetType, expenseType, arReceipt, tax, wht
+            modalEditComp, coaComponent, supplier, supplierBank, budgetPlan, budgetType, expenseType, arReceipt, tax, wht
         },
-        props: ['index', 'invoiceLine', 'defaultSetName'],
-        emits: ['updateRow'],
+        props: ['index', 'attribute', 'defaultSetName'],
+        emits: ['updateRow', 'copyRow', 'removeRow'],
         data() {
             return {
-                line: this.invoiceLine,
-                temp: {},
                 loading: false,
+                line: this.attribute,
+                temp: {},
                 accounrCollp: false,
                 errors: {
                     supplier_bank: false,
@@ -488,19 +526,45 @@
         mounted() {
             this.extractAccount();
         },
-        watch: {
-            errors: {
-                handler(val){
-                    val.amount? this.setError('amount') : this.resetError('amount');
-                },
-                deep: true,
-            },
-        },
+        computed: {
+            // attribute() {
+            //     return this.line = this.attribute;
+            // },
+        },    
         methods: {
+            numberFormat(value) {
+                if (!value) return "0.00";
+                return numeral(value).format("0,0.00");
+            },
+            copy(){
+                this.$emit("copyRow", this.index);
+            },
+            remove(){
+                Swal.fire({
+                    title: "ยืนยันลบรายการ",
+                    html: "ต้องการ <b>ยืนยัน</b> ลบรายการใช่หรือไม่?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "ใช่",
+                    cancelButtonText: "ไม่",
+                    allowOutsideClick: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.$emit("removeRow", this.index);
+                    }
+                });
+            },
+
             openModal(index){
+                this.copyDataForEdit();
+                this.extractAccount();
+                $('.modal-edit'+index).modal('show');
+            },
+            copyDataForEdit() {
                 // this.temp = { ...this.line };
                 this.temp = JSON.parse(JSON.stringify(this.line));
-                $('.modal-edit'+index).modal('show');
             },
             confirm(index) {
                 let vm = this;
@@ -533,12 +597,12 @@
                 $(form).find("div[id='_el_explode_acc_10']").html("");
                 $(form).find("div[id='_el_explode_acc_11']").html("");
 
-                if (vm.temp.bank_account_number == '' || vm.temp.bank_account_number == undefined) {
-                    vm.errors.supplier_bank = true;
-                    valid = false;
-                    errorMsg = "กรุณาเลือกเลขที่บัญชีธนาคาร";
-                    $(form).find("div[id='_el_explode_supplier_bank']").html(errorMsg);
-                }
+                // if (vm.temp.supplier_bank == '' || vm.temp.supplier_bank == undefined) {
+                //     vm.errors.supplier_bank = true;
+                //     valid = false;
+                //     errorMsg = "กรุณาเลือกเลขที่บัญชีธนาคาร";
+                //     $(form).find("div[id='_el_explode_supplier_bank']").html(errorMsg);
+                // }
                 if (vm.temp.budget_plan == '' || vm.temp.budget_plan == undefined) {
                     vm.errors.budget_plan = true;
                     valid = false;
@@ -612,14 +676,17 @@
                 if(this.temp){
                     // this.line = { ...this.temp };
                     // this.line = JSON.parse(JSON.stringify(this.temp));
-                    $('.modal-edit'+this.index).modal('hide');
+                    this.accountCollp = false;
                     this.$emit("updateRow", {index: this.index, line: this.temp});
+                    $('.modal-edit'+this.index).modal('hide');
                     // this.temp = null;
                 }
             },
-            cancel() {
-                $('.modal-edit'+this.index).modal('hide');
+            cancel(index) {
                 // this.temp = null;
+                this.extractAccount();
+                this.accountCollp = false;
+                $('.modal-edit'+index).modal('hide');
             },
             setError(ref_name){
                 let ref =  this.$refs[ref_name].$refs.referenceRef
@@ -651,7 +718,6 @@
             },
             setSupplierBank(res){
                 this.temp.bank_account_number = res.supplier_bank;
-                this.temp.supplier_site = res.supplier_site;
             },
             setBudgetPlan(res){
                 this.temp.budget_plan = res.budget_plan;
@@ -662,7 +728,6 @@
             setExpenseType(res){
                 this.temp.expense_type = res.expense_type;
                 this.temp.expense_description = res.expense_description;
-
             },
             setArReceipt(res){
                 this.temp.ar_receipt_id = res.receipt;
@@ -733,7 +798,7 @@
                 this.segment11 = coa[10];
                 this.segment12 = coa[11];
                 this.segment13 = coa[12];
-            }
+            },
         }
     };
 </script>
@@ -741,5 +806,11 @@
 <style>
     .el-popper{
         z-index: 9999 !important;
+    }
+    .wrap-text {
+      overflow-wrap: break-word; /* Modern equivalent of word-wrap */
+      word-wrap: break-word; /* For older browsers */
+      word-break: break-word; /* Optional for certain cases */
+      white-space: normal; /* Ensures text wraps */
     }
 </style>

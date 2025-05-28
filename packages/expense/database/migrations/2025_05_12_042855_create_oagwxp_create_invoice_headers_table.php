@@ -21,7 +21,6 @@ return new class extends Migration
         Schema::connection('oracle_oagwxp')->create($this->tableName, function (Blueprint $table) {
             $table->increments('id');
             $table->integer('org_id')->nullable();
-            $table->string('source_type')->nullable();
             $table->string('voucher_number')->nullable();
             $table->string('invoice_number');
             $table->date('invoice_date');

@@ -786,6 +786,7 @@
             },
             setSupplierBank(res){
                 this.temp.supplier_bank = res.supplier_bank;
+                this.temp.supplier_site = res.supplier_site;
             },
             setVehicleOilType(res){
                 this.temp.vehicle_oil_type = res.vehicle_oil_type;

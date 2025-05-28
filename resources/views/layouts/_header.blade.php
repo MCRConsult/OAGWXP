@@ -11,15 +11,8 @@
         </span>
     </button>
     <ul class="nav navbar-nav ml-auto">
-        {{-- @if (session('db_name') != 'PROD')
-            <li class="nav-item mr-4">
-                <span class="navbar-text text-white">
-                    <strong> <i class="fa fa-database"></i> : {{ session('db_name') }} </strong>
-                </span>
-            </li>
-        @endif --}}
         <li class="nav-item px-3 text-white">
-            <strong> ชื่อผู้ใช้งาน : </strong> {{ auth()->user()->hrEmployee->last_name }}
+            <strong> ชื่อผู้ใช้งาน : </strong> {{ auth()->user()->name }}: {{ auth()->user()->hrEmployee->last_name }}
         </li>
         <li class="nav-item px-3 text-white">
             <strong> สถานที่ : </strong> {{ auth()->user()->location->location_code}}
