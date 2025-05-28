@@ -17,7 +17,7 @@ class MappingAutoInvoiceV extends Model
 
     public function getSourceTypeAttribute()
     {
-        return 'INVOICE';
+        return 'RECEIPT';
     }
 
     public function invoiceType()

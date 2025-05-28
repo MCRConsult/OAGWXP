@@ -11,7 +11,7 @@ class GLSubAccountV extends Model
 
     public function LOVResult($setName, $parent, $setValue, $text)
     {
-        $flexValue = self::selectRaw('flex_value, fv_description description')
+        $flexValue = self::selectRaw('distinct flex_value, fv_description description')
             ->where('flex_value_set_name', $setName)
             ->when($text, function ($query, $text) {
                 return $query->where(function($r) use ($text) {
@@ -31,7 +31,7 @@ class GLSubAccountV extends Model
             ->get();
 
         if ($setValue) {
-            $flexAddDefault = self::selectRaw('flex_value, description')
+            $flexAddDefault = self::selectRaw('distinct flex_value, description')
                 ->where('flex_value_set_name', $setName)
                 ->where('flex_value', $setValue)
                 ->orderBy('flex_value')
@@ -49,7 +49,7 @@ class GLSubAccountV extends Model
     {
         $flexValue = null;
         if ($setValue) {
-            $flexValue = self::selectRaw('flex_value, description')
+            $flexValue = self::selectRaw('distinct flex_value, description')
                 ->where('flex_value_set_name', $setName)
                 ->where('flex_value', $setValue)
                 ->orderBy('flex_value')

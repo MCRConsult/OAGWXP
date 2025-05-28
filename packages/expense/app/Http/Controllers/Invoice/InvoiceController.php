@@ -91,19 +91,22 @@ class InvoiceController extends Controller
             $headerTemp                             = new InvoiceHeader;
             $headerTemp->invoice_number             = (new InvoiceHeader)->genDocumentNo($user->org_id, $prefixInvRef);
             $headerTemp->org_id                     = $user->org_id;
+            $headerTemp->source_type                = $mergeReqs->first()->source_type;
             $headerTemp->invoice_date               = date('Y-m-d');
             $headerTemp->invoice_type               = $header->invoice_type;
             $headerTemp->document_category          = $header->document_category;
             $headerTemp->supplier_id                = $header->supplier_id;
             $headerTemp->supplier_name              = $header->supplier_name;
             // GET FROM SUPPLIER
-            $headerTemp->payment_method             = $header->supplier->payment_method_lookup_code;
+            $headerTemp->payment_method             = $header->supplier->payment_method_code;
             $headerTemp->payment_term               = $header->supplier->terms_id;
-            $headerTemp->currency                   = $header->supplier->payment_currency_code;
+            $headerTemp->currency                   = $header->supplier->invoice_currency_code;
             $headerTemp->contact_date               = '';
             $headerTemp->final_judgment             = '';
             $headerTemp->gfmis_document_number      = '';
-            $headerTemp->total_amount               = collect($mergeReqs)->sum('total_amount'); // SUM LINE
+            $headerTemp->total_amount               = $mergeReqs->first()->source_type == 'REQUISITION'
+                                                        ? collect($mergeReqs)->sum('total_amount')
+                                                        : collect($mergeReqs)->sum('amount'); // SUM LINE
             $headerTemp->clear_date                 = '';
             $headerTemp->description                = '';
             $headerTemp->note                       = '';        
@@ -116,48 +119,69 @@ class InvoiceController extends Controller
             $headerTemp->save();
 
             foreach ($mergeReqs as $key => $requisition) {
-                foreach ($requisition->lines as $key => $line) {
-                    $lineTemp                           = new InvoiceLine;
-                    $lineTemp->invoice_header_id        = $headerTemp->id;
-                    $lineTemp->seq_number               = $key+1;
-                    $lineTemp->supplier_id              = $line->supplier_id;
-                    $lineTemp->supplier_name            = $line->supplier_name;
-                    $lineTemp->supplier_site            = $line->supplier_site;
-                    $lineTemp->bank_account_number      = $line->bank_account_number;
-                    $lineTemp->budget_plan              = $line->budget_plan;
-                    $lineTemp->budget_type              = $line->budget_type;
-                    $lineTemp->expense_type             = $line->expense_type;
-                    $lineTemp->expense_description      = $line->expense_description;
-                    $lineTemp->expense_account          = $line->expense_account;
-                    $lineTemp->amount                   = $line->amount;
-                    $lineTemp->description              = $line->description;
-                    $lineTemp->vehicle_number           = $line->vehicle_number;
-                    $lineTemp->policy_number            = $line->policy_number;
-                    $lineTemp->vehicle_oil_type         = $line->vehicle_oil_type;
-                    $lineTemp->utility_type             = $line->utility_type;
-                    $lineTemp->utility_detail           = $line->utility_detail;
-                    $lineTemp->unit_quantity            = $line->unit_quantity;
-                    $lineTemp->req_invoice_number       = $line->invoice_number;
-                    $lineTemp->req_invoice_date         = $line->invoice_date? date('Y-m-d', strtotime($line->invoice_date)): '';
-                    $lineTemp->req_receipt_number       = $line->receipt_number;
-                    $lineTemp->req_receipt_date         = $line->receipt_date? date('Y-m-d', strtotime($line->receipt_date)): '';
-                    $lineTemp->remaining_receipt_flag   = $line->remaining_receipt_flag;
-                    $lineTemp->remaining_receipt_number = $line->remaining_receipt_number;
+                if ($requisition->source_type == 'RECEIPT') {
+                    $lineTemp                               = new InvoiceLine;
+                    $lineTemp->invoice_header_id            = $headerTemp->id;
+                    $lineTemp->seq_number                   = $key+1;
+                    $lineTemp->supplier_id                  = $requisition->supplier_id;
+                    $lineTemp->supplier_name                = $requisition->supplier_name;
+                    $lineTemp->supplier_site                = $requisition->supplier_site;
+                    $lineTemp->bank_account_number          = 'bank_account_number';
+                    $lineTemp->budget_plan                  = 'EXP.200.000000.0000000000';
+                    $lineTemp->budget_type                  = 'EXP.200.214000.0000000000';
+                    $lineTemp->expense_type                 = 'EXP.200.214000.0000000004';
+                    $lineTemp->expense_description          = 'expense_description';
+                    $lineTemp->expense_account              = $requisition->expense_account;
+                    $lineTemp->amount                       = $requisition->amount;
+                    $lineTemp->description                  = $requisition->description;
                     $lineTemp->save();
+                }else{
+                    foreach ($requisition->lines as $key => $line) {
+                        $lineTemp                           = new InvoiceLine;
+                        $lineTemp->invoice_header_id        = $headerTemp->id;
+                        $lineTemp->seq_number               = $key+1;
+                        $lineTemp->supplier_id              = $line->supplier_id;
+                        $lineTemp->supplier_name            = $line->supplier_name;
+                        $lineTemp->supplier_site            = $line->supplier_site;
+                        $lineTemp->bank_account_number      = $line->bank_account_number;
+                        $lineTemp->budget_plan              = $line->budget_plan;
+                        $lineTemp->budget_type              = $line->budget_type;
+                        $lineTemp->expense_type             = $line->expense_type;
+                        $lineTemp->expense_description      = $line->expense_description;
+                        $lineTemp->expense_account          = $line->expense_account;
+                        $lineTemp->amount                   = $line->amount;
+                        $lineTemp->description              = $line->description;
+                        $lineTemp->vehicle_number           = $line->vehicle_number;
+                        $lineTemp->policy_number            = $line->policy_number;
+                        $lineTemp->vehicle_oil_type         = $line->vehicle_oil_type;
+                        $lineTemp->utility_type             = $line->utility_type;
+                        $lineTemp->utility_detail           = $line->utility_detail;
+                        $lineTemp->unit_quantity            = $line->unit_quantity;
+                        $lineTemp->req_invoice_number       = $line->invoice_number;
+                        $lineTemp->req_invoice_date         = $line->invoice_date? date('Y-m-d', strtotime($line->invoice_date)): '';
+                        $lineTemp->req_receipt_number       = $line->receipt_number;
+                        $lineTemp->req_receipt_date         = $line->receipt_date? date('Y-m-d', strtotime($line->receipt_date)): '';
+                        $lineTemp->remaining_receipt_flag   = $line->remaining_receipt_flag;
+                        $lineTemp->remaining_receipt_number = $line->remaining_receipt_number;
+                        $lineTemp->save();
 
-                    $requistionLine = RequisitionLine::where('req_header_id', $requisition->id)
-                                        ->update([
-                                            'invl_reference_id' => $lineTemp->id
-                                        ]);
+                        $requistionLine = RequisitionLine::where('req_header_id', $requisition->id)
+                                            ->update([
+                                                'invl_reference_id' => $lineTemp->id
+                                            ]);
+                    }
                 }
-                // UPDATE REQUISITION
-                $requistion = RequisitionHeader::where('req_number', $requisition->req_number)
-                                        ->update([
-                                            'invoice_reference_id'  => $headerTemp->id
-                                            , 'invioce_number_ref'  => $headerTemp->invoice_number
-                                            , 'updated_by'          => $user->id
-                                            , 'updation_by'         => $user->person_id
-                                        ]);
+
+                if ($requisition->source_type == 'REQUISITION') {
+                    // UPDATE REQUISITION
+                    $requistion = RequisitionHeader::where('req_number', $requisition->req_number)
+                                            ->update([
+                                                'invoice_reference_id'  => $headerTemp->id
+                                                , 'invioce_number_ref'  => $headerTemp->invoice_number
+                                                , 'updated_by'          => $user->id
+                                                , 'updation_by'         => $user->person_id
+                                            ]);
+                }
             }
             \DB::commit();
             $data = [

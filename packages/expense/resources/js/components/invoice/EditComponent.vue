@@ -216,28 +216,28 @@
                 </div>
                 <!-- TABLE LINE LISTS-->
                 <div class="table-responsive" style="max-height: 600px;">
-                    <table class="table text-nowrap table-hover" style="position: sticky;">
+                    <table class="table text-nowrap table-hover">
                         <thead>
                             <tr>
-                                <th class="text-center sticky-col">
+                                <th class="text-center">
                                    <div style="width: 70px;"> รายการที่ </div> 
                                 </th>
-                                <th class="text-left sticky-col">
+                                <th class="text-left">
                                     <div style="width: 170px;"> ประเภทค่าใช้จ่าย </div>
                                 </th>
-                                <th class="text-left sticky-col">
+                                <th class="text-left">
                                     <div style="width: 300px;"> รายการบัญชี </div>
                                 </th>
-                                <th class="text-center sticky-col">
+                                <th class="text-center">
                                     <div style="width: 120px;"> จำนวนเงิน </div>
                                 </th>
-                                <th class="text-center sticky-col">
+                                <th class="text-center">
                                     <div style="width: 170px;"> ชื่อสั่งจ่าย </div>
                                 </th>
-                                <th class="text-center sticky-col">
+                                <th class="text-center">
                                     <div style="width: 170px;"> เลขที่บัญชีธนาคาร </div>
                                 </th>
-                                <th class="text-center sticky-col">
+                                <th class="text-center">
                                     <div style="width: 50px;"> </div>
                                 </th>
                             </tr>
@@ -683,7 +683,6 @@
     .sticky-col {
         position: sticky !important;
         background-color: #FFF;
-        z-index: 9999;
         top:0px;
     }
 </style>

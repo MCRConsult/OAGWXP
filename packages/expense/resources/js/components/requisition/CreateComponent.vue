@@ -290,26 +290,25 @@
                 <br>
                 <!-- TABLE LINE LISTS-->
                 <div class="table-responsive" style="max-height: 600px;">
-                    <table class="table text-nowrap table-hover" style="position: sticky;">
+                    <table class="table text-nowrap table-hover">
                         <thead>
                             <tr>
-                                <th class="text-center sticky-col">
+                                <th class="text-center">
                                     รายการที่ 
                                 </th>
-                                <th class="text-left sticky-col">
+                                <th class="text-left">
                                     ประเภทค่าใช้จ่าย 
                                 </th>
-                                <th class="text-center sticky-col">
+                                <th class="text-center">
                                     จำนวนเงิน 
                                 </th>
-                                <th class="text-center sticky-col">
+                                <th class="text-center">
                                     ชื่อสั่งจ่าย 
                                 </th>
-                                <th class="text-center sticky-col">
+                                <th class="text-center">
                                     เลขที่บัญชีธนาคาร 
                                 </th>
-                                <th class="text-center sticky-col">
-                                    
+                                <th class="text-center">
                                 </th>
                             </tr>
                         </thead>
