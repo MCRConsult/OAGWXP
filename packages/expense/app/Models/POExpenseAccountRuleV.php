@@ -6,6 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class POExpenseAccountRuleV extends Model
 {
-    protected $table = 'oag_po_expense_account_rule_v';
+    protected $table = 'OAGPO_EXPENSE_ACCOUNT_RULE_V';
     protected $connection = 'oracle';
 }

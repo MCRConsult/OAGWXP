@@ -8,8 +8,7 @@ use Packages\expense\app\Models\OrganizationV;
 
 class EmployeesV extends Model
 {
-    // protected $table = 'oaghr_employees_v';
-    protected $table = 'oag_hr_employee_v';
+    protected $table = 'oaghr_employee_v';
     protected $connection = 'oracle';
 
     public function organization()

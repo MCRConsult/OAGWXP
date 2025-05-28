@@ -279,7 +279,7 @@
                 <div align="center">
                     <button type="button" class="btn btn-primary" @click.prevent="update('UPDATE')"> บันทึกรายการ </button>
                     <button type="button" class="btn btn-danger ml-1" @click.prevent="cancel()"> ยกเลิกรายการ </button>
-                    <button type="button" class="btn btn-success ml-1" @click.prevent="update('INTERFACE')"> ขอเบิก </button>
+                    <button type="button" class="btn btn-success ml-1" @click.prevent="interface('INTERFACE')"> ขอเบิก </button>
                 </div>
             </div>
         </form>
@@ -533,7 +533,7 @@
                     vm.loading = false;
                 });
             },
-            async interface(){
+            async interface(activity){
                 var vm = this;
                 vm.loading = true;
                 Swal.fire({
@@ -548,71 +548,56 @@
                     allowOutsideClick: false
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // axios.post('/expense/invoice/'+vm.header.id+'/update', {
-                        //     header: vm.header,
-                        //     lines: vm.linelists,
-                        //     totalApply: vm.totalApply,
-                        // })
-                        // .then(function (res) {
-                        //     vm.loading = false;
-                        //     if (res.data.message) {
-                        //         Swal.fire({
-                        //             title: "มีข้อผิดพลาด",
-                        //             text: res.data.message,
-                        //             icon: "error",
-                        //             showCancelButton: false,
-                        //             confirmButtonColor: "#3085d6",
-                        //             confirmButtonText: "ตกลง",
-                        //             allowOutsideClick: false
-                        //         });
-                        //     } else {
-                        //         Swal.fire({
-                        //             title: "ขอเบิกเอกสาร",
-                        //             html: "ขอเบิกเอกสารเรียบร้อยแล้ว",
-                        //             icon: "success",
-                        //             showCancelButton: false,
-                        //             confirmButtonColor: "#3085d6",
-                        //             confirmButtonText: "ตกลง",
-                        //             allowOutsideClick: false
-                        //         }).then((result) => {
-                        //             if (result.isConfirmed) {
-                        //                 setTimeout(function() {
-                        //                     location.reload();
-                        //                 }, 500);
-                        //             }
-                        //         });
-                        //     }
-                        // }.bind(vm))
-                        // .catch(err => {
-                        //     let msg = err.response;
-                        //     Swal.fire({
-                        //         title: "มีข้อผิดพลาด",
-                        //         text: msg.message,
-                        //         icon: "error",
-                        //         showCancelButton: false,
-                        //         confirmButtonColor: "#3085d6",
-                        //         confirmButtonText: "ตกลง",
-                        //         allowOutsideClick: false
-                        //     });
-                        // })
-                        // .then(() => {
-                        //     vm.loading = false;
-                        // });
-                        vm.loading = false;
-                        Swal.fire({
-                            title: "ขอเบิกเอกสาร",
-                            html: "ขอเบิกเอกสารเรียบร้อยแล้ว",
-                            icon: "success",
-                            showCancelButton: false,
-                            confirmButtonColor: "#3085d6",
-                            confirmButtonText: "ตกลง",
-                            allowOutsideClick: false
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                setTimeout(function() {
-                                    location.reload();
-                                }, 500);
+                        axios.post('/expense/invoice/'+vm.header.id+'/update', {
+                            header: vm.header,
+                            lines: vm.linelists,
+                            totalApply: vm.totalApply,
+                            activity: activity,
+                        })
+                        .then(function (res) {
+                            vm.loading = false;
+                            if (res.data.message) {
+                                Swal.fire({
+                                    title: "มีข้อผิดพลาด",
+                                    text: res.data.message,
+                                    icon: "error",
+                                    showCancelButton: false,
+                                    confirmButtonColor: "#3085d6",
+                                    confirmButtonText: "ตกลง",
+                                    allowOutsideClick: false
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: "ขอเบิกเอกสาร",
+                                    html: "ขอเบิกเอกสารเรียบร้อยแล้ว",
+                                    icon: "success",
+                                    showCancelButton: false,
+                                    confirmButtonColor: "#3085d6",
+                                    confirmButtonText: "ตกลง",
+                                    allowOutsideClick: false
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        setTimeout(function() {
+                                            location.reload();
+                                        }, 500);
+                                    }
+                                });
                             }
+                        }.bind(vm))
+                        .catch(err => {
+                            let msg = err.response;
+                            Swal.fire({
+                                title: "มีข้อผิดพลาด",
+                                text: msg.message,
+                                icon: "error",
+                                showCancelButton: false,
+                                confirmButtonColor: "#3085d6",
+                                confirmButtonText: "ตกลง",
+                                allowOutsideClick: false
+                            });
+                        })
+                        .then(() => {
+                            vm.loading = false;
                         });
                     }
                 });
