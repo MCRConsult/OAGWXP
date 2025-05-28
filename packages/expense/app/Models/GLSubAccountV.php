@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class GLSubAccountV extends Model
 {
-    protected $table = 'OAG_GL_SUB_ACCOUNT_V';
+    protected $table = 'OAGGL_SUB_ACCOUNT_V';
     protected $connection = 'oracle';
 
     public function LOVResult($setName, $parent, $setValue, $text)
