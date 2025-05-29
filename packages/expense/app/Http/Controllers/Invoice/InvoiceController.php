@@ -13,6 +13,7 @@ use Packages\expense\app\Models\RequisitionLine;
 use Packages\expense\app\Models\InvoiceHeader;
 use Packages\expense\app\Models\InvoiceLine;
 use Packages\expense\app\Models\MappingAutoInvoiceV;
+use Packages\expense\app\Models\MTLCategoriesV;
 use Packages\expense\app\Models\InvoiceType;
 use Packages\expense\app\Models\DocumentCategory;
 use Packages\expense\app\Models\Supplier;
@@ -120,9 +121,14 @@ class InvoiceController extends Controller
 
             foreach ($mergeReqs as $key => $requisition) {
                 if ($requisition->source_type == 'RECEIPT') {
-                    $expeseType = MTLCategoriesV::where('structure_name', 'OAG Item Category Set')
-                            ->where('segment1', 'EXP')
-                            ->whereRaw('category_concat_segs', $requisition->expense_category)
+                    $expeseType = MTLCategoriesV::where('segment1', 'EXP')
+                            ->where('category_concat_segs', $requisition->expense_category)
+                            ->first();
+                    $budgetType = MTLCategoriesV::where('segment1', 'EXP')
+                            ->where('category_concat_segs', $expeseType->attribute4)
+                            ->first();
+                    $budgetPlan = MTLCategoriesV::where('segment1', 'EXP')
+                            ->where('category_concat_segs', $budgetType->attribute3)
                             ->first();
                     $lineTemp                               = new InvoiceLine;
                     $lineTemp->invoice_header_id            = $headerTemp->id;
@@ -130,14 +136,15 @@ class InvoiceController extends Controller
                     $lineTemp->supplier_id                  = $requisition->supplier_id;
                     $lineTemp->supplier_name                = $requisition->supplier_name;
                     $lineTemp->supplier_site                = $requisition->supplier_site;
-                    // $lineTemp->bank_account_number          = $requisition->'bank_account_number';
-                    // $lineTemp->budget_plan                  = $requisition->'EXP.200.000000.0000000000';
-                    // $lineTemp->budget_type                  = $requisition->'EXP.200.214000.0000000000';
+                    $lineTemp->bank_account_number          = $requisition->bank_account_num;
+                    $lineTemp->budget_plan                  = $budgetPlan->category_concat_segs;
+                    $lineTemp->budget_type                  = $budgetType->category_concat_segs;
                     $lineTemp->expense_type                 = $requisition->expense_category;
                     $lineTemp->expense_description          = $expeseType->description;
                     $lineTemp->expense_account              = $requisition->expense_account;
                     $lineTemp->amount                       = $requisition->amount;
                     $lineTemp->description                  = $requisition->description;
+                    $lineTemp->reference_req_number         = $requisition->req_number;
                     $lineTemp->save();
                 }else{
                     foreach ($requisition->lines as $key => $line) {
@@ -166,7 +173,9 @@ class InvoiceController extends Controller
                         $lineTemp->req_receipt_number       = $line->receipt_number;
                         $lineTemp->req_receipt_date         = $line->receipt_date? date('Y-m-d', strtotime($line->receipt_date)): '';
                         $lineTemp->remaining_receipt_flag   = $line->remaining_receipt_flag;
+                        $lineTemp->remaining_receipt_id     = $line->remaining_receipt_id;
                         $lineTemp->remaining_receipt_number = $line->remaining_receipt_number;
+                        $lineTemp->reference_req_number     = $requisition->req_number;
                         $lineTemp->save();
 
                         $requistionLine = RequisitionLine::where('req_header_id', $requisition->id)
@@ -227,28 +236,28 @@ class InvoiceController extends Controller
         $user = auth()->user();
         $invioce = $request->header;
         $invioceLines = $request->lines;
-
         \DB::beginTransaction();
         try {
             InvoiceHeader::where('id', $invoiceId)
                     ->update([
-                        'invoice_date'            => $invioce['invoice_date']? date('Y-m-d', strtotime($invioce['invoice_date'])): ''
-                        , 'invoice_type'          => $invioce['invoice_type']
-                        , 'document_category'     => $invioce['document_category']
-                        , 'supplier_id'           => $invioce['supplier_id']
-                        , 'supplier_name'         => $invioce['supplier_name']
-                        , 'payment_method'        => $invioce['payment_method']
-                        , 'payment_term'          => $invioce['payment_term']
-                        , 'clear_date'            => $invioce['clear_date']? date('Y-m-d', strtotime($invioce['clear_date'])): ''
-                        , 'currency'              => $invioce['currency']
-                        , 'contact_date'          => $invioce['contact_date']? date('Y-m-d', strtotime($invioce['contact_date'])): ''
-                        , 'final_judgment'        => $invioce['final_judgment']
-                        , 'gfmis_document_number' => $invioce['gfmis_document_number']
-                        , 'total_amount'          => $request->totalApply
-                        , 'description'           => $invioce['description']
-                        , 'note'                  => $invioce['note']
-                        , 'updated_by'            => $user->id
-                        , 'updation_by'           => $user->person_id
+                        'invoice_date'              => $invioce['invoice_date']? date('Y-m-d', strtotime($invioce['invoice_date'])): ''
+                        , 'invoice_type'            => $invioce['invoice_type']
+                        , 'document_category'       => $invioce['document_category']
+                        , 'supplier_id'             => $invioce['supplier_id']
+                        , 'supplier_name'           => $invioce['supplier_name']
+                        , 'payment_method'          => $invioce['payment_method']
+                        , 'payment_term'            => $invioce['payment_term']
+                        , 'clear_date'              => $invioce['clear_date']? date('Y-m-d', strtotime($invioce['clear_date'])): ''
+                        , 'currency'                => $invioce['currency']
+                        , 'contact_date'            => $invioce['contact_date']? date('Y-m-d', strtotime($invioce['contact_date'])): ''
+                        , 'final_judgment'          => $invioce['final_judgment']
+                        , 'gfmis_document_number'   => $invioce['gfmis_document_number']
+                        , 'total_amount'            => $request->totalApply
+                        , 'status'                  => 'CONFIRM'
+                        , 'description'             => $invioce['description']
+                        , 'note'                    => $invioce['note']
+                        , 'updated_by'              => $user->id
+                        , 'updation_by'             => $user->person_id
                     ]);
 
             InvoiceLine::where('invoice_header_id', $invoiceId)->delete();

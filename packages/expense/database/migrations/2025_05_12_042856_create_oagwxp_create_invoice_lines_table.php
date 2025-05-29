@@ -45,6 +45,7 @@ return new class extends Migration
             $table->string('req_receipt_number')->nullable();
             $table->date('req_receipt_date')->nullable();
             $table->boolean('remaining_receipt_flag')->nullable();
+            $table->integer('remaining_receipt_id')->nullable();
             $table->string('remaining_receipt_number')->nullable();
 
             $table->string('tax_code')->nullable();
@@ -54,6 +55,7 @@ return new class extends Migration
 
             $table->integer('ar_receipt_id')->nullable();
             $table->string('ar_receipt_number')->nullable();
+            $table->string('reference_req_number')->nullable();
             $table->timestamps();
         });
     }

@@ -124,6 +124,9 @@ class InvoiceHeader extends Model
             case "NEW":
                 $result = "<span class='badge badge-success' style='padding: 5px;'> รอเบิกจ่าย </span>";
                 break;
+            case "CONFIRM":
+                $result = "<span class='badge badge-warning' style='padding: 5px;'> รอเบิกจ่าย </span>";
+                break;
             case "INTERFACED":
                 $result = "<span class='badge badge-warning' style='padding: 5px;'> เบิกจ่ายแล้ว </span>";
                 break;

@@ -10,6 +10,11 @@ class InvoiceLine extends Model
     protected $table = 'oagwxp_invoice_lines';
     protected $connection = 'oracle_oagwxp';
 
+    public function invoice()
+    {
+        return $this->hasOne(InvoiceHeader::class, 'id', 'invoice_header_id');
+    }
+
     public function supplier()
     {
         return $this->hasOne(Supplier::class, 'vendor_id', 'supplier_id');

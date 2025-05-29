@@ -44,6 +44,7 @@ return new class extends Migration
             $table->string('receipt_number')->nullable();
             $table->date('receipt_date')->nullable();
             $table->boolean('remaining_receipt_flag')->nullable();
+            $table->integer('remaining_receipt_id')->nullable();
             $table->string('remaining_receipt_number')->nullable();
             $table->integer('invl_reference_id')->nullable();
             $table->timestamps();

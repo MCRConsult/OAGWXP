@@ -27,7 +27,7 @@
 <script>
 export default {
     props: [
-       'setData', 'error', 'editFlag'
+       'sourceType', 'setData', 'error', 'editFlag'
     ],
     data () {
         return {
@@ -59,7 +59,8 @@ export default {
             this.loading = true;
             axios.get(`/expense/api/invoice/get-requisition`, {
                 params: {
-                    keyword: query
+                    keyword: query,
+                    sourceType: this.sourceType
                 }
             })
             .then(res => {

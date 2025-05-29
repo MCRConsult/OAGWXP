@@ -2,7 +2,10 @@
 @section('title', 'เอกสารส่งเบิก')
 @section('breadcrumb')
     <li class="breadcrumb-item">
-        <a href="{{ route('expense.requisition.index') }}"><strong> ตรวจสอบเอกสารส่งเบิก </strong></a>
+        <a href="{{ route('expense.requisition.index') }}"><strong> เอกสารส่งเบิก </strong></a>
+    </li>
+    <li class="breadcrumb-item active">
+        <strong> ตรวจสอบเอกสารส่งเบิก </strong>
     </li>
 @endsection
 

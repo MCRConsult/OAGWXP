@@ -33,14 +33,14 @@ class LovController extends Controller
     public function getDocumentType(Request $request)
     {
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
-        $docCategory = DocumentCategory::selectRaw('distinct category_code')
+        $docCategory = DocumentCategory::selectRaw('distinct doc_category_code')
                         ->whereNotNull('attribute1')
                         ->when($keyword, function ($query, $keyword) {
                             return $query->where(function($r) use ($keyword) {
-                                $r->whereRaw('UPPER(category_code) like ?', ['%'.strtoupper($keyword).'%']);
+                                $r->whereRaw('UPPER(doc_category_code) like ?', ['%'.strtoupper($keyword).'%']);
                             });
                         })
-                        ->orderBy('category_code')
+                        ->orderBy('doc_category_code')
                         ->limit(50)
                         ->get();
 

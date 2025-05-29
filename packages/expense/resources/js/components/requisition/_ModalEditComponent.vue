@@ -240,10 +240,10 @@
                                     <el-input v-model="temp.receipt_number" style="width: 100%;" placeholder=""/>
                                 </div>
                             </div>
-                            <div class="col-md-3 text-left">
+                            <div v-if="line.remaining_receipt_flag" class="col-md-3 text-left">
                                 <div class="form-group" style="padding: 5px;">
                                     <label class="control-label">
-                                        <strong> เลขที่ใบเสร็จรับเงินคงเหลือ <span class="text-danger" v-if="line.remaining_receipt_flag"> * </span> </strong>
+                                        <strong> เลขที่ใบเสร็จรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
                                     </label><br>
                                     <remainingReceipt
                                         :setData="temp.remaining_receipt"

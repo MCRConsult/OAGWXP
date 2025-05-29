@@ -17,8 +17,8 @@
             <el-option
                 v-for="(row, index) in dataRows"
                 :key="index"
-                :label="row.category_code"
-                :value="row.category_code"
+                :label="row.doc_category_code"
+                :value="row.doc_category_code"
             >
             </el-option>
         </el-select>

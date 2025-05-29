@@ -61,6 +61,7 @@
                                 clearable
                                 format="DD-MM-YYYY"
                                 style="width: 100%;"
+                                @change="changeReqDateFormat"
                             />
                             <div id="el_explode_req_date" class="text-danger text-left"></div>
                         </div>
@@ -380,7 +381,7 @@
         props: ['user', 'referenceNo', 'invoiceTypes', 'defaultSetName'],
         data() {
             return {
-                budgetSource: ['510', '520', '530', '540', '550'],
+                budgetSource: ['510'], //, '520', '530', '540', '550'
                 errors: {
                     budget_source: false,
                     invoice_type: false,
@@ -469,6 +470,10 @@
             numberFormat(value) {
                 if (!value) return "0.00";
                 return numeral(value).format("0,0.00");
+            },
+            changeReqDateFormat() {
+                const formattedDate = moment(this.requisition.req_date, "YYYY-MM-DD").format("YYYY-MM-DD");
+                this.requisition.req_date = formattedDate;
             },
             setError(ref_name){
                 let ref =  this.$refs[ref_name].$refs.referenceRef
@@ -685,6 +690,7 @@
                                 supplier_name: this.requisition.multiple_supplier == 'ONE' ? this.requisition.supplier_name : 'sss',
                                 supplier_bank: this.requisition.multiple_supplier == 'ONE' ? this.reqLine.supplier_bank : 'sss123',
                                 expense_type: '',
+                                expense_account: '',
                                 expense_description: '',
                                 amount: '',
                                 description: '',

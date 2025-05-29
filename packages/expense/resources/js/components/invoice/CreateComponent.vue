@@ -24,6 +24,7 @@
                                 <strong> เลขที่เอกสารส่งเบิก </strong>
                             </label><br>
                             <lovRequisition
+                                :sourceType="search.source_data"
                                 :setData="search.req_number"
                                 :error="false"
                                 :editFlag="true"
@@ -157,7 +158,7 @@
                                                 </div>
                                                 <div>
                                                     <!-- RE-INTERFACE -->
-                                                    <button v-if="header.status == 'ALLOCATE'"
+                                                    <button v-if="header.status == 'PENDING'"
                                                         class="btn btn-block btn-sm btn-primary m-1"
                                                     > ส่งเบิก </button>
                                                 </div>

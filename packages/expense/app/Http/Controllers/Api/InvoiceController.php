@@ -15,21 +15,9 @@ class InvoiceController extends Controller
 {
     public function getRequisition(Request $request)
     {
-        // REQUISITION + INVOICE MAPPING
+        // REQUISITION + REQUISITION
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
-        if ($request->keyword == null) {
-            $requistion = RequisitionHeader::selectRaw('distinct req_number trans_number')
-                        ->whereIn('status', ['PENDING', 'COMPLETED'])
-                        ->whereNull('invoice_reference_id')
-                        ->when($keyword, function ($query, $keyword) {
-                            return $query->where(function($r) use ($keyword) {
-                                $r->whereRaw('UPPER(req_number) like ?', ['%'.strtoupper($keyword).'%']);
-                            });
-                        })
-                        ->orderBy('req_number')
-                        ->limit(25)
-                        ->get();
-        }else{
+        if ($request->sourceType == 'REQUISITION') {
             $requistion = RequisitionHeader::selectRaw('distinct req_number trans_number')
                             ->whereIn('status', ['PENDING', 'COMPLETED'])
                             ->whereNull('invoice_reference_id')
@@ -41,17 +29,16 @@ class InvoiceController extends Controller
                             ->orderBy('req_number')
                             ->limit(25)
                             ->get();
-            if (count($requistion) <= 0) {
-                $requistion = MappingAutoInvoiceV::selectRaw('distinct req_number trans_number')
-                            ->when($keyword, function ($query, $keyword) {
-                                return $query->where(function($r) use ($keyword) {
-                                    $r->whereRaw('UPPER(req_number) like ?', ['%'.strtoupper($keyword).'%']);
-                                });
-                            })
-                            ->orderBy('req_number')
-                            ->limit(25)
-                            ->get();
-            }
+        }else{
+            $requistion = MappingAutoInvoiceV::selectRaw('distinct req_number trans_number')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(req_number) like ?', ['%'.strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->orderBy('req_number')
+                        ->limit(25)
+                        ->get();
         }
 
         return response()->json(['data' => $requistion]);
@@ -86,9 +73,10 @@ class InvoiceController extends Controller
                                 ->get();
         }else{
             $invMapping = MappingAutoInvoiceV::selectRaw('distinct supplier_id, invoice_type, req_number, sum(amount) total_amount')
+                                ->doesntHave('invoiceLine')
                                 ->with(['invoiceType', 'supplier'])
-                                ->orderBy('req_number')
                                 ->groupBy('invoice_type', 'req_number', 'supplier_id')
+                                ->orderBy('req_number')
                                 ->get();
         }
         $mergeReqs = collect($requistion)->merge($invMapping)->all();
@@ -101,7 +89,7 @@ class InvoiceController extends Controller
             1, // Current page
             ['path' => request()->url(), 'query' => request()->query()] // Path and query string
         );
-        // dd($header);
+
         $data = [
             'headers' => $header
         ];

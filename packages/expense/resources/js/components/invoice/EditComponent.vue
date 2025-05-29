@@ -69,6 +69,7 @@
                                 clearable
                                 format="DD-MM-YYYY"
                                 style="width: 100%;"
+                                @change="changeInvDateFormat"
                             />
                             <div id="el_explode_invoice_date" class="text-danger text-left"></div>
                         </div>
@@ -149,6 +150,7 @@
                                 clearable
                                 format="DD-MM-YYYY"
                                 style="width: 100%;"
+                                @change="changeClearDateFormat"
                             />
                         </div>
                     </div>
@@ -165,6 +167,7 @@
                                 clearable
                                 format="DD-MM-YYYY"
                                 style="width: 100%;"
+                                @change="changeContactDateFormat"
                             />
                         </div>
                     </div>
@@ -347,9 +350,17 @@
                 if (!value) return "0.00";
                 return numeral(value).format("0,0.00");
             },
-            changeDateFormat() {
-                const formattedDate = moment(this.req_date_input, "YYYY-MM-DD").format("YYYY-MM-DD");
-                this.search.req_date = formattedDate;
+            changeInvDateFormat() {
+                const formattedDate = moment(this.header.invoice_date, "YYYY-MM-DD").format("YYYY-MM-DD");
+                this.header.invoice_date = formattedDate;
+            },
+            changeClearDateFormat() {
+                const formattedDate = moment(this.header.clear_date, "YYYY-MM-DD").format("YYYY-MM-DD");
+                this.header.clear_date = formattedDate;
+            },
+            changeContactDateFormat() {
+                const formattedDate = moment(this.header.contact_date, "YYYY-MM-DD").format("YYYY-MM-DD");
+                this.header.contact_date = formattedDate;
             },
             setError(ref_name){
                 let ref =  this.$refs[ref_name].$refs.referenceRef

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class MappingAutoInvoiceV extends Model
 {
     protected $table = 'oagap_web_mapping_auto_inv_v';
-    protected $connection = 'oracle';
+    protected $connection = 'oracle_oagwxp';
     protected $appends = ['source_type', 'status_icon', 'req_date_format'];
 
     public function getReqDateFormatAttribute()
@@ -32,17 +32,25 @@ class MappingAutoInvoiceV extends Model
 
     public function getStatusIconAttribute()
     {
-        return $this->getStatusIcon('DISBURSEMENT');
+        return $this->getStatusIcon('NEW');
+    }
+
+    public function invoiceLine()
+    {
+        return $this->hasOne(InvoiceLine::class, 'reference_req_number', 'req_number')
+            ->whereHas('invoice', function ($query) {
+                $query->whereRaw("status <> 'CANCELLED'");
+            });
     }
 
     function getStatusIcon($status)
     {
         $result = "";
         switch ($status) {
-            case "DISBURSEMENT":
+            case "NEW":
                 $result = "<span class='badge badge-success' style='padding: 5px;'> รอเบิกจ่าย </span>";
                 break;
-            case "ALLOCATE":
+            case "INTERFACED":
                 $result = "<span class='badge badge-warning' style='padding: 5px;'> รอจัดสรร </span>";
                 break;
             case "CANCELLED":

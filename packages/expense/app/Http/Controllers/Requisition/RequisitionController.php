@@ -22,6 +22,7 @@ use Packages\expense\app\Models\PaymentMethod;
 use Packages\expense\app\Models\Currency;
 use Packages\expense\app\Models\FlaxValueV;
 use Packages\expense\app\Models\POExpenseAccountRuleV;
+use Packages\expense\app\Models\ARBudgetReceiptV;
 use Packages\expense\app\Models\GLPeriod;
 use Packages\expense\app\Models\COAListV;
 
@@ -67,7 +68,7 @@ class RequisitionController extends Controller
             $headerTemp->budget_source              = $header['budget_source'];
             $headerTemp->invoice_type               = $header['invoice_type'];
             $headerTemp->document_category          = $header['document_category'];
-            $headerTemp->req_number                 = (new RequisitionHeader)->genDocumentNo('101', $prefixReq[0]);
+            $headerTemp->req_number                 = (new RequisitionHeader)->genDocumentNo($user->org_id, $prefixReq[0]);
             $headerTemp->req_date                   = date('Y-m-d', strtotime($header['req_date']));
             $headerTemp->payment_type               = $header['payment_type'];
             $headerTemp->supplier_id                = $header['supplier'];
@@ -110,7 +111,8 @@ class RequisitionController extends Controller
                 $lineTemp->receipt_number           = $line['receipt_number'];
                 $lineTemp->receipt_date             = !is_null($line['receipt_date'])? date('Y-m-d', strtotime($line['receipt_date'])): '';
                 $lineTemp->remaining_receipt_flag   = $line['remaining_receipt_flag'] == true? 'Y': 'N';
-                $lineTemp->remaining_receipt_number = $line['remaining_receipt'];
+                $lineTemp->remaining_receipt_id     = $line['remaining_receipt'];
+                $lineTemp->remaining_receipt_number = $this->getRemainingRceipt($line['remaining_receipt']);
                 $lineTemp->save();
             }
             // IF INTERFACE ERROR UPDATE HEADER STATUS TO PENDING
@@ -228,6 +230,12 @@ class RequisitionController extends Controller
             ];
         }
         return response()->json($data);
+    }
+
+    private function getRemainingRceipt($receiptId)
+    {
+        $receipt = ARBudgetReceiptV::where('cash_receipt_id', $receiptId)->first();
+        return optional($receipt)->receipt_number;
     }
 
 
