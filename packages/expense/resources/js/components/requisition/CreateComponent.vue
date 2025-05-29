@@ -247,12 +247,13 @@
                         <label class="control-label">
                             <strong> รายการบัญชี <span class="text-danger"> * </span></strong>
                         </label><br>
-                        <el-input v-model="reqLine.expense_account" style="width: 85%;" readonly/>
+                        <el-input v-model="reqLine.expense_account" style="width: 85%;" ref="expense_account" readonly/>
                         <modalAccountComp
                             :reqLine="reqLine"
                             :defaultSetName="defaultSetName"
                             @updateAccount="updateAccount"
                         />
+                        <div id="el_explode_expense_account" class="text-danger text-left"></div>
                     </div>
                 </div>
                 <div class="row">
@@ -392,6 +393,7 @@
                     budget_plan: false,
                     budget_type: false,
                     expense_type: false,
+                    expense_account: false,
                     amount: false,
                     remaining_receipt: false,
                 },
@@ -438,6 +440,9 @@
                 },
                 loading: false,
                 linelists: [],
+                // SEGMENT
+                segment1: '', segment2: '', segment3: '', segment4: '', segment5: '', segment6: '',
+                segment7: '', segment8: '', segment9: '', segment10: '', segment11: '', segment12: '', segment13: '',
             };
         },
         mounted(){
@@ -454,6 +459,7 @@
             errors: {
                 handler(val){
                     val.invoice_type? this.setError('invoice_type') : this.resetError('invoice_type');
+                    val.expense_account? this.setError('expense_account') : this.resetError('expense_account');
                     val.amount? this.setError('amount') : this.resetError('amount');
                 },
                 deep: true,
@@ -512,8 +518,9 @@
                 this.reqLine.supplier_name = res.vendor_name;
             },
             setSupplierBank(res){
-                this.reqLine.supplier_bank = res.supplier_bank;
+                console.log(res);
                 this.reqLine.supplier_site = res.supplier_site;
+                this.reqLine.supplier_bank = res.supplier_bank;
             },
             setBudgetPlan(res){
                 this.reqLine.budget_plan = res.budget_plan;
@@ -557,6 +564,7 @@
                             vm.reqLine.expense_account = '';
                         } else {
                             vm.reqLine.expense_account = res.data.expense_account;
+                            this.extractAccount();
                         }
                     }.bind(vm))
                     .catch(err => {
@@ -578,6 +586,7 @@
             },
             updateAccount(res) {
                 this.reqLine.expense_account = res.expense_account;
+                this.extractAccount();
             },
             addRequisitionLine() {
                 var vm = this;
@@ -636,6 +645,12 @@
                         message: errorMsg,
                         type: 'error',
                     });
+                }
+                if ((vm.segment6 == '' || vm.segment6 == undefined) || (vm.segment7 == '' || vm.segment7 == undefined) || (vm.segment9 == '' || vm.segment9 == undefined) || (vm.segment10 == '' || vm.segment10 == undefined) || (vm.segment11 == '' || vm.segment11 == undefined)) {
+                    vm.errors.remaining_receipt = true;
+                    valid = false;
+                    errorMsg = "กรุณาตรวจสอบรายการบัญชี";
+                    $(form).find("div[id='el_explode_expense_account']").html(errorMsg);
                 }
                 if (!valid) {
                     return;
@@ -951,6 +966,7 @@
                 vm.errors.budget_type = false;
                 vm.errors.expense_type = false;
                 vm.errors.amount = false;
+                vm.errors.expense_account = false;
                 $(form).find("div[id='el_explode_invoice_type']").html("");
                 $(form).find("div[id='el_explode_document_category']").html("");
                 $(form).find("div[id='el_explode_req_date']").html("");
@@ -962,6 +978,7 @@
                 $(form).find("div[id='el_explode_budget_type']").html("");
                 $(form).find("div[id='el_explode_expense_type']").html("");
                 $(form).find("div[id='el_explode_amount']").html("");
+                $(form).find("div[id='el_explode_expense_account']").html("");
             },
             async store(){
                 var vm = this;
@@ -1115,7 +1132,23 @@
                         type: 'warning'
                     });
                 })
-            }
+            },
+            extractAccount(){
+                var coa = this.reqLine.expense_account.split('.');
+                this.segment1 = coa[0];
+                this.segment2 = coa[1];
+                this.segment3 = coa[2];
+                this.segment4 = coa[3];
+                this.segment5 = coa[4];
+                this.segment6 = coa[5];
+                this.segment7 = coa[6];
+                this.segment8 = coa[7];
+                this.segment9 = coa[8];
+                this.segment10 = coa[9];
+                this.segment11 = coa[10];
+                this.segment12 = coa[11];
+                this.segment13 = coa[12];
+            },
         },
     }
 </script>

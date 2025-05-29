@@ -24,6 +24,7 @@
                                     :set-data="segment1"
                                     :default-set-name="defaultSetName"
                                     :error="errors.segment1"
+                                    :editFlag="false"
                                     placeholder=""
                                     ref="segment1"
                                 >
@@ -40,6 +41,7 @@
                                     :set-data="segment2"
                                     :default-set-name="defaultSetName"
                                     :error="errors.segment2"
+                                    :editFlag="true"
                                     placeholder=""
                                     ref="segment2"
                                 >
@@ -56,6 +58,7 @@
                                     :set-data="segment3"
                                     :default-set-name="defaultSetName"
                                     :error="errors.segment3"
+                                    :editFlag="true"
                                     placeholder=""
                                     ref="segment3"
                                 >
@@ -72,6 +75,7 @@
                                     :set-data="segment4"
                                     :default-set-name="defaultSetName"
                                     :error="errors.segment4"
+                                    :editFlag="false"
                                     placeholder=""
                                     ref="segment4"
                                 >
@@ -91,6 +95,7 @@
                                     :set-data="segment5"
                                     :default-set-name="defaultSetName"
                                     :error="errors.segment5"
+                                    :editFlag="false"
                                     placeholder=""
                                     ref="segment5"
                                 >
@@ -107,6 +112,7 @@
                                     :set-data="segment6"
                                     :default-set-name="defaultSetName"
                                     :error="errors.segment6"
+                                    :editFlag="true"
                                     placeholder=""
                                     ref="segment6"
                                 >
@@ -123,6 +129,7 @@
                                     :set-data="segment7"
                                     :default-set-name="defaultSetName"
                                     :error="errors.segment7"
+                                    :editFlag="true"
                                     placeholder=""
                                     ref="segment7"
                                 >
@@ -139,6 +146,7 @@
                                     :set-data="segment8"
                                     :default-set-name="defaultSetName"
                                     :error="errors.segment8"
+                                    :editFlag="false"
                                     placeholder=""
                                     ref="segment8"
                                 >
@@ -158,6 +166,7 @@
                                     :set-data="segment9"
                                     :default-set-name="defaultSetName"
                                     :error="errors.segment9"
+                                    :editFlag="true"
                                     placeholder=""
                                     ref="segment9"
                                 >
@@ -174,6 +183,7 @@
                                     :set-data="segment10"
                                     :default-set-name="defaultSetName"
                                     :error="errors.segment10"
+                                    :editFlag="true"
                                     placeholder=""
                                     ref="segment10"
                                 >
@@ -191,6 +201,7 @@
                                     :set-data="segment11"
                                     :default-set-name="defaultSetName"
                                     :error="errors.segment11"
+                                    :editFlag="true"
                                     placeholder=""
                                     ref="segment11"
                                 >
@@ -207,6 +218,7 @@
                                     :set-data="segment12"
                                     :default-set-name="defaultSetName"
                                     :error="errors.segment12"
+                                    :editFlag="false"
                                     placeholder=""
                                     ref="segment12"
                                 >
@@ -226,6 +238,7 @@
                                     :set-data="segment13"
                                     :default-set-name="defaultSetName"
                                     :error="errors.segment13"
+                                    :editFlag="false"
                                     placeholder=""
                                     ref="segment13"
                                 >

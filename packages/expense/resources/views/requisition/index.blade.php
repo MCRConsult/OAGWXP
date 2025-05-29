@@ -73,7 +73,7 @@
                                 <div style="width: 60px;"> สถานะ </div>
                             </th>
                             <th class="text-center sticky-col">
-                                <div style="width: 10px;"> </div>
+                                <div style="width: 60px;"> </div>
                             </th>
                         </tr>
                     </thead>
@@ -102,7 +102,7 @@
                                     {!! $requisition->getStatusIcon() !!}
                                 </td>
                                 <td class="text-center text-nowrap" style="vertical-align: middle;">
-                                    <div style="border-collapse: collapse; width: 160px; display:inline-block; flex-direction: row;">
+                                    <div style="border-collapse: collapse; width: 150px; display:inline-block; flex-direction: row;">
                                         <a class="btn btn-sm btn-light active mr-1"
                                             href="{{ route('expense.requisition.show', $requisition->id) }}">
                                             ตรวจสอบ

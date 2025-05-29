@@ -75,7 +75,7 @@
                                 <div style="width: 60px;"> สถานะ </div>
                             </th>
                             <th class="text-center sticky-col">
-                                <div style="width: 50px;"> </div>
+                                <div style="width: 60px;"> </div>
                             </th>
                         </tr>
                     </thead>

@@ -71,7 +71,7 @@ class LovController extends Controller
         if (!$supplier) {
             $supplierBanks = [];
         }else{
-            $supplierBanks = SupplierBank::selectRaw('distinct org_id, bank_name, bank_account_num, order_of_preference')
+            $supplierBanks = SupplierBank::selectRaw('distinct org_id, bank_name, bank_account_num, order_of_preference, vendor_site_id')
                             ->when($keyword, function ($query, $keyword) {
                                 return $query->where(function($r) use ($keyword) {
                                         $r->whereRaw('UPPER(bank_account_num) like ?', ['%'.$keyword.'%'])

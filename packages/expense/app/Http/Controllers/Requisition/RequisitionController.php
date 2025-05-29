@@ -52,7 +52,6 @@ class RequisitionController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->lines);
         $header = $request->header;
         $lines = $request->lines;
         $user = auth()->user();
@@ -86,7 +85,6 @@ class RequisitionController extends Controller
 
             foreach ($lines as $key => $line) {
                 // GET CONCATE SEGMENT
-                // $accountConcate = $this->concateAccount($line['expense_type'], $user, $header['budget_source'], $header['document_category']);
                 $lineTemp                           = new RequisitionLine;
                 $lineTemp->req_header_id            = $headerTemp->id;
                 $lineTemp->seq_number               = $key+1;
@@ -115,7 +113,7 @@ class RequisitionController extends Controller
                 $lineTemp->remaining_receipt_number = $line['remaining_receipt'];
                 $lineTemp->save();
             }
-            // IF INTERFACE ERROR UPDATE HEADER STATUS TO ALLOCATE
+            // IF INTERFACE ERROR UPDATE HEADER STATUS TO PENDING
 
 
             \DB::commit();
@@ -139,74 +137,6 @@ class RequisitionController extends Controller
     {
         $requisition = RequisitionHeader::findOrFail($id);
         return view('expense::requisition.show', compact('requisition'));
-    }
-
-    private function concateAccount($itemCate, $user, $budgetSource, $documentCategory)
-    {
-        $docCate = explode('_', $documentCategory);
-        $employee = $user->hrEmployee;
-        $accountRules = POExpenseAccountRuleV::where('item_category', $itemCate)
-                                            ->orderBy('segment_num')
-                                            ->get()
-                                            ->pluck('segment_value', 'segment_num');
-        //YEAR
-        $year = strtoupper(date('M-y'));
-        $period = GLPeriod::selectRaw("period_year+543 period_year")->where('period_name', $year)->first();
-        $concatenatedSegments = '';
-        $segments = [];
-        // SEGMENT1
-        $segments[1] = $employee->segment1;
-        // SEGMENT2
-        $segments[2] = $employee->segment2;
-        // SEGMENT3
-        $segments[3] = date('y', strtotime($period->period_year));
-        // SEGMENT4
-        $segments[4] = $budgetSource;
-        // SEGMENT5-8
-        $segments[5] = null;
-        $segments[6] = null;
-        $segments[7] = null;
-        $segments[8] = null;
-        if ($budgetSource == 510) {
-            $segments[5] = isset($accountRules[5])? $accountRules[5]: '00000';
-            $segments[6] = isset($accountRules[6])? $accountRules[6]: '00000';
-            $segments[7] = isset($accountRules[7])? $accountRules[7]: '00000';
-            $segments[8] = isset($accountRules[8])? $accountRules[8]: '000000';
-        }elseif(in_array($budgetSource, [520, 530, 550])){
-            $segments[5] = '00000';
-            $segments[6] = isset($accountRules[6])? $accountRules[6]: '00000';
-            $segments[7] = '00000';
-            $segments[8] = isset($accountRules[8])? $accountRules[8]: '000000';
-        }elseif($budgetSource == 540){
-            $segments[5] = isset($accountRules[5])? $accountRules[5]: '00000';
-            $segments[6] = isset($accountRules[6])? $accountRules[6]: '00000';
-            $segments[7] = isset($accountRules[7])? $accountRules[7]: '00000';
-            $segments[8] = isset($accountRules[8])? $accountRules[8]: '000000';
-        }elseif($docCate[1] == 'สบพ.'){
-            $segments[5] = isset($accountRules[5])? $accountRules[5]: '00000';
-            $segments[6] = isset($accountRules[6])? $accountRules[6]: '00000';
-            $segments[7] = isset($accountRules[7])? $accountRules[7]: '00000';
-            $segments[8] = isset($accountRules[8])? $accountRules[8]: '000000';
-        }else{
-            $segments[5] = isset($accountRules[5])? $accountRules[5]: '00000';
-            $segments[6] = '00000';
-            $segments[7] = '00000';
-            $segments[8] = isset($accountRules[8])? $accountRules[8]: '000000';
-        }
-        // SEGMENT9
-        $segments[9] = '00000000000000000000';
-        // SEGMENT10
-        $segments[10] = isset($accountRules[10])? $accountRules[10]: '0000000000';
-        // SEGMENT11
-        $segments[11] = isset($accountRules[11])? $accountRules[11]: '000000';
-        // SEGMENT12
-        $segments[12] = '00';
-        // SEGMENT13
-        $segments[13] = '00';
-
-        $concatenatedSegments = $segments[1].'.'.$segments[2].'.'.$segments[3].'.'.$segments[4].'.'.$segments[5].'.'.$segments[6].'.'.$segments[7].'.'.$segments[8].'.'.$segments[9].'.'.$segments[10].'.'.$segments[11].'.'.$segments[12].'.'.$segments[13];
-
-        return $concatenatedSegments;
     }
 
     public function useARReceipt(Request $request)

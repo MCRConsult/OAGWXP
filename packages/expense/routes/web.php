@@ -29,7 +29,7 @@ Route::group(['middleware' => ['web', 'auth']], function () {
             Route::prefix('requisition')->namespace('Requisition')->name('requisition.')->group(function() {
                 Route::get('/get-requisition', '\Packages\expense\app\Http\Controllers\Api\RequisitionController@getRequisition');
                 Route::get('/get-document-category', '\Packages\expense\app\Http\Controllers\Api\RequisitionController@getDocumentCategory');
-                Route::post('/get-expense-account', '\Packages\expense\app\Http\Controllers\Api\RequisitionController@getExpenseAccount');
+                Route::post('/get-expense-account', '\Packages\expense\app\Http\Controllers\Api\AccountController@getExpenseAccount');
             });
 
             Route::prefix('invoice')->namespace('Invoice')->name('invoice.')->group(function() {

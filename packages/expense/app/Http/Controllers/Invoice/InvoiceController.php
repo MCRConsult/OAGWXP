@@ -29,7 +29,7 @@ class InvoiceController extends Controller
         $invoices = InvoiceHeader::search(request()->all())
                                     ->orderBy('invoice_date', 'desc')
                                     ->orderBy('voucher_number', 'desc')
-                                    ->paginate(15);
+                                    ->paginate(25);
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
         $statuses = ['NEW'          => 'รอเบิกจ่าย'
                     , 'INTERFACED'  => 'เบิกจ่ายแล้ว'
@@ -88,49 +88,53 @@ class InvoiceController extends Controller
             $header = collect($mergeReqs)->first();
             $prefixInvRef = (new InvoiceHeader)->getInvRef($header->invoice_type);
             // CREATE NEW INVOICE
-            $headerTemp                             = new InvoiceHeader;
-            $headerTemp->invoice_number             = (new InvoiceHeader)->genDocumentNo($user->org_id, $prefixInvRef);
-            $headerTemp->org_id                     = $user->org_id;
-            $headerTemp->source_type                = $mergeReqs->first()->source_type;
-            $headerTemp->invoice_date               = date('Y-m-d');
-            $headerTemp->invoice_type               = $header->invoice_type;
-            $headerTemp->document_category          = $header->document_category;
-            $headerTemp->supplier_id                = $header->supplier_id;
-            $headerTemp->supplier_name              = $header->supplier_name;
+            $headerTemp                                     = new InvoiceHeader;
+            $headerTemp->invoice_number                     = (new InvoiceHeader)->genDocumentNo($user->org_id, $prefixInvRef);
+            $headerTemp->org_id                             = $user->org_id;
+            $headerTemp->source_type                        = $header->source_type;
+            $headerTemp->invoice_date                       = date('Y-m-d');
+            $headerTemp->invoice_type                       = $header->invoice_type;
+            $headerTemp->document_category                  = $header->document_category;
+            $headerTemp->supplier_id                        = $header->supplier_id;
+            $headerTemp->supplier_name                      = $header->supplier_name;
             // GET FROM SUPPLIER
-            $headerTemp->payment_method             = $header->supplier->payment_method_code;
-            $headerTemp->payment_term               = $header->supplier->terms_id;
-            $headerTemp->currency                   = $header->supplier->invoice_currency_code;
-            $headerTemp->contact_date               = '';
-            $headerTemp->final_judgment             = '';
-            $headerTemp->gfmis_document_number      = '';
-            $headerTemp->total_amount               = $mergeReqs->first()->source_type == 'REQUISITION'
-                                                        ? collect($mergeReqs)->sum('total_amount')
-                                                        : collect($mergeReqs)->sum('amount'); // SUM LINE
-            $headerTemp->clear_date                 = '';
-            $headerTemp->description                = '';
-            $headerTemp->note                       = '';        
-            $headerTemp->status                     = 'NEW';
-            $headerTemp->requester                  = $user->id;
-            $headerTemp->created_by                 = $user->id;
-            $headerTemp->updated_by                 = $user->id;
-            $headerTemp->creation_by                = $user->person_id;
-            $headerTemp->updation_by                = $user->person_id;
+            $headerTemp->payment_method                     = $header->supplier->payment_method_code;
+            $headerTemp->payment_term                       = $header->supplier->terms_id;
+            $headerTemp->currency                           = $header->supplier->invoice_currency_code;
+            $headerTemp->contact_date                       = '';
+            $headerTemp->final_judgment                     = '';
+            $headerTemp->gfmis_document_number              = '';
+            $headerTemp->total_amount                       = $header->source_type == 'REQUISITION'
+                                                                ? collect($mergeReqs)->sum('total_amount')
+                                                                : collect($mergeReqs)->sum('amount'); // SUM LINE
+            $headerTemp->clear_date                         = '';
+            $headerTemp->description                        = '';
+            $headerTemp->note                               = '';        
+            $headerTemp->status                             = 'NEW';
+            $headerTemp->requester                          = $user->id;
+            $headerTemp->created_by                         = $user->id;
+            $headerTemp->updated_by                         = $user->id;
+            $headerTemp->creation_by                        = $user->person_id;
+            $headerTemp->updation_by                        = $user->person_id;
             $headerTemp->save();
 
             foreach ($mergeReqs as $key => $requisition) {
                 if ($requisition->source_type == 'RECEIPT') {
+                    $expeseType = MTLCategoriesV::where('structure_name', 'OAG Item Category Set')
+                            ->where('segment1', 'EXP')
+                            ->whereRaw('category_concat_segs', $requisition->expense_category)
+                            ->first();
                     $lineTemp                               = new InvoiceLine;
                     $lineTemp->invoice_header_id            = $headerTemp->id;
                     $lineTemp->seq_number                   = $key+1;
                     $lineTemp->supplier_id                  = $requisition->supplier_id;
                     $lineTemp->supplier_name                = $requisition->supplier_name;
                     $lineTemp->supplier_site                = $requisition->supplier_site;
-                    $lineTemp->bank_account_number          = 'bank_account_number';
-                    $lineTemp->budget_plan                  = 'EXP.200.000000.0000000000';
-                    $lineTemp->budget_type                  = 'EXP.200.214000.0000000000';
-                    $lineTemp->expense_type                 = 'EXP.200.214000.0000000004';
-                    $lineTemp->expense_description          = 'expense_description';
+                    // $lineTemp->bank_account_number          = $requisition->'bank_account_number';
+                    // $lineTemp->budget_plan                  = $requisition->'EXP.200.000000.0000000000';
+                    // $lineTemp->budget_type                  = $requisition->'EXP.200.214000.0000000000';
+                    $lineTemp->expense_type                 = $requisition->expense_category;
+                    $lineTemp->expense_description          = $expeseType->description;
                     $lineTemp->expense_account              = $requisition->expense_account;
                     $lineTemp->amount                       = $requisition->amount;
                     $lineTemp->description                  = $requisition->description;

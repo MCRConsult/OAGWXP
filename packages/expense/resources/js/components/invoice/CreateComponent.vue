@@ -97,9 +97,9 @@
                                             <div class="col-md-8">
                                                 <el-checkbox
                                                     class="small mb-0 m-0 mr-2"
-                                                    :key="header.id"
-                                                    v-model="selectedReq[header.source_type == 'REQUISITION'? header.req_number: header.invoice_num]" 
-                                                    :name="'check-req_'+ (header.source_type == 'REQUISITION'? header.req_number: header.invoice_num)"
+                                                    :key="header.req_number"
+                                                    v-model="selectedReq[header.req_number]" 
+                                                    :name="'check-req_'+header.req_number"
                                                     size="default"
                                                     @change="chooseReq(header)"
                                                     :disabled="header.status == 'ALLOCATE'"
@@ -325,6 +325,7 @@
             async fetchData(page = 1) {
                 const url = "/expense/api/invoice/index-render-page?page="+page;
                 this.loading = true;
+                this.headers = [];
                 await axios
                     .post(url, {
                         search: this.search
@@ -380,7 +381,7 @@
             },
             chooseReq(header){
                 let vm = this;
-                let reqNumber = header.source_type == 'REQUISITION'? header.req_number: header.invoice_num;
+                let reqNumber = header.req_number;
                 let checked = $('input[name="check-req_'+reqNumber+'"]').prop('checked');
                 if(checked){
                     vm.selectedReq[reqNumber] = true;

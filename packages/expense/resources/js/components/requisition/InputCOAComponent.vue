@@ -14,6 +14,7 @@
             remote-show-suffix
             style="width: 100%;"
             ref="input"
+            :disabled="!editFlag"
             @change="changeCoa"
         >
             <el-option
@@ -27,7 +28,7 @@
 </template>
 <script>
 export default {
-    props: ['setName', 'parent', 'setData', 'error', 'defaultSetName'],
+    props: ['setName', 'parent', 'setData', 'error', 'defaultSetName', 'editFlag'],
     emits: ['coa'],
     data() {
         return {
