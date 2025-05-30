@@ -118,17 +118,17 @@ class RequisitionController extends Controller
                 
                 // IF INTERFACE ERROR UPDATE HEADER STATUS TO PENDING
                 // 1. CHECK BUDGET
-                $checkBudget = (new RequisitionHeader)->checkBudget($user, $headerTemp, $line);
-                if ($checkBudget->avaliable_budget == null) {
-                    $headerTemp->status = 'PENDING';
-                    $headerTemp->save();
-                }else{
-                    // 2. RESERVE BUDGET
-                    // 2.1 INSERT TEMP
-                    $temp = (new GLBudgetReservations)->insertGlReserve();
-                    // 2.2 CALL PACKAGE
-                    $result = (new RequisitionHeader)->reserveBudget($batch);
-                }
+                // $checkBudget = (new RequisitionHeader)->checkBudget($user, $headerTemp, $line);
+                // if ($checkBudget->avaliable_budget == null) {
+                //     $headerTemp->status = 'PENDING';
+                //     $headerTemp->save();
+                // }else{
+                //     // 2. RESERVE BUDGET
+                //     // 2.1 INSERT TEMP
+                //     $temp = (new GLBudgetReservations)->insertGlReserve();
+                //     // 2.2 CALL PACKAGE
+                //     $result = (new RequisitionHeader)->reserveBudget($batch);
+                // }
             }
 
 
