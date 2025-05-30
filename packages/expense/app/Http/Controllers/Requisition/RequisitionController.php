@@ -25,6 +25,7 @@ use Packages\expense\app\Models\POExpenseAccountRuleV;
 use Packages\expense\app\Models\ARBudgetReceiptV;
 use Packages\expense\app\Models\GLPeriod;
 use Packages\expense\app\Models\COAListV;
+use Packages\expense\app\Models\GLBudgetReservations;
 
 class RequisitionController extends Controller
 {
@@ -114,8 +115,21 @@ class RequisitionController extends Controller
                 $lineTemp->remaining_receipt_id     = $line['remaining_receipt'];
                 $lineTemp->remaining_receipt_number = $this->getRemainingRceipt($line['remaining_receipt']);
                 $lineTemp->save();
+                
+                // IF INTERFACE ERROR UPDATE HEADER STATUS TO PENDING
+                // 1. CHECK BUDGET
+                $checkBudget = (new RequisitionHeader)->checkBudget($user, $headerTemp, $line);
+                if ($checkBudget->avaliable_budget == null) {
+                    $headerTemp->status = 'PENDING';
+                    $headerTemp->save();
+                }else{
+                    // 2. RESERVE BUDGET
+                    // 2.1 INSERT TEMP
+                    $temp = (new GLBudgetReservations)->insertGlReserve();
+                    // 2.2 CALL PACKAGE
+                    $result = (new RequisitionHeader)->reserveBudget($batch);
+                }
             }
-            // IF INTERFACE ERROR UPDATE HEADER STATUS TO PENDING
 
 
             \DB::commit();

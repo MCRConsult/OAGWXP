@@ -546,7 +546,6 @@
             },
             async interface(activity){
                 var vm = this;
-                vm.loading = true;
                 Swal.fire({
                     title: "ขอเบิกเอกสาร",
                     html: "ต้องการขอเบิกเอกสารใช่หรือไม่?",
@@ -559,6 +558,7 @@
                     allowOutsideClick: false
                 }).then((result) => {
                     if (result.isConfirmed) {
+                        vm.loading = true;
                         axios.post('/expense/invoice/'+vm.header.id+'/update', {
                             header: vm.header,
                             lines: vm.linelists,

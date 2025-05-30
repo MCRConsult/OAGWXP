@@ -124,37 +124,50 @@ class RequisitionHeader extends Model
                 if (in_array($key, $cols)) {
                     $q->where($key, 'like', "%$value%");
                 } else if ($key == 'req_date') {
-                    // $date = \DateTime::createFromFormat(trans('date.format'), $value);
                     $date = date('Y-m-d', strtotime($value));
                     $q->whereDate('req_date', $date);
                 }
             }
         }
 
-
-
-
-        $invDateFrom = request()->invoice_date_from ?? date('Y-m-d');
-        $invDateTo = request()->invoice_date_to ?? date('Y-m-d');
-        // REQ NUMBER
-        if (request()->req_number_from && request()->req_number_to) {
-            $q->whereBetween('req_number', [request()->req_number_from, request()->req_number_to]);
-        }elseif (request()->req_number_from && !request()->req_number_to) {
-            $q->where('req_number', request()->req_number_from);
-        }
-        // SUPPLIER
-        if (request()->supplier_from && request()->supplier_to) {
-            $q->whereBetween('supplier_id', [request()->supplier_from, request()->supplier_to]);
-        }elseif (request()->supplier_from && !request()->supplier_to) {
-            $q->where('supplier_id', request()->supplier_from);
-        }
-        // INVOICE DATE
-        if (request()->invoice_date_from && request()->invoice_date_to) {
-            $q->whereRaw("trunc(invoice_date) >= TO_DATE('{$invDateFrom}','YYYY-mm-dd')")
-                ->whereRaw("trunc(invoice_date) <= TO_DATE('{$invDateTo}','YYYY-mm-dd')");
-        }elseif (request()->invoice_date_from && !request()->invoice_date_to) {
-            $q->whereRaw("trunc(invoice_date) >= TO_DATE('{$invDateFrom}','YYYY-mm-dd')");
-        }
         return $q;
+    }
+
+    public function checkBudget($user, $headerTemp, $line)
+    {
+        $date = date('d-m-Y', strtotime($headerTemp->req_date));
+        $expenseAccount = $line['expense_account'];
+        $budget = \DB::connection('oracle')->table('DUAL')
+                    ->selectRaw("oaggl_process.find_budget( p_org_id => {$user->org_id}
+                                    , p_concatenated_segments   => '{$expenseAccount}'
+                                    , p_date                    => to_date('{$date}','DD-MM-YYYY')
+                                ) avaliable_budget")->first();
+
+        return $budget;
+    }
+
+    public function reserveBudget($batch)
+    {
+        $db = \DB::connection('oracle')->getPdo();
+        $sql = "
+            declare
+                v_status                    varchar2(20);
+                v_error                     varchar2(2000);
+                begin
+                    oaggl_process.reserve_budget(p_batch      => '{$batch}'
+                                                , p_status    => :v_status
+                                                , p_error     => :v_error
+                                            );
+                end;
+        ";
+
+        logger($sql);
+        $stmt = $db->prepare($sql);
+        $result = [];
+        $stmt->bindParam(':v_status', $result['status'], \PDO::PARAM_STR, 20);
+        $stmt->bindParam(':v_error', $result['error_msg'], \PDO::PARAM_STR, 2000);
+        $stmt->execute();
+
+        return $result;
     }
 }
