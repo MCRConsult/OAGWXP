@@ -110,7 +110,7 @@ export default {
     mounted() {
         this.search.req_number = this.pSearch.length <= 0? '' : this.pSearch.req_number;
         this.search.invoice_type = this.pSearch.length <= 0? '' : this.pSearch.invoice_type;
-        this.req_date_input = this.req_date_input = this.pSearch && this.pSearch.req_date? moment(this.pSearch.req_date, 'YYYY-MM-DD'): moment().format("YYYY-MM-DD");
+        this.req_date_input = this.req_date_input = this.pSearch && this.pSearch.req_date? moment(this.pSearch.req_date, 'YYYY-MM-DD'): '';
         this.changeDateFormat();
         this.search.status = this.pSearch.length <= 0? '' : this.pSearch.status;
         if (this.pSearch.length <= 0) {

@@ -160,7 +160,7 @@
                         <div class="col-md-3">
                             <div class="form-group" style="padding: 5px;">
                                 <label class="control-label">
-                                    <strong> เลขที่หนังลือ </strong>
+                                    <strong> เลขที่หนังสือ </strong>
                                 </label><br>
                                 {{ $line->receipt_number ?? '-' }}
                             </div>

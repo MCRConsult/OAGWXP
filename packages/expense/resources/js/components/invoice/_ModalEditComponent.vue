@@ -187,6 +187,14 @@
                             </div>
                         </div>
                         <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group text-left" style="padding: 5px;">
+                                    <label class="control-label">
+                                        <strong> เลขที่ใบเสร็จรับเงินคงเหลือ </strong>
+                                    </label><br>
+                                    <el-input v-model="temp.remaining_receipt_number" style="width: 100%;" disabled/>
+                                </div>
+                            </div>
                             <div class="col-md-6">
                                 <div class="form-group text-left" style="padding: 5px;">
                                     <label class="control-label">

@@ -111,7 +111,7 @@ export default {
         this.search.voucher_number = this.pSearch.length <= 0? '' : this.pSearch.voucher_number;
         this.search.invoice_type = this.pSearch.length <= 0? '' : this.pSearch.invoice_type;
         this.invoice_date_input = this.invoice_date_input = this.pSearch && this.pSearch.invoice_date
-                                ? moment(this.pSearch.invoice_date, 'YYYY-MM-DD') : moment().format("YYYY-MM-DD");
+                                ? moment(this.pSearch.invoice_date, 'YYYY-MM-DD') : '';
         this.changeDateFormat();
         this.search.status = this.pSearch.length <= 0? '' : this.pSearch.status;
         if (this.pSearch.length <= 0) {

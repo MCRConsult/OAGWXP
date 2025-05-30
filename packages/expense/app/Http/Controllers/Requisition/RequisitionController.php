@@ -125,7 +125,7 @@ class RequisitionController extends Controller
                 // }else{
                 //     // 2. RESERVE BUDGET
                 //     // 2.1 INSERT TEMP
-                //     $temp = (new GLBudgetReservations)->insertGlReserve();
+                //     $temp = (new GLBudgetReservations)->insertGlReserve($headerTemp, $lineTemp, $user);
                 //     // 2.2 CALL PACKAGE
                 //     $result = (new RequisitionHeader)->reserveBudget($batch);
                 // }

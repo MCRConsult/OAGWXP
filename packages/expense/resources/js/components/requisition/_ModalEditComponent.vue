@@ -235,7 +235,7 @@
                             <div class="col-md-3 text-left">
                                 <div class="form-group" style="padding: 5px;">
                                     <label class="control-label">
-                                        <strong> เลขที่หนังลือ </strong>
+                                        <strong> เลขที่หนังสือ </strong>
                                     </label><br>
                                     <el-input v-model="temp.receipt_number" style="width: 100%;" placeholder=""/>
                                 </div>

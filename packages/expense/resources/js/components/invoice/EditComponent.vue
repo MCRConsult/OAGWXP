@@ -525,6 +525,7 @@
                             if (result.isConfirmed) {
                                 setTimeout(function() {
                                     location.reload();
+                                    window.location.href = '/expense/invoice/'+vm.header.id;
                                 }, 500);
                             }
                         });

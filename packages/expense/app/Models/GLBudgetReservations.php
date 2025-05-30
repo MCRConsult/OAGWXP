@@ -9,18 +9,18 @@ class GLBudgetReservations extends Model
     protected $table = 'oaggl_budget_reservations';
     protected $connection = 'oracle';
 
-    // public function insertGlReserve()
+    // public function insertGlReserve($header, $line, $user)
     // {
     //     self::insert([
-    //         'reserve_date'          => ''
+    //         'reserve_date'          => date('Y-m-d')
     //         , 'reserve_type'        => 'RESERVE'
-    //         , 'amount'              => ''
-    //         , 'description'         => ''
-    //         , 'source_table_name'   => ''
-    //         , 'source_table_id'     => ''
-    //         , 'period_name'         => ''
-    //         , 'org_id'              => ''
-    //         , 'account_code'        => ''
+    //         , 'amount'              => $line->amount
+    //         , 'description'         => $line->description
+    //         , 'source_table_name'   => $line->getTable();
+    //         , 'source_table_id'     => $line->id
+    //         , 'period_name'         => date('M-y')
+    //         , 'org_id'              => $user->org_id
+    //         , 'account_code'        => $line->expense_account
     //         , 'batch_no'            => ''
     //     ]);
 

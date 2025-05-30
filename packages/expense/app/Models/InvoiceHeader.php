@@ -128,7 +128,7 @@ class InvoiceHeader extends Model
                 $result = "<span class='badge badge-warning' style='padding: 5px;'> รอเบิกจ่าย </span>";
                 break;
             case "INTERFACED":
-                $result = "<span class='badge badge-warning' style='padding: 5px;'> เบิกจ่ายแล้ว </span>";
+                $result = "<span class='badge badge-warning' style='padding: 5px; background-color: #90d1ff;'> เบิกจ่ายแล้ว </span>";
                 break;
             case "CANCELLED":
                 $result = "<span class='badge badge-danger' style='padding: 5px;'> ยกเลิก </span>";
