@@ -36,7 +36,7 @@
     "src": "resources/fonts/fontawesome-webfont.woff2"
   },
   "resources/js/app.js": {
-    "file": "assets/app-DhsXepqA.js",
+    "file": "assets/app-MRoPti60.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -45,7 +45,7 @@
     ]
   },
   "resources/sass/app.css": {
-    "file": "assets/app-C_l5mqnE.css",
+    "file": "assets/app-84JcDC9y.css",
     "src": "resources/sass/app.css",
     "isEntry": true
   }

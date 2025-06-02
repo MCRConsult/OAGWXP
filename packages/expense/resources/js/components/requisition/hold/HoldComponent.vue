@@ -1,6 +1,6 @@
 <template>
     <div v-loading="loading">
-        <form id="create-form">
+        <form id="edit-form">
             <div class="col-md-12">
                 <div class="row">
                     <div class="col-md-3">
@@ -9,7 +9,7 @@
                                 <strong> แหล่งเงิน <span class="text-danger"> *</span></strong>
                             </label><br>
                             <budgetSource 
-                                :setData="requisition.budget_source"
+                                :setData="header.budget_source"
                                 :error="errors.budget_source"
                                 :editFlag="true"
                                 @setBudgetSource="setBudgetSource"
@@ -24,7 +24,7 @@
                             <label class="control-label">
                                 <strong> ประเภท <span class="text-danger"> *</span></strong>
                             </label><br>
-                            <el-select v-model="requisition.invoice_type" placeholder="" style="width: 100%;" ref="invoice_type">
+                            <el-select v-model="header.invoice_type" placeholder="" style="width: 100%;" ref="invoice_type">
                                 <el-option
                                     v-for="type in invoiceTypes"
                                     :key="type.lookup_code"
@@ -41,7 +41,7 @@
                                 <strong> สำนักงานผู้เบิกจ่าย <span class="text-danger"> *</span></strong>
                             </label><br>
                             <documentCategory
-                                :setData="requisition.document_category"
+                                :setData="header.document_category"
                                 :error="errors.document_category"
                                 :editFlag="true"
                                 @setDocumentCate="setDocumentCate"
@@ -55,7 +55,7 @@
                                 <strong> วันที่เอกสารส่งเบิก <span class="text-danger"> *</span></strong>
                             </label><br>
                             <el-date-picker
-                                v-model="requisition.req_date"
+                                v-model="header.req_date"
                                 ref="req_date"
                                 placeholder=""
                                 clearable
@@ -72,7 +72,7 @@
                                 <strong> ประเภทการขอเบิก <span class="text-danger"> *</span></strong>
                             </label><br>
                             <paymentType
-                                :setData="requisition.payment_type"
+                                :setData="header.payment_type"
                                 :error="errors.payment_type"
                                 :editFlag="true"
                                 @setPaymentType="setPaymentType"
@@ -86,15 +86,15 @@
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
                                 <strong> ชื่อสั่งจ่าย <span class="text-danger"> *</span></strong> &nbsp;
-                                    <el-radio v-model="requisition.multiple_supplier" label="ONE" @change="changeSupplierType">
+                                    <el-radio v-model="header.multiple_supplier" label="ONE" @change="changeSupplierType">
                                         รายเดียว
                                     </el-radio>
-                                    <el-radio v-model="requisition.multiple_supplier" label="MORE" @change="changeSupplierType">
+                                    <el-radio v-model="header.multiple_supplier" label="MORE" @change="changeSupplierType">
                                         หลายราย (กรอกข้อมูลระดับรายการ)
                                     </el-radio>
                             </label><br>
                             <supplier
-                                :setData="requisition.supplier_id"
+                                :setData="header.supplier_id"
                                 :error="errors.supplier"
                                 :editFlag="true"
                                 @setSupplier="setSupplierHeader"
@@ -107,7 +107,7 @@
                             <label class="control-label">
                                 <strong> คำอธิบาย </strong>
                             </label><br>
-                            <el-input v-model="requisition.description" type="textarea" :rows="2" style="width: 100%;" placeholder="" maxlength="240" show-word-limit/>
+                            <el-input v-model="header.description" type="textarea" :rows="2" style="width: 100%;" placeholder="" maxlength="240" show-word-limit/>
                         </div>
                     </div>
                 </div>
@@ -116,11 +116,11 @@
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
                                 <strong> 
-                                    <template v-if="requisition.payment_type == 'PAYMENT'"> เลขที่เอกสารส่งเบิก </template>
+                                    <template v-if="header.payment_type == 'PAYMENT'"> เลขที่เอกสารส่งเบิก </template>
                                     <template v-else> เลขที่ใบสำคัญ </template>
                                 </strong>
                             </label><br>
-                            <el-input v-model="requisition.req_number" style="width: 100%;" disabled/>
+                            <el-input v-model="header.req_number" style="width: 100%;" disabled/>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -128,7 +128,7 @@
                             <label class="control-label">
                                 <strong> ผู้รับผิดชอบ </strong>
                             </label><br>
-                            <el-input v-model="user.last_name" style="width: 100%;" disabled/>
+                            <el-input v-model="header.user.hr_employee.last_name" style="width: 100%;" disabled/>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -136,7 +136,7 @@
                             <label class="control-label">
                                 <strong> สถานะ </strong>
                             </label><br>
-                            <el-input v-model="requisition.status" style="width: 100%;" disabled/>
+                            <el-input v-model="header.status_text" style="width: 100%;" disabled/>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -144,7 +144,7 @@
                             <label class="control-label">
                                 <strong> เลขที่ใบกำกับ </strong>
                             </label><br>
-                            <el-input v-model="requisition.invioce_number_ref" style="width: 100%;" disabled/>
+                            <el-input v-model="header.invioce_number_ref" style="width: 100%;" disabled/>
                         </div>
                     </div>
                 </div>
@@ -164,7 +164,7 @@
                             <supplier
                                 :setData="reqLine.supplier_id"
                                 :error="errors.supplier_detail"
-                                :editFlag="requisition.multiple_supplier == 'MORE'? true: false"
+                                :editFlag="header.multiple_supplier == 'MORE'? true: false"
                                 @setSupplier="setSupplierLine"
                             ></supplier>
                             <div id="el_explode_supplier_detail" class="text-danger text-left"></div>
@@ -192,7 +192,7 @@
                                 &nbsp; <br>
                             </label><br>
                             <detailComp
-                                :requisition="requisition"
+                                :requisition="header"
                                 :reqLine="reqLine"
                                 :errors="errors"
                             ></detailComp>
@@ -265,14 +265,14 @@
                             </label><br>
                             <vue-numeric style="width: 100%;"
                                 name="amount"
-                                class="form-control text-right"
-                                v-model="reqLine.amount"
                                 v-bind:minus="false"
                                 v-bind:precision="2"
                                 :min="0"
                                 :max="999999999"
-                                autocomplete="off"
+                                class="form-control text-right"
+                                v-model="reqLine.amount"
                                 ref="amount"
+                                autocomplete="off"
                             ></vue-numeric>
                             <div id="el_explode_amount" class="text-danger text-left"></div>
                         </div>
@@ -319,7 +319,7 @@
                                 v-for="(row, index) in linelists"
                                 :key="index"
                                 :index="index"
-                                :requisition="requisition"
+                                :requisition="header"
                                 :attribute="row"
                                 :defaultSetName="defaultSetName"
                                 @updateRow="updateRow"
@@ -349,7 +349,7 @@
                     </div>
                 </div>
                 <div align="center">
-                    <button type="button" class="btn btn-primary" @click.prevent="store()"> ส่งเบิก </button>
+                    <button type="button" class="btn btn-primary" @click.prevent="update()"> ส่งเบิก </button>
                 </div>
             </div>
         </form>
@@ -362,23 +362,24 @@
     import Swal     from 'sweetalert2';
     import {ElNotification} from 'element-plus';
     //========================================================
-    import budgetSource     from "../lov/BudgetSource.vue";
-    import documentCategory from "../lov/DocumentCategory.vue";
-    import paymentType      from "../lov/PaymentType.vue";
-    import supplier         from "../lov/Supplier.vue";
-    import supplierBank     from "../lov/SupplierBank.vue";
-    import budgetPlan       from "../lov/BudgetPlan.vue";
-    import budgetType       from "../lov/BudgetType.vue";
-    import expenseType      from "../lov/ExpenseType.vue";
-    import detailComp       from "./DetailComponent.vue";
+    import budgetSource     from "../../lov/BudgetSource.vue";
+    import documentCategory from "../../lov/DocumentCategory.vue";
+    import paymentType      from "../../lov/PaymentType.vue";
+    import supplier         from "../../lov/Supplier.vue";
+    import supplierBank     from "../../lov/SupplierBank.vue";
+    import budgetPlan       from "../../lov/BudgetPlan.vue";
+    import budgetType       from "../../lov/BudgetType.vue";
+    import expenseType      from "../../lov/ExpenseType.vue";
+
+    import detailComp       from "../DetailComponent.vue";
     import listComp         from "./ListComponent.vue";
-    import modalAccountComp from "./_ModalAccountComponent.vue";
+    import modalAccountComp from "../_ModalAccountComponent.vue";
 
     export default {
         components: {
             budgetSource, documentCategory, paymentType, supplier, supplierBank, budgetPlan, budgetType, expenseType, detailComp, listComp, modalAccountComp
         },
-        props: ['user', 'referenceNo', 'invoiceTypes', 'defaultSetName'],
+        props: ['requisition', 'invoiceTypes', 'defaultSetName'],
         data() {
             return {
                 budgetSource: ['510'], //, '520', '530', '540', '550'
@@ -398,22 +399,8 @@
                     amount: false,
                     remaining_receipt: false,
                 },
-                requisition: {
-                    reference_number: this.referenceNo,
-                    budget_source: '',
-                    invoice_type: 'STANDARD',
-                    document_category: '', // หยิบจาก login
-                    req_date: new Date(),
-                    payment_type: 'PAYMENT',
-                    supplier_id: '',
-                    supplier_name: '',
-                    multiple_supplier: 'ONE',
-                    description: '',
-                    req_number: '',
-                    requester: '',
-                    status: '',
-                    invioce_number_ref: '',
-                },
+                header: this.requisition,
+                linelists: this.requisition.lines,
                 reqLine: {
                     supplier_id: '',
                     supplier_name: '',
@@ -440,7 +427,6 @@
                     remaining_receipt_id: '',
                 },
                 loading: false,
-                linelists: [],
                 // SEGMENT
                 segment1: '', segment2: '', segment3: '', segment4: '', segment5: '', segment6: '',
                 segment7: '', segment8: '', segment9: '', segment10: '', segment11: '', segment12: '', segment13: '',
@@ -523,7 +509,6 @@
                 this.reqLine.supplier_name = res.vendor_name;
             },
             setSupplierBank(res){
-                console.log(res);
                 this.reqLine.supplier_site = res.supplier_site;
                 this.reqLine.bank_account_number = res.supplier_bank;
             },
@@ -596,7 +581,7 @@
             },
             addRequisitionLine() {
                 var vm = this;
-                var form = $('#create-form');
+                var form = $('#edit-form');
                 let errorMsg = '';
                 this.resetValues();
                 let valid = true;
@@ -653,7 +638,7 @@
                     });
                 }
                 if ((vm.segment6 == '' || vm.segment6 == undefined) || (vm.segment7 == '' || vm.segment7 == undefined) || (vm.segment9 == '' || vm.segment9 == undefined) || (vm.segment10 == '' || vm.segment10 == undefined) || (vm.segment11 == '' || vm.segment11 == undefined)) {
-                    vm.errors.expense_account = true;
+                    vm.errors.remaining_receipt = true;
                     valid = false;
                     errorMsg = "กรุณาตรวจสอบรายการบัญชี";
                     $(form).find("div[id='el_explode_expense_account']").html(errorMsg);
@@ -961,7 +946,7 @@
             },
             resetValues(){
                 var vm = this;
-                var form = $('#create-form');
+                var form = $('#edit-form');
                 vm.errors.invoice_type = false;
                 vm.errors.document_category = false;
                 vm.errors.req_date = false;
@@ -987,9 +972,9 @@
                 $(form).find("div[id='el_explode_amount']").html("");
                 $(form).find("div[id='el_explode_expense_account']").html("");
             },
-            async store(){
+            async update(){
                 var vm = this;
-                var form = $('#create-form');
+                var form = $('#edit-form');
                 let errorMsg = '';
                 this.resetValues();
                 let valid = true;
@@ -1060,11 +1045,10 @@
                 var vm = this;
                 vm.loading = true;
                 // POST METHOD
-                axios.post('/expense/requisition/', {
-                    header: this.requisition,
+                axios.post('/expense/requisition/'+vm.header.id+'/update', {
+                    header: this.header,
                     lines: this.linelists,
                     totalApply: this.totalApply,
-                    refRequisition: null,
                 })
                 .then(function (res) {
                     vm.loading = false;

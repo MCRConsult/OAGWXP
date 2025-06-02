@@ -45,9 +45,14 @@ Route::group(['middleware' => ['web', 'auth']], function () {
             Route::get('/create', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@create')->name('create');
             Route::post('/', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@store')->name('store');
             Route::get('/{req_id}', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@show')->name('show');
+            Route::get('/{req_id}/hold', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@hold')->name('hold');
+            Route::post('/{req_id}/update', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@update')->name('update');
             Route::post('use-ar-receipt', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@useARReceipt');
             Route::post('update-ar-receipt', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@updateARReceipt');
             Route::post('remove-ar-receipt', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@removeARReceipt');
+
+            // CLEAR REQUISITION
+            Route::get('/{req_id}/clear', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@clear')->name('clear');
         });
 
         Route::prefix('invoice')->namespace('Invoice')->name('invoice.')->group(function() {
@@ -58,6 +63,9 @@ Route::group(['middleware' => ['web', 'auth']], function () {
             Route::get('/{invoice_id}/edit', '\Packages\expense\app\Http\Controllers\Invoice\InvoiceController@edit')->name('edit');
             Route::post('/{invoice_id}/update', '\Packages\expense\app\Http\Controllers\Invoice\InvoiceController@update')->name('update');
             Route::post('/{invoice_id}/cancel', '\Packages\expense\app\Http\Controllers\Invoice\InvoiceController@cancel')->name('cancel');
+            Route::post('/{invoice_id}/set-status', '\Packages\expense\app\Http\Controllers\Invoice\InvoiceController@setStatus')->name('set-status');
+            //interface
+            Route::get('/interface/logs', '\Packages\expense\app\Http\Controllers\Invoice\InterfaceLogController@index')->name('interface-log');
         });
 
         Route::prefix('report')->namespace('Report')->name('report.')->group(function() {

@@ -80,6 +80,9 @@ h2, .h2 {
     background-color: #ef6c00;
     height: 80px;
 }
+.nav-title.nav-link {
+    font-size: 12px;
+}
 
 body {
     font-family: 'TH Sarabun', sans-serif !important;

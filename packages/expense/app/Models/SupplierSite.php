@@ -4,8 +4,8 @@ namespace Packages\expense\app\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class GLBudgetReservations extends Model
+class SupplierSite extends Model
 {
-    protected $table = 'oaggl_budget_reservations';
+    protected $table = 'oagap_supplier_site_v';
     protected $connection = 'oracle';
 }

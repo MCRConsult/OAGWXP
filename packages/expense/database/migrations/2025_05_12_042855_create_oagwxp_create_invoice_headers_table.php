@@ -40,6 +40,7 @@ return new class extends Migration
             $table->string('note')->nullable();
             $table->string('requester');
             $table->string('status');
+            $table->string('error_message', 4000)->nullable();
             $table->integer('created_by');
             $table->integer('updated_by')->nullable();
             $table->integer('creation_by')->nullable();

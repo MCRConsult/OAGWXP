@@ -1,8 +1,8 @@
 @extends('layouts.app')
 @section('title', 'เอกสารส่งเบิก')
 @section('breadcrumb')
-    <li class="breadcrumb-item">
-        <a href="{{ route('expense.requisition.index') }}"><strong> เอกสารส่งเบิก </strong></a>
+    <li class="breadcrumb-item active">
+        <strong> เอกสารส่งเบิก </strong>
     </li>
     <div class="col-md-10" style="padding-right: 0px;">
         <div class="text-right m-t-lg" style="padding-right: 0px;">
@@ -48,7 +48,7 @@
     <div class="card-body">
         <div class="ibox float-e-margins">
             <div class="table-responsive" style="max-height: 600px;">
-                <table class="table text-nowrap table-hover" style="position: sticky;">
+                <table class="table text-nowrap table-hover" style="position: sticky; font-size: 14px;">
                     <thead>
                         <tr>
                             <th class="text-center sticky-col">
@@ -96,21 +96,30 @@
                                     {{ $requisition->description }}
                                 </td>
                                 <td class="text-center text-nowrap" style="vertical-align: middle;">
-                                    {{ number_format($requisition->lines->sum('amount'), 2) }}
+                                    {{ number_format($requisition->total_amount, 2) }}
                                 </td>
                                 <td class="text-center text-nowrap" style="vertical-align: middle;">
                                     {!! $requisition->getStatusIcon() !!}
                                 </td>
                                 <td class="text-center text-nowrap" style="vertical-align: middle;">
                                     <div style="border-collapse: collapse; width: 150px; display:inline-block; flex-direction: row;">
-                                        <a class="btn btn-sm btn-light active mr-1"
-                                            href="{{ route('expense.requisition.show', $requisition->id) }}">
-                                            ตรวจสอบ
-                                        </a>
-                                        @if ($requisition->invoice_type == 'PREPAYMENT')
-                                            <a class="btn btn-sm btn-danger active"
+                                        @if ($requisition->status == 'COMPLETED' && is_null($requisition->clear_reference_id))
+                                            @if ($requisition->invoice_type == 'PREPAYMENT')
+                                                <a class="btn btn-sm btn-danger active mr-1"
+                                                    href="{{ route('expense.requisition.clear', $requisition->id) }}">
+                                                    เคลียร์เงินยืม
+                                                </a>
+                                            @endif
+                                        @endif
+                                        @if ($requisition->status == 'HOLD')
+                                            <a class="btn btn-sm btn-light active mr-1"
+                                                href="{{ route('expense.requisition.hold', $requisition->id) }}">
+                                                ตรวจสอบ
+                                            </a>
+                                        @else
+                                            <a class="btn btn-sm btn-light active mr-1"
                                                 href="{{ route('expense.requisition.show', $requisition->id) }}">
-                                                เคลียร์เงินยืม
+                                                ตรวจสอบ
                                             </a>
                                         @endif
                                     </div>
@@ -120,14 +129,13 @@
                     </tbody>
                 </table>
             </div>
-
-            <div class="row">
-                <div class="col-12">
-                    <div class="pull-right">
-                        @if (count($requisitions) > 0)
-                            {{ $requisitions->links() }}
-                        @endif
-                    </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="pull-right">
+                    @if (count($requisitions) > 0)
+                        {{ $requisitions->links() }}
+                    @endif
                 </div>
             </div>
         </div>

@@ -91,7 +91,7 @@
                                     <label class="control-label">
                                         <strong> รายการบัญชี </strong>
                                     </label><br>
-                                    <el-input name="expense_account" placeholder="" v-model="line.expense_account" @click="accounrCollp == !accounrCollp"
+                                    <el-input name="expense_account" placeholder="" v-model="temp.expense_account" @click="accounrCollp == !accounrCollp"
                                         size="default" style="width: 100%" readonly data-toggle="collapse" href="#expense_account_collp"
                                     > </el-input>
                                 </div>
@@ -515,16 +515,16 @@
     </div>
 </template>
 <script>
-    import supplier         from "../lov/Supplier.vue";
-    import supplierBank     from "../lov/SupplierBank.vue";
-    import vehicleOilType   from "../lov/vehicleOilType.vue";
-    import utilityType      from "../lov/UtilityType.vue";
-    import utilityDetail    from "../lov/UtilityDetail.vue";
-    import budgetPlan       from "../lov/BudgetPlan.vue";
-    import budgetType       from "../lov/BudgetType.vue";
-    import expenseType      from "../lov/ExpenseType.vue";
-    import remainingReceipt from "../lov/RemainingReceipt.vue";
-    import coaComponent     from './InputCOAComponent.vue';
+    import supplier         from "../../lov/Supplier.vue";
+    import supplierBank     from "../../lov/SupplierBank.vue";
+    import vehicleOilType   from "../../lov/vehicleOilType.vue";
+    import utilityType      from "../../lov/UtilityType.vue";
+    import utilityDetail    from "../../lov/UtilityDetail.vue";
+    import budgetPlan       from "../../lov/BudgetPlan.vue";
+    import budgetType       from "../../lov/BudgetType.vue";
+    import expenseType      from "../../lov/ExpenseType.vue";
+    import remainingReceipt from "../../lov/RemainingReceipt.vue";
+    import coaComponent     from '../InputCOAComponent.vue';
 
     export default {
         components: {
@@ -636,7 +636,7 @@
                 $(form).find("div[id='_el_explode_acc_12']").html("");
                 $(form).find("div[id='_el_explode_acc_13']").html("");
                 
-                if ((vm.line.supplier_id == '' || vm.line.supplier_id == undefined) && vm.requisition.multiple_supplier == 'MORE') {
+                if ((vm.line.supplier == '' || vm.line.supplier == undefined) && vm.requisition.multiple_supplier == 'MORE') {
                     vm.errors.supplier_detail = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกผู้สั่งจ่าย";

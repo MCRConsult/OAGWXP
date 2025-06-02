@@ -20,12 +20,19 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 // import ElNotification from 'element-plus';
 
 // COMPONENT
+// REQUISITION
 import SearchRequisitionComponent from '/packages/expense/resources/js/components/requisition/SearchComponent.vue';
 import CreateRequisitionComponent from '/packages/expense/resources/js/components/requisition/CreateComponent.vue';
+// HOLD REQUISITION
+import HoldRequisitionComponent from '/packages/expense/resources/js/components/requisition/hold/HoldComponent.vue';
+// CLEAR REQUISITION
+import ClearRequisitionComponent from '/packages/expense/resources/js/components/requisition/clear/ClearComponent.vue';
 
+// INVOICE
 import SearchInvoiceComponent from '/packages/expense/resources/js/components/invoice/SearchComponent.vue';
 import CreateInvoiceComponent from '/packages/expense/resources/js/components/invoice/CreateComponent.vue';
 import EditInvoiceComponent from '/packages/expense/resources/js/components/invoice/EditComponent.vue';
+import InterfaceInvoiceComponent from '/packages/expense/resources/js/components/invoice/interface-log/SearchComponent.vue';
 
 import ReportComponent from '/packages/expense/resources/js/components/report/ReportComponent.vue';
 
@@ -39,10 +46,13 @@ app.use(ElementPlus);
 app.component("vue-numeric", VueNumeric)
 app.component('requisition-search-component', SearchRequisitionComponent);
 app.component('requisition-create-component', CreateRequisitionComponent);
+app.component('requisition-hold-component', HoldRequisitionComponent);
+app.component('clear-requisition-component', ClearRequisitionComponent);
 
 app.component('invoice-search-component', SearchInvoiceComponent);
 app.component('invoice-create-component', CreateInvoiceComponent);
 app.component('invoice-edit-component', EditInvoiceComponent);
+app.component('invoice-interface-component', InterfaceInvoiceComponent);
 
 app.component('report-component', ReportComponent);
 

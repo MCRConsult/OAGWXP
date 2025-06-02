@@ -123,13 +123,13 @@
                                         <el-input v-model="line.receipt_number" style="width: 100%;" placeholder=""/>
                                     </div>
                                 </div>
-                                <div v-if="line.remaining_receipt_flag" class="col-md-3">
+                                <div v-if="line.remaining_receipt_flag == 'Y'" class="col-md-3">
                                     <div class="form-group" style="padding: 5px;">
                                         <label class="control-label">
                                             <strong> เลขที่ใบเสร็จรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
                                         </label><br>
                                         <remainingReceipt
-                                            :setData="line.remaining_receipt"
+                                            :setData="line.remaining_receipt_id"
                                             :editFlag="true"
                                             :error="error.remaining_receipt"
                                             @setRemainingReceipt="setRemainingReceipt"
@@ -214,7 +214,7 @@
                 this.line.utility_detail = res.utility_detail;
             },
             setRemainingReceipt(res){
-                this.line.remaining_receipt = res.remaining_receipt;
+                this.line.remaining_receipt_id = res.remaining_receipt;
             },
         }
     };

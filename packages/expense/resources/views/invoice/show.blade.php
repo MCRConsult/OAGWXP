@@ -1,8 +1,11 @@
 @extends('layouts.app')
 @section('title', 'เอกสารส่งเบิก')
 @section('breadcrumb')
-    <li class="breadcrumb-item">
-        <a href="{{ route('expense.invoice.index') }}"><strong> ตรวจสอบเอกสารขอเบิก </strong></a>
+<li class="breadcrumb-item">
+        <a href="{{ route('expense.invoice.index') }}"><strong> เอกสารขอเบิก </strong></a>
+    </li>
+    <li class="breadcrumb-item active">
+        <strong> ตรวจสอบเอกสารขอเบิก </strong>
     </li>
 @endsection
 

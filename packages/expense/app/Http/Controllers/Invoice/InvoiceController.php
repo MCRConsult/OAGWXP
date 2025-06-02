@@ -23,13 +23,14 @@ use Packages\expense\app\Models\Currency;
 use Packages\expense\app\Models\FlaxValueV;
 use Packages\expense\app\Models\COAListV;
 
+use Packages\expense\app\Repositories\InvoiceInfRepo;
+
 class InvoiceController extends Controller
 {
     public function index()
     {
         $invoices = InvoiceHeader::search(request()->all())
-                                    ->orderBy('invoice_date', 'desc')
-                                    ->orderBy('voucher_number', 'desc')
+                                    ->orderByRaw('invoice_date desc, voucher_number desc')
                                     ->paginate(25);
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
         $statuses = ['NEW'          => 'รอเบิกจ่าย'
@@ -43,6 +44,46 @@ class InvoiceController extends Controller
     {
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
         return view('expense::invoice.create', compact('invoiceTypes'));
+    }
+
+    // UPDATE STATUS REQUISITION
+    public function setStatus(Request $request, $reqId)
+    {
+        try {
+            $user = auth()->user();
+            $activity = $request->activity;
+            $reason = $request->reason;
+            $header = RequisitionHeader::findOrFail($reqId);
+            switch ($activity) {
+                case "HOLD_REQUISITION":
+                    $header->status         = 'HOLD';
+                    $header->hold_reason    = $reason;
+                    $header->updated_by     = $user->id;
+                    $header->updation_by    = $user->person_id;
+                    $header->save();
+                break;
+                case "CANCEL_REQUISITION":
+                    $header->status         = 'CANCELLED';
+                    $header->cancel_reason  = $reason;
+                    $header->updated_by     = $user->id;
+                    $header->updation_by    = $user->person_id;
+                    $header->save();
+                break; 
+            }
+            \DB::commit();
+            $data = [
+                'status' => 'SUCCESS',
+                'message' => '',
+            ];
+        } catch (\Exception $e) {
+            \DB::rollback();
+            \Log::error($e);
+            $data = [
+                'status' => 'ERROR',
+                'message' => $e->getMessage(),
+            ];
+        }
+        return response()->json($data);
     }
 
     public function groupInvoice(Request $request)
@@ -160,7 +201,7 @@ class InvoiceController extends Controller
                         $lineTemp->expense_type             = $line->expense_type;
                         $lineTemp->expense_description      = $line->expense_description;
                         $lineTemp->expense_account          = $line->expense_account;
-                        $lineTemp->amount                   = $line->amount;
+                        $lineTemp->amount                   = $header->clear_flag == 'Y'? $line->actual_amount: $line->amount;
                         $lineTemp->description              = $line->description;
                         $lineTemp->vehicle_number           = $line->vehicle_number;
                         $lineTemp->policy_number            = $line->policy_number;
@@ -296,15 +337,10 @@ class InvoiceController extends Controller
                 $lineTemp->wht_amount               = $line['wht_amount'];
                 $lineTemp->save();
             }
-
-            if($request->activity == 'INTERFACE'){
-                InvoiceHeader::where('id', $invoiceId)
-                            ->update([
-                                'status' => 'INTERFACED'
-                            ]);
-            }
-
             \DB::commit();
+            // if($request->activity == 'INTERFACE'){
+            //     
+            // }            
             $data = [
                 'status' => 'SUCCESS',
                 'message' => ''
@@ -363,5 +399,19 @@ class InvoiceController extends Controller
             ];
         }
         return response()->json($data);
+    }
+
+    public function interface($invoiceId)
+    {
+        $invoice = InvoiceHeader::findOrFail($invoiceId);
+        $result = (new InvoiceInfRepo)->insertInterface($invoice);
+        if ($result['status'] == 'C') {
+            $invoice->status        = 'INTERFACED';
+            $invoice->save();
+        }else{
+            $invoice->status        = 'ERROR';
+            $invoice->error_message = $result['message'];
+            $invoice->save();
+        }
     }
 }

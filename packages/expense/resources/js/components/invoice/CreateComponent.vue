@@ -86,7 +86,7 @@
                                 name="selectAll"
                                 @change="toggleSelectAll"
                                 border
-                                size="medium"
+                                size="default"
                                 style="margin: 1rem;" 
                             > </el-checkbox>
                         </div>
@@ -151,17 +151,35 @@
                                             </div>
                                             <div class="col-md-2 text-center mt-4">
                                                 <div>
-                                                    <button class="btn btn-block btn-sm btn-warning m-1"> รอตรวจสอบ </button>
+                                                    <!-- <button type="button" class="btn btn-block btn-sm btn-warning m-1"
+                                                        @click.prevate="setStatus(header.id, 'HOLD_REQUISITION')">
+                                                        รอตรวจสอบ
+                                                    </button> -->
+                                                    <modalHoldComp
+                                                        :header="header"
+                                                        :index="index"
+                                                        @updateActionReq="updateActionReq"
+                                                    />
                                                 </div>
                                                 <div>
-                                                    <button class="btn btn-block btn-sm btn-danger m-1"> ยกเลิก </button>
+                                                    <!-- <button type="button" class="btn btn-block btn-sm btn-danger m-1"
+                                                        @click.prevate="setStatus(header.id, 'CANCEL_REQUISITION')">
+                                                        ยกเลิก
+                                                    </button> -->
+                                                    <modalCancelComp
+                                                        :header="header"
+                                                        :index="index"
+                                                        @updateActionReq="updateActionReq"
+                                                    />
                                                 </div>
                                                 <div>
                                                     <!-- RE-INTERFACE -->
-                                                    <button v-if="header.status == 'PENDING'"
-                                                        class="btn btn-block btn-sm btn-primary m-1"
-                                                    > ส่งเบิก </button>
+                                                    <button v-if="header.status == 'PENDING'" class="btn btn-block btn-sm btn-primary m-1">
+                                                        ส่งเบิก
+                                                    </button>
                                                 </div>
+
+
                                             </div>
                                         </div>
                                     </div>
@@ -196,10 +214,12 @@
     import numeral from "numeral";
     import Swal from 'sweetalert2';
     import lovRequisition from "./lov/Requisition.vue";
+    import modalHoldComp from "./_ModalHoldComponent.vue";
+    import modalCancelComp from "./_ModalCancelComponent.vue";
 
     export default {
         components: {
-            lovRequisition
+            lovRequisition, modalHoldComp, modalCancelComp
         },
         props: ['invoiceTypes'],
         data() {
@@ -475,6 +495,9 @@
                     }
                 });
             },
+            updateActionReq(){
+                this.getRequisition();
+            }
         },
     }
 </script>

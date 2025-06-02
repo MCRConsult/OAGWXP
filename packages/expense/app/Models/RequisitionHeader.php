@@ -13,7 +13,8 @@ class RequisitionHeader extends Model
     protected $table = 'oagwxp_requisition_headers';
     protected $connection = 'oracle_oagwxp';
     protected $dates = ['req_date', 'clear_date'];
-    protected $appends = ['status_icon', 'req_date_format'];
+    protected $appends = ['status_icon', 'status_text', 'req_date_format'];
+    public $timestamps = true;
 
     public function user()
     {
@@ -22,12 +23,12 @@ class RequisitionHeader extends Model
 
     public function lines()
     {
-        return $this->hasMany(RequisitionLine::class, 'req_header_id');
+        return $this->hasMany(RequisitionLine::class, 'req_header_id', 'id');
     }
 
-    public function invoices()
+    public function invoice()
     {
-        return $this->hasMany(InvoiceHeader::class, 'id', 'invoice_reference_id');
+        return $this->hasOne(InvoiceHeader::class, 'id', 'invoice_reference_id');
     }
 
     public function invoiceType()
@@ -81,9 +82,38 @@ class RequisitionHeader extends Model
         return false;
     }
 
+    public function getStatusTextAttribute()
+    {
+        return $this->getStatusText($this->status);
+    }
+
     public function getStatusIconAttribute()
     {
         return $this->getStatusIcon($this->status);
+    }
+
+    function getStatusText()
+    {
+        $status = $this->status;
+        $result = "";
+        switch ($status) {
+            case "COMPLETED":
+                $result = "รอเบิกจ่าย";
+                break;
+            case "PENDING":
+                $result = "รอจัดสรร";
+                break;
+            case "HOLD":
+                $result = "รอตรวจสอบ";
+                break;
+            case "CANCELLED":
+                $result = "ยกเลิก";
+                break;
+            default:
+                $result = "รายการใหม่";
+                break;
+        }
+        return $result;
     }
 
     function getStatusIcon()
@@ -133,10 +163,10 @@ class RequisitionHeader extends Model
         return $q;
     }
 
-    public function checkBudget($user, $headerTemp, $line)
+    public function checkBudget($headerTemp, $lineTemp, $user)
     {
         $date = date('d-m-Y', strtotime($headerTemp->req_date));
-        $expenseAccount = $line['expense_account'];
+        $expenseAccount = $lineTemp->expense_account;
         $budget = \DB::connection('oracle')->table('DUAL')
                     ->selectRaw("oaggl_process.find_budget( p_org_id => {$user->org_id}
                                     , p_concatenated_segments   => '{$expenseAccount}'

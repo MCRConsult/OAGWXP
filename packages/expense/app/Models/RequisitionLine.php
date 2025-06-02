@@ -10,6 +10,11 @@ class RequisitionLine extends Model
     protected $table = 'oagwxp_requisition_lines';
     protected $connection = 'oracle_oagwxp';
 
+    public function header()
+    {
+        return $this->hasOne(RequisitionHeader::class, 'id', 'req_header_id');
+    }
+
     public function supplier()
     {
         return $this->hasOne(Supplier::class, 'vendor_id', 'supplier_id');
@@ -25,7 +30,7 @@ class RequisitionLine extends Model
         return $this->hasOne(MTLCategoriesV::class, 'category_concat_segs', 'budget_type');
     }
 
-    public function expenseType()
+    public function expense()
     {
         return $this->hasOne(MTLCategoriesV::class, 'category_concat_segs', 'expense_type');
     }
@@ -43,5 +48,5 @@ class RequisitionLine extends Model
     public function utilityDetail()
     {
         return $this->hasOne(FlexValueV::class, 'flex_value', 'utility_detail')->where('flex_value_set_name', 'OAG_AP_BUILDING/CODE/DAD');
-    }
+    }   
 }

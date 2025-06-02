@@ -1,8 +1,8 @@
 @extends('layouts.app')
 @section('title', 'เอกสารขอเบิก')
 @section('breadcrumb')
-    <li class="breadcrumb-item">
-        <a href="{{ route('expense.requisition.index') }}"><strong> เอกสารขอเบิก </strong></a>
+    <li class="breadcrumb-item active">
+        <strong> เอกสารขอเบิก </strong>
     </li>
     <div class="col-md-10" style="padding-right: 0px;">
         <div class="text-right m-t-lg" style="padding-right: 0px;">
@@ -47,7 +47,7 @@
     <div class="card-body">
         <div class="ibox float-e-margins">
             <div class="table-responsive" style="max-height: 600px;">
-                <table class="table text-nowrap table-hover" style="position: sticky;">
+                <table class="table text-nowrap table-hover" style="position: sticky; font-size: 14px;">
                     <thead>
                         <tr>
                             <th class="text-center sticky-col">

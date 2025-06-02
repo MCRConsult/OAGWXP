@@ -15,6 +15,9 @@
         </td>
         <td style="padding-top: 5px">
             <div class="row text-center" style="border-collapse: collapse; width: 150px; display:inline-block; flex-direction: row;">
+                <!-- <button type="button" class="btn btn-sm btn-warning m-1" data-toggle="collapse" @click.prevent="openModal(index)">
+                    แก้ไข
+                </button> -->
                 <modalEditComp :key="index"
                     :index="index"
                     :requisition="requisition"

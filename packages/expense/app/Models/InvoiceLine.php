@@ -15,6 +15,11 @@ class InvoiceLine extends Model
         return $this->hasOne(InvoiceHeader::class, 'id', 'invoice_header_id');
     }
 
+    public function requisitionLine()
+    {
+        return $this->hasOne(RequisitionLine::class, 'invl_reference_id', 'id');
+    }
+
     public function supplier()
     {
         return $this->hasOne(Supplier::class, 'vendor_id', 'supplier_id');

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 use App\Models\User;
+use App\Models\OrganizationV;
 
 class InvoiceHeader extends Model
 {
@@ -17,6 +18,11 @@ class InvoiceHeader extends Model
     public function user()
     {
         return $this->hasOne(User::class, 'id', 'created_by');
+    }
+
+    public function organizationV()
+    {
+        return $this->hasOne(OrganizationV::class, 'organization_id', 'org_id');
     }
 
     public function lines()
@@ -37,6 +43,11 @@ class InvoiceHeader extends Model
     public function supplier()
     {
         return $this->hasOne(Supplier::class, 'vendor_id', 'supplier_id');
+    }
+
+    public function supplierSite()
+    {
+        return $this->hasOne(SupplierSite::class, 'vendor_id', 'supplier_id');
     }
 
     public function paymentMethod()
@@ -165,5 +176,30 @@ class InvoiceHeader extends Model
             }
         }
         return $q;
+    }
+
+    public function interfaceAP($batch)
+    {
+        $db = \DB::connection('oracle')->getPdo();
+        $sql = "
+            declare
+                v_status                    varchar2(20);
+                v_error                     varchar2(2000);
+                begin
+                    oaggl_process.reserve_budget(p_batch      => '{$batch}'
+                                                , p_status    => :v_status
+                                                , p_error     => :v_error
+                                            );
+                end;
+        ";
+
+        logger($sql);
+        $stmt = $db->prepare($sql);
+        $result = [];
+        $stmt->bindParam(':v_status', $result['status'], \PDO::PARAM_STR, 20);
+        $stmt->bindParam(':v_error', $result['error_msg'], \PDO::PARAM_STR, 2000);
+        $stmt->execute();
+
+        return $result;
     }
 }

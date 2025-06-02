@@ -1,10 +1,10 @@
 @extends('layouts.app')
 @section('breadcrumb')
     <li class="breadcrumb-item">
-        <a href="{{ route('expense.invoice.index') }}"><strong> เอกสารขอเบิก </strong></a>
+        <a href="{{ route('expense.requisition.index') }}"><strong> เอกสารส่งเบิก </strong></a>
     </li>
     <li class="breadcrumb-item active">
-        <strong> รายการเอกสารขอเบิก </strong>
+        <strong> รายการเอกสารส่งเบิก </strong>
     </li>
 @endsection
 @section('content')
@@ -13,17 +13,17 @@
         <div class="row">
             <div class="col-md-6">
                 <span class="d-inline">
-                <h5> <strong> เอกสารขอเบิก </strong> </h5>
+                <h5> <strong> เอกสารส่งเบิก </strong> </h5>
             </div>
         </div>
     </div>
 
     <div class="card-body">
-        <invoice-edit-component
-            :invoice="{{ json_encode($invoice) }}"
+        <requisition-hold-component
+            :requisition="{{ json_encode($requisition) }}"
             :invoice-types="{{ json_encode($invoiceTypes) }}"
             :default-set-name="{{ json_encode($defaultSetName) }}"
-        ></invoice-edit-component>
+        ></requisition-hold-component>
     </div>
 </div>
 @endsection
