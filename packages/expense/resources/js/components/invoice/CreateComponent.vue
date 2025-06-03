@@ -118,7 +118,7 @@
                                                 <hr style="margin: 10px;">
                                                 <div class="row" v-if="header.source_type == 'REQUISITION'">
                                                     <span class="col-md-3 text-right text-sm text-grey-dark"> ผู้รับผิดชอบ :</span>
-                                                    {{ header.user.hr_employee.last_name }}
+                                                    {{ header.user.hr_employee.full_name }}
                                                 </div>
                                                 <div class="row">
                                                     <span class="col-md-3 text-right text-sm text-grey-dark"> ประเภทการขอเบิก :</span>
@@ -250,7 +250,6 @@
                     invoice_type: '',
                     req_date: '',
                 },
-                loading: '',
                 loading: false,
                 currPage: 1,
                 paginate: {

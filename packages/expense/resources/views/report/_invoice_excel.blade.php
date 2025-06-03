@@ -71,7 +71,7 @@
                     <td style="border: 1px solid #000000; text-align: center;"> {{ $invoice->supplier_name }} </td>
                     <td style="border: 1px solid #000000; text-align: center;"> {{ $invoice->description }} </td>
                     <td style="border: 1px solid #000000; text-align: center;"> {{ number_format($invoice->amount, 2) }} </td>
-                    <td style="border: 1px solid #000000; text-align: center;"> {{ $invoice->user->hrEmployee->last_name }} </td>
+                    <td style="border: 1px solid #000000; text-align: center;"> {{ $invoice->user->hrEmployee->full_name }} </td>
                     <td style="border: 1px solid #000000; text-align: center;"> {{ $invoice->voucher_number }} </td>
                     <td style="border: 1px solid #000000; text-align: center;"> {{ $invoice->gfmis_document_number }} </td>
                     <td style="border: 1px solid #000000; text-align: center;"> {{ $invoice->note }} </td>

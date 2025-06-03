@@ -1,8 +1,8 @@
 @extends('layouts.app')
-@section('title', 'ประวัติการอินเตอร์เฟซ')
+@section('title', 'ผู้ใช้งาน')
 @section('breadcrumb')
     <li class="breadcrumb-item active">
-        <strong> ประวัติการอินเตอร์เฟซ </strong>
+        <strong> ผู้ใช้งาน </strong>
     </li>
 @endsection
 
@@ -12,20 +12,20 @@
             <div class="row col-12" style="padding-right: 0px;">
                 <div class="col-md-6">
                     <span class="d-inline">
-                        <h5> <strong> ประวัติการอินเตอร์เฟซ </strong> </h5>
+                        <h5> <strong> ผู้ใช้งาน </strong> </h5>
                     </span>
                 </div>
             </div>
         </div>
         <div class="card-body">
             <div class="ibox float-e-margins">
-                <invoice-interface-component
-                    p-form-url      = "{{ route('expense.invoice.interface-log') }}"
-                    :p-search       = "{{ json_encode(request()->all()) }}"
-                    :p-statuses     = "{{ json_encode($statuses) }}"
+                <user-component
+                    p-form-url  = "{{ route('expense.settings.user.index') }}"
+                    :p-search   = "{{ json_encode(request()->all()) }}"
+                    :p-statuses = "{{ json_encode($statuses) }}"
                     {{-- DATA --}}
-                    :p-interfaces   = "{{ json_encode($interfaces) }}"
-                ></invoice-interface-component>
+                    :p-users    = "{{ json_encode($users) }}"
+                ></user-component>
             </div>
         </div>
     </div>

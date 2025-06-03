@@ -21,7 +21,7 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 // COMPONENT
 // REQUISITION
-import SearchRequisitionComponent from '/packages/expense/resources/js/components/requisition/SearchComponent.vue';
+import RequisitionComponent from '/packages/expense/resources/js/components/requisition/IndexComponent.vue';
 import CreateRequisitionComponent from '/packages/expense/resources/js/components/requisition/CreateComponent.vue';
 // HOLD REQUISITION
 import HoldRequisitionComponent from '/packages/expense/resources/js/components/requisition/hold/HoldComponent.vue';
@@ -29,10 +29,13 @@ import HoldRequisitionComponent from '/packages/expense/resources/js/components/
 import ClearRequisitionComponent from '/packages/expense/resources/js/components/requisition/clear/ClearComponent.vue';
 
 // INVOICE
-import SearchInvoiceComponent from '/packages/expense/resources/js/components/invoice/SearchComponent.vue';
+import InvoiceComponent from '/packages/expense/resources/js/components/invoice/IndexComponent.vue';
 import CreateInvoiceComponent from '/packages/expense/resources/js/components/invoice/CreateComponent.vue';
 import EditInvoiceComponent from '/packages/expense/resources/js/components/invoice/EditComponent.vue';
-import InterfaceInvoiceComponent from '/packages/expense/resources/js/components/invoice/interface-log/SearchComponent.vue';
+import InterfaceInvoiceComponent from '/packages/expense/resources/js/components/invoice/interface-log/IndexComponent.vue';
+
+import UserComponent from '/packages/expense/resources/js/components/settings/user/indexComponent.vue';
+import ShowUserComponent from '/packages/expense/resources/js/components/settings/user/ShowComponent.vue';
 
 import ReportComponent from '/packages/expense/resources/js/components/report/ReportComponent.vue';
 
@@ -44,17 +47,20 @@ app.use(ElementPlus);
 
 // the registered name
 app.component("vue-numeric", VueNumeric)
-app.component('requisition-search-component', SearchRequisitionComponent);
+app.component('requisition-component', RequisitionComponent);
 app.component('requisition-create-component', CreateRequisitionComponent);
 app.component('requisition-hold-component', HoldRequisitionComponent);
 app.component('clear-requisition-component', ClearRequisitionComponent);
 
-app.component('invoice-search-component', SearchInvoiceComponent);
+app.component('invoice-component', InvoiceComponent);
 app.component('invoice-create-component', CreateInvoiceComponent);
 app.component('invoice-edit-component', EditInvoiceComponent);
 app.component('invoice-interface-component', InterfaceInvoiceComponent);
 
 app.component('report-component', ReportComponent);
+
+app.component('user-component', UserComponent);
+app.component('user-show-component', ShowUserComponent);
 
 // ## Register Component is here
 app.mount("#app");

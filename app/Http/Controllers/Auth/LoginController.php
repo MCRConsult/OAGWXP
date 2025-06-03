@@ -48,7 +48,7 @@ class LoginController extends Controller
         }
 
         if (is_null($user)) {
-            return redirect()->route('login')->withErrors('login failed, these credentials do not match')->withInput();
+            return redirect()->route('login')->withErrors('ไม่สามารถเข้าสู่ระบบได้ เนื่องจากข้อมูลผู้ใช้งานไม่ถูกต้อง กรุณาติดต่อผู้ดูแลระบบ')->withInput();
         }
 
         if (!$syncProcess) {
@@ -58,11 +58,11 @@ class LoginController extends Controller
         $user->refresh();
 
         if (!$user->is_active || is_null($user->is_active)) {
-            return redirect()->route('login')->withErrors("{$user->name} : status inactive")->withInput();
+            return redirect()->route('login')->withErrors("{$user->name} : สถานะผู้ใช้งาน ไม่พร้อมใช้งาน กรุณาติดต่อผู้ดูแลระบบ")->withInput();
         }
 
         if (is_null($fndUser = $user->fndUser)) {
-            return redirect()->route('login')->withErrors('User Oracle : these credentials do not match')->withInput();
+            return redirect()->route('login')->withErrors('ไม่สามารถเข้าสู่ระบบได้ เนื่องจากข้อมูลผู้ใช้งานไม่ถูกต้อง กรุณาติดต่อผู้ดูแลระบบ')->withInput();
         }
 
         $login  = \DB::connection('oracle')->table('DUAL')
@@ -85,7 +85,7 @@ class LoginController extends Controller
             $this->setSession();
             return redirect('/');
         } else {
-            return redirect()->route('login')->withErrors('login failed Oracle : these credentials do not match')->withInput();
+            return redirect()->route('login')->withErrors('ไม่สามารถเข้าสู่ระบบได้ เนื่องจากข้อมูลผู้ใช้งานไม่ถูกต้อง กรุณาติดต่อผู้ดูแลระบบ')->withInput();
             if (\Auth::attempt(['name' => $username, 'password' => $password])) {
                 return redirect('/');
             }

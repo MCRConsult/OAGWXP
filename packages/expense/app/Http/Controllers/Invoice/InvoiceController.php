@@ -30,6 +30,7 @@ class InvoiceController extends Controller
     public function index()
     {
         $invoices = InvoiceHeader::search(request()->all())
+                                    ->with(['user.hrEmployee', 'supplier'])
                                     ->orderByRaw('invoice_date desc, voucher_number desc')
                                     ->paginate(25);
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();

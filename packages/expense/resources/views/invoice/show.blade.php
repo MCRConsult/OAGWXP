@@ -37,7 +37,7 @@
                             <label class="control-label">
                                 <strong> ผู้รับผิดชอบ </strong>
                             </label><br>
-                            {{ $invoice->user->hrEmployee->last_name }}
+                            {{ $invoice->user->hrEmployee->full_name }}
                         </div>
                     </div>
                     <div class="col-md-3">

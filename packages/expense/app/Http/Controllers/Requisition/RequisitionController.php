@@ -35,6 +35,7 @@ class RequisitionController extends Controller
     {
         $search = request()->all();
         $requisitions = RequisitionHeader::search(request()->all())
+                                    ->with(['user.hrEmployee', 'invoiceType'])
                                     ->whereNotNull('req_number')
                                     ->orderBy('req_number', 'desc')
                                     ->paginate(25);
@@ -139,9 +140,9 @@ class RequisitionController extends Controller
         return response()->json($data);
     }
 
-    public function show($id)
+    public function show($reqId)
     {
-        $requisition = RequisitionHeader::findOrFail($id);
+        $requisition = RequisitionHeader::findOrFail($reqId);
         if ($requisition->clear_flag == 'Y') {
             return view('expense::requisition.clear.show', compact('requisition'));
         }
@@ -185,15 +186,13 @@ class RequisitionController extends Controller
                 $clearLines->save();
             }
             \DB::commit();
-
+            // GET DATA CLEAR REQUISITION
             $requisition = RequisitionHeader::where('id', $reqId)
                                         ->with(['invoice'])
                                         ->first();
-
             $clearReq = RequisitionHeader::where('id', $clearReq->id)
                                         ->with(['lines'])
                                         ->first();
-
         } catch (\Exception $e) {
             \DB::rollback();
             throw new \Exception($e->getMessage(), 1);
@@ -308,7 +307,6 @@ class RequisitionController extends Controller
             $headerTemp->creation_by                = $user->person_id;
             $headerTemp->updation_by                = $user->person_id;
             $headerTemp->save();
-
             \DB::commit();
             $data = [
                 'status' => 'SUCCESS',

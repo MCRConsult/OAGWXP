@@ -5,11 +5,12 @@ namespace Packages\expense\app\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 use Packages\expense\app\Models\RequisitionHeader;
 use Packages\expense\app\Models\InvoiceHeader;
 use Packages\expense\app\Models\MappingAutoInvoiceV;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Packages\expense\app\Models\InvoiceInterfaceHeader;
 
 class InvoiceController extends Controller
 {
@@ -60,6 +61,53 @@ class InvoiceController extends Controller
         return response()->json(['data' => $vouchers]);
     }
 
+    public function fetchInvoiceRenderPage()
+    {
+       $invoices = InvoiceHeader::search(request()->all())
+                            ->with(['user.hrEmployee', 'supplier'])
+                            ->orderByRaw('invoice_date desc, voucher_number desc')
+                            ->get();
+        $perPage = 25;
+        $currPage = (int)request()->page;
+        $invoices = collect($invoices)->all();
+        $respInvoices = new LengthAwarePaginator(
+            array_slice($invoices, ($currPage - 1) * $perPage, $perPage),
+            count($invoices), 
+            $perPage,
+            $currPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        $data = [
+            'invoices' => $respInvoices
+        ];
+        return response()->json($data);
+    }
+
+    public function fetchInterfaceRenderPage()
+    {
+       $interfaces = InvoiceInterfaceHeader::search(request())
+                            ->with(['user.hrEmployee', 'supplier'])
+                            ->orderByRaw('invoice_date desc, voucher_number desc')
+                            ->get();
+        $perPage = 25;
+        $currPage = (int)request()->page;
+        $interfaces = collect($interfaces)->all();
+        $respInterfaces = new LengthAwarePaginator(
+            array_slice($interfaces, ($currPage - 1) * $perPage, $perPage),
+            count($interfaces), 
+            $perPage,
+            $currPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        $data = [
+            'interfaces' => $respInterfaces
+        ];
+        return response()->json($data);
+    }
+
+    // GROUP REQUISITION ============================================
     public function fetchRequisition(Request $request)
     {
         $requistion = [];
@@ -81,7 +129,6 @@ class InvoiceController extends Controller
         }
         $mergeReqs = collect($requistion)->merge($invMapping)->all();
         $perPage = 25;
-        // Create a LengthAwarePaginator instance
         $header = new LengthAwarePaginator(
             array_slice($mergeReqs, (1 - 1) * $perPage, $perPage), // Items for the current page
             count($mergeReqs), // Total items
@@ -118,7 +165,6 @@ class InvoiceController extends Controller
         $mergeReqs = collect($requistion)->merge($invMapping)->all();
         $perPage = 25;
         $currPage = $request->page;
-        // Create a LengthAwarePaginator instance
         $header = new LengthAwarePaginator(
             array_slice($mergeReqs, ($currPage - 1) * $perPage, $perPage),
             count($mergeReqs), 

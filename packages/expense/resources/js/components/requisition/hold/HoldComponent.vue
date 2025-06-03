@@ -128,7 +128,7 @@
                             <label class="control-label">
                                 <strong> ผู้รับผิดชอบ </strong>
                             </label><br>
-                            <el-input v-model="header.user.hr_employee.last_name" style="width: 100%;" disabled/>
+                            <el-input v-model="header.user.hr_employee.full_name" style="width: 100%;" disabled/>
                         </div>
                     </div>
                     <div class="col-md-3">

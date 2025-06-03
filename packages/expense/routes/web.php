@@ -27,16 +27,25 @@ Route::group(['middleware' => ['web', 'auth']], function () {
             Route::get('/get-expense-account', '\Packages\expense\app\Http\Controllers\Api\LovController@getExpenseAccount');
             
             Route::prefix('requisition')->namespace('Requisition')->name('requisition.')->group(function() {
+                Route::post('/fetch-render-page', '\Packages\expense\app\Http\Controllers\Api\RequisitionController@fetchRequisitionRenderPage');
                 Route::get('/get-requisition', '\Packages\expense\app\Http\Controllers\Api\RequisitionController@getRequisition');
                 Route::get('/get-document-category', '\Packages\expense\app\Http\Controllers\Api\RequisitionController@getDocumentCategory');
                 Route::post('/get-expense-account', '\Packages\expense\app\Http\Controllers\Api\AccountController@getExpenseAccount');
             });
 
             Route::prefix('invoice')->namespace('Invoice')->name('invoice.')->group(function() {
+                Route::post('/fetch-render-page', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@fetchInvoiceRenderPage');
                 Route::get('/get-requisition', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@getRequisition');
                 Route::get('/get-voucher', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@getVoucher');
+                // INTERFACE LOG
+                Route::post('/fetch-interface-render-page', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@fetchInterfaceRenderPage');
+                // GROUP REQUISITION
                 Route::get('/fetch-requisition', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@fetchRequisition');
                 Route::post('/index-render-page', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@fetchRequisitionRenderPage');
+            });
+
+            Route::prefix('settings')->namespace('Settings')->name('settings.')->group(function() {
+                Route::post('/users/fetch-render-page', '\Packages\expense\app\Http\Controllers\Api\UserController@fetchUserRenderPage');
             });
         });
 
@@ -50,7 +59,6 @@ Route::group(['middleware' => ['web', 'auth']], function () {
             Route::post('use-ar-receipt', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@useARReceipt');
             Route::post('update-ar-receipt', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@updateARReceipt');
             Route::post('remove-ar-receipt', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@removeARReceipt');
-
             // CLEAR REQUISITION
             Route::get('/{req_id}/clear', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@clear')->name('clear');
         });
@@ -71,6 +79,14 @@ Route::group(['middleware' => ['web', 'auth']], function () {
         Route::prefix('report')->namespace('Report')->name('report.')->group(function() {
             Route::get('/', '\Packages\expense\app\Http\Controllers\Report\ReportController@index')->name('index');
             Route::get('/export', '\Packages\expense\app\Http\Controllers\Report\ReportController@export')->name('export');
+        });
+
+        Route::prefix('settings')->namespace('Settings')->name('settings.')->group(function() {
+            Route::prefix('user')->namespace('User')->name('user.')->group(function() {
+                Route::get('/', '\Packages\expense\app\Http\Controllers\Settings\UserController@index')->name('index');
+                Route::get('/{user_id}', '\Packages\expense\app\Http\Controllers\Settings\UserController@show')->name('show');
+                Route::post('/{user_id}/update', '\Packages\expense\app\Http\Controllers\Settings\UserController@update')->name('update');
+            });
         });
     });
 

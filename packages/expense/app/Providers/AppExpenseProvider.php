@@ -26,7 +26,5 @@ class AppExpenseProvider extends ServiceProvider
 
         // Load routes
         $this->loadRoutesFrom(__DIR__.'/../../routes/web.php', 'expense');
-        $this->loadRoutesFrom(__DIR__.'/../../routes/api.php', 'expense-api');
-
     }
 }

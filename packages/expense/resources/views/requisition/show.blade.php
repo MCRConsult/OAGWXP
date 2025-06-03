@@ -119,7 +119,7 @@
                             <label class="control-label">
                                 <strong> ผู้รับผิดชอบ </strong>
                             </label><br>
-                            {{ $requisition->user->hrEmployee->last_name }}
+                            {{ $requisition->user->hrEmployee->full_name }}
                         </div>
                     </div>
                     <div class="col-md-3">

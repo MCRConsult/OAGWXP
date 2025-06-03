@@ -5,6 +5,7 @@ namespace Packages\expense\app\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 use Packages\expense\app\Models\RequisitionHeader;
 use Packages\expense\app\Models\LookupV;
@@ -40,5 +41,29 @@ class RequisitionController extends Controller
         // }
 
         return response()->json(['data' => $default]);
+    }
+
+    public function fetchRequisitionRenderPage()
+    {
+        $requisitions = RequisitionHeader::search(request()->all())
+                                    ->with(['user.hrEmployee', 'invoiceType'])
+                                    ->whereNotNull('req_number')
+                                    ->orderBy('req_number', 'desc')
+                                    ->get();
+        $perPage = 25;
+        $currPage = (int)request()->page;
+        $requisitions = collect($requisitions)->all();
+        $respReq = new LengthAwarePaginator(
+            array_slice($requisitions, ($currPage - 1) * $perPage, $perPage),
+            count($requisitions), 
+            $perPage,
+            $currPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        $data = [
+            'requisitions' => $respReq
+        ];
+        return response()->json($data);
     }
 }

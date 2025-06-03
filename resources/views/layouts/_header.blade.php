@@ -12,7 +12,7 @@
     </button>
     <ul class="nav navbar-nav ml-auto">
         <li class="nav-item px-3 text-white">
-            <strong> ชื่อผู้ใช้งาน : </strong> {{ auth()->user()->name }}: {{ auth()->user()->hrEmployee->last_name }}
+            <strong> ชื่อผู้ใช้งาน : </strong> {{ auth()->user()->name }}: {{ auth()->user()->hrEmployee->full_name }}
         </li>
         <li class="nav-item px-3 text-white">
             <strong> สถานที่ : </strong> {{ auth()->user()->location->location_code}}
