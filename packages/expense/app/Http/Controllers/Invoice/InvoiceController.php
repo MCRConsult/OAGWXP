@@ -383,7 +383,7 @@ class InvoiceController extends Controller
             $requistion = RequisitionHeader::where('invoice_reference_id', $invoiceId)->get()->pluck('id')->toArray();
             $requistionLine = RequisitionLine::whereIn('req_header_id', $requistion)
                                         ->update([
-                                            'invl_reference_id' => $lineTemp->id
+                                            'invl_reference_id' => null
                                         ]);
             \DB::commit();
             $data = [
