@@ -824,7 +824,7 @@
                 this.temp.expense_description = res.expense_description;
                 this.temp.description = res.expense_description;
                 // GET EXPENSE ACCOUNT WHEN CHOOSE EXPENSE_TYPE
-                if(this.temp.expense_type != ''){
+                if(this.temp.expense_type != this.line.expense_type){
                     this.getExpenseAccount();
                 }
             },
@@ -876,7 +876,7 @@
                 this.temp.expense_account = expenseAcc;
             },
             extractAccount(){
-                var coa = this.line.expense_account.split('.');
+                var coa = this.temp.expense_account.split('.');
                 this.segment1 = coa[0];
                 this.segment2 = coa[1];
                 this.segment3 = coa[2];
@@ -904,7 +904,7 @@
                             vm.temp.expense_account = '';
                         } else {
                             vm.temp.expense_account = res.data.expense_account;
-                            this.extractAccount();
+                            vm.extractAccount();
                         }
                     }.bind(vm))
                     .catch(err => {

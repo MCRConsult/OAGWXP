@@ -81,7 +81,7 @@ export default {
                             supplier_site = value.vendor_site_id;
                         }
                     });
-                    this.value = res.data.data[0].bank_account_num;
+                    this.value = res.data.data[0]?.bank_account_num;
                 }
                 this.$emit('setSupplierBank', {supplier_bank: this.value, supplier_site: supplier_site});
             })

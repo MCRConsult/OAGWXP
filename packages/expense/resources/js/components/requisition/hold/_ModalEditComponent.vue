@@ -568,6 +568,7 @@
         mounted() {
             this.line = this.reqLine;
             this.extractAccount();
+            this.copyDataForEdit();
         },
         watch: {
             errors: {
@@ -822,6 +823,11 @@
             setExpenseType(res){
                 this.temp.expense_type = res.expense_type;
                 this.temp.expense_description = res.expense_description;
+                this.temp.description = res.expense_description;
+                // GET EXPENSE ACCOUNT WHEN CHOOSE EXPENSE_TYPE
+                if(this.temp.expense_type != this.line.expense_type){
+                    this.getExpenseAccount();
+                }
             },
             setRemainingReceipt(res){
                 this.temp.remaining_receipt_id = res.remaining_receipt;
@@ -871,7 +877,7 @@
                 this.temp.expense_account = expenseAcc;
             },
             extractAccount(){
-                var coa = this.line.expense_account.split('.');
+                var coa = this.temp.expense_account.split('.');
                 this.segment1 = coa[0];
                 this.segment2 = coa[1];
                 this.segment3 = coa[2];
@@ -885,7 +891,40 @@
                 this.segment11 = coa[10];
                 this.segment12 = coa[11];
                 this.segment13 = coa[12];
-            }
+            },
+            async getExpenseAccount(){
+                var vm = this;
+                if(vm.temp.expense_type != ''){
+                    axios.post('/expense/api/requisition/get-expense-account', {
+                        header: vm.requisition,
+                        line: vm.temp,
+                    })
+                    .then(function (res) {
+                        vm.loading = false;
+                        if (res.data.message) {
+                            vm.temp.expense_account = '';
+                        } else {
+                            vm.temp.expense_account = res.data.expense_account;
+                            vm.extractAccount();
+                        }
+                    }.bind(vm))
+                    .catch(err => {
+                        let msg = err.response;
+                        Swal.fire({
+                            title: "มีข้อผิดพลาด",
+                            text: msg.message,
+                            icon: "error",
+                            showCancelButton: false,
+                            confirmButtonColor: "#3085d6",
+                            confirmButtonText: "ตกลง",
+                            allowOutsideClick: false
+                        });
+                    })
+                    .then(() => {
+                        vm.loading = false;
+                    });
+                }
+            },
         }
     };
 </script>
