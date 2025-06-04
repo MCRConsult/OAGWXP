@@ -46,7 +46,7 @@ class RequisitionController extends Controller
     public function fetchRequisitionRenderPage()
     {
         $requisitions = RequisitionHeader::search(request()->all())
-                                    ->with(['user.hrEmployee', 'invoiceType', 'clear'])
+                                    ->with(['user.hrEmployee', 'invoiceType', 'invoice', 'clear'])
                                     ->whereNotNull('req_number')
                                     ->orderBy('req_number', 'desc')
                                     ->get();

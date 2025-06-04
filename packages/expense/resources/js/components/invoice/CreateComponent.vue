@@ -105,16 +105,16 @@
                                                     @change="chooseReq(header)"
                                                     :disabled="header.status == 'ALLOCATE'"
                                                 />
-                                                <a :href="'/expense/requisition/'+header.id" target="_blank" style="color: black;">
-                                                    <h5 class="mb-1 d-inline">
-                                                        <template v-if="header.source_type == 'REQUISITION'">
+                                                <h5 class="mb-1 d-inline">
+                                                    <template v-if="header.source_type == 'REQUISITION'">
+                                                        <a :href="'/expense/requisition/'+header.id" target="_blank" style="color: black;">
                                                             {{ header.req_number }} {{ header.description? ' : '+header.description: '' }}
-                                                        </template>
-                                                        <template v-else>
-                                                            {{ header.req_number }}
-                                                        </template>
-                                                    </h5>
-                                                </a>
+                                                        </a>
+                                                    </template>
+                                                    <template v-else>
+                                                        {{ header.req_number }}
+                                                    </template>
+                                                </h5>
                                                 <hr style="margin: 10px;">
                                                 <div class="row" v-if="header.source_type == 'REQUISITION'">
                                                     <span class="col-md-3 text-right text-sm text-grey-dark"> ผู้รับผิดชอบ :</span>
