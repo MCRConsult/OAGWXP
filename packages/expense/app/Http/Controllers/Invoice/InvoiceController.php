@@ -173,6 +173,8 @@ class InvoiceController extends Controller
                     $budgetPlan = MTLCategoriesV::where('segment1', 'EXP')
                             ->where('category_concat_segs', $budgetType->attribute3)
                             ->first();
+                    // SET EXPENSE ACCOUNT
+                    $expAccount = (new MappingAutoInvoiceV)->mappingExpenseAccount($header, $requisition->expense_category);        
                     $lineTemp                               = new InvoiceLine;
                     $lineTemp->invoice_header_id            = $headerTemp->id;
                     $lineTemp->seq_number                   = $key+1;
@@ -184,7 +186,7 @@ class InvoiceController extends Controller
                     $lineTemp->budget_type                  = $budgetType->category_concat_segs;
                     $lineTemp->expense_type                 = $requisition->expense_category;
                     $lineTemp->expense_description          = $expeseType->description;
-                    $lineTemp->expense_account              = $requisition->expense_account;
+                    $lineTemp->expense_account              = $expAccount;
                     $lineTemp->amount                       = $requisition->amount;
                     $lineTemp->description                  = $requisition->description;
                     $lineTemp->reference_req_number         = $requisition->req_number;

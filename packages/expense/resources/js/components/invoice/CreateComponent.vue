@@ -8,12 +8,13 @@
                             <label class="control-label">
                                 <strong> ข้อมูลต้นทาง </strong>
                             </label><br>
-                            <el-select v-model="search.source_data" placeholder="" name="source_data">
+                            <el-select v-model="search.source_data" placeholder="" name="source_data" @change="changeSourchDT">
                                 <el-option
                                     v-for="source in sourceDatas"
                                     :key="source.value"
                                     :label="source.label"
-                                    :value="source.value">
+                                    :value="source.value"
+                                >
                                 </el-option>
                             </el-select>
                         </div>
@@ -305,6 +306,9 @@
                                     ? this.$refs[ref_name].$refs.wrapperRef.$refs.wrapperRef
                                     : this.$refs[ref_name].$refs.wrapperRef )));
                 ref.style = "";
+            },
+            changeSourchDT(){
+                this.search.req_number = '';
             },
             setRequisition(res) {
                 this.search.req_number = res.requisition;
