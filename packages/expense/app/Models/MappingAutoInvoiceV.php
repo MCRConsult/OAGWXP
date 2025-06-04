@@ -43,6 +43,24 @@ class MappingAutoInvoiceV extends Model
             });
     }
 
+    public function scopeSearch($q, $search)
+    {
+        $cols = ['req_number', 'invoice_type', 'status'];
+        foreach ($search as $key => $value) {
+            $value = trim($value);
+            if ($value) {
+                if (in_array($key, $cols)) {
+                    $q->where($key, 'like', "%$value%");
+                } else if ($key == 'req_date') {
+                    $date = date('Y-m-d', strtotime($value));
+                    $q->whereDate('req_date', $date);
+                }
+            }
+        }
+
+        return $q;
+    }
+
     function getStatusIcon($status)
     {
         $result = "";

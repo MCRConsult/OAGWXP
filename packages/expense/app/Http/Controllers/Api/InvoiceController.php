@@ -32,14 +32,15 @@ class InvoiceController extends Controller
                             ->get();
         }else{
             $requistion = MappingAutoInvoiceV::selectRaw('distinct req_number trans_number')
-                        ->when($keyword, function ($query, $keyword) {
-                            return $query->where(function($r) use ($keyword) {
-                                $r->whereRaw('UPPER(req_number) like ?', ['%'.strtoupper($keyword).'%']);
-                            });
-                        })
-                        ->orderBy('req_number')
-                        ->limit(25)
-                        ->get();
+                            ->doesntHave('invoiceLine')
+                            ->when($keyword, function ($query, $keyword) {
+                                return $query->where(function($r) use ($keyword) {
+                                    $r->whereRaw('UPPER(req_number) like ?', ['%'.strtoupper($keyword).'%']);
+                                });
+                            })
+                            ->orderBy('req_number')
+                            ->limit(25)
+                            ->get();
         }
 
         return response()->json(['data' => $requistion]);
@@ -121,6 +122,7 @@ class InvoiceController extends Controller
                                 ->get();
         }else{
             $invMapping = MappingAutoInvoiceV::selectRaw('distinct supplier_id, invoice_type, req_number, sum(amount) total_amount')
+                                ->search($request->search)
                                 ->doesntHave('invoiceLine')
                                 ->with(['invoiceType', 'supplier'])
                                 ->groupBy('invoice_type', 'req_number', 'supplier_id')
@@ -156,9 +158,10 @@ class InvoiceController extends Controller
                                 ->get();
         }else{
            $invMapping = MappingAutoInvoiceV::selectRaw('distinct supplier_id, invoice_type, req_number, sum(amount) total_amount')
+                                ->doesntHave('invoiceLine')
                                 ->with(['invoiceType', 'supplier'])
-                                ->orderBy('req_number')
                                 ->groupBy('invoice_type', 'req_number', 'supplier_id')
+                                ->orderBy('req_number')
                                 ->get();
         }
 
