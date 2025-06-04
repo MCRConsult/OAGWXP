@@ -146,8 +146,10 @@
                                         <td class="text-center text-nowrap" style="vertical-align: middle;">
                                             {{ invoice.supplier.vendor_name }}
                                         </td>
-                                        <td class="text-left text-nowrap" style="vertical-align: middle;">
-                                            {{ invoice.description }}
+                                        <td class="text-left" style="vertical-align: middle;">
+                                            <div class="truncate" style="border-collapse: collapse; width: 200px;" :title="invoice.description">
+                                                {{ invoice.description }}
+                                            </div>
                                         </td>
                                         <td class="text-center text-nowrap" style="vertical-align: middle;">
                                             {{ numberFormat(invoice.total_amount) }}
@@ -302,5 +304,10 @@ export default {
         -webkit-box-flex: 1;
         flex: 1 1 auto;
         padding: 1.25rem;
+    }
+    .truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 </style>

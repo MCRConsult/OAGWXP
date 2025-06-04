@@ -35,6 +35,7 @@ class InvoiceController extends Controller
                                     ->paginate(25);
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
         $statuses = ['NEW'          => 'รอเบิกจ่าย'
+                    , 'CONFIRM'     => 'ขอเบิก'
                     , 'INTERFACED'  => 'เบิกจ่ายแล้ว'
                     , 'CANCELLED'   => 'ยกเลิก'];
 
@@ -339,9 +340,11 @@ class InvoiceController extends Controller
                 $lineTemp->save();
             }
             \DB::commit();
-            // if($request->activity == 'INTERFACE'){
-            //     
-            // }            
+            if($request->activity == 'INTERFACE'){
+                $header = InvoiceHeader::findOrFail($invoiceId);
+                $header->status = 'INTERFACED'; 
+                $header->save(); 
+            }            
             $data = [
                 'status' => 'SUCCESS',
                 'message' => ''

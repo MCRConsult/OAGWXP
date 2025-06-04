@@ -592,7 +592,7 @@
                                 }).then((result) => {
                                     if (result.isConfirmed) {
                                         setTimeout(function() {
-                                            location.reload();
+                                            location.href = '/expense/invoice/'+vm.header.id;
                                         }, 500);
                                     }
                                 });

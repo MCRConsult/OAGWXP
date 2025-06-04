@@ -118,7 +118,7 @@
                                     <div id="_el_explode_amount" class="text-danger text-left"></div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6 text-left">
                                 <div class="form-group" style="padding: 5px;">
                                     <label class="control-label">
                                         <strong> คำอธิบายรายการ </strong>

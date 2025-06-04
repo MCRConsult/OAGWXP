@@ -91,7 +91,7 @@
                                     <label class="control-label">
                                         <strong> รายการบัญชี </strong>
                                     </label><br>
-                                    <el-input name="expense_account" placeholder="" v-model="line.expense_account" @click="accounrCollp == !accounrCollp"
+                                    <el-input name="expense_account" placeholder="" v-model="temp.expense_account" @click="accounrCollp == !accounrCollp"
                                         size="default" style="width: 100%" readonly data-toggle="collapse" href="#expense_account_collp"
                                     > </el-input>
                                 </div>
@@ -118,7 +118,7 @@
                                     <div id="_el_explode_amount" class="text-danger text-left"></div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6 text-left">
                                 <div class="form-group" style="padding: 5px;">
                                     <label class="control-label">
                                         <strong> คำอธิบายรายการ </strong>
@@ -822,6 +822,11 @@
             setExpenseType(res){
                 this.temp.expense_type = res.expense_type;
                 this.temp.expense_description = res.expense_description;
+                this.temp.description = res.expense_description;
+                // GET EXPENSE ACCOUNT WHEN CHOOSE EXPENSE_TYPE
+                if(this.temp.expense_type != ''){
+                    this.getExpenseAccount();
+                }
             },
             setRemainingReceipt(res){
                 this.temp.remaining_receipt_id = res.remaining_receipt;
@@ -885,7 +890,40 @@
                 this.segment11 = coa[10];
                 this.segment12 = coa[11];
                 this.segment13 = coa[12];
-            }
+            },
+            async getExpenseAccount(){
+                var vm = this;
+                if(vm.temp.expense_type != ''){
+                    axios.post('/expense/api/requisition/get-expense-account', {
+                        header: vm.requisition,
+                        line: vm.temp,
+                    })
+                    .then(function (res) {
+                        vm.loading = false;
+                        if (res.data.message) {
+                            vm.temp.expense_account = '';
+                        } else {
+                            vm.temp.expense_account = res.data.expense_account;
+                            this.extractAccount();
+                        }
+                    }.bind(vm))
+                    .catch(err => {
+                        let msg = err.response;
+                        Swal.fire({
+                            title: "มีข้อผิดพลาด",
+                            text: msg.message,
+                            icon: "error",
+                            showCancelButton: false,
+                            confirmButtonColor: "#3085d6",
+                            confirmButtonText: "ตกลง",
+                            allowOutsideClick: false
+                        });
+                    })
+                    .then(() => {
+                        vm.loading = false;
+                    });
+                }
+            },
         }
     };
 </script>

@@ -140,11 +140,13 @@
                                         <td class="text-center text-nowrap" style="vertical-align: middle;">
                                             {{ requisition.user.hr_employee.full_name }}
                                         </td>
-                                        <td class="text-center text-nowrap" style="vertical-align: middle;">
-                                            {{ requisition.invoice_type.description }}
+                                        <td class="text-center  text-nowrap" style="vertical-align: middle;">
+                                                {{ requisition.invoice_type.description }}
                                         </td>
-                                        <td class="text-left text-nowrap" style="vertical-align: middle;">
-                                            {{ requisition.description }}
+                                        <td class="text-left" style="vertical-align: middle;">
+                                            <div class="truncate" style="border-collapse: collapse; width: 200px;" :title="requisition.description">
+                                                {{ requisition.description }}
+                                            </div>
                                         </td>
                                         <td class="text-center text-nowrap" style="vertical-align: middle;">
                                             {{ numberFormat(requisition.total_amount) }}
@@ -153,7 +155,7 @@
                                             <div v-html="requisition.status_icon"></div>
                                         </td>
                                         <td class="text-center text-nowrap" style="vertical-align: middle;">
-                                            <div style="border-collapse: collapse; width: 150px; display:inline-block; flex-direction: row;">
+                                            <div style="border-collapse: collapse; width: 120px; display:inline-block; flex-direction: row;">
                                                 <template v-if="requisition.invoice
                                                     && requisition.status == 'COMPLETED'
                                                     && requisition.clear_reference_id == null || requisition.clear_reference_id == ''
@@ -310,5 +312,10 @@ export default {
         -webkit-box-flex: 1;
         flex: 1 1 auto;
         padding: 1.25rem;
+    }
+    .truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 </style>
