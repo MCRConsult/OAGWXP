@@ -158,7 +158,7 @@
                                             <div style="border-collapse: collapse; width: 120px; display:inline-block; flex-direction: row;">
                                                 <template v-if="requisition.invoice
                                                     && requisition.status == 'COMPLETED'
-                                                    && requisition.clear_reference_id == null || requisition.clear_reference_id == ''
+                                                    && (requisition.clear_reference_id == null || requisition.clear_reference_id == '')
                                                     && requisition.invoice_reference_id != ''
                                                     && requisition.invoice_type.lookup_code == 'PREPAYMENT'">
                                                     <template v-if="requisition.invoice.voucher_number">
