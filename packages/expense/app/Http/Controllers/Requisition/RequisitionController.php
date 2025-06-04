@@ -35,7 +35,7 @@ class RequisitionController extends Controller
     {
         $search = request()->all();
         $requisitions = RequisitionHeader::search(request()->all())
-                                    ->with(['user.hrEmployee', 'invoiceType'])
+                                    ->with(['user.hrEmployee', 'invoiceType', 'clear'])
                                     ->whereNotNull('req_number')
                                     ->orderBy('req_number', 'desc')
                                     ->paginate(25);

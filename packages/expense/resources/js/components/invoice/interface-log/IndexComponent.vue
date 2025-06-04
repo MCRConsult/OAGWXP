@@ -1,148 +1,146 @@
 <template>
     <div v-loading="loading">
-        <div id="search_form">
-            <div class="card-body" style="border: 2px solid #ddd; border-radius: 5px;">
-                <form :action="pFormUrl">
-                    <div class="row">
-                        <div class="form-group col-md-3">
-                            <label class="control-label">
-                                <strong> วันที่เอกสารขอเบิก ตั้งแต่ </strong>
-                            </label>
-                            <input type="hidden" name="invoice_date_from" :value="search.invoice_date_from">
-                            <el-date-picker
-                                v-model="invoice_date_from_input"
-                                style="width: 100%"
-                                type="date"
-                                placeholder=""
-                                size="default"
-                                format="DD-MM-YYYY"
-                                @change="changeDateFormatFrom"
+        <div class="card-body" style="border: 2px solid #ddd; border-radius: 5px;">
+            <form :action="pFormUrl">
+                <div class="row">
+                    <div class="form-group col-md-3">
+                        <label class="control-label">
+                            <strong> วันที่เอกสารขอเบิก ตั้งแต่ </strong>
+                        </label>
+                        <input type="hidden" name="invoice_date_from" :value="search.invoice_date_from">
+                        <el-date-picker
+                            v-model="invoice_date_from_input"
+                            style="width: 100%"
+                            type="date"
+                            placeholder=""
+                            size="default"
+                            format="DD-MM-YYYY"
+                            @change="changeDateFormatFrom"
+                        />
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        <label class="control-label">
+                            <strong> วันที่เอกสารขอเบิก ถึง </strong>
+                        </label>
+                        <input type="hidden" name="invoice_date_to" :value="search.invoice_date_to">
+                        <el-date-picker
+                            v-model="invoice_date_to_input"
+                            style="width: 100%"
+                            type="date"
+                            placeholder=""
+                            size="default"
+                            format="DD-MM-YYYY"
+                            @change="changeDateFormatTo"
+                        />
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        <label class="control-label">
+                            <strong> เลขที่เอกสารขอเบิก </strong>
+                        </label>
+                        <div class="">
+                            <input type="hidden" name="invoice_number" :value="search.invoice_number">
+                            <lovVoucher
+                                :setData="search.invoice_number"
+                                :error="false"
+                                :editFlag="true"
+                                @setVoucher="setVoucher"
                             />
                         </div>
+                    </div>
 
-                        <div class="form-group col-md-3">
-                            <label class="control-label">
-                                <strong> วันที่เอกสารขอเบิก ถึง </strong>
-                            </label>
-                            <input type="hidden" name="invoice_date_to" :value="search.invoice_date_to">
-                            <el-date-picker
-                                v-model="invoice_date_to_input"
-                                style="width: 100%"
-                                type="date"
-                                placeholder=""
-                                size="default"
-                                format="DD-MM-YYYY"
-                                @change="changeDateFormatTo"
-                            />
-                        </div>
-
-                        <div class="form-group col-md-3">
-                            <label class="control-label">
-                                <strong> เลขที่เอกสารขอเบิก </strong>
-                            </label>
-                            <div class="">
-                                <input type="hidden" name="invoice_number" :value="search.invoice_number">
-                                <lovVoucher
-                                    :setData="search.invoice_number"
-                                    :error="false"
-                                    :editFlag="true"
-                                    @setVoucher="setVoucher"
-                                />
-                            </div>
-                        </div>
-
-                        <div class="form-group col-md-3">
-                            <label class="control-label">
-                                <strong> สถานะ </strong>
-                            </label>
-                            <div class="">
-                                <input type="hidden" name="status" :value="search.status">
-                                <el-select v-model="search.status" placeholder="">
-                                    <el-option
-                                        v-for="(status, index) in pStatuses"
-                                        :key="index"
-                                        :label="status"
-                                        :value="index">
-                                    </el-option>
-                                </el-select>
-                            </div>
+                    <div class="form-group col-md-3">
+                        <label class="control-label">
+                            <strong> สถานะ </strong>
+                        </label>
+                        <div class="">
+                            <input type="hidden" name="status" :value="search.status">
+                            <el-select v-model="search.status" placeholder="">
+                                <el-option
+                                    v-for="(status, index) in pStatuses"
+                                    :key="index"
+                                    :label="status"
+                                    :value="index">
+                                </el-option>
+                            </el-select>
                         </div>
                     </div>
-                    <div class="row" style="padding-top: 5px;">
-                        <div class="col-lg-12" style="margin-top: 10px;">
-                            <div class="text-right">
-                                <button type="submit" class="btn btn-primary btn-sm m-1">
-                                    ค้นหา
-                                </button>
-                                <a :href="pFormUrl" class="btn btn-warning btn-sm m-1">
-                                    ล้างค่า
-                                </a>
-                            </div>
+                </div>
+                <div class="row" style="padding-top: 5px;">
+                    <div class="col-lg-12" style="margin-top: 10px;">
+                        <div class="text-right">
+                            <button type="submit" class="btn btn-primary btn-sm m-1">
+                                ค้นหา
+                            </button>
+                            <a :href="pFormUrl" class="btn btn-warning btn-sm m-1">
+                                ล้างค่า
+                            </a>
                         </div>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
+        </div>
 
-            <div class="table-responsive mt-4" style="max-height: 600px;">
-                <table class="table text-nowrap table-hover text-center" style="position: sticky; font-size: 14px;">
-                    <thead>
+        <div class="table-responsive mt-4" style="max-height: 600px;">
+            <table class="table text-nowrap table-hover text-center" style="position: sticky; font-size: 14px;">
+                <thead>
+                    <tr>
+                        <th class="text-center sticky-col">
+                            <div width="3%"> สถานะ </div>
+                        </th>
+                        <th class="text-center sticky-col">
+                            <div width="8%"> วันที่อินเตอร์เฟซ </div>
+                        </th>
+                        <th class="text-center sticky-col">
+                            <div width="10%"> เลขที่ใบสำคัญ </div>
+                        </th>
+                        <th class="text-center sticky-col">
+                            <div width="10%"> เลขที่เอกสาร </div>
+                        </th>
+                        <th class="text-center sticky-col">
+                            <div width="20%"> รายละเอียด </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template v-for="inf in interfaces">
                         <tr>
-                            <th class="text-center sticky-col">
-                                <div width="3%"> สถานะ </div>
-                            </th>
-                            <th class="text-center sticky-col">
-                                <div width="8%"> วันที่อินเตอร์เฟซ </div>
-                            </th>
-                            <th class="text-center sticky-col">
-                                <div width="10%"> เลขที่ใบสำคัญ </div>
-                            </th>
-                            <th class="text-center sticky-col">
-                                <div width="10%"> เลขที่เอกสาร </div>
-                            </th>
-                            <th class="text-center sticky-col">
-                                <div width="20%"> รายละเอียด </div>
-                            </th>
+                            <td class="text-center text-nowrap" style="vertical-align: middle;">
+                                <div v-html="inf.status_icon"></div>
+                            </td>
+                            <td class="text-center text-nowrap" style="vertical-align: middle;">
+                                {{ inf.invoice_date_format }}
+                            </td>
+                            <td class="text-center text-nowrap" style="vertical-align: middle;">
+                                {{ inf.voucher_num }}
+                            </td>
+                            <td class="text-center text-nowrap" style="vertical-align: middle;">
+                                {{ inf.invoice_num }}
+                                <div style="color: #858585;">
+                                    <small> Batch#: {{ inf.web_batch_no }} </small>
+                                </div>
+                            </td>
+                            <td class="text-center text-nowrap" style="vertical-align: middle;">
+                                {{ inf.interface_msg }}
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <template v-for="inf in interfaces">
-                            <tr>
-                                <td class="text-center text-nowrap" style="vertical-align: middle;">
-                                    <div v-html="inf.status_icon"></div>
-                                </td>
-                                <td class="text-center text-nowrap" style="vertical-align: middle;">
-                                    {{ inf.invoice_date_format }}
-                                </td>
-                                <td class="text-center text-nowrap" style="vertical-align: middle;">
-                                    {{ inf.voucher_num }}
-                                </td>
-                                <td class="text-center text-nowrap" style="vertical-align: middle;">
-                                    {{ inf.invoice_num }}
-                                    <div style="color: #858585;">
-                                        <small> Batch#: {{ inf.web_batch_no }} </small>
-                                    </div>
-                                </td>
-                                <td class="text-center text-nowrap" style="vertical-align: middle;">
-                                    {{ inf.interface_msg }}
-                                </td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
-            </div>
-            <div class="row mt-3">
-                <div class="col-12">
-                    <div class="pull-right">
-                        <el-pagination v-if="interfaces.length > 0"
-                            background
-                            :page-size="paginate.size"
-                            :pager-count="25"
-                            layout="prev, pager, next"
-                            :total="paginate.total"
-                            :current-page="currPage"
-                            @current-change="handleChangePage">
-                        </el-pagination>
-                    </div>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="pull-right">
+                    <el-pagination v-if="interfaces.length > 0"
+                        background
+                        :page-size="paginate.size"
+                        :pager-count="25"
+                        layout="prev, pager, next"
+                        :total="paginate.total"
+                        :current-page="currPage"
+                        @current-change="handleChangePage">
+                    </el-pagination>
                 </div>
             </div>
         </div>

@@ -26,6 +26,11 @@ class RequisitionHeader extends Model
         return $this->hasMany(RequisitionLine::class, 'req_header_id', 'id');
     }
 
+    public function clear()
+    {
+        return $this->hasOne(self::class, 'id', 'clear_reference_id');
+    }
+
     public function invoice()
     {
         return $this->hasOne(InvoiceHeader::class, 'id', 'invoice_reference_id');

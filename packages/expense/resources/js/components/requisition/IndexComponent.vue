@@ -128,8 +128,11 @@
                             <tbody>
                                 <template v-for="requisition in requisitions">
                                     <tr>
-                                        <td class="text-center text-nowrap" style="vertical-align: middle;">
+                                        <td class="text-left text-nowrap" style="vertical-align: middle;">
                                             {{ requisition.req_number }}
+                                            <template v-if="requisition.clear">
+                                                <br><small style="font-weight: bold;"> เคลียร์เงินยืม : {{ requisition.clear.req_number }} </small>
+                                            </template>
                                         </td>
                                         <td class="text-center text-nowrap" style="vertical-align: middle;">
                                             {{ requisition.req_date_format }}
@@ -151,8 +154,12 @@
                                         </td>
                                         <td class="text-center text-nowrap" style="vertical-align: middle;">
                                             <div style="border-collapse: collapse; width: 150px; display:inline-block; flex-direction: row;">
-                                                <template v-if="requisition.status == 'COMPLETED' && !requisition.clear_reference_id">
-                                                    <template v-if="requisition.invoice_type.lookup_code == 'PREPAYMENT'">
+                                                <template v-if="requisition.invoice
+                                                    && requisition.status == 'COMPLETED'
+                                                    && requisition.clear_reference_id == null || requisition.clear_reference_id == ''
+                                                    && requisition.invoice_reference_id != ''
+                                                    && requisition.invoice_type.lookup_code == 'PREPAYMENT'">
+                                                    <template v-if="requisition.invoice.voucher_number">
                                                         <a class="btn btn-sm btn-danger active mr-1"
                                                             :href="'/expense/requisition/'+requisition.id+'/clear'">
                                                             เคลียร์เงินยืม
