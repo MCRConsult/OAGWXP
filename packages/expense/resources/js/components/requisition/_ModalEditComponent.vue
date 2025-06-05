@@ -515,6 +515,7 @@
     </div>
 </template>
 <script>
+    import Swal             from 'sweetalert2';
     import supplier         from "../lov/Supplier.vue";
     import supplierBank     from "../lov/SupplierBank.vue";
     import vehicleOilType   from "../lov/vehicleOilType.vue";
@@ -567,6 +568,7 @@
         },
         mounted() {
             this.line = this.reqLine;
+            this.copyDataForEdit();
             this.extractAccount();
         },
         watch: {

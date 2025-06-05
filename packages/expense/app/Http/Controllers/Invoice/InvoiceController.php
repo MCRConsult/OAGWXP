@@ -22,6 +22,7 @@ use Packages\expense\app\Models\PaymentMethod;
 use Packages\expense\app\Models\Currency;
 use Packages\expense\app\Models\FlaxValueV;
 use Packages\expense\app\Models\COAListV;
+use Packages\expense\app\Models\LookupV;
 
 use Packages\expense\app\Repositories\InvoiceInfRepo;
 
@@ -34,8 +35,7 @@ class InvoiceController extends Controller
                                     ->orderByRaw('invoice_date desc, voucher_number desc')
                                     ->paginate(25);
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
-        $statuses = ['NEW'          => 'รอเบิกจ่าย'
-                    , 'CONFIRM'     => 'ขอเบิก'
+        $statuses = ['NEW'          => 'ขอเบิก'
                     , 'INTERFACED'  => 'เบิกจ่ายแล้ว'
                     , 'CANCELLED'   => 'ยกเลิก'];
 
@@ -131,6 +131,13 @@ class InvoiceController extends Controller
         try{
             $header = collect($mergeReqs)->first();
             $prefixInvRef = (new InvoiceHeader)->getInvRef($header->invoice_type);
+            $docCate = '';
+            if ($header->source_type == 'RECEIPT') {
+                $lookup = LookupV::where('lookup_type', 'OAG_AP_REVENUE_CATEGORY')
+                        ->where('description', $header->document_category)
+                        ->first();
+                $docCate = optional($lookup)->tag;
+            }
             // CREATE NEW INVOICE
             $headerTemp                                     = new InvoiceHeader;
             $headerTemp->invoice_number                     = (new InvoiceHeader)->genDocumentNo($user->org_id, $prefixInvRef);
@@ -138,7 +145,7 @@ class InvoiceController extends Controller
             $headerTemp->source_type                        = $header->source_type;
             $headerTemp->invoice_date                       = date('Y-m-d');
             $headerTemp->invoice_type                       = $header->invoice_type;
-            $headerTemp->document_category                  = $header->document_category;
+            $headerTemp->document_category                  = $header->source_type == 'REQUISITION'? $header->document_category: $docCate;
             $headerTemp->supplier_id                        = $header->supplier_id;
             $headerTemp->supplier_name                      = $header->supplier_name;
             // GET FROM SUPPLIER
@@ -283,27 +290,26 @@ class InvoiceController extends Controller
         $invioceLines = $request->lines;
         \DB::beginTransaction();
         try {
-            InvoiceHeader::where('id', $invoiceId)
-                    ->update([
-                        'invoice_date'              => $invioce['invoice_date']? date('Y-m-d', strtotime($invioce['invoice_date'])): ''
-                        , 'invoice_type'            => $invioce['invoice_type']
-                        , 'document_category'       => $invioce['document_category']
-                        , 'supplier_id'             => $invioce['supplier_id']
-                        , 'supplier_name'           => $invioce['supplier_name']
-                        , 'payment_method'          => $invioce['payment_method']
-                        , 'payment_term'            => $invioce['payment_term']
-                        , 'clear_date'              => $invioce['clear_date']? date('Y-m-d', strtotime($invioce['clear_date'])): ''
-                        , 'currency'                => $invioce['currency']
-                        , 'contact_date'            => $invioce['contact_date']? date('Y-m-d', strtotime($invioce['contact_date'])): ''
-                        , 'final_judgment'          => $invioce['final_judgment']
-                        , 'gfmis_document_number'   => $invioce['gfmis_document_number']
-                        , 'total_amount'            => $request->totalApply
-                        , 'status'                  => 'CONFIRM'
-                        , 'description'             => $invioce['description']
-                        , 'note'                    => $invioce['note']
-                        , 'updated_by'              => $user->id
-                        , 'updation_by'             => $user->person_id
-                    ]);
+            $header = InvoiceHeader::findOrFail($invoiceId);
+            $header->invoice_date                   = $invioce['invoice_date']? date('Y-m-d', strtotime($invioce['invoice_date'])): '';
+            $header->invoice_type                   = $invioce['invoice_type'];
+            $header->document_category              = $invioce['document_category'];
+            $header->supplier_id                    = $invioce['supplier_id'];
+            $header->supplier_name                  = $invioce['supplier_name'];
+            $header->payment_method                 = $invioce['payment_method'];
+            $header->payment_term                   = $invioce['payment_term'];
+            $header->clear_date                     = $invioce['clear_date']? date('Y-m-d', strtotime($invioce['clear_date'])): '';
+            $header->currency                       = $invioce['currency'];
+            $header->contact_date                   = $invioce['contact_date']? date('Y-m-d', strtotime($invioce['contact_date'])): '';
+            $header->final_judgment                 = $invioce['final_judgment'];
+            $header->gfmis_document_number          = $invioce['gfmis_document_number'];
+            $header->total_amount                   = $request->totalApply;
+            // $header->status                         = 'CONFIRM';
+            $header->description                    = $invioce['description'];
+            $header->note                           = $invioce['note'];
+            $header->updated_by                     = $user->id;
+            $header->updation_by                    = $user->person_id;
+            $header->save();
 
             InvoiceLine::where('invoice_header_id', $invoiceId)->delete();
             foreach ($invioceLines as $key => $line) {
@@ -343,7 +349,6 @@ class InvoiceController extends Controller
             }
             \DB::commit();
             if($request->activity == 'INTERFACE'){
-                $header = InvoiceHeader::findOrFail($invoiceId);
                 $header->status = 'INTERFACED'; 
                 $header->save(); 
             }            

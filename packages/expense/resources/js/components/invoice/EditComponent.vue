@@ -282,7 +282,7 @@
                 <div align="center">
                     <button type="button" class="btn btn-primary" @click.prevent="update('UPDATE')"> บันทึกรายการ </button>
                     <button type="button" class="btn btn-danger ml-1" @click.prevent="cancel()"> ยกเลิกรายการ </button>
-                    <button v-if="header.status == 'CONFIRM'" type="button" class="btn btn-success ml-1" @click.prevent="interface('INTERFACE')">
+                    <button v-if="confirm_flag" type="button" class="btn btn-warning ml-1" @click.prevent="interface('INTERFACE')">
                         ขอเบิก
                     </button>
                 </div>
@@ -324,6 +324,7 @@
                 loading: false,
                 header: this.invoice,
                 linelists: this.invoice.lines,
+                confirm_flag: false,
             };
         },
         mounted(){
@@ -513,6 +514,7 @@
                             allowOutsideClick: false
                         });
                     } else {
+                        vm.confirm_flag = true;
                         Swal.fire({
                             title: "บันทึกเอกสารขอเบิก",
                             html: "บันทึกเอกสารขอเบิกเรียบร้อยแล้ว",
@@ -521,14 +523,15 @@
                             confirmButtonColor: "#3085d6",
                             confirmButtonText: "ตกลง",
                             allowOutsideClick: false
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                setTimeout(function() {
-                                    location.reload();
-                                    window.location.href = '/expense/invoice/'+vm.header.id;
-                                }, 500);
-                            }
                         });
+                        // .then((result) => {
+                        //     if (result.isConfirmed) {
+                        //         setTimeout(function() {
+                        //             location.reload();
+                        //             window.location.href = '/expense/invoice/'+vm.header.id;
+                        //         }, 500);
+                        //     }
+                        // });
                     }
                 }.bind(vm))
                 .catch(err => {

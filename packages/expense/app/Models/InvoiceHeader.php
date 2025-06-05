@@ -133,9 +133,6 @@ class InvoiceHeader extends Model
         $result = "";
         switch ($status) {
             case "NEW":
-                $result = "<span class='badge badge-success' style='padding: 5px;'> รอเบิกจ่าย </span>";
-                break;
-            case "CONFIRM":
                 $result = "<span class='badge badge-primary' style='padding: 5px; background-color: #38ca8c;'> ขอเบิก </span>";
                 break;
             case "INTERFACED":
