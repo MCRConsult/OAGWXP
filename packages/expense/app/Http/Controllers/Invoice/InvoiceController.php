@@ -30,7 +30,6 @@ class InvoiceController extends Controller
 {
     public function index()
     {
-        dd($this->interface(341));
         $invoices = InvoiceHeader::search(request()->all())
                                     ->with(['user.hrEmployee', 'supplier'])
                                     ->orderByRaw('invoice_date desc, voucher_number desc')
