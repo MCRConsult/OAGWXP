@@ -35,6 +35,12 @@ class InvoiceHeader extends Model
         return $this->hasOne(RequisitionHeader::class, 'invoice_reference_id', 'id');
     }
 
+    // FOR INTERFACE
+    public function requisitions()
+    {
+        return $this->hasMany(RequisitionHeader::class, 'invoice_reference_id', 'id');
+    }
+
     public function invoiceType()
     {
         return $this->hasOne(InvoiceType::class, 'lookup_code', 'invoice_type');
@@ -180,21 +186,23 @@ class InvoiceHeader extends Model
         $db = \DB::connection('oracle')->getPdo();
         $sql = "
             declare
-                v_status                    varchar2(20);
-                v_error                     varchar2(2000);
-                begin
-                    oaggl_process.reserve_budget(p_batch      => '{$batch}'
-                                                , p_status    => :v_status
-                                                , p_error     => :v_error
-                                            );
-                end;
+                l_status    varchar2(10);
+                l_msg       varchar2(1000);
+            begin
+                OAGAP_INVOICE_INF_PKG.MAIN( P_WEB_BATCH_NO  => '{$batch}'
+                                            , X_STATUS      => :l_status
+                                            , X_MESSAGE     => :l_msg
+                                        );
+                dbms_output.put_line('l_status : ' || :l_status); 
+                dbms_output.put_line('l_msg : ' || :l_msg); 
+            end;
         ";
 
         logger($sql);
         $stmt = $db->prepare($sql);
         $result = [];
-        $stmt->bindParam(':v_status', $result['status'], \PDO::PARAM_STR, 20);
-        $stmt->bindParam(':v_error', $result['error_msg'], \PDO::PARAM_STR, 2000);
+        $stmt->bindParam(':l_status', $result['status'], \PDO::PARAM_STR, 20);
+        $stmt->bindParam(':l_msg', $result['error_msg'], \PDO::PARAM_STR, 2000);
         $stmt->execute();
 
         return $result;

@@ -22,7 +22,7 @@ class InvoiceInfRepo {
 	public function insertInterface($invoice)
 	{
         $user = auth()->user();
-        $batchNo = 'INV_'.date('YmdHis').Str::random(3);
+        $batchNo = 'INV-'.date('Ymd').'-'.$invoice->invoice_number;
 		\DB::beginTransaction();
 		try {
             // INTERFACE HEADER
@@ -46,9 +46,12 @@ class InvoiceInfRepo {
             $headerInf->payment_method_code         = $invoice->payment_method;
             $headerInf->terms_name                  = $invoice->paymentTerm->description;
             $headerInf->liability_account           = $invoice->supplierSite->liability_account; //---SUPPLIER
-            $headerInf->attribute4                  = ''; //---REQ_NUMBER 
+            $headerInf->attribute1                  = $invoice->contact_date;
+            $headerInf->attribute2                  = $invoice->gfmis_document_number;
+            $headerInf->attribute3                  = $invoice->final_judgment;
+            $headerInf->attribute4                  = implode(',', $invoice->requisitions->pluck('req_number')->toArray());
             $headerInf->attribute5                  = date('Y-m-d', strtotime($invoice->invoice_date));
-            $headerInf->attribute15                 = '';
+            $headerInf->attribute15                 = $invoice->note;
             $headerInf->web_batch_no                = $batchNo;
             $headerInf->creation_date               = Carbon::now();
             $headerInf->last_update_date            = Carbon::now();
@@ -61,14 +64,29 @@ class InvoiceInfRepo {
                 $lineInf                            = new InvoiceInterfaceLine;
                 $lineInf->invoice_num               = $invoice->invoice_number;
                 $lineInf->line_number               = $line->seq_number;
-                $lineInf->line_type_lookup_code     = 'ITEM';
+                $lineInf->line_type_lookup_code     = $invoice->invoice_type == 'STANDARD'? 'ITEM': $invoice->invoice_type;
                 $lineInf->accounting_date           = date('Y-m-d', strtotime($invoice->invoice_date));
                 $lineInf->amount                    = $line->amount;
                 $lineInf->wht_code                  = $line->wht_code;
                 $lineInf->vat_code                  = $line->tax_code;
                 $lineInf->description               = $line->description;
                 $lineInf->distributrion_account     = $line->expense_account;
-                $lineInf->attribute4                = optional(optional($line->requisitionLine)->header)->req_number; //---REQ_NUMBER 
+                $lineInf->attribute1                = $line->supplier_name;
+                $lineInf->attribute2                = $line->bank_account_number;
+                $lineInf->attribute3                = $line->remaining_receipt_number;
+                $lineInf->attribute4                = $line->ar_receipt_number;
+                $lineInf->attribute7                = $line->utility_type;
+                $lineInf->attribute8                = $line->utility_detail;
+                $lineInf->attribute9                = $line->req_invoice_number;
+                $lineInf->attribute11               = $invoice->req_invoice_date? date('Y-m-d', strtotime($invoice->req_invoice_date)): '';
+                $lineInf->attribute12               = $line->unit_quantity;
+                $lineInf->attribute13               = $invoice->req_receipt_date? date('Y-m-d', strtotime($invoice->req_receipt_date)): '';
+                $lineInf->attribute14               = $line->req_receipt_number;
+
+                $lineInf->global_attribute1         = $line->vehicle_number;
+                $lineInf->global_attribute2         = $line->policy_number;
+                $lineInf->global_attribute3         = $line->vehicle_oil_type;
+
                 $lineInf->web_batch_no              = $batchNo;
                 $lineInf->creation_date             = Carbon::now();
                 $lineInf->last_update_date          = Carbon::now();
@@ -78,11 +96,11 @@ class InvoiceInfRepo {
             }
 			\DB::commit();
             // CALL PACKAGE
-            // $result = (new InvoiceHeader)->interfaceAP($batchNo);
-            // $data = [
-            //     'status' => $result['status'],
-            //     'message' => '',
-            // ];
+            $result = (new InvoiceHeader)->interfaceAP($batchNo);
+            $data = [
+                'status' => $result['status'],
+                'message' => '',
+            ];
 		} catch (\Exception $e) {
             \DB::rollback();
             throw new \Exception($e->getMessage(), 1);
@@ -91,6 +109,6 @@ class InvoiceInfRepo {
                 'message' => $e->getMessage(),
             ];
         }
-        // return $data;
+        return $data;
 	}
 }

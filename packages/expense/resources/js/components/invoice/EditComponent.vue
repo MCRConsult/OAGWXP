@@ -282,7 +282,8 @@
                 <div align="center">
                     <button type="button" class="btn btn-primary" @click.prevent="update('UPDATE')"> บันทึกรายการ </button>
                     <button type="button" class="btn btn-danger ml-1" @click.prevent="cancel()"> ยกเลิกรายการ </button>
-                    <button v-if="confirm_flag" type="button" class="btn btn-warning ml-1" @click.prevent="interface('INTERFACE')">
+                    <button v-if="confirm_flag" type="button" class="btn btn-warning ml-1" style="color: #FFF;" 
+                        @click.prevent="interface('INTERFACE')">
                         ขอเบิก
                     </button>
                 </div>

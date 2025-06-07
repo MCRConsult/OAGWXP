@@ -30,6 +30,7 @@ class InvoiceController extends Controller
 {
     public function index()
     {
+        dd($this->interface(341));
         $invoices = InvoiceHeader::search(request()->all())
                                     ->with(['user.hrEmployee', 'supplier'])
                                     ->orderByRaw('invoice_date desc, voucher_number desc')
@@ -349,9 +350,20 @@ class InvoiceController extends Controller
             }
             \DB::commit();
             if($request->activity == 'INTERFACE'){
-                $header->status = 'INTERFACED'; 
-                $header->save(); 
-            }            
+                $resultInf = $this->interface($invoiceId);
+                if ($resultInf['status'] == 'C') {
+                    $invoice->status    = 'INTERFACED';
+                    $invoice->save();
+                }else{
+                    $invoice->status        = 'ERROR';
+                    $invoice->error_message = $resultInf['message'];
+                    $invoice->save();
+                }
+                $data = [
+                    'status' => $resultInf['status'],
+                    'message' => $resultInf['message']
+                ];
+            }
             $data = [
                 'status' => 'SUCCESS',
                 'message' => ''
@@ -416,13 +428,7 @@ class InvoiceController extends Controller
     {
         $invoice = InvoiceHeader::findOrFail($invoiceId);
         $result = (new InvoiceInfRepo)->insertInterface($invoice);
-        if ($result['status'] == 'C') {
-            $invoice->status        = 'INTERFACED';
-            $invoice->save();
-        }else{
-            $invoice->status        = 'ERROR';
-            $invoice->error_message = $result['message'];
-            $invoice->save();
-        }
+        
+        return $result;
     }
 }

@@ -53,7 +53,7 @@
                     <div class="col-md-3">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
-                                <strong> วันที่เอกสารขอเบิก </strong>
+                                <strong> วันที่เอกสารส่งเบิก </strong>
                             </label><br>
                             {{ date('d-m-Y', strtotime($requisition->req_date)) }}
                         </div>
