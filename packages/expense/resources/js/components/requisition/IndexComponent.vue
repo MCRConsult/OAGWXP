@@ -96,7 +96,7 @@
             <div class="card-body">
                 <div class="ibox float-e-margins">
                     <div class="table-responsive" style="max-height: 600px;">
-                        <table class="table text-nowrap table-hover" style="position: sticky; font-size: 14px;">
+                        <table class="table text-nowrap table-hover" style="position: sticky;">
                             <thead>
                                 <tr>
                                     <th class="text-center sticky-col">
