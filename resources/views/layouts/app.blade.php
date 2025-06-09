@@ -38,6 +38,8 @@
                 </div>
             @endif
             <div class="container-fluid">
+                @include('shared._errors')
+                @include('shared._success')
                 <div class="animated fadeIn">
                     @yield('content')
                 </div>

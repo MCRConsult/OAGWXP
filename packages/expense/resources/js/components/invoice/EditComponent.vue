@@ -52,7 +52,7 @@
                             <documentCategory
                                 :setData="header.document_category"
                                 :error="errors.document_category"
-                                :editFlag="false"
+                                :editFlag="header.source_type == 'REQUISITION'? false: true"
                                 @setDocumentCate="setDocumentCate"
                             ></documentCategory>
                         </div>

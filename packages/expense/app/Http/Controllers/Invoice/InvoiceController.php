@@ -12,6 +12,7 @@ use Packages\expense\app\Models\RequisitionHeader;
 use Packages\expense\app\Models\RequisitionLine;
 use Packages\expense\app\Models\InvoiceHeader;
 use Packages\expense\app\Models\InvoiceLine;
+use Packages\expense\app\Models\InvoiceInterfaceHeader;
 use Packages\expense\app\Models\MappingAutoInvoiceV;
 use Packages\expense\app\Models\MTLCategoriesV;
 use Packages\expense\app\Models\InvoiceType;
@@ -132,15 +133,19 @@ class InvoiceController extends Controller
             $header = collect($mergeReqs)->first();
             $prefixInvRef = (new InvoiceHeader)->getInvRef($header->invoice_type);
             $docCate = '';
+            $invoiceNum = '';
             if ($header->source_type == 'RECEIPT') {
                 $lookup = LookupV::where('lookup_type', 'OAG_AP_REVENUE_CATEGORY')
                         ->where('description', $header->document_category)
                         ->first();
                 $docCate = optional($lookup)->tag;
+                $invoiceNum = $header->req_number;
+            }else{
+                $invoiceNum = (new InvoiceHeader)->genDocumentNo($user->org_id, $prefixInvRef);
             }
             // CREATE NEW INVOICE
             $headerTemp                                     = new InvoiceHeader;
-            $headerTemp->invoice_number                     = (new InvoiceHeader)->genDocumentNo($user->org_id, $prefixInvRef);
+            $headerTemp->invoice_number                     = $invoiceNum;
             $headerTemp->org_id                             = $user->org_id;
             $headerTemp->source_type                        = $header->source_type;
             $headerTemp->invoice_date                       = date('Y-m-d');
@@ -429,5 +434,26 @@ class InvoiceController extends Controller
         $result = (new InvoiceInfRepo)->insertInterface($invoice);
         
         return $result;
+    }
+
+    public function reSubmit($invoiceId)
+    {
+        $invoice = InvoiceHeader::findOrFail($invoiceId);
+        // CALL PACKAGE
+        $infIvoice =  InvoiceInterfaceHeader::where('invoice_num', $invoice->invoice_number)->first();
+        $resultInf = (new InvoiceHeader)->interfaceAP($infIvoice->web_batch_no);
+        
+        if ($resultInf['status'] == 'S') {
+            $invoice->status  = 'INTERFACED';
+            $invoice->save();
+
+            return redirect()->back()->with('message', 'ส่งข้อมูลเข้าระบบเรียบร้อยแล้ว');
+        }else{
+            $invoice->status        = 'ERROR';
+            $invoice->error_message = $resultInf['error_msg'];
+            $invoice->save();
+
+            return redirect()->back()->withErrors($resultInf['error_msg']);
+        }
     }
 }

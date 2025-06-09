@@ -189,9 +189,9 @@ class RequisitionHeader extends Model
                 v_status                    varchar2(20);
                 v_error                     varchar2(2000);
                 begin
-                    oaggl_process.reserve_budget(p_batch      => '{$batch}'
-                                                , p_status    => :v_status
-                                                , p_error     => :v_error
+                    oaggl_process.reserve_budget(p_batch    => '{$batch}'
+                                                , p_status  => :v_status
+                                                , p_error   => :v_error
                                             );
                 end;
         ";

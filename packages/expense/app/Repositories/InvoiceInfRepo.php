@@ -99,7 +99,7 @@ class InvoiceInfRepo {
             $result = (new InvoiceHeader)->interfaceAP($batchNo);
             $data = [
                 'status' => $result['status'],
-                'message' => '',
+                'message' => $result['error_msg'],
             ];
 		} catch (\Exception $e) {
             \DB::rollback();

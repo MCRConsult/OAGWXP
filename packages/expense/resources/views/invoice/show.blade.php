@@ -183,7 +183,7 @@
                             <th class="text-left" width="15%"> ประเภทค่าใช้จ่าย </th>
                             <th class="text-left" width="26%"> รายการบัญชี </th>
                             <th class="text-center" width="10%"> จำนวนเงิน </th>
-                            <th class="text-center" width="15%"> ชื่อสั่งจ่าย </th>
+                            <th class="text-center" width="17%"> ชื่อสั่งจ่าย </th>
                             <th class="text-center" width="15%"> เลขที่บัญชีธนาคาร </th>
                             <th class="text-center" width="3%"> </th>
                         </tr>
@@ -227,7 +227,13 @@
                         </div>
                     </div>
                 </div>
-
+                <div class="row text-center">
+                    <div class="col-md-12 ">
+                        <a href="{{ route('expense.invoice.re-submit', $invoice->id) }}" class="btn btn-danger btn-sm">
+                            ส่งเข้าระบบใหม่
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

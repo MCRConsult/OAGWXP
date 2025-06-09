@@ -72,6 +72,7 @@ Route::group(['middleware' => ['web', 'auth']], function () {
             Route::post('/{invoice_id}/update', '\Packages\expense\app\Http\Controllers\Invoice\InvoiceController@update')->name('update');
             Route::post('/{invoice_id}/cancel', '\Packages\expense\app\Http\Controllers\Invoice\InvoiceController@cancel')->name('cancel');
             Route::post('/{invoice_id}/set-status', '\Packages\expense\app\Http\Controllers\Invoice\InvoiceController@setStatus')->name('set-status');
+            Route::get('/{invoice_id}/re-submit', '\Packages\expense\app\Http\Controllers\Invoice\InvoiceController@reSubmit')->name('re-submit');
             //interface
             Route::get('/interface/logs', '\Packages\expense\app\Http\Controllers\Invoice\InterfaceLogController@index')->name('interface-log');
         });
