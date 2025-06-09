@@ -123,6 +123,9 @@ class InvoiceHeader extends Model
             case "INTERFACED":
                 $result = 'เบิกจ่ายแล้ว';
                 break;
+            case "ERROR":
+                $result = 'เบิกจ่ายไม่สำเร็จ';
+                break;
             case "CANCELLED":
                 $result = 'ยกเลิก';
                 break;
@@ -143,6 +146,9 @@ class InvoiceHeader extends Model
                 break;
             case "INTERFACED":
                 $result = "<span class='badge badge-primary'> เบิกจ่ายแล้ว </span>";
+                break;
+            case "ERROR":
+                $result = "<span class='badge badge-danger' style='padding: 5px; background-color: #e3302f;'> เบิกจ่ายไม่สำเร็จ </span>";
                 break;
             case "CANCELLED":
                 $result = "<span class='badge badge-danger' style='padding: 5px;'> ยกเลิก </span>";
