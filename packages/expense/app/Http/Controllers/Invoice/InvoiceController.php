@@ -350,7 +350,7 @@ class InvoiceController extends Controller
             \DB::commit();
             if($request->activity == 'INTERFACE'){
                 $resultInf = $this->interface($invoiceId);
-                if ($resultInf['status'] == 'C') {
+                if ($resultInf['status'] == 'S') {
                     $invoice->status    = 'INTERFACED';
                     $invoice->save();
                 }else{
