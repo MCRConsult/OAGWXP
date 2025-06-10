@@ -18,7 +18,7 @@ class AccountController extends Controller
         $docCate = explode('_', $header['document_category']);
         $user = auth()->user();
         $employee = $user->hrEmployee;
-        $exp = isset($line['expense_type'])? $line['expense_type']: $line->expense_type;
+        $exp = isset($line['expense_type'])? $line['expense_type']: '';
         $expenseRules = POExpenseAccountRuleV::where('item_category', $exp)
                                             ->orderBy('segment_num')
                                             ->get()

@@ -280,9 +280,9 @@
                 </div>
                 <br>
                 <div align="center">
-                    <button type="button" class="btn btn-primary" @click.prevent="update('UPDATE')"> บันทึกรายการ </button>
+                    <button type="button" class="btn btn-primary" @click.prevent="update('UPDATE')" style="color: #FFF;"> บันทึกรายการ </button>
                     <button type="button" class="btn btn-danger ml-1" @click.prevent="cancel()"> ยกเลิกรายการ </button>
-                    <button v-if="confirm_flag" type="button" class="btn btn-warning ml-1" style="color: #FFF;" 
+                    <button v-if="confirm_flag" type="button" class="btn btn-success ml-1" 
                         @click.prevent="interface('INTERFACE')">
                         ขอเบิก
                     </button>

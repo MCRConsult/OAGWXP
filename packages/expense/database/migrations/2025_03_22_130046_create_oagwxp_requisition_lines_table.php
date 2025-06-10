@@ -49,6 +49,7 @@ return new class extends Migration
             $table->integer('remaining_receipt_id')->nullable();
             $table->string('remaining_receipt_number')->nullable();
             $table->integer('invl_reference_id')->nullable();
+            $table->integer('cash_bank_account_id')->nullable(); // bank_account_id
             $table->timestamps();
         });
     }

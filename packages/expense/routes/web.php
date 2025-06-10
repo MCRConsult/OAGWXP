@@ -24,6 +24,7 @@ Route::group(['middleware' => ['web', 'auth']], function () {
             Route::get('/get-receipt', '\Packages\expense\app\Http\Controllers\Api\LovController@getReceipt');
             Route::get('/get-taxes', '\Packages\expense\app\Http\Controllers\Api\LovController@getTaxes');
             Route::get('/get-wht', '\Packages\expense\app\Http\Controllers\Api\LovController@getWht');
+            Route::get('/get-bank-account', '\Packages\expense\app\Http\Controllers\Api\LovController@getBankAccount');
             Route::get('/get-expense-account', '\Packages\expense\app\Http\Controllers\Api\LovController@getExpenseAccount');
             
             Route::prefix('requisition')->namespace('Requisition')->name('requisition.')->group(function() {

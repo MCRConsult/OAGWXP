@@ -186,6 +186,20 @@
                             <div id="el_explode_supplier_bank" class="text-danger text-left"></div>
                         </div>
                     </div>
+                    <div class="col-md-3" v-if="requisition.payment_type == 'NON-PAYMENT'">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ธนาคาร <span class="text-danger"> * </span></strong>
+                            </label><br>
+                            <bankAccount
+                                :setData="reqLine.cash_bank_account_id"
+                                :error="errors.cash_bank_account"
+                                :editFlag="true"
+                                @setBankAccount="setBankAccount"
+                            ></bankAccount>
+                            <div id="el_explode_cash_bank_account" class="text-danger text-left"></div>
+                        </div>
+                    </div>
                     <div class="col-md-2">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label" style="margin: 3px;">
@@ -370,13 +384,14 @@
     import budgetPlan       from "../lov/BudgetPlan.vue";
     import budgetType       from "../lov/BudgetType.vue";
     import expenseType      from "../lov/ExpenseType.vue";
+    import bankAccount      from "../lov/BankAccount.vue";
     import detailComp       from "./DetailComponent.vue";
     import listComp         from "./ListComponent.vue";
     import modalAccountComp from "./_ModalAccountComponent.vue";
 
     export default {
         components: {
-            budgetSource, documentCategory, paymentType, supplier, supplierBank, budgetPlan, budgetType, expenseType, detailComp, listComp, modalAccountComp
+            budgetSource, documentCategory, paymentType, supplier, supplierBank, budgetPlan, budgetType, expenseType, bankAccount, detailComp, listComp, modalAccountComp
         },
         props: ['user', 'referenceNo', 'invoiceTypes', 'defaultSetName'],
         data() {
@@ -391,6 +406,7 @@
                     supplier: false,
                     supplier_detail: false,
                     supplier_bank: false,
+                    cash_bank_account: false,
                     budget_plan: false,
                     budget_type: false,
                     expense_type: false,
@@ -438,6 +454,7 @@
                     receipt_date: '',
                     remaining_receipt_flag: 'N',
                     remaining_receipt_id: '',
+                    cash_bank_account_id: '',
                 },
                 loading: false,
                 linelists: [],
@@ -559,7 +576,7 @@
             },
             async getExpenseAccount(){
                 var vm = this;
-                if(vm.reqLine.expense_type != ''){
+                if(vm.reqLine.expense_type != '' || vm.reqLine.expense_type != undefined){
                     axios.post('/expense/api/requisition/get-expense-account', {
                         header: vm.requisition,
                         line: vm.reqLine,
@@ -606,6 +623,14 @@
                     errorMsg = "กรุณาเลือกผู้สั่งจ่าย";
                     $(form).find("div[id='el_explode_supplier']").html(errorMsg);
                 }
+
+                if (vm.requisition.payment_type == 'NON-PAYMENT' && vm.reqLine.cash_bank_account_id == '') {
+                    vm.errors.cash_bank_account = true;
+                    valid = false;
+                    errorMsg = "กรุณาเลือกธนาคาร";
+                    $(form).find("div[id='el_explode_cash_bank_account']").html(errorMsg);
+                }
+
                 if (vm.reqLine.supplier_id == '') {
                     vm.errors.supplier_detail = true;
                     valid = false;

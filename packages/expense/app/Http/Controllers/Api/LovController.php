@@ -24,6 +24,7 @@ use Packages\expense\app\Models\PaymentTerm;
 use Packages\expense\app\Models\ARReceiptNumberAllV;
 use Packages\expense\app\Models\Tax;
 use Packages\expense\app\Models\WHT;
+use Packages\expense\app\Models\BankAccount;
 use Packages\expense\app\Models\COAListV;
 use Packages\expense\app\Models\GLSubAccountV;
 
@@ -371,6 +372,22 @@ class LovController extends Controller
                         ->get();
 
         return response()->json(['data' => $wht]);
+    }
+
+    public function getBankAccount(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $bankAccount = BankAccount::selectRaw('bank_account_id, bank_account_name, bank_account_num')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->WhereRaw('UPPER(bank_account_name) like ?', [strtoupper($keyword).'%'])
+                                ->orWhereRaw('UPPER(bank_account_num) like ?', [strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->orderBy('bank_account_name')
+                        ->get();
+
+        return response()->json(['data' => $bankAccount]);
     }
 
     public function getExpenseAccount(Request $request)

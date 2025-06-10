@@ -895,7 +895,7 @@
             },
             async getExpenseAccount(){
                 var vm = this;
-                if(vm.temp.expense_type != ''){
+                if(vm.temp.expense_type != '' || vm.temp.expense_type != undefined){
                     axios.post('/expense/api/requisition/get-expense-account', {
                         header: vm.requisition,
                         line: vm.temp,

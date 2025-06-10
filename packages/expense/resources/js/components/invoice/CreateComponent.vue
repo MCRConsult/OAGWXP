@@ -51,6 +51,19 @@
                     <div class="col-md-2">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
+                                <strong> สำนักงานผู้เบิกจ่าย </strong>
+                            </label><br>
+                            <lovDocumentCategory
+                                :setData="search.document_category"
+                                :error="false"
+                                :editFlag="true"
+                                @setDocumentCate="setDocumentCate"
+                            ></lovDocumentCategory>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
                                 <strong> วันที่เอกสาร </strong>
                             </label><br>
                             <el-date-picker
@@ -65,7 +78,7 @@
                             <div id="el_explode_req_date" class="text-danger text-left"></div>
                         </div>
                     </div>
-                    <div class="offset-sm-2 col-md-2" align="right">
+                    <div class="col-md-2" align="right">
                         <p><br></p>
                         <button type="button" class="btn btn-primary btn-sm m-1" @click.prevent="getRequisition()">
                             ค้นหา
@@ -215,12 +228,13 @@
     import numeral from "numeral";
     import Swal from 'sweetalert2';
     import lovRequisition from "./lov/Requisition.vue";
+    import lovDocumentCategory from "../lov/DocumentCategory.vue";
     import modalHoldComp from "./_ModalHoldComponent.vue";
     import modalCancelComp from "./_ModalCancelComponent.vue";
 
     export default {
         components: {
-            lovRequisition, modalHoldComp, modalCancelComp
+            lovRequisition, lovDocumentCategory, modalHoldComp, modalCancelComp
         },
         props: ['invoiceTypes'],
         data() {
@@ -250,6 +264,7 @@
                     req_number: '',
                     invoice_type: '',
                     req_date: '',
+                    document_category: '',
                 },
                 loading: false,
                 currPage: 1,
@@ -312,6 +327,9 @@
             },
             setRequisition(res) {
                 this.search.req_number = res.requisition;
+            },
+            setDocumentCate(res){
+                this.search.document_category = res.document_category;
             },
             async getRequisition(){
                 let vm = this;

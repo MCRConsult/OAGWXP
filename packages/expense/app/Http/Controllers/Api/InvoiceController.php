@@ -16,7 +16,6 @@ class InvoiceController extends Controller
 {
     public function getRequisition(Request $request)
     {
-        // REQUISITION + REQUISITION
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
         if ($request->sourceType == 'REQUISITION') {
             $requistion = RequisitionHeader::selectRaw('distinct req_number trans_number')
@@ -116,6 +115,7 @@ class InvoiceController extends Controller
         if ($request->search['source_data'] == 'REQUISITION') {
             $requistion = RequisitionHeader::search($request->search)
                                 ->with(['user', 'user.hrEmployee', 'invoiceType', 'supplier'])
+                                ->where('payment_type', 'PAYMENT')
                                 ->whereIn('status', ['PENDING', 'COMPLETED'])
                                 ->whereNull('invoice_reference_id')
                                 ->orderBy('req_number')

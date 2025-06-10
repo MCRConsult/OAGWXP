@@ -119,9 +119,14 @@ class RequisitionController extends Controller
                 $lineTemp->remaining_receipt_flag   = $line['remaining_receipt_flag'];
                 $lineTemp->remaining_receipt_id     = $line['remaining_receipt_id'];
                 $lineTemp->remaining_receipt_number = $this->getRemainingRceipt($line['remaining_receipt_id']);
+                $lineTemp->cash_bank_account_id     = $line['cash_bank_account_id'];
                 $lineTemp->save();
             }
             \DB::commit();
+            // IF PAYMENT_TYPE == NON-PAYMENT HAVE TO CALL GL INTERFACE
+            // if ($headerTemp->payment_type == 'NON-PAYMENT') {
+                
+            // }
             // $this->reserveBudget($headerTemp, $lineTemp, $user)
 
             $data = [
@@ -266,6 +271,7 @@ class RequisitionController extends Controller
                 $lineTemp->remaining_receipt_flag   = $line['remaining_receipt_flag'];
                 $lineTemp->remaining_receipt_id     = $line['remaining_receipt_id'];
                 $lineTemp->remaining_receipt_number = $this->getRemainingRceipt($line['remaining_receipt_id']);
+                $lineTemp->cash_bank_account_id     = $line['cash_bank_account_id'];
                 $lineTemp->save();
             }
 

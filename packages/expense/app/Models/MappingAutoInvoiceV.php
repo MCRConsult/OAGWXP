@@ -48,7 +48,7 @@ class MappingAutoInvoiceV extends Model
 
     public function scopeSearch($q, $search)
     {
-        $cols = ['req_number', 'invoice_type', 'status'];
+        $cols = ['req_number', 'invoice_type', 'status', 'document_category'];
         foreach ($search as $key => $value) {
             $value = trim($value);
             if ($value) {

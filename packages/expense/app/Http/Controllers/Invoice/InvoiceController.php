@@ -38,6 +38,7 @@ class InvoiceController extends Controller
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
         $statuses = ['NEW'          => 'ขอเบิก'
                     , 'INTERFACED'  => 'เบิกจ่ายแล้ว'
+                    , 'ERROR'       => 'เบิกจ่ายไม่สำเร็จ'
                     , 'CANCELLED'   => 'ยกเลิก'];
 
         return view('expense::invoice.index', compact('invoices', 'invoiceTypes', 'statuses'));
@@ -274,7 +275,7 @@ class InvoiceController extends Controller
     {
         $invoice = InvoiceHeader::findOrFail($invoiceId);
 
-        return view('expense::invoice.show', compact('invoice',));
+        return view('expense::invoice.show', compact('invoice'));
     }
 
     public function edit($invoiceId)
@@ -356,12 +357,12 @@ class InvoiceController extends Controller
             if($request->activity == 'INTERFACE'){
                 $resultInf = $this->interface($invoiceId);
                 if ($resultInf['status'] == 'S') {
-                    $invoice->status    = 'INTERFACED';
-                    $invoice->save();
+                    $header->status    = 'INTERFACED';
+                    $header->save();
                 }else{
-                    $invoice->status        = 'ERROR';
-                    $invoice->error_message = $resultInf['message'];
-                    $invoice->save();
+                    $header->status        = 'ERROR';
+                    $header->error_message = $resultInf['message'];
+                    $header->save();
                 }
                 $data = [
                     'status' => $resultInf['status'],
@@ -440,7 +441,9 @@ class InvoiceController extends Controller
     {
         $invoice = InvoiceHeader::findOrFail($invoiceId);
         // CALL PACKAGE
-        $infIvoice =  InvoiceInterfaceHeader::where('invoice_num', $invoice->invoice_number)->first();
+        $infIvoice =  InvoiceInterfaceHeader::where('invoice_num', $invoice->invoice_number)
+                                        ->whereNull('voucher_num')
+                                        ->first();
         $resultInf = (new InvoiceHeader)->interfaceAP($infIvoice->web_batch_no);
         
         if ($resultInf['status'] == 'S') {
