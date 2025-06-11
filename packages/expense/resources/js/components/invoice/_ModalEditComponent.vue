@@ -670,7 +670,6 @@
             setExpenseType(res){
                 this.temp.expense_type = res.expense_type;
                 this.temp.expense_description = res.expense_description;
-
             },
             setArReceipt(res){
                 this.temp.ar_receipt_id = res.receipt;
@@ -712,6 +711,7 @@
                 }
                 if (res.name == this.defaultSetName.segment10) {
                     this.segment10 = res.segment10 == undefined? '': res.segment10;
+                    this.segment11 = '';
                 }
                 if (res.name == this.defaultSetName.segment11) {
                     this.segment11 = res.segment11 == undefined? '': res.segment11;

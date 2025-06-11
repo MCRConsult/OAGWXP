@@ -136,10 +136,17 @@ class InvoiceController extends Controller
             $docCate = '';
             $invoiceNum = '';
             if ($header->source_type == 'RECEIPT') {
-                $lookup = LookupV::where('lookup_type', 'OAG_AP_REVENUE_CATEGORY')
-                        ->where('description', $header->document_category)
+                if ($header->revenue_delivery_code == '02') {
+                    $lookup = LookupV::where('lookup_type', 'OAG_AP_REVENUE_CATEGORY_02')
+                        ->where('meaning', $header->document_category)
                         ->first();
-                $docCate = optional($lookup)->tag;
+                    $docCate = optional($lookup)->description;
+                }else{
+                    $lookup = LookupV::where('lookup_type', 'OAG_AP_REVENUE_CATEGORY')
+                            ->where('meaning', $header->document_category)
+                            ->first();
+                    $docCate = optional($lookup)->description;
+                }
                 $invoiceNum = $header->req_number;
             }else{
                 $invoiceNum = (new InvoiceHeader)->genDocumentNo($user->org_id, $prefixInvRef);

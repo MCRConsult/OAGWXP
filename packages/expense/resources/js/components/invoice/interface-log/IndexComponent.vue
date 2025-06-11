@@ -37,7 +37,7 @@
 
                     <div class="form-group col-md-3">
                         <label class="control-label">
-                            <strong> เลขที่เอกสารขอเบิก </strong>
+                            <strong> เลขที่ใบกำกับ </strong>
                         </label>
                         <div class="">
                             <input type="hidden" name="invoice_number" :value="search.invoice_number">
@@ -96,7 +96,7 @@
                             <div width="10%"> เลขที่ใบสำคัญ </div>
                         </th>
                         <th class="text-center sticky-col">
-                            <div width="10%"> เลขที่เอกสาร </div>
+                            <div width="10%"> เลขที่ใบกำกับ </div>
                         </th>
                         <th class="text-center sticky-col">
                             <div width="20%"> รายละเอียด </div>

@@ -23,6 +23,8 @@ class AccountController extends Controller
                                             ->orderBy('segment_num')
                                             ->get()
                                             ->pluck('segment_value', 'segment_num');
+        logger($expenseRules);
+        logger( $exp);
         //YEAR
         $year = strtoupper(date('M-y'));
         $period = GLPeriod::selectRaw("period_year+543 period_year")->where('period_name', $year)->first();

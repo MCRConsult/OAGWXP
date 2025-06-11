@@ -828,6 +828,21 @@
                 // GET EXPENSE ACCOUNT WHEN CHOOSE EXPENSE_TYPE
                 if(this.temp.expense_type != this.line.expense_type){
                     this.getExpenseAccount();
+                }else{
+                    var coa = this.line.expense_account.split('.');
+                    this.segment1 = coa[0];
+                    this.segment2 = coa[1];
+                    this.segment3 = coa[2];
+                    this.segment4 = coa[3];
+                    this.segment5 = coa[4];
+                    this.segment6 = coa[5];
+                    this.segment7 = coa[6];
+                    this.segment8 = coa[7];
+                    this.segment9 = coa[8];
+                    this.segment10 = coa[9];
+                    this.segment11 = coa[10];
+                    this.segment12 = coa[11];
+                    this.segment13 = coa[12];
                 }
             },
             setRemainingReceipt(res){
@@ -863,6 +878,7 @@
                 }
                 if (res.name == this.defaultSetName.segment10) {
                     this.segment10 = res.segment10 == undefined? '': res.segment10;
+                    this.segment11 = '';
                 }
                 if (res.name == this.defaultSetName.segment11) {
                     this.segment11 = res.segment11 == undefined? '': res.segment11;
