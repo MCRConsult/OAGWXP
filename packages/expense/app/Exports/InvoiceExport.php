@@ -17,8 +17,8 @@ class InvoiceExport implements FromView, ShouldAutoSize, WithColumnFormatting, W
 {
     public function view(): View
     {
-        $invDateFrom = request()->invoice_date_from ?? date('Y-m-d');
-        $invDateTo = request()->invoice_date_to ?? date('Y-m-d');
+        $invDateFrom = request()->invoice_date_from ?? null;
+        $invDateTo = request()->invoice_date_to ?? null;
         $invoices = InvoiceReportV::search(request())
                                 ->where('invoice_status', 'INTERFACED')
                                 ->orderByRaw('req_number, invoice_number')

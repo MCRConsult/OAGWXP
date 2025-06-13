@@ -229,9 +229,14 @@
                 </div>
                 <div class="row text-center">
                     <div class="col-md-12 ">
-                        <a href="{{ route('expense.invoice.re-submit', $invoice->id) }}" class="btn btn-danger btn-sm">
-                            ส่งเข้าระบบใหม่
-                        </a>
+                        @if ($invoice->status == 'ERROR')
+                            {{-- <a href="{{ route('expense.invoice.edit', $invoice->id) }}" class="btn btn-warning btn-sm">
+                                แก้ไขรายการ
+                            </a> --}}
+                            <a href="{{ route('expense.invoice.re-submit', $invoice->id) }}" class="btn btn-danger btn-sm">
+                                ส่งเข้าระบบใหม่
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>

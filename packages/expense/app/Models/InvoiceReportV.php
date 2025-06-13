@@ -18,13 +18,19 @@ class InvoiceReportV extends Model
 
     public function scopeSearch($q, $search)
     {
-        $invDateFrom = $search->invoice_date_from ?? date('Y-m-d');
-        $invDateTo = $search->invoice_date_to ?? date('Y-m-d');
-        // REQ NUMBER
-        if ($search->req_number_from && $search->req_number_to) {
-            $q->whereBetween('req_number', [$search->req_number_from, $search->req_number_to]);
-        }elseif ($search->req_number_from && !$search->req_number_to) {
-            $q->where('req_number', $search->req_number_from);
+        $invDateFrom = $search->invoice_date_from ?? null;
+        $invDateTo = $search->invoice_date_to ?? null;
+        // INVOICE NUMBER
+        if ($search->invoice_number_from && $search->invoice_number_to) {
+            $q->whereBetween('invoice_number', [$search->invoice_number_from, $search->invoice_number_to]);
+        }elseif ($search->invoice_number_from && !$search->invoice_number_to) {
+            $q->where('invoice_number', $search->invoice_number_from);
+        }
+        // VOUCHER NUMBER
+        if ($search->voucher_number_from && $search->voucher_number_to) {
+            $q->whereBetween('voucher_number', [$search->voucher_number_from, $search->voucher_number_to]);
+        }elseif ($search->voucher_number_from && !$search->voucher_number_to) {
+            $q->where('voucher_number', $search->voucher_number_from);
         }
         // SUPPLIER
         if ($search->supplier_from && $search->supplier_to) {

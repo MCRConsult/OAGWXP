@@ -37,6 +37,7 @@ Route::group(['middleware' => ['web', 'auth']], function () {
             Route::prefix('invoice')->namespace('Invoice')->name('invoice.')->group(function() {
                 Route::post('/fetch-render-page', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@fetchInvoiceRenderPage');
                 Route::get('/get-requisition', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@getRequisition');
+                Route::get('/get-invoice', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@getInvoice');
                 Route::get('/get-voucher', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@getVoucher');
                 // INTERFACE LOG
                 Route::post('/fetch-interface-render-page', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@fetchInterfaceRenderPage');

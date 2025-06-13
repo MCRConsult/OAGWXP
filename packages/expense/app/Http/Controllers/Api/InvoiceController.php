@@ -45,6 +45,22 @@ class InvoiceController extends Controller
         return response()->json(['data' => $requistion]);
     }
 
+    public function getInvoice(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $vouchers = InvoiceHeader::selectRaw('distinct invoice_number')
+                    ->when($keyword, function ($query, $keyword) {
+                        return $query->where(function($r) use ($keyword) {
+                            $r->whereRaw('UPPER(invoice_number) like ?', ['%'.strtoupper($keyword).'%']);
+                        });
+                    })
+                    ->orderBy('invoice_number')
+                    ->limit(25)
+                    ->get();
+
+        return response()->json(['data' => $vouchers]);
+    }
+
     public function getVoucher(Request $request)
     {
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';

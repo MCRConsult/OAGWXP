@@ -19,7 +19,6 @@
                                 @change="changeDateFormatFrom"
                             />
                         </div>
-
                         <div class="form-group col-md-3">
                             <label class="control-label">
                                 <strong> วันที่เอกสารขอเบิก ถึง </strong>
@@ -35,38 +34,64 @@
                                 @change="changeDateFormatTo"
                             />
                         </div>
-
                         <div class="form-group col-md-3">
                             <label class="control-label">
-                                <strong> เลขที่เอกสารส่งเบิก ตั้งแต่ </strong>
+                                <strong> เลขที่ใบกำกับ ตั้งแต่ </strong>
                             </label>
                             <div class="">
-                                <input type="hidden" name="req_number_from" :value="search.req_number_from">
-                                <lovRequisition
-                                    :setData="search.req_number_from"
+                                <input type="hidden" name="invoice_number_from" :value="search.invoice_number_from">
+                                <lovInvoice
+                                    :setData="search.invoice_number_from"
                                     :error="false"
                                     :editFlag="true"
-                                    @setRequisition="setRequisitionFrom"
+                                    @setInvoice="setInvoiceFrom"
                                 />
                             </div>
                         </div>
-
                         <div class="form-group col-md-3">
                             <label class="control-label">
-                                <strong> เลขที่เอกสารส่งเบิก ถึง </strong>
+                                <strong> เลขที่ใบกำกับ ถึง </strong>
                             </label>
                             <div class="">
-                                <input type="hidden" name="req_number_to" :value="search.req_number_to">
-                                <lovRequisition
-                                    :setData="search.req_number_to"
+                                <input type="hidden" name="invoice_number_to" :value="search.invoice_number_to">
+                                <lovInvoice
+                                    :setData="search.invoice_number_to"
                                     :error="false"
                                     :editFlag="true"
-                                    @setRequisition="setRequisitionTo"
+                                    @setInvoice="setInvoiceTo"
                                 />
                             </div>
                         </div>
                     </div>
                     <div class="row" style="padding-top: 5px;">
+                        <div class="form-group col-md-3">
+                            <label class="control-label">
+                                <strong> เลขที่ใบสำคัญ ตั้งแต่ </strong>
+                            </label>
+                            <div class="">
+                                <input type="hidden" name="voucher_number_from" :value="search.voucher_number_from">
+                                <lovVoucher
+                                    :setData="search.voucher_number_from"
+                                    :error="false"
+                                    :editFlag="true"
+                                    @setVoucher="setVoucherFrom"
+                                />
+                            </div>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label class="control-label">
+                                <strong> เลขที่ใบสำคัญ ถึง </strong>
+                            </label>
+                            <div class="">
+                                <input type="hidden" name="voucher_number_to" :value="search.voucher_number_to">
+                                <lovVoucher
+                                    :setData="search.voucher_number_to"
+                                    :error="false"
+                                    :editFlag="true"
+                                    @setVoucher="setVoucherTo"
+                                />
+                            </div>
+                        </div>
                         <div class="form-group col-md-3">
                             <label class="control-label">
                                 <strong> ชื่อสั่งจ่าย ตั้งแต่ </strong>
@@ -95,10 +120,12 @@
                                 />
                             </div>
                         </div>
+                    </div>
+                    <div class="row" style="padding-top: 5px;">
                         <div class="col-lg-6" style="margin-top: 10px;">
                             <div class="text-right">
                                 <span> &nbsp; <br> </span>
-                                <button type="submit" class="btn btn-success btn-sm m-1">
+                                <button type="submit" class="btn btn-success btn-sm m-1" target="_blank">
                                     พิมพ์รายงาน
                                 </button>
                             </div>
@@ -112,13 +139,14 @@
 
 <script>
 import moment from "moment";
-import lovRequisition from "./lov/Requisition.vue";
+import lovInvoice from "./lov/Invoice.vue";
+import lovVoucher from "./lov/Voucher.vue";
 import lovSupplier from "./lov/Supplier.vue";
 
 export default {
     props: ['pFormUrl', 'pToken', 'pSearch'],
     components: {
-        lovRequisition, lovSupplier
+        lovInvoice, lovVoucher, lovSupplier
     },
     data() {
         return {
@@ -128,8 +156,10 @@ export default {
             search: {
                 invoice_date_from: '',
                 invoice_date_to: '',
-                req_number_from: '',
-                req_number_to: '',
+                invoice_number_from: '',
+                invoice_number_to: '',
+                voucher_number_from: '',
+                voucher_number_to: '',
                 supplier_from: '',
                 supplier_to: '',
             },
@@ -144,9 +174,12 @@ export default {
                                         ? moment(this.pSearch.invoice_date_to, 'YYYY-MM-DD')
                                         : moment().format('YYYY-MM-DD');
         this.changeDateFormat();
-        //req_number
-        this.search.req_number_from = this.pSearch.length <= 0? '' : this.pSearch.req_number_from;
-        this.search.req_number_to = this.pSearch.length <= 0? '' : this.pSearch.req_number_to;
+        //invoice_number
+        this.search.invoice_number_from = this.pSearch.length <= 0? '' : this.pSearch.invoice_number_from;
+        this.search.invoice_number_to = this.pSearch.length <= 0? '' : this.pSearch.invoice_number_to;
+        //voucher_number
+        this.search.voucher_number_from = this.pSearch.length <= 0? '' : this.pSearch.voucher_number_from;
+        this.search.voucher_number_to = this.pSearch.length <= 0? '' : this.pSearch.voucher_number_to;
         //supplier
         this.search.supplier_from = this.pSearch.length <= 0? '' : this.pSearch.supplier_from;
         this.search.supplier_to = this.pSearch.length <= 0? '' : this.pSearch.supplier_to;
@@ -154,12 +187,19 @@ export default {
     watch: {
     },
     methods: {
-        setRequisitionFrom(res) {
-            this.search.req_number_from = res.requisition;
-            this.search.req_number_to = res.requisition;
+        setInvoiceFrom(res) {
+            this.search.invoice_number_from = res.invoice;
+            this.search.invoice_number_to = res.invoice;
         },
-        setRequisitionTo(res) {
-            this.search.req_number_to = res.requisition;
+        setInvoiceTo(res) {
+            this.search.invoice_number_to = res.invoice;
+        },
+        setVoucherFrom(res) {
+            this.search.voucher_number_from = res.voucher;
+            this.search.voucher_number_to = res.voucher;
+        },
+        setVoucherTo(res) {
+            this.search.voucher_number_to = res.voucher;
         },
         setSupplierFrom(res){
             this.search.supplier_from = res.supplier;
@@ -171,16 +211,17 @@ export default {
         changeDateFormat() {
             this.search.invoice_date_from = '';
             this.search.invoice_date_to = '';
-            if(this.invoice_date_from_input){
+            if(this.invoice_date_from_input != null){
                 const formattedDate = moment(this.invoice_date_from_input, "YYYY-MM-DD").format("YYYY-MM-DD");
                 this.search.invoice_date_from = formattedDate;
             }
-            if(this.invoice_date_to_input){
+            if(this.invoice_date_to_input != null){
                 const formattedDate = moment(this.invoice_date_to_input, "YYYY-MM-DD").format("YYYY-MM-DD");
                 this.search.invoice_date_to = formattedDate;
             }
         },
         changeDateFormatFrom() {
+            this.search.invoice_date_from = '';
             if(this.invoice_date_from_input){
                 const formattedDate = moment(this.invoice_date_from_input, "YYYY-MM-DD").format("YYYY-MM-DD");
                 this.search.invoice_date_from = formattedDate;
@@ -189,6 +230,7 @@ export default {
             }
         },
         changeDateFormatTo() {
+            this.search.invoice_date_to = '';
             if(this.invoice_date_to_input){
                 const formattedDate = moment(this.invoice_date_to_input, "YYYY-MM-DD").format("YYYY-MM-DD");
                 this.search.invoice_date_to = formattedDate;
