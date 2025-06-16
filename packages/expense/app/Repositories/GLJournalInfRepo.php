@@ -74,7 +74,7 @@ class GLJournalInfRepo {
             }
 
             // LIST CR BY BANK ACCOUNT
-            $cashAccount = optional($line->cashBankAccount)->cash_acc;
+            $cashAccount = optional($requistion->cashBankAccount)->cash_acc;
             if ($cashAccount) {
                 $coa = explode('.', $cashAccount);
                 $glCrInf                           = new GLJournalInterface;

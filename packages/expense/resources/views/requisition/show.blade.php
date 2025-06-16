@@ -40,14 +40,16 @@
                             {{ $requisition->paymentType->description }}
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="form-group" style="padding: 5px;">
-                            <label class="control-label">
-                                <strong> ธนาคาร </strong>
-                            </label><br>
-                            {{ $requisition->cashBankAccount->bank_account_num }} : {{ $requisition->cashBankAccount->bank_account_name }}
+                    @if ($requisition->cash_bank_account_id)
+                        <div class="col-md-3">
+                            <div class="form-group" style="padding: 5px;">
+                                <label class="control-label">
+                                    <strong> ธนาคาร </strong>
+                                </label><br>
+                                {{ $requisition->cashBankAccount->bank_account_num }} : {{ $requisition->cashBankAccount->bank_account_name }}
+                            </div>
                         </div>
-                    </div>
+                    @endif
                 </div>
                 <div class="row">
                     <div class="col-md-3">
