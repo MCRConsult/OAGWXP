@@ -10,18 +10,18 @@ use Packages\expense\app\Models\GLBudgetReservations;
 
 class BudgetInfRepo {
 
-	public function reserveBudget($requistion, $user)
+	public function reserveBudget($requisition, $user)
     {
-        $batchNo = 'RESV-'.date('Ymd').'-'$requistion->req_number;
+        $batchNo = 'RESV-'.date('Ymd').'-'.$requisition->req_number;
         \DB::beginTransaction();
         try {
             // INTERFACE HEADER
-            foreach ($requistion->lines as $key => $line) {
+            foreach ($requisition->lines as $key => $line) {
                 $reserve                     = new GLBudgetReservations;
                 $reserve->reserve_date       = date('Y-m-d');
                 $reserve->reserve_type       = 'RESERVE';
                 $reserve->amount             = $line->amount;
-                $reserve->description        = $requistion->req_number.' '.$line->description;
+                $reserve->description        = $requisition->req_number.' '.$line->description;
                 $reserve->source_table_name  = $line->getTable();
                 $reserve->source_table_id    = $line->id;
                 $reserve->period_name        = date('M-y');

@@ -126,10 +126,10 @@ class RequisitionController extends Controller
             }
             \DB::commit();
 
-            $requistion = RequisitionHeader::findOrFail($headerTemp->id);
+            $requisition = RequisitionHeader::findOrFail($headerTemp->id);
             // IF PAYMENT_TYPE == NON-PAYMENT HAVE TO CALL GL INTERFACE
             if ($headerTemp->payment_type == 'NON-PAYMENT') {
-                $result = (new GLJournalInfRepo)->insertInterface($requistion);
+                $result = (new GLJournalInfRepo)->insertInterface($requisition);
                 if ($result['status'] == 'S') {
                     $header->status        = 'INTERFACED';
                     $header->save();
@@ -141,7 +141,7 @@ class RequisitionController extends Controller
             }else{
                 // 1 FIND FUND CHECK BUDGET
                 $findFunds = [];
-                foreach ($requistion->lines as $key => $line) {
+                foreach ($requisition->lines as $key => $line) {
                     // FIND FUND AVALIABLE
                     $budgetAvaliable = (new GLAccountHierarchyV)->findFund($user->org_id, $line->expense_account);
                     // GET SUMMARY ACCOUNT
@@ -150,24 +150,24 @@ class RequisitionController extends Controller
                     if ($budgetAvaliable != null) {
                         if (isset($findFunds[$budgetAccount])) {
                             if ($findFunds[$budgetAccount] <= 0) {
-                                $requistion->status = 'PENDING';
+                                $requisition->status = 'PENDING';
                             }elseif($findFunds[$budgetAccount] - $line->amount <= 0){
-                                $requistion->status = 'PENDING';
+                                $requisition->status = 'PENDING';
                             }else{
                                 $findFunds[$budgetAccount] = $findFunds[$budgetAccount] - $line->amount;
                             }
                         }else{
                             if ($budgetAvaliable <= 0) {
-                                $requistion->status = 'PENDING';
+                                $requisition->status = 'PENDING';
                             }elseif($budgetAvaliable - $line->amount <= 0){
-                                $requistion->status = 'PENDING';
+                                $requisition->status = 'PENDING';
                             }else{
                                 $findFunds[$budgetAccount] = $budgetAvaliable - $line->amount;
                             }
                         }
                     }
                 }
-                $result = (new BudgetInfRepo)->reserveBudget($requistion, $user);
+                $result = (new BudgetInfRepo)->reserveBudget($requisition, $user);
                 if ($result['status'] == 'S') {
                     $header->status        = 'INTERFACED';
                     $header->save();
@@ -436,6 +436,11 @@ class RequisitionController extends Controller
         $receipt = ARBudgetReceiptV::where('cash_receipt_id', $receiptId)->first();
         return optional($receipt)->receipt_number;
     }
+
+    // public function reserveBudget($requisition, $user)
+    // {
+    //     $result = (new BudgetInfRepo)->reserveBudget($requisition, $user);
+    // }
 
     public function reSubmit($reqId)
     {
