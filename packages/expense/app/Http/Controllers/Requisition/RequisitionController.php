@@ -125,58 +125,8 @@ class RequisitionController extends Controller
                 $lineTemp->save();
             }
             \DB::commit();
-
-            $requisition = RequisitionHeader::findOrFail($headerTemp->id);
-            // IF PAYMENT_TYPE == NON-PAYMENT HAVE TO CALL GL INTERFACE
-            if ($headerTemp->payment_type == 'NON-PAYMENT') {
-                $result = (new GLJournalInfRepo)->insertInterface($requisition);
-                if ($result['status'] == 'S') {
-                    $header->status        = 'INTERFACED';
-                    $header->save();
-                }else{
-                    $header->status        = 'ERROR';
-                    $header->error_message = $result['message'];
-                    $header->save();
-                }
-            }else{
-                // 1 FIND FUND CHECK BUDGET
-                $findFunds = [];
-                foreach ($requisition->lines as $key => $line) {
-                    // FIND FUND AVALIABLE
-                    $budgetAvaliable = (new GLAccountHierarchyV)->findFund($user->org_id, $line->expense_account);
-                    // GET SUMMARY ACCOUNT
-                    $account = GLAccountHierarchyV::where('account_code', $line->expense_account)->first();
-                    $budgetAccount = optional($account)->summary_code_combination_id;
-                    if ($budgetAvaliable != null) {
-                        if (isset($findFunds[$budgetAccount])) {
-                            if ($findFunds[$budgetAccount] <= 0) {
-                                $requisition->status = 'PENDING';
-                            }elseif($findFunds[$budgetAccount] - $line->amount <= 0){
-                                $requisition->status = 'PENDING';
-                            }else{
-                                $findFunds[$budgetAccount] = $findFunds[$budgetAccount] - $line->amount;
-                            }
-                        }else{
-                            if ($budgetAvaliable <= 0) {
-                                $requisition->status = 'PENDING';
-                            }elseif($budgetAvaliable - $line->amount <= 0){
-                                $requisition->status = 'PENDING';
-                            }else{
-                                $findFunds[$budgetAccount] = $budgetAvaliable - $line->amount;
-                            }
-                        }
-                    }
-                }
-                $result = (new BudgetInfRepo)->reserveBudget($requisition, $user);
-                if ($result['status'] == 'S') {
-                    $header->status        = 'INTERFACED';
-                    $header->save();
-                }else{
-                    $header->status        = 'ERROR';
-                    $header->error_message = $result['message'];
-                    $header->save();
-                }
-            }
+            // CALL GL INTERFACE + RESERVE BUDGET
+            $result = $this->requisitionConfirm($headerTemp);
             $data = [
                 'status' => 'SUCCESS',
                 'message' => '',
@@ -437,31 +387,99 @@ class RequisitionController extends Controller
         return optional($receipt)->receipt_number;
     }
 
+    public function requisitionConfirm($headerTemp)
+    {
+        $requisition = RequisitionHeader::findOrFail($headerTemp->id);
+        // IF PAYMENT_TYPE == NON-PAYMENT HAVE TO CALL GL INTERFACE
+        if ($requisition->payment_type == 'NON-PAYMENT') {
+            $result = (new GLJournalInfRepo)->insertInterface($requisition);
+            if ($result['status'] == 'S') {
+                $requisition->status        = 'INTERFACED';
+                $requisition->save();
+            }else{
+                $requisition->status        = 'ERROR';
+                $requisition->error_message = $result['message'];
+                $requisition->save();
+            }
+        }else{
+            // 1 FIND FUND CHECK BUDGET
+            $findFunds = [];
+            foreach ($requisition->lines as $key => $line) {
+                // FIND FUND AVALIABLE
+                $budgetAvaliable = (new GLAccountHierarchyV)->findFund($user->org_id, $line->expense_account);
+                // GET SUMMARY ACCOUNT
+                $account = GLAccountHierarchyV::where('account_code', $line->expense_account)->first();
+                $budgetAccount = optional($account)->summary_code_combination_id;
+                if ($budgetAvaliable != null) {
+                    if (isset($findFunds[$budgetAccount])) {
+                        if ($findFunds[$budgetAccount] <= 0) {
+                            $requisition->status = 'PENDING';
+                        }elseif($findFunds[$budgetAccount] - $line->amount <= 0){
+                            $requisition->status = 'PENDING';
+                        }else{
+                            $findFunds[$budgetAccount] = $findFunds[$budgetAccount] - $line->amount;
+                        }
+                    }else{
+                        if ($budgetAvaliable <= 0) {
+                            $requisition->status = 'PENDING';
+                        }elseif($budgetAvaliable - $line->amount <= 0){
+                            $requisition->status = 'PENDING';
+                        }else{
+                            $findFunds[$budgetAccount] = $budgetAvaliable - $line->amount;
+                        }
+                    }
+                }
+            }
+            $result = (new BudgetInfRepo)->reserveBudget($requisition, $user);
+            if ($result['status'] == 'S') {
+                $requisition->status        = 'INTERFACED';
+                $requisition->save();
+            }else{
+                $requisition->status        = 'ERROR';
+                $requisition->error_message = $result['message'];
+                $requisition->save();
+            }
+        }
+
+        return $result;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
     // public function reserveBudget($requisition, $user)
     // {
     //     $result = (new BudgetInfRepo)->reserveBudget($requisition, $user);
     // }
 
-    public function reSubmit($reqId)
-    {
-        $requisition = RequisitionHeader::findOrFail($reqId);
-        // CALL PACKAGE
-        $infGLJournal =  GLJournalInterface::where('reference2', $requisition->req_number)
-                                        ->where('interface_status', 'E')
-                                        ->first();
-        $resultInf = (new RequisitionHeader)->interfaceGL($infGLJournal->reference1);
+    // public function reSubmit($reqId)
+    // {
+    //     $requisition = RequisitionHeader::findOrFail($reqId);
+    //     // CALL PACKAGE
+    //     $infGLJournal =  GLJournalInterface::where('reference2', $requisition->req_number)
+    //                                     ->where('interface_status', 'E')
+    //                                     ->first();
+    //     $resultInf = (new RequisitionHeader)->interfaceGL($infGLJournal->reference1);
         
-        if ($resultInf['status'] == 'S') {
-            $invoice->status  = 'INTERFACED';
-            $invoice->save();
+    //     if ($resultInf['status'] == 'S') {
+    //         $invoice->status  = 'INTERFACED';
+    //         $invoice->save();
 
-            return redirect()->back()->with('message', 'ส่งข้อมูลเข้าระบบเรียบร้อยแล้ว');
-        }else{
-            $invoice->status        = 'ERROR';
-            $invoice->error_message = $resultInf['error_msg'];
-            $invoice->save();
+    //         return redirect()->back()->with('message', 'ส่งข้อมูลเข้าระบบเรียบร้อยแล้ว');
+    //     }else{
+    //         $invoice->status        = 'ERROR';
+    //         $invoice->error_message = $resultInf['error_msg'];
+    //         $invoice->save();
 
-            return redirect()->back()->withErrors($resultInf['error_msg']);
-        }
-    }
+    //         return redirect()->back()->withErrors($resultInf['error_msg']);
+    //     }
+    // }
 }
