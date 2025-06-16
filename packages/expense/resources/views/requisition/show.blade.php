@@ -206,7 +206,7 @@
                 </div>
                 <div class="row text-center">
                     <div class="col-md-12 ">
-                        @if ($invoice->status == 'ERROR')
+                        @if ($requisition->status == 'ERROR')
                             {{-- <a href="{{ route('expense.invoice.edit', $invoice->id) }}" class="btn btn-warning btn-sm">
                                 แก้ไขรายการ
                             </a> --}}
