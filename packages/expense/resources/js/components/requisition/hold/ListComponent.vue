@@ -25,12 +25,12 @@
                     :defaultSetName="defaultSetName"
                     @updateRow="updateRow"
                 />
-                <button type="button" @click.prevent="copy(index)" class="btn btn-sm btn-primary m-1" style="">
+                <!-- <button type="button" @click.prevent="copy(index)" class="btn btn-sm btn-primary m-1" style="">
                     คัดลอก
                 </button>
                 <button type="button" @click.prevent="remove(index)" class="btn btn-sm btn-danger m-1" style="">
                     ลบรายการ
-                </button>
+                </button> -->
             </div>
         </td>
     </tr>

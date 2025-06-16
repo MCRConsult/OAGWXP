@@ -11,10 +11,38 @@
                             <budgetSource 
                                 :setData="header.budget_source"
                                 :error="errors.budget_source"
-                                :editFlag="true"
+                                :editFlag="false"
                                 @setBudgetSource="setBudgetSource"
                             ></budgetSource>
                             <div id="el_explode_budget_source" class="text-danger text-left"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ประเภทการขอเบิก <span class="text-danger"> *</span></strong>
+                            </label><br>
+                            <paymentType
+                                :setData="header.payment_type"
+                                :error="errors.payment_type"
+                                :editFlag="true"
+                                @setPaymentType="setPaymentType"
+                            ></paymentType>
+                            <div id="el_explode_payment_type" class="text-danger text-left"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-3" v-if="header.payment_type == 'NON-PAYMENT'">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ธนาคาร <span class="text-danger"> * </span></strong>
+                            </label><br>
+                            <bankAccount
+                                :setData="header.cash_bank_account_id"
+                                :error="errors.cash_bank_account"
+                                :editFlag="true"
+                                @setBankAccount="setBankAccount"
+                            ></bankAccount>
+                            <div id="el_explode_cash_bank_account" class="text-danger text-left"></div>
                         </div>
                     </div>
                 </div>
@@ -64,20 +92,6 @@
                                 @change="changeReqDateFormat"
                             />
                             <div id="el_explode_req_date" class="text-danger text-left"></div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group" style="padding: 5px;">
-                            <label class="control-label">
-                                <strong> ประเภทการขอเบิก <span class="text-danger"> *</span></strong>
-                            </label><br>
-                            <paymentType
-                                :setData="header.payment_type"
-                                :error="errors.payment_type"
-                                :editFlag="true"
-                                @setPaymentType="setPaymentType"
-                            ></paymentType>
-                            <div id="el_explode_payment_type" class="text-danger text-left"></div>
                         </div>
                     </div>
                 </div>
@@ -149,161 +163,6 @@
                     </div>
                 </div>
                 <hr>
-                <div class="card row" style="background-color: #8cbbff; border: 1px solid #8cbbff;">
-                    <div class="card-header" style="background-color: #8cbbff; padding: 10px;">
-                        <strong> รายการเอกสารส่งเบิก </strong>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="form-group" style="padding: 5px;">
-                            <label class="control-label" style="margin-bottom: 0.4rem;">
-                                <!-- เพิ่มเงื่อนไขเช็ค multi -->
-                                <strong> ชื่อสั่งจ่าย <span class="text-danger"> * </span></strong> &nbsp;
-                            </label><br>
-                            <supplier
-                                :setData="reqLine.supplier_id"
-                                :error="errors.supplier_detail"
-                                :editFlag="header.multiple_supplier == 'MORE'? true: false"
-                                @setSupplier="setSupplierLine"
-                            ></supplier>
-                            <div id="el_explode_supplier_detail" class="text-danger text-left"></div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group" style="padding: 5px;">
-                            <label class="control-label">
-                                <strong> เลขที่บัญชีธนาคาร <span class="text-danger"> *</span></strong>
-                            </label><br>
-                            <!-- เพิ่มเงื่อนไขเช็ค multi -->
-                            <supplierBank
-                                :parent="reqLine.supplier_id"
-                                :setData="reqLine.bank_account_number"
-                                :error="errors.supplier_bank"
-                                :editFlag="true"
-                                @setSupplierBank="setSupplierBank"
-                            ></supplierBank>
-                            <div id="el_explode_supplier_bank" class="text-danger text-left"></div>
-                        </div>
-                    </div>
-                    <div class="col-md-3" v-if="header.payment_type == 'NON-PAYMENT'">
-                        <div class="form-group" style="padding: 5px;">
-                            <label class="control-label">
-                                <strong> ธนาคาร <span class="text-danger"> * </span></strong>
-                            </label><br>
-                            <bankAccount
-                                :setData="reqLine.cash_bank_account_id"
-                                :error="errors.cash_bank_account"
-                                :editFlag="true"
-                                @setBankAccount="setBankAccount"
-                            ></bankAccount>
-                            <div id="el_explode_cash_bank_account" class="text-danger text-left"></div>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group" style="padding: 5px;">
-                            <label class="control-label" style="margin: 3px;">
-                                &nbsp; <br>
-                            </label><br>
-                            <detailComp
-                                :requisition="header"
-                                :reqLine="reqLine"
-                                :errors="errors"
-                            ></detailComp>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="form-group" style="padding: 5px;">
-                            <label class="control-label">
-                                <strong> แผนงาน <span class="text-danger"> * </span></strong>
-                            </label><br>
-                            <budgetPlan 
-                                :setData="reqLine.budget_plan"
-                                :error="errors.budget_plan"
-                                :editFlag="true"
-                                @setBudgetPlan="setBudgetPlan"
-                            ></budgetPlan>
-                            <div id="el_explode_budget_plan" class="text-danger text-left"></div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group" style="padding: 5px;">
-                            <label class="control-label">
-                                <strong> ประเภทรายจ่าย <span class="text-danger"> * </span></strong>
-                            </label><br>
-                            <budgetType
-                                :parent="reqLine.budget_plan"
-                                :setData="reqLine.budget_type"
-                                :error="errors.budget_type"
-                                :editFlag="true"
-                                @setBudgetType="setBudgetType"
-                            ></budgetType>
-                            <div id="el_explode_budget_type" class="text-danger text-left"></div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group" style="padding: 5px;">
-                            <label class="control-label">
-                                <strong> ประเภทค่าใช้จ่าย <span class="text-danger"> * </span></strong>
-                            </label><br>
-                            <expenseType
-                                :parent="reqLine.budget_type"
-                                :setData="reqLine.expense_type"
-                                :error="errors.expense_type"
-                                :editFlag="true"
-                                @setExpenseType="setExpenseType"
-                            ></expenseType>
-                            <div id="el_explode_expense_type" class="text-danger text-left"></div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="control-label">
-                            <strong> รายการบัญชี <span class="text-danger"> * </span></strong>
-                        </label><br>
-                        <el-input v-model="reqLine.expense_account" style="width: 85%;" ref="expense_account" readonly/>
-                        <modalAccountComp
-                            :reqLine="reqLine"
-                            :defaultSetName="defaultSetName"
-                            @updateAccount="updateAccount"
-                        />
-                        <div id="el_explode_expense_account" class="text-danger text-left"></div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="form-group" style="padding: 5px;">
-                            <label class="control-label">
-                                <strong> จำนวนเงิน <span class="text-danger"> * </span></strong>
-                            </label><br>
-                            <vue-numeric style="width: 100%;"
-                                name="amount"
-                                v-bind:minus="false"
-                                v-bind:precision="2"
-                                :min="0"
-                                :max="999999999"
-                                class="form-control text-right"
-                                v-model="reqLine.amount"
-                                ref="amount"
-                                autocomplete="off"
-                            ></vue-numeric>
-                            <div id="el_explode_amount" class="text-danger text-left"></div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group" style="padding: 5px;">
-                            <label class="control-label">
-                                <strong> คำอธิบายรายการ </strong>
-                            </label><br>
-                            <el-input v-model="reqLine.description" type="textarea" size="default" :rows="2" style="width: 100%;" placeholder="" maxlength="240" show-word-limit/>
-                        </div>
-                    </div>
-                </div>
-                <div align="right">
-                    <button type="submit" class="btn btn-sm btn-success" @click.prevent="addRequisitionLine()">เพิ่มรายการ</button>
-                </div>
-                <br>
                 <!-- TABLE LINE LISTS-->
                 <div class="table-responsive" style="max-height: 600px;">
                     <table class="table text-nowrap table-hover">
@@ -440,7 +299,6 @@
                     receipt_date: '',
                     remaining_receipt_flag: 'N',
                     remaining_receipt_id: '',
-                    cash_bank_account_id: '',
                 },
                 loading: false,
                 // SEGMENT
@@ -474,8 +332,8 @@
                 return numeral(value).format("0,0.00");
             },
             changeReqDateFormat() {
-                const formattedDate = moment(this.requisition.req_date, "YYYY-MM-DD").format("YYYY-MM-DD");
-                this.requisition.req_date = formattedDate;
+                const formattedDate = moment(this.header.req_date, "YYYY-MM-DD").format("YYYY-MM-DD");
+                this.header.req_date = formattedDate;
             },
             setError(ref_name){
                 let ref =  this.$refs[ref_name].$refs.referenceRef
@@ -502,20 +360,20 @@
                 ref.style = "";
             },
             setBudgetSource(res){
-                this.requisition.budget_source = res.budget_source;
+                this.header.budget_source = res.budget_source;
                 this.isARReceipt(res.budget_source);
                 this.getDocumentCate(res.budget_source);
             },
             setDocumentCate(res){
-                this.requisition.document_category = res.document_category;
+                this.header.document_category = res.document_category;
             },
             setPaymentType(res){
-                this.requisition.payment_type = res.payment_type;
+                this.header.payment_type = res.payment_type;
             },
             setSupplierHeader(res){
-                this.requisition.supplier_id = res.supplier;
-                this.requisition.supplier_name = res.vendor_name;
-                if(this.requisition.multiple_supplier == 'ONE'){
+                this.header.supplier_id = res.supplier;
+                this.header.supplier_name = res.vendor_name;
+                if(this.header.multiple_supplier == 'ONE'){
                     this.reqLine.supplier_id = res.supplier;
                     this.reqLine.supplier_name = res.vendor_name;
                 }
@@ -529,7 +387,7 @@
                 this.reqLine.bank_account_number = res.supplier_bank;
             },
             setBankAccount(res){
-                this.reqLine.cash_bank_account_id = res.cash_bank_account_id;
+                this.header.cash_bank_account_id = res.cash_bank_account_id;
             },
             setBudgetPlan(res){
                 this.reqLine.budget_plan = res.budget_plan;
@@ -598,168 +456,6 @@
                 this.reqLine.expense_account = res.expense_account;
                 this.extractAccount();
             },
-            addRequisitionLine() {
-                var vm = this;
-                var form = $('#edit-form');
-                let errorMsg = '';
-                this.resetValues();
-                let valid = true;
-                if (vm.requisition.supplier_id == '') {
-                    vm.errors.supplier = true;
-                    valid = false;
-                    errorMsg = "กรุณาเลือกผู้สั่งจ่าย";
-                    $(form).find("div[id='el_explode_supplier']").html(errorMsg);
-                }
-                if (vm.reqLine.supplier_id == '') {
-                    vm.errors.supplier_detail = true;
-                    valid = false;
-                    errorMsg = "กรุณาเลือกผู้สั่งจ่าย";
-                    $(form).find("div[id='el_explode_supplier_detail']").html(errorMsg);
-                }
-                if (vm.reqLine.bank_account_number == '') {
-                    vm.errors.supplier_bank = true;
-                    valid = false;
-                    errorMsg = "กรุณาเลือกเลขที่บัญชีธนาคาร";
-                    $(form).find("div[id='el_explode_supplier_bank']").html(errorMsg);
-                }
-                if (vm.reqLine.budget_plan == '') {
-                    vm.errors.budget_plan = true;
-                    valid = false;
-                    errorMsg = "กรุณาเลือกแผนงาน";
-                    $(form).find("div[id='el_explode_budget_plan']").html(errorMsg);
-                }
-                if (vm.reqLine.budget_type == '') {
-                    vm.errors.budget_type = true;
-                    valid = false;
-                    errorMsg = "กรุณาเลือกประเภทรายจ่าย";
-                    $(form).find("div[id='el_explode_budget_type']").html(errorMsg);
-                }
-                if (vm.reqLine.expense_type == '') {
-                    vm.errors.expense_type = true;
-                    valid = false;
-                    errorMsg = "กรุณาเลือกประเภทค่าใช้จ่าย";
-                    $(form).find("div[id='el_explode_expense_type']").html(errorMsg);
-                }
-                if (vm.reqLine.amount == '') {
-                    vm.errors.amount = true;
-                    valid = false;
-                    errorMsg = "กรุณากรอกจำนวนเงิน";
-                    $(form).find("div[id='el_explode_amount']").html(errorMsg);
-                }
-                if (vm.reqLine.remaining_receipt_flag == 'Y' && vm.reqLine.remaining_receipt_id == '') {
-                    vm.errors.remaining_receipt = true;
-                    valid = false;
-                    errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ ระดับรายละเอียดเพิ่มเติม";
-                    ElNotification({
-                        title: 'ข้อผิดผลาด',
-                        message: errorMsg,
-                        type: 'error',
-                    });
-                }
-                if ((vm.segment6 == '' || vm.segment6 == undefined) || (vm.segment7 == '' || vm.segment7 == undefined) || (vm.segment9 == '' || vm.segment9 == undefined) || (vm.segment10 == '' || vm.segment10 == undefined) || (vm.segment11 == '' || vm.segment11 == undefined)) {
-                    vm.errors.remaining_receipt = true;
-                    valid = false;
-                    errorMsg = "กรุณาตรวจสอบรายการบัญชี";
-                    $(form).find("div[id='el_explode_expense_account']").html(errorMsg);
-                }
-                if (!valid) {
-                    return;
-                }
-                // INSERT RECEIPT TEMP WHEN IN_ARRAY
-                if (vm.reqLine.remaining_receipt_flag == 'Y') {
-                    axios.post('/expense/requisition/use-ar-receipt', {
-                        header: this.requisition,
-                        line: this.reqLine,
-                        seq: this.linelists.length
-                    })
-                    .then(function (res) {
-                        vm.loading = false;
-                        if (res.data.message) {
-                            Swal.fire({
-                                title: "มีข้อผิดพลาด",
-                                text: res.data.message,
-                                icon: "error",
-                                showCancelButton: false,
-                                confirmButtonColor: "#3085d6",
-                                confirmButtonText: "ตกลง",
-                                allowOutsideClick: false
-                            });
-                        } else {
-                            console.log(JSON.stringify(this.reqLine));
-                            console.log(JSON.parse(JSON.stringify(this.reqLine)));
-                            this.linelists.push(JSON.parse(JSON.stringify(this.reqLine)));
-                            let defaultLine = {
-                                budget_plan: '',
-                                budget_type: '',
-                                supplier_id: this.requisition.multiple_supplier == 'ONE' ? this.requisition.supplier_id : '',
-                                supplier_name: this.requisition.multiple_supplier == 'ONE' ? this.requisition.supplier_name : '',
-                                bank_account_number: this.requisition.multiple_supplier == 'ONE' ? this.reqLine.bank_account_number : '',
-                                expense_type: '',
-                                expense_account: '',
-                                expense_description: '',
-                                amount: '',
-                                description: '',
-                                vehicle_number: '',
-                                policy_number: '',
-                                vehicle_oil_type: '',
-                                utility_type: '',
-                                utility_detail: '',
-                                unit_quantity: '',
-                                invoice_number: '',
-                                invoice_date: '',
-                                receipt_number: '',
-                                receipt_date: '',
-                                remaining_receipt_flag: this.budgetSource.indexOf(this.requisition.budget_source) !== -1? 'Y': 'N',
-                                remaining_receipt_id: '',
-                                cash_bank_account_id: '',
-                            };
-                            Object.assign(this.reqLine, defaultLine);
-                        }
-                    }.bind(vm))
-                    .catch(err => {
-                        let msg = err.response;
-                        Swal.fire({
-                            title: "มีข้อผิดพลาด",
-                            text: msg.message,
-                            icon: "error",
-                            showCancelButton: false,
-                            confirmButtonColor: "#3085d6",
-                            confirmButtonText: "ตกลง",
-                            allowOutsideClick: false
-                        });
-                    });
-                }else{
-                    console.log(JSON.stringify(this.reqLine));
-                    console.log(JSON.parse(JSON.stringify(this.reqLine)));
-                    this.linelists.push(JSON.parse(JSON.stringify(this.reqLine)));
-                    let defaultLine = {
-                        budget_plan: '',
-                        budget_type: '',
-                        supplier_id: this.requisition.multiple_supplier == 'ONE' ? this.requisition.supplier_id : '',
-                        supplier_name: this.requisition.multiple_supplier == 'ONE' ? this.requisition.supplier_name : '',
-                        bank_account_number: this.requisition.multiple_supplier == 'ONE' ? this.reqLine.bank_account_number : '',
-                        expense_type: '',
-                        expense_description: '',
-                        expense_account: '',
-                        amount: '',
-                        description: '',
-                        vehicle_number: '',
-                        policy_number: '',
-                        vehicle_oil_type: '',
-                        utility_type: '',
-                        utility_detail: '',
-                        unit_quantity: '',
-                        invoice_number: '',
-                        invoice_date: '',
-                        receipt_number: '',
-                        receipt_date: '',
-                        remaining_receipt_flag: this.budgetSource.indexOf(this.requisition.budget_source) !== -1? 'Y': 'N',
-                        remaining_receipt_id: '',
-                        cash_bank_account_id: '',
-                    };
-                    Object.assign(this.reqLine, defaultLine);
-                }
-            },
             updateRow(response){
                 console.log(response.line);
                 var vm = this;
@@ -811,8 +507,7 @@
                                             receipt_number: valUpdate.receipt_number,
                                             receipt_date: valUpdate.receipt_date,
                                             remaining_receipt_flag: valUpdate.remaining_receipt_flag,
-                                            remaining_receipt_id: valUpdate.remaining_receipt_id,
-                                            cash_bank_account_id: valUpdate.cash_bank_account_id
+                                            remaining_receipt_id: valUpdate.remaining_receipt_id
                                         });
                                     } else {
                                         console.error('valUpdate is invalid:', valUpdate);
@@ -869,8 +564,7 @@
                                     receipt_number: valUpdate.receipt_number,
                                     receipt_date: valUpdate.receipt_date,
                                     remaining_receipt_flag: valUpdate.remaining_receipt_flag,
-                                    remaining_receipt_id: valUpdate.remaining_receipt_id,
-                                    cash_bank_account_id: valUpdate.cash_bank_account_id
+                                    remaining_receipt_id: valUpdate.remaining_receipt_id
                                 });
                             } else {
                                 console.error('valUpdate is invalid:', valUpdate);

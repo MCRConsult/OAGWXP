@@ -126,7 +126,7 @@ class RequisitionController extends Controller
             }
             \DB::commit();
             // CALL GL INTERFACE + RESERVE BUDGET
-            $result = $this->requisitionConfirm($headerTemp);
+            $result = $this->requisitionConfirm($headerTemp, $user);
             $data = [
                 'status' => 'SUCCESS',
                 'message' => '',
@@ -387,7 +387,7 @@ class RequisitionController extends Controller
         return optional($receipt)->receipt_number;
     }
 
-    public function requisitionConfirm($headerTemp)
+    public function requisitionConfirm($headerTemp, $user)
     {
         $requisition = RequisitionHeader::findOrFail($headerTemp->id);
         // IF PAYMENT_TYPE == NON-PAYMENT HAVE TO CALL GL INTERFACE
