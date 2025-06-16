@@ -17,6 +17,34 @@
                             <div id="el_explode_budget_source" class="text-danger text-left"></div>
                         </div>
                     </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ประเภทการขอเบิก <span class="text-danger"> *</span></strong>
+                            </label><br>
+                            <paymentType
+                                :setData="requisition.payment_type"
+                                :error="errors.payment_type"
+                                :editFlag="true"
+                                @setPaymentType="setPaymentType"
+                            ></paymentType>
+                            <div id="el_explode_payment_type" class="text-danger text-left"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-3" v-if="requisition.payment_type == 'NON-PAYMENT'">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ธนาคาร <span class="text-danger"> * </span></strong>
+                            </label><br>
+                            <bankAccount
+                                :setData="requisition.cash_bank_account_id"
+                                :error="errors.cash_bank_account"
+                                :editFlag="true"
+                                @setBankAccount="setBankAccount"
+                            ></bankAccount>
+                            <div id="el_explode_cash_bank_account" class="text-danger text-left"></div>
+                        </div>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-md-3">
@@ -64,20 +92,6 @@
                                 @change="changeReqDateFormat"
                             />
                             <div id="el_explode_req_date" class="text-danger text-left"></div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group" style="padding: 5px;">
-                            <label class="control-label">
-                                <strong> ประเภทการขอเบิก <span class="text-danger"> *</span></strong>
-                            </label><br>
-                            <paymentType
-                                :setData="requisition.payment_type"
-                                :error="errors.payment_type"
-                                :editFlag="true"
-                                @setPaymentType="setPaymentType"
-                            ></paymentType>
-                            <div id="el_explode_payment_type" class="text-danger text-left"></div>
                         </div>
                     </div>
                 </div>
@@ -184,20 +198,6 @@
                                 @setSupplierBank="setSupplierBank"
                             ></supplierBank>
                             <div id="el_explode_supplier_bank" class="text-danger text-left"></div>
-                        </div>
-                    </div>
-                    <div class="col-md-3" v-if="requisition.payment_type == 'NON-PAYMENT'">
-                        <div class="form-group" style="padding: 5px;">
-                            <label class="control-label">
-                                <strong> ธนาคาร <span class="text-danger"> * </span></strong>
-                            </label><br>
-                            <bankAccount
-                                :setData="reqLine.cash_bank_account_id"
-                                :error="errors.cash_bank_account"
-                                :editFlag="true"
-                                @setBankAccount="setBankAccount"
-                            ></bankAccount>
-                            <div id="el_explode_cash_bank_account" class="text-danger text-left"></div>
                         </div>
                     </div>
                     <div class="col-md-2">
@@ -429,6 +429,7 @@
                     requester: '',
                     status: '',
                     invioce_number_ref: '',
+                    cash_bank_account_id: '',
                 },
                 reqLine: {
                     supplier_id: '',
@@ -454,7 +455,6 @@
                     receipt_date: '',
                     remaining_receipt_flag: 'N',
                     remaining_receipt_id: '',
-                    cash_bank_account_id: '',
                 },
                 loading: false,
                 linelists: [],
@@ -545,7 +545,7 @@
                 this.reqLine.bank_account_number = res.supplier_bank;
             },
             setBankAccount(res){
-                this.reqLine.cash_bank_account_id = res.cash_bank_account_id;
+                this.requisition.cash_bank_account_id = res.cash_bank_account_id;
             },
             setBudgetPlan(res){
                 this.reqLine.budget_plan = res.budget_plan;
@@ -632,7 +632,7 @@
                     $(form).find("div[id='el_explode_supplier']").html(errorMsg);
                 }
 
-                if (vm.requisition.payment_type == 'NON-PAYMENT' && vm.reqLine.cash_bank_account_id == '') {
+                if (vm.requisition.payment_type == 'NON-PAYMENT' && vm.requisition.cash_bank_account_id == '') {
                     vm.errors.cash_bank_account = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกธนาคาร";
@@ -739,8 +739,7 @@
                                 receipt_number: '',
                                 receipt_date: '',
                                 remaining_receipt_flag: this.budgetSource.indexOf(this.requisition.budget_source) !== -1? 'Y': 'N',
-                                remaining_receipt_id: '',
-                                cash_bank_account_id: '',
+                                remaining_receipt_id: ''
                             };
                             Object.assign(this.reqLine, defaultLine);
                         }
@@ -783,8 +782,7 @@
                         receipt_number: '',
                         receipt_date: '',
                         remaining_receipt_flag: this.budgetSource.indexOf(this.requisition.budget_source) !== -1? 'Y': 'N',
-                        remaining_receipt_id: '',
-                        cash_bank_account_id: '',
+                        remaining_receipt_id: ''
                     };
                     Object.assign(this.reqLine, defaultLine);
                 }
@@ -840,8 +838,7 @@
                                             receipt_number: valUpdate.receipt_number,
                                             receipt_date: valUpdate.receipt_date,
                                             remaining_receipt_flag: valUpdate.remaining_receipt_flag,
-                                            remaining_receipt_id: valUpdate.remaining_receipt_id,
-                                            cash_bank_account_id: valUpdate.cash_bank_account_id
+                                            remaining_receipt_id: valUpdate.remaining_receipt_id
                                         });
                                     } else {
                                         console.error('valUpdate is invalid:', valUpdate);
@@ -898,8 +895,7 @@
                                     receipt_number: valUpdate.receipt_number,
                                     receipt_date: valUpdate.receipt_date,
                                     remaining_receipt_flag: valUpdate.remaining_receipt_flag,
-                                    remaining_receipt_id: valUpdate.remaining_receipt_id,
-                                    cash_bank_account_id: valUpdate.cash_bank_account_id
+                                    remaining_receipt_id: valUpdate.remaining_receipt_id
                                 });
                             } else {
                                 console.error('valUpdate is invalid:', valUpdate);

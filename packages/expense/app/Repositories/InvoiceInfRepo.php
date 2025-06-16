@@ -23,6 +23,7 @@ class InvoiceInfRepo {
 	{
         $user = auth()->user();
         $batchNo = 'INV-'.date('Ymd').'-'.$invoice->invoice_number;
+        $reqDate = $invoice->requisitions->first();
 		\DB::beginTransaction();
 		try {
             // INTERFACE HEADER
@@ -50,7 +51,7 @@ class InvoiceInfRepo {
             $headerInf->attribute2                  = $invoice->gfmis_document_number;
             $headerInf->attribute3                  = $invoice->final_judgment;
             $headerInf->attribute4                  = implode(',', $invoice->requisitions->pluck('req_number')->toArray());
-            $headerInf->attribute5                  = date('Y-m-d', strtotime($invoice->invoice_date));
+            $headerInf->attribute5                  = date('Y-m-d', strtotime($reqDate));
             $headerInf->attribute15                 = $invoice->note;
             $headerInf->web_batch_no                = $batchNo;
             $headerInf->creation_date               = Carbon::now();
@@ -78,9 +79,9 @@ class InvoiceInfRepo {
                 $lineInf->attribute7                = $line->utility_type;
                 $lineInf->attribute8                = $line->utility_detail;
                 $lineInf->attribute9                = $line->req_invoice_number;
-                $lineInf->attribute11               = $invoice->req_invoice_date? date('Y-m-d', strtotime($invoice->req_invoice_date)): '';
+                $lineInf->attribute11               = $line->req_invoice_date? date('Y-m-d', strtotime($line->req_invoice_date)): '';
                 $lineInf->attribute12               = $line->unit_quantity;
-                $lineInf->attribute13               = $invoice->req_receipt_date? date('Y-m-d', strtotime($invoice->req_receipt_date)): '';
+                $lineInf->attribute13               = $line->req_receipt_date? date('Y-m-d', strtotime($line->req_receipt_date)): '';
                 $lineInf->attribute14               = $line->req_receipt_number;
 
                 $lineInf->global_attribute1         = $line->vehicle_number;

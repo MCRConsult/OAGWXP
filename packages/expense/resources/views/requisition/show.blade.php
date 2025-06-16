@@ -32,6 +32,22 @@
                             {{ $requisition->budgetSource->description }}
                         </div>
                     </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ประเภทการขอเบิก </strong>
+                            </label><br>
+                            {{ $requisition->paymentType->description }}
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ธนาคาร </strong>
+                            </label><br>
+                            {{ $requisition->cashBankAccount->bank_account_num }} : {{ $requisition->cashBankAccount->bank_account_name }}
+                        </div>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-md-3">
@@ -56,14 +72,6 @@
                                 <strong> วันที่เอกสารส่งเบิก </strong>
                             </label><br>
                             {{ date('d-m-Y', strtotime($requisition->req_date)) }}
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group" style="padding: 5px;">
-                            <label class="control-label">
-                                <strong> ประเภทการขอเบิก </strong>
-                            </label><br>
-                            {{ $requisition->paymentType->description }}
                         </div>
                     </div>
                 </div>

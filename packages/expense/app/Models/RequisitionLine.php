@@ -48,5 +48,5 @@ class RequisitionLine extends Model
     public function utilityDetail()
     {
         return $this->hasOne(FlexValueV::class, 'flex_value', 'utility_detail')->where('flex_value_set_name', 'OAG_AP_BUILDING/CODE/DAD');
-    }   
+    }
 }

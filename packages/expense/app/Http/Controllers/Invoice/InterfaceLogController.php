@@ -14,7 +14,7 @@ class InterfaceLogController extends Controller
     public function index()
     {
         $interfaces = InvoiceInterfaceHeader::search(request())
-                                    ->orderBy('invoice_num', 'desc')
+                                    ->orderByRaw('creation_date desc, invoice_num desc')
                                     ->paginate(25);
         $statuses = ['All'  => 'ทั้งหมด'
                     , 'C'   => 'ส่งเบิกจ่ายแล้ว'

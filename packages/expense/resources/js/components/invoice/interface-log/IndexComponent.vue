@@ -41,11 +41,11 @@
                         </label>
                         <div class="">
                             <input type="hidden" name="invoice_number" :value="search.invoice_number">
-                            <lovVoucher
+                            <lovInvoice
                                 :setData="search.invoice_number"
                                 :error="false"
                                 :editFlag="true"
-                                @setVoucher="setVoucher"
+                                @setInvoice="setInvoice"
                             />
                         </div>
                     </div>
@@ -149,12 +149,12 @@
 
 <script>
 import moment from "moment";
-import lovVoucher from "../lov/Voucher.vue";
+import lovInvoice from "../lov/Invoice.vue";
 
 export default {
     props: ['pFormUrl', 'pSearch', 'pStatuses', 'pInterfaces'],
     components: {
-        lovVoucher
+        lovInvoice
     },
     data() {
         return {
@@ -195,8 +195,8 @@ export default {
     watch: {
     },
     methods: {
-        setVoucher(res) {
-            this.search.invoice_number = res.voucher;
+        setInvoice(res) {
+            this.search.invoice_number = res.invoice;
         },
         changeDateFormat() {
             this.search.invoice_date_from = '';

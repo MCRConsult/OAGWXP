@@ -40,20 +40,6 @@
                                     <div id="_el_explode_supplier_bank" class="text-danger text-left"></div>
                                 </div>
                             </div>
-                            <div class="col-md-3 text-left" v-if="requisition.payment_type == 'NON-PAYMENT'">
-                                <div class="form-group" style="padding: 5px;">
-                                    <label class="control-label">
-                                        <strong> ธนาคาร <span class="text-danger"> * </span></strong>
-                                    </label><br>
-                                    <bankAccount
-                                        :setData="temp.cash_bank_account_id"
-                                        :error="errors.cash_bank_account"
-                                        :editFlag="true"
-                                        @setBankAccount="setBankAccount"
-                                    ></bankAccount>
-                                    <div id="_el_explode_cash_bank_account" class="text-danger text-left"></div>
-                                </div>
-                            </div>
                         </div>
                         <div class="row">
                             <div class="col-md-3 text-left">
@@ -228,7 +214,7 @@
                                     <label class="control-label">
                                         <strong> จำนวนหน่วยที่ใช้ </strong>
                                     </label><br>
-                                    <el-input v-model="line.unit_quantity" style="width: 100%;" placeholder=""/>
+                                    <el-input v-model="temp.unit_quantity" style="width: 100%;" placeholder=""/>
                                 </div>
                             </div>
                             <div class="col-md-3 text-left">
@@ -539,12 +525,11 @@
     import budgetType       from "../lov/BudgetType.vue";
     import expenseType      from "../lov/ExpenseType.vue";
     import remainingReceipt from "../lov/RemainingReceipt.vue";
-    import bankAccount      from "../lov/BankAccount.vue";
     import coaComponent     from './InputCOAComponent.vue';
 
     export default {
         components: {
-            supplier, supplierBank, vehicleOilType, utilityType, utilityDetail, budgetPlan, budgetType, expenseType, remainingReceipt, bankAccount, coaComponent
+            supplier, supplierBank, vehicleOilType, utilityType, utilityDetail, budgetPlan, budgetType, expenseType, remainingReceipt,  coaComponent
         },
         props: ['index', 'requisition', 'reqLine', 'defaultSetName'],
         emits: ['updateRow'],
@@ -666,13 +651,6 @@
                     valid = false;
                     errorMsg = "กรุณาเลือกเลขที่บัญชีธนาคาร";
                     $(form).find("div[id='_el_explode_supplier_bank']").html(errorMsg);
-                }
-
-                if (vm.requisition.payment_type == 'NON-PAYMENT' && vm.line.cash_bank_account_id == '') {
-                    vm.errors.cash_bank_account = true;
-                    valid = false;
-                    errorMsg = "กรุณาเลือกธนาคาร";
-                    $(form).find("div[id='_el_explode_cash_bank_account']").html(errorMsg);
                 }
 
                 if (vm.line.budget_plan == '' || vm.line.budget_plan == undefined) {
@@ -830,9 +808,6 @@
             setSupplierBank(res){
                 this.temp.bank_account_number = res.supplier_bank;
                 this.temp.supplier_site = res.supplier_site;
-            },
-            setBankAccount(res){
-                this.temp.cash_bank_account_id = res.cash_bank_account_id;
             },
             setVehicleOilType(res){
                 this.temp.vehicle_oil_type = res.vehicle_oil_type;

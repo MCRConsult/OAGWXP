@@ -29,6 +29,7 @@ use Packages\expense\app\Models\GLBudgetReservations;
 use Packages\expense\app\Models\GLAccountHierarchyV;
 
 use Packages\expense\app\Repositories\BudgetInfRepo;
+use Packages\expense\app\Repositories\GLJournalInfRepo;
 
 class RequisitionController extends Controller
 {
@@ -81,6 +82,7 @@ class RequisitionController extends Controller
             $headerTemp->supplier_id                = $header['supplier_id'];
             $headerTemp->supplier_name              = $header['supplier_name'];
             $headerTemp->multiple_supplier          = $header['multiple_supplier'];
+            $headerTemp->cash_bank_account_id       = $header['cash_bank_account_id'];
             $headerTemp->total_amount               = $request->totalApply;
             $headerTemp->status                     = 'COMPLETED';
             $headerTemp->description                = $header['description'];
@@ -120,21 +122,26 @@ class RequisitionController extends Controller
                 $lineTemp->remaining_receipt_flag   = $line['remaining_receipt_flag'];
                 $lineTemp->remaining_receipt_id     = $line['remaining_receipt_id'];
                 $lineTemp->remaining_receipt_number = $this->getRemainingRceipt($line['remaining_receipt_id']);
-                $lineTemp->cash_bank_account_id     = $line['cash_bank_account_id'];
                 $lineTemp->save();
             }
             \DB::commit();
+
+            $requistion = RequisitionHeader::findOrFail($headerTemp->id);
             // IF PAYMENT_TYPE == NON-PAYMENT HAVE TO CALL GL INTERFACE
             if ($headerTemp->payment_type == 'NON-PAYMENT') {
-                
+                $result = (new GLJournalInfRepo)->insertInterface($requistion);
+                if ($resultInf['status'] == 'S') {
+                    $header->status    = 'INTERFACED';
+                    $header->save();
+                }else{
+                    $header->status        = 'ERROR';
+                    $header->error_message = $resultInf['message'];
+                    $header->save();
+                }
             }else{
                 // 1 FIND FUND CHECK BUDGET
-                $header = RequisitionHeader::findOrFail($headerTemp->id);
-                $lines = RequisitionLine::where('req_header_id', $header->id)
-                                        ->orderBy('seq_number')
-                                        ->get();
                 $findFunds = [];
-                foreach ($lines as $key => $line) {
+                foreach ($requistion->lines as $key => $line) {
                     // FIND FUND AVALIABLE
                     $budgetAvaliable = (new GLAccountHierarchyV)->findFund($user->org_id, $line->expense_account);
                     // GET SUMMARY ACCOUNT
@@ -143,17 +150,17 @@ class RequisitionController extends Controller
                     if ($budgetAvaliable != null) {
                         if (isset($findFunds[$budgetAccount])) {
                             if ($findFunds[$budgetAccount] <= 0) {
-                                $header->status = 'PENDING';
+                                $requistion->status = 'PENDING';
                             }elseif($findFunds[$budgetAccount] - $line->amount <= 0){
-                                $header->status = 'PENDING';
+                                $requistion->status = 'PENDING';
                             }else{
                                 $findFunds[$budgetAccount] = $findFunds[$budgetAccount] - $line->amount;
                             }
                         }else{
                             if ($budgetAvaliable <= 0) {
-                                $header->status = 'PENDING';
+                                $requistion->status = 'PENDING';
                             }elseif($budgetAvaliable - $line->amount <= 0){
-                                $header->status = 'PENDING';
+                                $requistion->status = 'PENDING';
                             }else{
                                 $findFunds[$budgetAccount] = $budgetAvaliable - $line->amount;
                             }
@@ -256,6 +263,7 @@ class RequisitionController extends Controller
             $requisition->supplier_id               = $header['supplier_id'];
             $requisition->supplier_name             = $header['supplier_name'];
             $requisition->multiple_supplier         = $header['multiple_supplier'];
+            $requisition->cash_bank_account_id      = $header['cash_bank_account_id'];
             $requisition->total_amount              = $request->totalApply;
             $requisition->status                    = 'COMPLETED';
             $requisition->description               = $header['description'];
@@ -304,7 +312,6 @@ class RequisitionController extends Controller
                 $lineTemp->remaining_receipt_flag   = $line['remaining_receipt_flag'];
                 $lineTemp->remaining_receipt_id     = $line['remaining_receipt_id'];
                 $lineTemp->remaining_receipt_number = $this->getRemainingRceipt($line['remaining_receipt_id']);
-                $lineTemp->cash_bank_account_id     = $line['cash_bank_account_id'];
                 $lineTemp->save();
             }
 
@@ -436,5 +443,28 @@ class RequisitionController extends Controller
         //     2.1 INSERT TEMP + CALL PACKAGE
         //     $temp = (new BudgetInfRepo)->insertGlReserve($header, $line, $user);
         // }
+    }
+
+    public function reSubmit($reqId)
+    {
+        $requisition = RequisitionHeader::findOrFail($reqId);
+        // CALL PACKAGE
+        $infGLJournal =  GLJournalInterface::where('reference2', $requisition->req_number)
+                                        ->where('interface_status', 'E')
+                                        ->first();
+        $resultInf = (new RequisitionHeader)->interfaceGL($infGLJournal->reference1);
+        
+        if ($resultInf['status'] == 'S') {
+            $invoice->status  = 'INTERFACED';
+            $invoice->save();
+
+            return redirect()->back()->with('message', 'ส่งข้อมูลเข้าระบบเรียบร้อยแล้ว');
+        }else{
+            $invoice->status        = 'ERROR';
+            $invoice->error_message = $resultInf['error_msg'];
+            $invoice->save();
+
+            return redirect()->back()->withErrors($resultInf['error_msg']);
+        }
     }
 }

@@ -56,6 +56,11 @@ class RequisitionHeader extends Model
         return $this->hasOne(LookupV::class, 'lookup_code', 'payment_type')->where('lookup_type', 'OAG_AP_PAYMENT_TYPE')->select('description');
     }
 
+    public function cashBankAccount()
+    {
+        return $this->hasOne(BankAccount::class, 'bank_account_id', 'cash_bank_account_id');
+    }
+
     public function getInvRef($invType)
     {
         if($invType == 'PREPAYMENT') {
@@ -201,6 +206,33 @@ class RequisitionHeader extends Model
         $result = [];
         $stmt->bindParam(':v_status', $result['status'], \PDO::PARAM_STR, 20);
         $stmt->bindParam(':v_error', $result['error_msg'], \PDO::PARAM_STR, 2000);
+        $stmt->execute();
+
+        return $result;
+    }
+
+    public function interfaceGL($batch)
+    {
+        $db = \DB::connection('oracle')->getPdo();
+        $sql = "
+            declare
+                l_status    varchar2(10);
+                l_msg       varchar2(1000);
+            begin
+                OAGAP_INVOICE_INF_PKG.MAIN( P_WEB_BATCH_NO  => '{$batch}'
+                                            , X_STATUS      => :l_status
+                                            , X_MESSAGE     => :l_msg
+                                        );
+                dbms_output.put_line('l_status : ' || :l_status); 
+                dbms_output.put_line('l_msg : ' || :l_msg); 
+            end;
+        ";
+
+        logger($sql);
+        $stmt = $db->prepare($sql);
+        $result = [];
+        $stmt->bindParam(':l_status', $result['status'], \PDO::PARAM_STR, 20);
+        $stmt->bindParam(':l_msg', $result['error_msg'], \PDO::PARAM_STR, 2000);
         $stmt->execute();
 
         return $result;
