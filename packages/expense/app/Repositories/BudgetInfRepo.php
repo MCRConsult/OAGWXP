@@ -10,24 +10,26 @@ use Packages\expense\app\Models\GLBudgetReservations;
 
 class BudgetInfRepo {
 
-	public function reserveBudget($header, $line, $user)
+	public function reserveBudget($requistion, $user)
     {
-        $batchNo = 'RESV_'.date('YmdHis').Str::random(3);
+        $batchNo = 'RESV-'.date('Ymd').'-'$requistion->req_number;
         \DB::beginTransaction();
         try {
             // INTERFACE HEADER
-            $reserve                     = new GLBudgetReservations;
-            $reserve->reserve_date       = date('Y-m-d');
-            $reserve->reserve_type       = 'RESERVE';
-            $reserve->amount             = $line->amount;
-            $reserve->description        = $header->req_number.' '.$line->description;
-            $reserve->source_table_name  = $line->getTable();
-            $reserve->source_table_id    = $line->id;
-            $reserve->period_name        = date('M-y');
-            $reserve->org_id             = $user->org_id;
-            $reserve->account_code       = $line->expense_account;
-            $reserve->batch_no           = $batchNo;
-            $reserve->save();
+            foreach ($requistion->lines as $key => $line) {
+                $reserve                     = new GLBudgetReservations;
+                $reserve->reserve_date       = date('Y-m-d');
+                $reserve->reserve_type       = 'RESERVE';
+                $reserve->amount             = $line->amount;
+                $reserve->description        = $requistion->req_number.' '.$line->description;
+                $reserve->source_table_name  = $line->getTable();
+                $reserve->source_table_id    = $line->id;
+                $reserve->period_name        = date('M-y');
+                $reserve->org_id             = $user->org_id;
+                $reserve->account_code       = $line->expense_account;
+                $reserve->batch_no           = $batchNo;
+                $reserve->save();
+            }
 
             \DB::commit();
             // CALL PACKAGE
