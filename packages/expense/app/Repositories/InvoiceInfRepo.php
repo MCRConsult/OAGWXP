@@ -23,7 +23,7 @@ class InvoiceInfRepo {
 	{
         $user = auth()->user();
         $batchNo = 'INV-'.date('Ymd').'-'.$invoice->invoice_number;
-        $reqDate = $invoice->requisitions->first();
+        $reqDate = $invoice->requisitions->first()->req_date;
 		\DB::beginTransaction();
 		try {
             // INTERFACE HEADER

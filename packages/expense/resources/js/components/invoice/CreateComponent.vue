@@ -192,8 +192,6 @@
                                                         ส่งเบิก
                                                     </button>
                                                 </div>
-
-
                                             </div>
                                         </div>
                                     </div>
@@ -274,6 +272,7 @@
                 },
                 isAllSelected: false,
                 selectedReq: {},
+                reqAmount: {},
                 listReq: [],
             };
         },
@@ -402,18 +401,21 @@
                         this.headers.forEach(header => {
                             if (!this.listReq.includes(header.req_number)) {
                                 this.selectedReq[header.req_number] = true;
+                                this.reqAmount[header.req_number] = header.total_amount;
                                 this.listReq.push(header.req_number);
                             }
                         });
                     }else{
                         this.headers.forEach(header => {
                             this.selectedReq[header.req_number] = true;
+                            this.reqAmount[header.req_number] = header.total_amount;
                             this.listReq.push(header.req_number);
                         });
                     }
                 }else{
                     this.headers.forEach(header => {
                         this.selectedReq[header.req_number] = false;
+                        this.reqAmount[header.req_number] = 0;
                         this.listReq.push(header.req_number);
                         this.listReq = this.listReq.filter(function(value) {
                             return value != header.req_number
@@ -427,9 +429,11 @@
                 let checked = $('input[name="check-req_'+reqNumber+'"]').prop('checked');
                 if(checked){
                     vm.selectedReq[reqNumber] = true;
+                    vm.reqAmount[header.req_number] = header.total_amount;
                     vm.listReq.push(reqNumber);
                 }else{
                     vm.selectedReq[reqNumber] = false;
+                    vm.reqAmount[header.req_number] = 0;
                     vm.listReq = vm.listReq.filter(function(value) {
                         return value != reqNumber
                     });
@@ -441,11 +445,9 @@
             totalAmount() {
                 let total = 0;
                 this.listReq.filter(req => {
-                    this.headers.filter(header =>  {        
-                        if(req == header.req_number){  
-                            total += Number(header.total_amount);
-                        }
-                    });
+                    if(this.reqAmount[req]){
+                        total += Number(this.reqAmount[req]);
+                    }
                 });
                 return this.numberFormat(total);
             },

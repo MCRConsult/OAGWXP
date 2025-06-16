@@ -130,12 +130,12 @@ class RequisitionController extends Controller
             // IF PAYMENT_TYPE == NON-PAYMENT HAVE TO CALL GL INTERFACE
             if ($headerTemp->payment_type == 'NON-PAYMENT') {
                 $result = (new GLJournalInfRepo)->insertInterface($requistion);
-                if ($resultInf['status'] == 'S') {
-                    $header->status    = 'INTERFACED';
+                if ($result['status'] == 'S') {
+                    $header->status        = 'INTERFACED';
                     $header->save();
                 }else{
                     $header->status        = 'ERROR';
-                    $header->error_message = $resultInf['message'];
+                    $header->error_message = $result['message'];
                     $header->save();
                 }
             }else{
@@ -167,7 +167,15 @@ class RequisitionController extends Controller
                         }
                     }
                 }
-                // $this->reserveBudget($headerTemp, $lineTemp, $user);
+                $result = (new BudgetInfRepo)->reserveBudget($requistion, $user);
+                if ($result['status'] == 'S') {
+                    $header->status        = 'INTERFACED';
+                    $header->save();
+                }else{
+                    $header->status        = 'ERROR';
+                    $header->error_message = $result['message'];
+                    $header->save();
+                }
             }
             $data = [
                 'status' => 'SUCCESS',
@@ -427,22 +435,6 @@ class RequisitionController extends Controller
     {
         $receipt = ARBudgetReceiptV::where('cash_receipt_id', $receiptId)->first();
         return optional($receipt)->receipt_number;
-    }
-
-    public function reserveBudget($header, $line, $user)
-    {
-        $header = RequisitionHeader::findOrFail($header->id);
-        // IF INTERFACE ERROR UPDATE HEADER STATUS TO PENDING
-        // 1. CHECK BUDGET
-        // $checkBudget = (new RequisitionHeader)->checkBudget($header, $line$user);
-        // if ($checkBudget->avaliable_budget == null) {
-        //     $header->status = 'PENDING';
-        //     $header->save();
-        // }else{
-        //     2. RESERVE BUDGET
-        //     2.1 INSERT TEMP + CALL PACKAGE
-        //     $temp = (new BudgetInfRepo)->insertGlReserve($header, $line, $user);
-        // }
     }
 
     public function reSubmit($reqId)

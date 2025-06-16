@@ -186,7 +186,7 @@ class RequisitionHeader extends Model
         return $budget;
     }
 
-    public function reserveBudget($batch)
+    public function callReserveBudget($batch)
     {
         $db = \DB::connection('oracle')->getPdo();
         $sql = "

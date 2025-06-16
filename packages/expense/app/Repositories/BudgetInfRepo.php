@@ -10,7 +10,7 @@ use Packages\expense\app\Models\GLBudgetReservations;
 
 class BudgetInfRepo {
 
-	public function insertGlReserve($header, $line, $user)
+	public function reserveBudget($header, $line, $user)
     {
         $batchNo = 'RESV_'.date('YmdHis').Str::random(3);
         \DB::beginTransaction();
@@ -31,10 +31,10 @@ class BudgetInfRepo {
 
             \DB::commit();
             // CALL PACKAGE
-            // $result = (new RequisitionHeader)->reserveBudget($batchNo);
+            $result = (new RequisitionHeader)->callReserveBudget($batchNo);
             $data = [
                 'status' => $result['status'],
-                'message' => '',
+                'message' => $result['error_msg'],
             ];
         } catch (\Exception $e) {
             \DB::rollback();
