@@ -186,6 +186,20 @@
                             <div id="el_explode_supplier_bank" class="text-danger text-left"></div>
                         </div>
                     </div>
+                    <div class="col-md-3" v-if="header.payment_type == 'NON-PAYMENT'">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ธนาคาร <span class="text-danger"> * </span></strong>
+                            </label><br>
+                            <bankAccount
+                                :setData="reqLine.cash_bank_account_id"
+                                :error="errors.cash_bank_account"
+                                :editFlag="true"
+                                @setBankAccount="setBankAccount"
+                            ></bankAccount>
+                            <div id="el_explode_cash_bank_account" class="text-danger text-left"></div>
+                        </div>
+                    </div>
                     <div class="col-md-2">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label" style="margin: 3px;">
@@ -370,6 +384,7 @@
     import budgetPlan       from "../../lov/BudgetPlan.vue";
     import budgetType       from "../../lov/BudgetType.vue";
     import expenseType      from "../../lov/ExpenseType.vue";
+    import bankAccount      from "../../lov/BankAccount.vue";
 
     import detailComp       from "../DetailComponent.vue";
     import listComp         from "./ListComponent.vue";
@@ -377,7 +392,7 @@
 
     export default {
         components: {
-            budgetSource, documentCategory, paymentType, supplier, supplierBank, budgetPlan, budgetType, expenseType, detailComp, listComp, modalAccountComp
+            budgetSource, documentCategory, paymentType, supplier, supplierBank, budgetPlan, budgetType, expenseType, bankAccount, detailComp, listComp, modalAccountComp
         },
         props: ['requisition', 'invoiceTypes', 'defaultSetName'],
         data() {
@@ -425,6 +440,7 @@
                     receipt_date: '',
                     remaining_receipt_flag: 'N',
                     remaining_receipt_id: '',
+                    cash_bank_account_id: '',
                 },
                 loading: false,
                 // SEGMENT
@@ -511,6 +527,9 @@
             setSupplierBank(res){
                 this.reqLine.supplier_site = res.supplier_site;
                 this.reqLine.bank_account_number = res.supplier_bank;
+            },
+            setBankAccount(res){
+                this.reqLine.cash_bank_account_id = res.cash_bank_account_id;
             },
             setBudgetPlan(res){
                 this.reqLine.budget_plan = res.budget_plan;
@@ -692,6 +711,7 @@
                                 receipt_date: '',
                                 remaining_receipt_flag: this.budgetSource.indexOf(this.requisition.budget_source) !== -1? 'Y': 'N',
                                 remaining_receipt_id: '',
+                                cash_bank_account_id: '',
                             };
                             Object.assign(this.reqLine, defaultLine);
                         }
@@ -735,6 +755,7 @@
                         receipt_date: '',
                         remaining_receipt_flag: this.budgetSource.indexOf(this.requisition.budget_source) !== -1? 'Y': 'N',
                         remaining_receipt_id: '',
+                        cash_bank_account_id: '',
                     };
                     Object.assign(this.reqLine, defaultLine);
                 }
@@ -790,7 +811,8 @@
                                             receipt_number: valUpdate.receipt_number,
                                             receipt_date: valUpdate.receipt_date,
                                             remaining_receipt_flag: valUpdate.remaining_receipt_flag,
-                                            remaining_receipt_id: valUpdate.remaining_receipt_id
+                                            remaining_receipt_id: valUpdate.remaining_receipt_id,
+                                            cash_bank_account_id: valUpdate.cash_bank_account_id
                                         });
                                     } else {
                                         console.error('valUpdate is invalid:', valUpdate);
@@ -847,7 +869,8 @@
                                     receipt_number: valUpdate.receipt_number,
                                     receipt_date: valUpdate.receipt_date,
                                     remaining_receipt_flag: valUpdate.remaining_receipt_flag,
-                                    remaining_receipt_id: valUpdate.remaining_receipt_id
+                                    remaining_receipt_id: valUpdate.remaining_receipt_id,
+                                    cash_bank_account_id: valUpdate.cash_bank_account_id
                                 });
                             } else {
                                 console.error('valUpdate is invalid:', valUpdate);

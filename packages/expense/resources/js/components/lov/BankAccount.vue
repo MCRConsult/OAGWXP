@@ -40,6 +40,7 @@ export default {
     mounted() {
         this.loading = true;
         this.value = this.setData;
+        this.getDataRows(this.value);
     },
     watch: {
         setData() {
@@ -73,16 +74,7 @@ export default {
             .then(res => {
                 this.loading = false;
                 this.dataRows = res.data.data;
-                let supplier_site = '';
-                if(this.parent){
-                    res.data.data.filter((value) => {
-                        if(value.bank_account_num == this.value){
-                            supplier_site = value.vendor_site_id;
-                        }
-                    });
-                    this.value = res.data.data[0]?.bank_account_num;
-                }
-                this.$emit('setSupplierBank', {supplier_bank: this.value, supplier_site: supplier_site});
+                this.$emit('setBankAccount', {cash_bank_account_id: this.value});
             })
             .catch((error) => {
                 console.log('มีข้อผิดพลาด', error, 'error');

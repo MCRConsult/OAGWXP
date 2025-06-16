@@ -26,6 +26,9 @@ Route::group(['middleware' => ['web', 'auth']], function () {
             Route::get('/get-wht', '\Packages\expense\app\Http\Controllers\Api\LovController@getWht');
             Route::get('/get-bank-account', '\Packages\expense\app\Http\Controllers\Api\LovController@getBankAccount');
             Route::get('/get-expense-account', '\Packages\expense\app\Http\Controllers\Api\LovController@getExpenseAccount');
+            // FIND FUNDS
+            Route::post('/get-fund', '\Packages\expense\app\Http\Controllers\Api\AccountController@getFund');
+
             
             Route::prefix('requisition')->namespace('Requisition')->name('requisition.')->group(function() {
                 Route::post('/fetch-render-page', '\Packages\expense\app\Http\Controllers\Api\RequisitionController@fetchRequisitionRenderPage');

@@ -29,7 +29,7 @@ class InvoiceInterfaceHeader extends Model
             $q->whereRaw("trunc(invoice_date) >= TO_DATE('{$invDateFrom}','YYYY-mm-dd')");
         }
         // STATUS
-        if ($search->status == 'All') {
+        if ($search->status == 'All' || $search->status == null) {
             $q;
         }else{
             $q->where('interface_status', $search->status);

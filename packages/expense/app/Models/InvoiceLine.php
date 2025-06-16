@@ -47,7 +47,7 @@ class InvoiceLine extends Model
 
     public function wht()
     {
-        return $this->hasOne(WHT::class, 'tax_id', 'wht_code');
+        return $this->hasOne(WHT::class, 'name', 'wht_code');
     }
 
     public function arReceipt()

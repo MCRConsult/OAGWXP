@@ -3,7 +3,7 @@
         <i class="icons cui-chevron-top"></i>
     </button>
 
-    <div id="modal-account" class="modal fade" aria-labelledby="myModalLabel" tabindex="-1" role="dialog" 
+    <div v-loading="accLoading" id="modal-account" class="modal fade" aria-labelledby="myModalLabel" tabindex="-1" role="dialog" 
         data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -262,6 +262,7 @@
     </div>
 </template>
 <script>
+    import Swal         from 'sweetalert2';
     import coaComponent from './InputCOAComponent.vue';
 
     export default {
@@ -274,7 +275,7 @@
             return {
                 line: this.reqLine,
                 temp: '',
-                loading: false,
+                accLoading: false,
                 errors: {
                     segment1: false,
                     segment2: false,
@@ -307,7 +308,7 @@
                 $('#modal-account').modal('show');
                 this.extractAccount();
             },
-            confirm() {
+            async confirm() {
                 let vm = this;
                 let errorMsg = '';
                 let valid = true;
@@ -420,6 +421,37 @@
                 if (!valid) {
                     return;
                 }
+                // CHECK BUDGET FOR RESERVE
+                // let budget_account = '';
+                // let budget_avaliable = 0;
+                // axios.post('/expense/api/get-fund', {
+                //     expense_account: vm.temp
+                // })
+                // .then(function (res) {
+                //     vm.accLoading = false;
+                //     budget_account = res.data.budgetAccount;
+                //     budget_avaliable = res.data.budgetAvaliable;
+                //     if(this.temp){
+                //         $('#modal-account').modal('hide');
+                //         this.$emit("updateAccount", {expense_account: this.temp, budget_account: budget_account, budget_avaliable: budget_avaliable});
+                //         this.temp = null;
+                //     }
+                // }.bind(vm))
+                // .catch(err => {
+                //     let msg = err.response;
+                //     Swal.fire({
+                //         title: "มีข้อผิดพลาด",
+                //         text: msg.message,
+                //         icon: "error",
+                //         showCancelButton: false,
+                //         confirmButtonColor: "#3085d6",
+                //         confirmButtonText: "ตกลง",
+                //         allowOutsideClick: false
+                //     });
+                // })
+                // .then(() => {
+                //     vm.accLoading = false;
+                // });
 
                 if(this.temp){
                     $('#modal-account').modal('hide');

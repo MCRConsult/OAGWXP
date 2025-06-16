@@ -26,6 +26,7 @@ use Packages\expense\app\Models\ARBudgetReceiptV;
 use Packages\expense\app\Models\GLPeriod;
 use Packages\expense\app\Models\COAListV;
 use Packages\expense\app\Models\GLBudgetReservations;
+use Packages\expense\app\Models\GLAccountHierarchyV;
 
 use Packages\expense\app\Repositories\BudgetInfRepo;
 
@@ -124,11 +125,43 @@ class RequisitionController extends Controller
             }
             \DB::commit();
             // IF PAYMENT_TYPE == NON-PAYMENT HAVE TO CALL GL INTERFACE
-            // if ($headerTemp->payment_type == 'NON-PAYMENT') {
+            if ($headerTemp->payment_type == 'NON-PAYMENT') {
                 
-            // }
-            // $this->reserveBudget($headerTemp, $lineTemp, $user)
-
+            }else{
+                // 1 FIND FUND CHECK BUDGET
+                $header = RequisitionHeader::findOrFail($headerTemp->id);
+                $lines = RequisitionLine::where('req_header_id', $header->id)
+                                        ->orderBy('seq_number')
+                                        ->get();
+                $findFunds = [];
+                foreach ($lines as $key => $line) {
+                    // FIND FUND AVALIABLE
+                    $budgetAvaliable = (new GLAccountHierarchyV)->findFund($user->org_id, $line->expense_account);
+                    // GET SUMMARY ACCOUNT
+                    $account = GLAccountHierarchyV::where('account_code', $line->expense_account)->first();
+                    $budgetAccount = optional($account)->summary_code_combination_id;
+                    if ($budgetAvaliable != null) {
+                        if (isset($findFunds[$budgetAccount])) {
+                            if ($findFunds[$budgetAccount] <= 0) {
+                                $header->status = 'PENDING';
+                            }elseif($findFunds[$budgetAccount] - $line->amount <= 0){
+                                $header->status = 'PENDING';
+                            }else{
+                                $findFunds[$budgetAccount] = $findFunds[$budgetAccount] - $line->amount;
+                            }
+                        }else{
+                            if ($budgetAvaliable <= 0) {
+                                $header->status = 'PENDING';
+                            }elseif($budgetAvaliable - $line->amount <= 0){
+                                $header->status = 'PENDING';
+                            }else{
+                                $findFunds[$budgetAccount] = $budgetAvaliable - $line->amount;
+                            }
+                        }
+                    }
+                }
+                // $this->reserveBudget($headerTemp, $lineTemp, $user);
+            }
             $data = [
                 'status' => 'SUCCESS',
                 'message' => '',
@@ -307,7 +340,6 @@ class RequisitionController extends Controller
             $headerTemp->remaining_receipt_flag     = $line['remaining_receipt_flag']? 'Y': 'N';
             $headerTemp->remaining_receipt_number   = $this->getRemainingRceipt($line['remaining_receipt_id']);
             $headerTemp->amount                     = $line['amount'];
-            $headerTemp->requester                  = $user->id;
             $headerTemp->created_by                 = $user->id;
             $headerTemp->updated_by                 = $user->id;
             $headerTemp->creation_by                = $user->person_id;

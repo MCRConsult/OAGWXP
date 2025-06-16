@@ -83,7 +83,7 @@
         </div>
 
         <div class="table-responsive mt-4" style="max-height: 600px;">
-            <table class="table text-nowrap table-hover text-center" style="position: sticky;">
+            <table class="table text-nowrap table-hover text-center" style="position: sticky; font-size: 13px;">
                 <thead>
                     <tr>
                         <th class="text-center sticky-col">
@@ -211,6 +211,7 @@ export default {
             }
         },
         changeDateFormatFrom() {
+            this.search.invoice_date_from = '';
             if(this.invoice_date_from_input){
                 const formattedDate = moment(this.invoice_date_from_input, "YYYY-MM-DD").format("YYYY-MM-DD");
                 this.search.invoice_date_from = formattedDate;
@@ -219,6 +220,7 @@ export default {
             }
         },
         changeDateFormatTo() {
+            this.search.invoice_date_to = '';
             if(this.invoice_date_to_input){
                 const formattedDate = moment(this.invoice_date_to_input, "YYYY-MM-DD").format("YYYY-MM-DD");
                 this.search.invoice_date_to = formattedDate;

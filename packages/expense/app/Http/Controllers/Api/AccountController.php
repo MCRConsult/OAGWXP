@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 
 use Packages\expense\app\Models\POExpenseAccountRuleV;
 use Packages\expense\app\Models\GLPeriod;
+use Packages\expense\app\Models\GLAccountHierarchyV;
 
 class AccountController extends Controller
 {
@@ -23,8 +24,6 @@ class AccountController extends Controller
                                             ->orderBy('segment_num')
                                             ->get()
                                             ->pluck('segment_value', 'segment_num');
-        logger($expenseRules);
-        logger( $exp);
         //YEAR
         $year = strtoupper(date('M-y'));
         $period = GLPeriod::selectRaw("period_year+543 period_year")->where('period_name', $year)->first();
@@ -88,4 +87,19 @@ class AccountController extends Controller
 
         return ['expense_account' => $concatenatedSegments];
     }
+
+    // public function getFund(Request $request)
+    // {
+    //     $orgId = auth()->user()->org_id;
+    //     $expAccount = $request['expense_account'];
+    //     // FIND FUND AVALIABLE
+    //     $budgetAvaliable = (new GLAccountHierarchyV)->findFund($orgId, $expAccount);
+    //     // GET SUMMARY ACCOUNT
+    //     $account = GLAccountHierarchyV::where('account_code', $expAccount)->first();
+    //     $budgetAccount = optional($account)->summary_account_code ?? $expAccount;
+    //     if ($budgetAvaliable == null) {
+    //         return ['budgetAccount' => $budgetAccount, 'budgetAvaliable' => $budgetAvaliable];
+    //     }
+    //     return ['budgetAccount' => $budgetAccount, 'budgetAvaliable' => $budgetAvaliable];
+    // }
 }

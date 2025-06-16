@@ -461,6 +461,7 @@
                 // SEGMENT
                 segment1: '', segment2: '', segment3: '', segment4: '', segment5: '', segment6: '',
                 segment7: '', segment8: '', segment9: '', segment10: '', segment11: '', segment12: '', segment13: '',
+                findFunds: {},
             };
         },
         mounted(){
@@ -540,9 +541,11 @@
                 this.reqLine.supplier_name = res.vendor_name;
             },
             setSupplierBank(res){
-                console.log(res);
                 this.reqLine.supplier_site = res.supplier_site;
                 this.reqLine.bank_account_number = res.supplier_bank;
+            },
+            setBankAccount(res){
+                this.reqLine.cash_bank_account_id = res.cash_bank_account_id;
             },
             setBudgetPlan(res){
                 this.reqLine.budget_plan = res.budget_plan;
@@ -610,6 +613,11 @@
             updateAccount(res) {
                 this.reqLine.expense_account = res.expense_account;
                 this.extractAccount();
+                // if(res.budget_avaliable != null){
+                //     if(!this.findFunds[res.budget_account]){ 
+                //         this.findFunds[res.budget_account] = res.budget_avaliable;
+                //     }
+                // }
             },
             addRequisitionLine() {
                 var vm = this;
@@ -732,6 +740,7 @@
                                 receipt_date: '',
                                 remaining_receipt_flag: this.budgetSource.indexOf(this.requisition.budget_source) !== -1? 'Y': 'N',
                                 remaining_receipt_id: '',
+                                cash_bank_account_id: '',
                             };
                             Object.assign(this.reqLine, defaultLine);
                         }
@@ -775,6 +784,7 @@
                         receipt_date: '',
                         remaining_receipt_flag: this.budgetSource.indexOf(this.requisition.budget_source) !== -1? 'Y': 'N',
                         remaining_receipt_id: '',
+                        cash_bank_account_id: '',
                     };
                     Object.assign(this.reqLine, defaultLine);
                 }
@@ -830,7 +840,8 @@
                                             receipt_number: valUpdate.receipt_number,
                                             receipt_date: valUpdate.receipt_date,
                                             remaining_receipt_flag: valUpdate.remaining_receipt_flag,
-                                            remaining_receipt_id: valUpdate.remaining_receipt_id
+                                            remaining_receipt_id: valUpdate.remaining_receipt_id,
+                                            cash_bank_account_id: valUpdate.cash_bank_account_id
                                         });
                                     } else {
                                         console.error('valUpdate is invalid:', valUpdate);
@@ -887,7 +898,8 @@
                                     receipt_number: valUpdate.receipt_number,
                                     receipt_date: valUpdate.receipt_date,
                                     remaining_receipt_flag: valUpdate.remaining_receipt_flag,
-                                    remaining_receipt_id: valUpdate.remaining_receipt_id
+                                    remaining_receipt_id: valUpdate.remaining_receipt_id,
+                                    cash_bank_account_id: valUpdate.cash_bank_account_id
                                 });
                             } else {
                                 console.error('valUpdate is invalid:', valUpdate);
@@ -1006,6 +1018,7 @@
                 $(form).find("div[id='el_explode_supplier']").html("");
                 $(form).find("div[id='el_explode_supplier_detail']").html("");
                 $(form).find("div[id='el_explode_supplier_bank']").html("");
+                $(form).find("div[id='el_explode_cash_bank_account']").html("");
                 $(form).find("div[id='el_explode_budget_plan']").html("");
                 $(form).find("div[id='el_explode_budget_type']").html("");
                 $(form).find("div[id='el_explode_expense_type']").html("");
