@@ -35,7 +35,7 @@ return new class extends Migration
             $table->string('description')->nullable();
             $table->integer('total_amount', 18, 2)->nullable();
             $table->string('requester');
-            $table->string('status');
+            $table->string('status')->nullable();
             $table->string('error_message', 4000)->nullable();
             $table->string('hold_reason')->nullable();
             $table->string('cancel_reason')->nullable();

@@ -162,9 +162,8 @@
                         </div>
                     </div>
                 </div>
-                <hr>
                 <!-- TABLE LINE LISTS-->
-                <div class="table-responsive" style="max-height: 600px;">
+                <div class="table-responsive mt-3" style="max-height: 600px;">
                     <table class="table text-nowrap table-hover">
                         <thead>
                             <tr>

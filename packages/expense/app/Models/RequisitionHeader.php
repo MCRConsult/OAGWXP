@@ -140,6 +140,9 @@ class RequisitionHeader extends Model
             case "HOLD":
                 $result = "<span class='badge badge-warning' style='padding: 5px;'> รอตรวจสอบ </span>";
                 break;
+            case "ERROR":
+                $result = "<span class='badge badge-danger' style='padding: 5px; background-color: #e3302f;'> เบิกจ่ายไม่สำเร็จ </span>";
+                break;
             case "CANCELLED":
                 $result = "<span class='badge badge-danger' style='padding: 5px;'> ยกเลิก </span>";
                 break;

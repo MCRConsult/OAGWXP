@@ -45,6 +45,7 @@ class RequisitionController extends Controller
         $statuses = ['COMPLETED'    => 'รอเบิกจ่าย'
                     , 'PENDING'     => 'รอจัดสรร'
                     , 'HOLD'        => 'รอตรวจสอบ'
+                    , 'ERROR'       => 'เบิกจ่ายไม่สำเร็จ'
                     , 'CANCELLED'   => 'ยกเลิก'];
 
         return view('expense::requisition.index', compact('requisitions', 'invoiceTypes', 'statuses'));
@@ -84,7 +85,7 @@ class RequisitionController extends Controller
             $headerTemp->multiple_supplier          = $header['multiple_supplier'];
             $headerTemp->cash_bank_account_id       = $header['cash_bank_account_id'];
             $headerTemp->total_amount               = $request->totalApply;
-            $headerTemp->status                     = 'COMPLETED';
+            // $headerTemp->status                     = 'COMPLETED';
             $headerTemp->description                = $header['description'];
             $headerTemp->requester                  = $user->id;
             $headerTemp->created_by                 = $user->id;
@@ -432,10 +433,10 @@ class RequisitionController extends Controller
             }
             $result = (new BudgetInfRepo)->reserveBudget($requisition, $user);
             if ($result['status'] == 'S') {
-                $requisition->status        = 'INTERFACED';
+                $requisition->status        = 'COMPLETED';
                 $requisition->save();
             }else{
-                $requisition->status        = 'ERROR';
+                $requisition->status        = 'PENDING';
                 $requisition->error_message = $result['message'];
                 $requisition->save();
             }
@@ -443,22 +444,6 @@ class RequisitionController extends Controller
 
         return $result;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-    // public function reserveBudget($requisition, $user)
-    // {
-    //     $result = (new BudgetInfRepo)->reserveBudget($requisition, $user);
-    // }
 
     // public function reSubmit($reqId)
     // {

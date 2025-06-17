@@ -108,7 +108,7 @@
                                         name="amount"
                                         v-bind:minus="false"
                                         v-bind:precision="2"
-                                        :min="0"
+                                        :min="-999999999"
                                         :max="999999999"
                                         class="form-control text-right"
                                         v-model="temp.amount"
@@ -802,7 +802,7 @@
                 ref.style = "";
             },
             setSupplierLine(res){
-                this.temp.supplier = res.supplier;
+                this.temp.supplier_id = res.supplier;
                 this.temp.supplier_name = res.vendor_name;
             },
             setSupplierBank(res){

@@ -25,6 +25,7 @@ use Packages\expense\app\Models\FlaxValueV;
 use Packages\expense\app\Models\COAListV;
 use Packages\expense\app\Models\LookupV;
 
+use Packages\expense\app\Repositories\BudgetInfRepo;
 use Packages\expense\app\Repositories\InvoiceInfRepo;
 
 class InvoiceController extends Controller
@@ -57,21 +58,31 @@ class InvoiceController extends Controller
             $user = auth()->user();
             $activity = $request->activity;
             $reason = $request->reason;
-            $header = RequisitionHeader::findOrFail($reqId);
+            $requisition = RequisitionHeader::findOrFail($reqId);
             switch ($activity) {
                 case "HOLD_REQUISITION":
-                    $header->status         = 'HOLD';
-                    $header->hold_reason    = $reason;
-                    $header->updated_by     = $user->id;
-                    $header->updation_by    = $user->person_id;
-                    $header->save();
+                    $requisition->status            = 'HOLD';
+                    $requisition->hold_reason       = $reason;
+                    $requisition->updated_by        = $user->id;
+                    $requisition->updation_by       = $user->person_id;
+                    $requisition->save();
                 break;
                 case "CANCEL_REQUISITION":
-                    $header->status         = 'CANCELLED';
-                    $header->cancel_reason  = $reason;
-                    $header->updated_by     = $user->id;
-                    $header->updation_by    = $user->person_id;
-                    $header->save();
+                    // UNRESERV BUDGETS
+                    $result = (new BudgetInfRepo)->unreserveBudget($requisition, $user);
+                    if ($result['status'] == 'S') {
+                        $requisition->status         = 'CANCELLED';
+                        $requisition->cancel_reason  = $reason;
+                        $requisition->updated_by     = $user->id;
+                        $requisition->updation_by    = $user->person_id;
+                        $requisition->save();
+                    }else{
+                        $requisition->status         = 'ERROR';
+                        $requisition->error_message  = $result['message'];
+                        $requisition->updated_by     = $user->id;
+                        $requisition->updation_by    = $user->person_id;
+                        $requisition->save();
+                    }
                 break; 
             }
             \DB::commit();
@@ -406,19 +417,19 @@ class InvoiceController extends Controller
                         ]);
 
             // UPDATE REQUISITION
-            $requistion = RequisitionHeader::where('invoice_reference_id', $invoiceId)
-                                    ->update([
-                                        'invoice_reference_id'  => null
-                                        , 'invioce_number_ref'  => null
-                                        , 'updated_by'          => $user->id
-                                        , 'updation_by'         => $user->person_id
-                                    ]);
+            RequisitionHeader::where('invoice_reference_id', $invoiceId)
+                            ->update([
+                                'invoice_reference_id'  => null
+                                , 'invioce_number_ref'  => null
+                                , 'updated_by'          => $user->id
+                                , 'updation_by'         => $user->person_id
+                            ]);
             // UPDATE REQUISITION LINES                      
-            $requistion = RequisitionHeader::where('invoice_reference_id', $invoiceId)->get()->pluck('id')->toArray();
-            $requistionLine = RequisitionLine::whereIn('req_header_id', $requistion)
-                                        ->update([
-                                            'invl_reference_id' => null
-                                        ]);
+            $requisition = RequisitionHeader::where('invoice_reference_id', $invoiceId)->get()->pluck('id')->toArray();
+            RequisitionLine::whereIn('req_header_id', $requisition)
+                            ->update([
+                                'invl_reference_id' => null
+                            ]);
             \DB::commit();
             $data = [
                 'status' => 'SUCCESS',

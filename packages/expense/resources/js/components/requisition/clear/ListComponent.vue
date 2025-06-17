@@ -14,7 +14,7 @@
                 v-model="line.actual_amount"
                 v-bind:minus="false"
                 v-bind:precision="2"
-                :min="0"
+                :min="-999999999"
                 :max="999999999"
                 autocomplete="off"
                 @change="checkDiffAmount"
