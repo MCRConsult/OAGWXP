@@ -132,22 +132,22 @@ class RequisitionHeader extends Model
         $result = "";
         switch ($status) {
             case "COMPLETED":
-                $result = "<span class='badge badge-success' style='padding: 5px;'> รอเบิกจ่าย </span>";
+                $result = "<span class='badge badge-success' style='padding: 5px; color: fff;'> รอเบิกจ่าย </span>";
                 break;
             case "PENDING":
-                $result = "<span class='badge badge-warning' style='padding: 5px;'> รอจัดสรร </span>";
+                $result = "<span class='badge badge-warning' style='padding: 5px; color: fff;'> รอจัดสรร </span>";
                 break;
             case "HOLD":
-                $result = "<span class='badge badge-warning' style='padding: 5px;'> รอตรวจสอบ </span>";
+                $result = "<span class='badge badge-warning' style='padding: 5px; background-color: #ff899f; color: fff;'> รอตรวจสอบ </span>";
                 break;
             case "ERROR":
-                $result = "<span class='badge badge-danger' style='padding: 5px; background-color: #e3302f;'> เบิกจ่ายไม่สำเร็จ </span>";
+                $result = "<span class='badge badge-danger' style='padding: 5px; background-color: #e3302f; color: fff;'> เบิกจ่ายไม่สำเร็จ </span>";
                 break;
             case "CANCELLED":
-                $result = "<span class='badge badge-danger' style='padding: 5px;'> ยกเลิก </span>";
+                $result = "<span class='badge badge-danger' style='padding: 5px; color: fff;'> ยกเลิก </span>";
                 break;
             default:
-                $result = "<span class='badge badge-secondary' style='padding: 5px;'> รายการใหม่ </span>";
+                $result = "<span class='badge badge-secondary' style='padding: 5px; color: fff;'> รายการใหม่ </span>";
                 break;
         }
         return $result;

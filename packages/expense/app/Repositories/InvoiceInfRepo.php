@@ -65,6 +65,7 @@ class InvoiceInfRepo {
             $headerInf->attribute5                  = date('Y-m-d', strtotime($reqDate));
             $headerInf->attribute14                 = $attr14;
             $headerInf->attribute15                 = $invoice->note;
+            $headerInf->remittance_message1         = $invoice->source_type == 'RECEIPT'? $invoice->invoice_number: '';
             $headerInf->web_batch_no                = $batchNo;
             $headerInf->creation_date               = Carbon::now();
             $headerInf->last_update_date            = Carbon::now();

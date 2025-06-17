@@ -405,6 +405,7 @@ class RequisitionController extends Controller
         }else{
             // 1 FIND FUND CHECK BUDGET
             $findFunds = [];
+            $overBudgets = [];
             foreach ($requisition->lines as $key => $line) {
                 // FIND FUND AVALIABLE
                 $budgetAvaliable = (new GLAccountHierarchyV)->findFund($user->org_id, $line->expense_account);
@@ -414,31 +415,46 @@ class RequisitionController extends Controller
                 if ($budgetAvaliable != null) {
                     if (isset($findFunds[$budgetAccount])) {
                         if ($findFunds[$budgetAccount] <= 0) {
-                            $requisition->status = 'PENDING';
+                            array_push($overBudgets, $line->expense_account);
+                            // $requisition->status = 'PENDING';
+                            // $requisition->save();
                         }elseif($findFunds[$budgetAccount] - $line->amount <= 0){
-                            $requisition->status = 'PENDING';
+                            array_push($overBudgets, $line->expense_account);
+                            // $requisition->status = 'PENDING';
+                            // $requisition->save();
                         }else{
                             $findFunds[$budgetAccount] = $findFunds[$budgetAccount] - $line->amount;
                         }
                     }else{
                         if ($budgetAvaliable <= 0) {
-                            $requisition->status = 'PENDING';
+                            array_push($overBudgets, $line->expense_account);
+                            // $requisition->status = 'PENDING';
+                            // $requisition->save();
                         }elseif($budgetAvaliable - $line->amount <= 0){
-                            $requisition->status = 'PENDING';
+                            array_push($overBudgets, $line->expense_account);
+                            // $requisition->status = 'PENDING';
+                            // $requisition->save();
                         }else{
                             $findFunds[$budgetAccount] = $budgetAvaliable - $line->amount;
                         }
                     }
                 }
             }
-            $result = (new BudgetInfRepo)->reserveBudget($requisition, $user);
-            if ($result['status'] == 'S') {
-                $requisition->status            = 'COMPLETED';
-                $requisition->encumbrance_flag  = 'R';
-                $requisition->save();
+
+            if (is_null($overBudgets)) {
+                $result = (new BudgetInfRepo)->reserveBudget($requisition, $user);
+                if ($result['status'] == 'S') {
+                    $requisition->status            = 'COMPLETED';
+                    $requisition->encumbrance_flag  = 'R';
+                    $requisition->save();
+                }else{
+                    $requisition->status        = 'PENDING';
+                    $requisition->error_message = $result['message'];
+                    $requisition->save();
+                }
             }else{
-                $requisition->status        = 'PENDING';
-                $requisition->error_message = $result['message'];
+                $requisition->status = 'PENDING';
+                $requisition->error_message = implode(',', $overBudgets);
                 $requisition->save();
             }
         }

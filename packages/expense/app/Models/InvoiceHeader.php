@@ -149,19 +149,19 @@ class InvoiceHeader extends Model
         $result = "";
         switch ($status) {
             case "NEW":
-                $result = "<span class='badge badge-primary' style='padding: 5px; background-color: #38ca8c;'> ขอเบิก </span>";
+                $result = "<span class='badge badge-primary' style='padding: 5px; background-color: #38ca8c; color: fff;'> ขอเบิก </span>";
                 break;
             case "INTERFACED":
-                $result = "<span class='badge badge-primary'> เบิกจ่ายแล้ว </span>";
+                $result = "<span class='badge badge-primary' style='padding: 5px; color: fff;'> เบิกจ่ายแล้ว </span>";
                 break;
             case "ERROR":
-                $result = "<span class='badge badge-danger' style='padding: 5px; background-color: #e3302f;'> เบิกจ่ายไม่สำเร็จ </span>";
+                $result = "<span class='badge badge-danger' style='padding: 5px; background-color: #e3302f; color: fff;'> เบิกจ่ายไม่สำเร็จ </span>";
                 break;
             case "CANCELLED":
-                $result = "<span class='badge badge-danger' style='padding: 5px;'> ยกเลิก </span>";
+                $result = "<span class='badge badge-danger' style='padding: 5px; color: fff;'> ยกเลิก </span>";
                 break;
             default:
-                $result = "<span class='badge badge-secondary' style='padding: 5px;'> รายการใหม่ </span>";
+                $result = "<span class='badge badge-secondary' style='padding: 5px; color: fff;'> รายการใหม่ </span>";
                 break;
         }
         return $result;

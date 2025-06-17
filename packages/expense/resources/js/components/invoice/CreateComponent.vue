@@ -117,7 +117,7 @@
                                                     :name="'check-req_'+header.req_number"
                                                     size="default"
                                                     @change="chooseReq(header)"
-                                                    :disabled="header.status == 'ALLOCATE'"
+                                                    :disabled="header.status == 'PENDING'"
                                                 />
                                                 <h5 class="mb-1 d-inline">
                                                     <template v-if="header.source_type == 'REQUISITION'">

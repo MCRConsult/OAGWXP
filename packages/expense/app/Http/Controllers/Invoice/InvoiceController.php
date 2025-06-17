@@ -185,7 +185,7 @@ class InvoiceController extends Controller
                                                                 ? collect($mergeReqs)->sum('total_amount')
                                                                 : collect($mergeReqs)->sum('amount'); // SUM LINE
             $headerTemp->clear_date                         = '';
-            $headerTemp->description                        = $header->description;
+            $headerTemp->description                        = $header->source_type == 'RECEIPT'? $header->description: '';
             $headerTemp->note                               = '';        
             $headerTemp->status                             = 'NEW';
             $headerTemp->requester                          = $user->id;

@@ -10,6 +10,12 @@
 @endsection
 
 @section('content')
+    @if ($requisition->status == 'CANCELLED')
+        <div class="alert alert-danger background-danger mt-2">
+            <strong>{{ $requisition->cancel_reason }}</strong>
+        </div>
+    @endif
+
 <div class="card">
     <div class="card-header">
         <div class="row">
@@ -19,7 +25,7 @@
             </div>
         </div>
     </div>
-
+    
     <div class="card-body">
         <div class="ibox float-e-margins">
             <div class="col-md-12">
