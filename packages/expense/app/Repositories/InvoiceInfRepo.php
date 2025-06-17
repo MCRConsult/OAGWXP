@@ -24,6 +24,15 @@ class InvoiceInfRepo {
         $user = auth()->user();
         $batchNo = 'INV-'.date('Ymd').'-'.$invoice->invoice_number;
         $reqDate = $invoice->source_type == 'RECEIPT'? $invoice->invoice_date: $invoice->requisitions->first()->req_date;
+        $attr14 = '';
+        if ($invoice->source_type == 'RECEIPT') {
+            if ($invoice->final_judgment == '' || $invoice->final_judgment == '') {
+               $attr14 = 'Remittance';
+            }else{
+                $attr14 = $invoice->invoice_number;
+            }
+        }
+        
 		\DB::beginTransaction();
 		try {
             // INTERFACE HEADER
@@ -54,6 +63,7 @@ class InvoiceInfRepo {
                                                         ? $invoice->invoice_number
                                                         : implode(',', $invoice->requisitions->pluck('req_number')->toArray());
             $headerInf->attribute5                  = date('Y-m-d', strtotime($reqDate));
+            $headerInf->attribute14                 = $attr14;
             $headerInf->attribute15                 = $invoice->note;
             $headerInf->web_batch_no                = $batchNo;
             $headerInf->creation_date               = Carbon::now();
