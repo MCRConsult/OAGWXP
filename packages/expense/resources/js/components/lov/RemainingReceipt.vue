@@ -17,7 +17,7 @@
             <el-option
                 v-for="(row, index) in dataRows"
                 :key="row.cash_receipt_id"
-                :label="row.receipt_number+': '+row.remaining_amount"
+                :label="row.receipt_number+': '+row.description"
                 :value="row.cash_receipt_id"
             >
             </el-option>

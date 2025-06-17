@@ -73,7 +73,9 @@ class InvoiceHeader extends Model
 
     public function finalJudgment()
     {
-        return $this->hasOne(FlexValueV::class, 'flex_value', 'final_judgment')->where('flex_value_set_name', 'OAG_VALUE_SET_Y_N')->select('description');
+        return $this->hasOne(FlexValueV::class, 'flex_value', 'final_judgment')
+                ->where('flex_value_set_name', 'OAG_VALUE_SET_Y_N')
+                ->select('description');
     }
 
     public function getInvRef($invType)
