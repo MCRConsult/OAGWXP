@@ -433,7 +433,8 @@ class RequisitionController extends Controller
             }
             $result = (new BudgetInfRepo)->reserveBudget($requisition, $user);
             if ($result['status'] == 'S') {
-                $requisition->status        = 'COMPLETED';
+                $requisition->status            = 'COMPLETED';
+                $requisition->encumbrance_flag  = 'R';
                 $requisition->save();
             }else{
                 $requisition->status        = 'PENDING';

@@ -164,34 +164,28 @@
                                                 </div>
                                             </div>
                                             <div class="col-md-2 text-center mt-4">
-                                                <div>
-                                                    <!-- <button type="button" class="btn btn-block btn-sm btn-warning m-1"
-                                                        @click.prevate="setStatus(header.id, 'HOLD_REQUISITION')">
-                                                        รอตรวจสอบ
-                                                    </button> -->
-                                                    <modalHoldComp
-                                                        :header="header"
-                                                        :index="index"
-                                                        @updateActionReq="updateActionReq"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <!-- <button type="button" class="btn btn-block btn-sm btn-danger m-1"
-                                                        @click.prevate="setStatus(header.id, 'CANCEL_REQUISITION')">
-                                                        ยกเลิก
-                                                    </button> -->
-                                                    <modalCancelComp
-                                                        :header="header"
-                                                        :index="index"
-                                                        @updateActionReq="updateActionReq"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <!-- RE-INTERFACE -->
-                                                    <button v-if="header.status == 'PENDING'" class="btn btn-block btn-sm btn-primary m-1">
-                                                        ส่งเบิก
-                                                    </button>
-                                                </div>
+                                                <template v-if="header.source_type == 'REQUISITION'">
+                                                    <div>
+                                                        <modalHoldComp
+                                                            :header="header"
+                                                            :index="index"
+                                                            @updateActionReq="updateActionReq"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <modalCancelComp
+                                                            :header="header"
+                                                            :index="index"
+                                                            @updateActionReq="updateActionReq"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <!-- RE-INTERFACE -->
+                                                        <button v-if="header.status == 'PENDING'" class="btn btn-block btn-sm btn-primary m-1">
+                                                            ส่งเบิก
+                                                        </button>
+                                                    </div>
+                                                </template>
                                             </div>
                                         </div>
                                     </div>

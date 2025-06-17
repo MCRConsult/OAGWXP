@@ -66,6 +66,11 @@ class InvoiceHeader extends Model
         return $this->hasOne(PaymentTerm::class, 'term_id', 'payment_term')->select('description');
     }
 
+    public function receipt()
+    {
+        return $this->hasOne(MappingAutoInvoiceV::class, 'req_number', 'invoice_number');
+    }
+
     public function finalJudgment()
     {
         return $this->hasOne(FlexValueV::class, 'flex_value', 'final_judgment')->where('flex_value_set_name', 'OAG_VALUE_SET_Y_N')->select('description');

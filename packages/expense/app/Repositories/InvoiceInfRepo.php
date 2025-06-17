@@ -23,7 +23,7 @@ class InvoiceInfRepo {
 	{
         $user = auth()->user();
         $batchNo = 'INV-'.date('Ymd').'-'.$invoice->invoice_number;
-        $reqDate = $invoice->requisitions->first()->req_date;
+        $reqDate = $invoice->source_type == 'RECEIPT'? $invoice->invoice_date: $invoice->requisitions->first()->req_date;
 		\DB::beginTransaction();
 		try {
             // INTERFACE HEADER
@@ -50,7 +50,9 @@ class InvoiceInfRepo {
             $headerInf->attribute1                  = $invoice->contact_date;
             $headerInf->attribute2                  = $invoice->gfmis_document_number;
             $headerInf->attribute3                  = $invoice->final_judgment;
-            $headerInf->attribute4                  = implode(',', $invoice->requisitions->pluck('req_number')->toArray());
+            $headerInf->attribute4                  = $invoice->source_type == 'RECEIPT'
+                                                        ? $invoice->invoice_number
+                                                        : implode(',', $invoice->requisitions->pluck('req_number')->toArray());
             $headerInf->attribute5                  = date('Y-m-d', strtotime($reqDate));
             $headerInf->attribute15                 = $invoice->note;
             $headerInf->web_batch_no                = $batchNo;
