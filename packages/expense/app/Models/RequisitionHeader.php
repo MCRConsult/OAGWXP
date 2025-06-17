@@ -116,6 +116,9 @@ class RequisitionHeader extends Model
             case "HOLD":
                 $result = "รอตรวจสอบ";
                 break;
+            case "ERROR":
+                $result = "เบิกจ่ายไม่สำเร็จ";
+                break;
             case "CANCELLED":
                 $result = "ยกเลิก";
                 break;
@@ -222,7 +225,7 @@ class RequisitionHeader extends Model
                 l_status    varchar2(10);
                 l_msg       varchar2(1000);
             begin
-                OAGAP_INVOICE_INF_PKG.MAIN( P_WEB_BATCH_NO  => '{$batch}'
+                OAGGL_JOURNAL_INF_PKG.MAIN( P_WEB_BATCH_NO  => '{$batch}'
                                             , X_STATUS      => :l_status
                                             , X_MESSAGE     => :l_msg
                                         );

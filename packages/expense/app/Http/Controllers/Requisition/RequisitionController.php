@@ -440,8 +440,8 @@ class RequisitionController extends Controller
                     }
                 }
             }
-
-            if (is_null($overBudgets)) {
+            $result = [];
+            if (count($overBudgets) <= 0) {
                 $result = (new BudgetInfRepo)->reserveBudget($requisition, $user);
                 if ($result['status'] == 'S') {
                     $requisition->status            = 'COMPLETED';

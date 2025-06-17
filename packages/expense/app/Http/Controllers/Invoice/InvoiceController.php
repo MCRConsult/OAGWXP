@@ -179,8 +179,9 @@ class InvoiceController extends Controller
             $headerTemp->payment_term                       = $header->supplier->terms_id;
             $headerTemp->currency                           = $header->supplier->invoice_currency_code;
             $headerTemp->contact_date                       = '';
-            $headerTemp->final_judgment                     = '';
+            $headerTemp->final_judgment                     = ''; //$header->;
             $headerTemp->gfmis_document_number              = '';
+            $headerTemp->revenue_delivery_code              = $header->revenue_delivery_code;
             $headerTemp->total_amount                       = $header->source_type == 'REQUISITION'
                                                                 ? collect($mergeReqs)->sum('total_amount')
                                                                 : collect($mergeReqs)->sum('amount'); // SUM LINE

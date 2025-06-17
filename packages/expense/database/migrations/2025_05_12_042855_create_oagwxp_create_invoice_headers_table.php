@@ -35,6 +35,7 @@ return new class extends Migration
             $table->date('contact_date')->nullable();
             $table->string('final_judgment')->nullable();
             $table->string('gfmis_document_number')->nullable();
+            $table->string('revenue_delivery_code')->nullable();
             $table->integer('total_amount', 18, 2)->nullable();
             $table->string('description')->nullable();
             $table->string('note')->nullable();
