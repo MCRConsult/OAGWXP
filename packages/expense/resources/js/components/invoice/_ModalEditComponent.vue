@@ -74,6 +74,7 @@
                                     <expenseType
                                         :parent="temp.budget_type"
                                         :setData="temp.expense_type"
+                                        :budgetSource="segment4"
                                         :error="errors.expense_type"
                                         :editFlag="false"
                                         @setExpenseType="setExpenseType"
@@ -189,10 +190,20 @@
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="form-group text-left" style="padding: 5px;">
-                                    <label class="control-label">
+                                    <!-- <label class="control-label">
                                         <strong> เลขที่ใบเสร็จรับเงินคงเหลือ </strong>
                                     </label><br>
-                                    <el-input v-model="temp.remaining_receipt_number" style="width: 100%;" disabled/>
+                                    <el-input v-model="temp.remaining_receipt_number" style="width: 100%;" disabled/> -->
+                                    <label class="control-label">
+                                        <strong> เลขที่ใบเสร็จรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
+                                    </label><br>
+                                    <remainingReceipt
+                                        :setData="temp.remaining_receipt_id"
+                                        :editFlag="true"
+                                        :error="errors.remaining_receipt"
+                                        @setRemainingReceipt="setRemainingReceipt"
+                                    ></remainingReceipt>
+                                    <div id="_el_explode_remaining_receipt" class="text-danger text-left"></div>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -461,10 +472,11 @@
     import arReceipt        from "../lov/ARReceipt.vue";
     import tax              from "../lov/Tax.vue";
     import wht              from "../lov/Wht.vue";
+    import remainingReceipt from "../lov/RemainingReceipt.vue";
 
     export default {
         components: {
-            coaComponent, supplier, supplierBank, budgetPlan, budgetType, expenseType, arReceipt, tax, wht
+            coaComponent, supplier, supplierBank, budgetPlan, budgetType, expenseType, arReceipt, tax, wht, remainingReceipt
         },
         props: ['index', 'invoiceLine', 'defaultSetName'],
         emits: ['updateRow'],
@@ -480,6 +492,7 @@
                     budget_type: false,
                     expense_type: false,
                     amount: false,
+                    remaining_receipt: false,
                     segment2: false,
                     segment3: false,
                     segment6: false,
@@ -519,6 +532,7 @@
                 vm.errors.budget_plan = false;
                 vm.errors.budget_type = false;
                 vm.errors.expense_type = false;
+                vm.errors.amount = false;
                 vm.errors.amount = false;
                 vm.errors.segment2 = false;
                 vm.errors.segment3 = false;
@@ -571,6 +585,14 @@
                     errorMsg = "กรุณากรอกจำนวนเงิน";
                     $(form).find("div[id='_el_explode_amount']").html(errorMsg);
                 }
+
+                if (vm.temp.remaining_receipt_flag == 'Y' && vm.temp.remaining_receipt_id == '') {
+                    vm.errors.remaining_receipt = true;
+                    valid = false;
+                    errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ ระดับรายละเอียดเพิ่มเติม";
+                    $(form).find("div[id='_el_explode_remaining_receipt']").html(errorMsg);
+                }
+
                 if (vm.segment2 == '' || vm.segment2 == undefined) {
                     vm.errors.segment2 = true;
                     valid = false;
@@ -680,6 +702,9 @@
             },
             setWht(res){
                 this.temp.wht_code = res.wht_code;
+            },
+            setRemainingReceipt(res){
+                this.temp.remaining_receipt_id = res.remaining_receipt;
             },
             updateCoa(res){
                 if (res.name == this.defaultSetName.segment1) { 

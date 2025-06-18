@@ -195,9 +195,9 @@
                                 :attribute="row"
                                 :defaultSetName="defaultSetName"
                                 @updateRow="updateRow"
-                                @copyRow="copyRow"
-                                @removeRow="removeRow"
                             />
+                            <!-- @copyRow="copyRow"
+                            @removeRow="removeRow" -->
                         </tbody>
                     </table>
                 </div>
@@ -377,34 +377,8 @@
                     this.reqLine.supplier_name = res.vendor_name;
                 }
             },
-            setSupplierLine(res){
-                this.reqLine.supplier_id = res.supplier;
-                this.reqLine.supplier_name = res.vendor_name;
-            },
-            setSupplierBank(res){
-                this.reqLine.supplier_site = res.supplier_site;
-                this.reqLine.bank_account_number = res.supplier_bank;
-            },
             setBankAccount(res){
                 this.header.cash_bank_account_id = res.cash_bank_account_id;
-            },
-            setBudgetPlan(res){
-                this.reqLine.budget_plan = res.budget_plan;
-            },
-            setBudgetType(res){
-                this.reqLine.budget_type = res.budget_type;
-            },
-            setExpenseType(res){
-                this.reqLine.expense_type = res.expense_type;
-                this.reqLine.expense_description = res.expense_description;
-                this.reqLine.description = res.expense_description;
-                // GET EXPENSE ACCOUNT WHEN CHOOSE EXPENSE_TYPE
-                if(this.reqLine.expense_type != ''){
-                    this.getExpenseAccount();
-                }
-            },
-            setRemainingReceipt(res){
-                this.reqLine.remaining_receipt_id = res.remaining_receipt;
             },
             changeSupplierType(){
                 this.resetValues();
@@ -418,43 +392,70 @@
                     this.reqLine.supplier_site = '';
                 }
             },
-            async getExpenseAccount(){
-                var vm = this;
-                if(vm.reqLine.expense_type != ''){
-                    axios.post('/expense/api/requisition/get-expense-account', {
-                        header: vm.requisition,
-                        line: vm.reqLine,
-                    })
-                    .then(function (res) {
-                        vm.loading = false;
-                        if (res.data.message) {
-                            vm.reqLine.expense_account = '';
-                        } else {
-                            vm.reqLine.expense_account = res.data.expense_account;
-                            this.extractAccount();
-                        }
-                    }.bind(vm))
-                    .catch(err => {
-                        let msg = err.response;
-                        Swal.fire({
-                            title: "มีข้อผิดพลาด",
-                            text: msg.message,
-                            icon: "error",
-                            showCancelButton: false,
-                            confirmButtonColor: "#3085d6",
-                            confirmButtonText: "ตกลง",
-                            allowOutsideClick: false
-                        });
-                    })
-                    .then(() => {
-                        vm.loading = false;
-                    });
-                }
-            },
-            updateAccount(res) {
-                this.reqLine.expense_account = res.expense_account;
-                this.extractAccount();
-            },
+            // setSupplierLine(res){
+            //     this.reqLine.supplier_id = res.supplier;
+            //     this.reqLine.supplier_name = res.vendor_name;
+            // },
+            // setSupplierBank(res){
+            //     this.reqLine.supplier_site = res.supplier_site;
+            //     this.reqLine.bank_account_number = res.supplier_bank;
+            // },
+            
+            // setBudgetPlan(res){
+            //     this.reqLine.budget_plan = res.budget_plan;
+            // },
+            // setBudgetType(res){
+            //     this.reqLine.budget_type = res.budget_type;
+            // },
+            // setExpenseType(res){
+            //     this.reqLine.expense_type = res.expense_type;
+            //     this.reqLine.expense_description = res.expense_description;
+            //     this.reqLine.description = res.expense_description;
+            //     // GET EXPENSE ACCOUNT WHEN CHOOSE EXPENSE_TYPE
+            //     if(this.reqLine.expense_type != ''){
+            //         this.getExpenseAccount();
+            //     }
+            // },
+            // setRemainingReceipt(res){
+            //     this.reqLine.remaining_receipt_id = res.remaining_receipt;
+            // },
+            // async getExpenseAccount(){
+            //     var vm = this;
+            //     if(vm.reqLine.expense_type != ''){
+            //         axios.post('/expense/api/requisition/get-expense-account', {
+            //             header: vm.requisition,
+            //             line: vm.reqLine,
+            //         })
+            //         .then(function (res) {
+            //             vm.loading = false;
+            //             if (res.data.message) {
+            //                 vm.reqLine.expense_account = '';
+            //             } else {
+            //                 vm.reqLine.expense_account = res.data.expense_account;
+            //                 this.extractAccount();
+            //             }
+            //         }.bind(vm))
+            //         .catch(err => {
+            //             let msg = err.response;
+            //             Swal.fire({
+            //                 title: "มีข้อผิดพลาด",
+            //                 text: msg.message,
+            //                 icon: "error",
+            //                 showCancelButton: false,
+            //                 confirmButtonColor: "#3085d6",
+            //                 confirmButtonText: "ตกลง",
+            //                 allowOutsideClick: false
+            //             });
+            //         })
+            //         .then(() => {
+            //             vm.loading = false;
+            //         });
+            //     }
+            // },
+            // updateAccount(res) {
+            //     this.reqLine.expense_account = res.expense_account;
+            //     this.extractAccount();
+            // },
             updateRow(response){
                 console.log(response.line);
                 var vm = this;
@@ -576,90 +577,90 @@
                     }
                 }
             },
-            copyRow(index) {
-                var vm = this;
-                let copyLine = JSON.parse(JSON.stringify(vm.linelists[index]));
-                if (copyLine.remaining_receipt_flag == 'Y') {
-                    axios.post('/expense/requisition/use-ar-receipt', {
-                        header: vm.requisition,
-                        line: copyLine,
-                        seq: vm.linelists.length
-                    })
-                    .then(function (res) {
-                        vm.loading = false;
-                        if (res.data.message) {
-                            Swal.fire({
-                                title: "มีข้อผิดพลาด",
-                                text: res.data.message,
-                                icon: "error",
-                                showCancelButton: false,
-                                confirmButtonColor: "#3085d6",
-                                confirmButtonText: "ตกลง",
-                                allowOutsideClick: false
-                            });
-                        } else {
-                            vm.linelists.push(JSON.parse(JSON.stringify(copyLine)));
-                        }
-                    }.bind(vm))
-                    .catch(err => {
-                        let msg = err.response;
-                        Swal.fire({
-                            title: "มีข้อผิดพลาด",
-                            text: msg.message,
-                            icon: "error",
-                            showCancelButton: false,
-                            confirmButtonColor: "#3085d6",
-                            confirmButtonText: "ตกลง",
-                            allowOutsideClick: false
-                        });
-                    });
-                }else{
-                    vm.linelists.push(JSON.parse(JSON.stringify(copyLine)));
-                }
-            },
-            removeRow(index) {
-                var vm = this;
-                if (vm.linelists[index].remaining_receipt_flag == 'Y') {
-                    axios.post('/expense/requisition/remove-ar-receipt', {
-                        header: vm.requisition,
-                        line: vm.linelists[index],
-                        seq: index,
-                    })
-                    .then(function (res) {
-                        vm.loading = false;
-                        if (res.data.message) {
-                            Swal.fire({
-                                title: "มีข้อผิดพลาด",
-                                text: res.data.message,
-                                icon: "error",
-                                showCancelButton: false,
-                                confirmButtonColor: "#3085d6",
-                                confirmButtonText: "ตกลง",
-                                allowOutsideClick: false
-                            });
-                        } else {
-                            vm.linelists.splice(index, 1);
-                        }
-                    }.bind(vm))
-                    .catch(err => {
-                        let msg = err.response;
-                        Swal.fire({
-                            title: "มีข้อผิดพลาด",
-                            text: msg.message,
-                            icon: "error",
-                            showCancelButton: false,
-                            confirmButtonColor: "#3085d6",
-                            confirmButtonText: "ตกลง",
-                            allowOutsideClick: false
-                        });
-                    })
-                    .then(() => {
-                        vm.loading = false;
-                    });
-                }else{
-                    vm.linelists.splice(index, 1);
-                }
-            },
+            // copyRow(index) {
+            //     var vm = this;
+            //     let copyLine = JSON.parse(JSON.stringify(vm.linelists[index]));
+            //     if (copyLine.remaining_receipt_flag == 'Y') {
+            //         axios.post('/expense/requisition/use-ar-receipt', {
+            //             header: vm.requisition,
+            //             line: copyLine,
+            //             seq: vm.linelists.length
+            //         })
+            //         .then(function (res) {
+            //             vm.loading = false;
+            //             if (res.data.message) {
+            //                 Swal.fire({
+            //                     title: "มีข้อผิดพลาด",
+            //                     text: res.data.message,
+            //                     icon: "error",
+            //                     showCancelButton: false,
+            //                     confirmButtonColor: "#3085d6",
+            //                     confirmButtonText: "ตกลง",
+            //                     allowOutsideClick: false
+            //                 });
+            //             } else {
+            //                 vm.linelists.push(JSON.parse(JSON.stringify(copyLine)));
+            //             }
+            //         }.bind(vm))
+            //         .catch(err => {
+            //             let msg = err.response;
+            //             Swal.fire({
+            //                 title: "มีข้อผิดพลาด",
+            //                 text: msg.message,
+            //                 icon: "error",
+            //                 showCancelButton: false,
+            //                 confirmButtonColor: "#3085d6",
+            //                 confirmButtonText: "ตกลง",
+            //                 allowOutsideClick: false
+            //             });
+            //         });
+            //     }else{
+            //         vm.linelists.push(JSON.parse(JSON.stringify(copyLine)));
+            //     }
+            // },
+            // removeRow(index) {
+            //     var vm = this;
+            //     if (vm.linelists[index].remaining_receipt_flag == 'Y') {
+            //         axios.post('/expense/requisition/remove-ar-receipt', {
+            //             header: vm.requisition,
+            //             line: vm.linelists[index],
+            //             seq: index,
+            //         })
+            //         .then(function (res) {
+            //             vm.loading = false;
+            //             if (res.data.message) {
+            //                 Swal.fire({
+            //                     title: "มีข้อผิดพลาด",
+            //                     text: res.data.message,
+            //                     icon: "error",
+            //                     showCancelButton: false,
+            //                     confirmButtonColor: "#3085d6",
+            //                     confirmButtonText: "ตกลง",
+            //                     allowOutsideClick: false
+            //                 });
+            //             } else {
+            //                 vm.linelists.splice(index, 1);
+            //             }
+            //         }.bind(vm))
+            //         .catch(err => {
+            //             let msg = err.response;
+            //             Swal.fire({
+            //                 title: "มีข้อผิดพลาด",
+            //                 text: msg.message,
+            //                 icon: "error",
+            //                 showCancelButton: false,
+            //                 confirmButtonColor: "#3085d6",
+            //                 confirmButtonText: "ตกลง",
+            //                 allowOutsideClick: false
+            //             });
+            //         })
+            //         .then(() => {
+            //             vm.loading = false;
+            //         });
+            //     }else{
+            //         vm.linelists.splice(index, 1);
+            //     }
+            // },
             resetValues(){
                 var vm = this;
                 var form = $('#edit-form');
@@ -841,22 +842,22 @@
                     });
                 })
             },
-            extractAccount(){
-                var coa = this.reqLine.expense_account.split('.');
-                this.segment1 = coa[0];
-                this.segment2 = coa[1];
-                this.segment3 = coa[2];
-                this.segment4 = coa[3];
-                this.segment5 = coa[4];
-                this.segment6 = coa[5];
-                this.segment7 = coa[6];
-                this.segment8 = coa[7];
-                this.segment9 = coa[8];
-                this.segment10 = coa[9];
-                this.segment11 = coa[10];
-                this.segment12 = coa[11];
-                this.segment13 = coa[12];
-            },
+            // extractAccount(){
+            //     var coa = this.reqLine.expense_account.split('.');
+            //     this.segment1 = coa[0];
+            //     this.segment2 = coa[1];
+            //     this.segment3 = coa[2];
+            //     this.segment4 = coa[3];
+            //     this.segment5 = coa[4];
+            //     this.segment6 = coa[5];
+            //     this.segment7 = coa[6];
+            //     this.segment8 = coa[7];
+            //     this.segment9 = coa[8];
+            //     this.segment10 = coa[9];
+            //     this.segment11 = coa[10];
+            //     this.segment12 = coa[11];
+            //     this.segment13 = coa[12];
+            // },
         },
     }
 </script>

@@ -80,6 +80,7 @@
                                     <expenseType
                                         :parent="temp.budget_type"
                                         :setData="temp.expense_type"
+                                        :budgetSource="requisition.budget_source"
                                         :error="errors.expense_type"
                                         :editFlag="false"
                                         @setExpenseType="setExpenseType"

@@ -415,36 +415,108 @@
             updateRow(response){
                 var vm = this;
                 let index = response.index;
-                let valUpdate = response.line;
-                if (typeof this.linelists === 'object' && this.linelists !== null && response.index in this.linelists) {
-                    const currentItem = this.linelists[response.index];
-                    if (currentItem) {
-                        if (valUpdate && typeof valUpdate === 'object') {
-                            // Object.assign(currentItem, valUpdate);
-                            Object.assign(currentItem, {
-                                bank_account_number: valUpdate.bank_account_number,
-                                budget_plan: valUpdate.budget_plan,
-                                budget_type: valUpdate.budget_type,
-                                expense_type: valUpdate.expense_type,
-                                expense_description: valUpdate.expense_description,
-                                expense_account: valUpdate.expense_account,
-                                amount: valUpdate.amount,
-                                description: valUpdate.description,
-                                tax_code: valUpdate.tax_code,
-                                tax_amount: valUpdate.tax_amount,
-                                wht_code: valUpdate.wht_code,
-                                wht_amount: valUpdate.wht_amount,
-                                ar_receipt_id: valUpdate.ar_receipt_id,
-                                ar_receipt_number: valUpdate.ar_receipt_number
+                if (vm.linelists[index].remaining_receipt_flag == 'Y') {
+                    axios.post('/expense/requisition/update-ar-receipt', {
+                        header: vm.invoice,
+                        line: response.line,
+                        seq: index,
+                    })
+                    .then(function (res) {
+                        vm.loading = false;
+                        if (res.data.message) {
+                            Swal.fire({
+                                title: "มีข้อผิดพลาด",
+                                text: res.data.message,
+                                icon: "error",
+                                showCancelButton: false,
+                                confirmButtonColor: "#3085d6",
+                                confirmButtonText: "ตกลง",
+                                allowOutsideClick: false
                             });
                         } else {
-                            console.error('valUpdate is invalid:', valUpdate);
+                            let valUpdate = response.line;
+                            if (typeof this.linelists === 'object' && this.linelists !== null && response.index in this.linelists) {
+                                const currentItem = this.linelists[response.index];
+                                if (currentItem) {
+                                    if (valUpdate && typeof valUpdate === 'object') {
+                                        Object.assign(currentItem, {
+                                            bank_account_number: valUpdate.bank_account_number,
+                                            budget_plan: valUpdate.budget_plan,
+                                            budget_type: valUpdate.budget_type,
+                                            expense_type: valUpdate.expense_type,
+                                            expense_description: valUpdate.expense_description,
+                                            expense_account: valUpdate.expense_account,
+                                            amount: valUpdate.amount,
+                                            description: valUpdate.description,
+                                            tax_code: valUpdate.tax_code,
+                                            tax_amount: valUpdate.tax_amount,
+                                            wht_code: valUpdate.wht_code,
+                                            wht_amount: valUpdate.wht_amount,
+                                            ar_receipt_id: valUpdate.ar_receipt_id,
+                                            ar_receipt_number: valUpdate.ar_receipt_number,
+                                            remaining_receipt_flag: valUpdate.remaining_receipt_flag,
+                                            remaining_receipt_id: valUpdate.remaining_receipt_id
+                                        });
+                                    } else {
+                                        console.error('valUpdate is invalid:', valUpdate);
+                                    }
+                                } else {
+                                    console.error(`No item found at index ${response.index}`);
+                                }
+                            } else {
+                                console.error('Invalid response or linelists object.');
+                            }
+                        }
+                    }.bind(vm))
+                    .catch(err => {
+                        let msg = err.response;
+                        Swal.fire({
+                            title: "มีข้อผิดพลาด",
+                            text: msg.message,
+                            icon: "error",
+                            showCancelButton: false,
+                            confirmButtonColor: "#3085d6",
+                            confirmButtonText: "ตกลง",
+                            allowOutsideClick: false
+                        });
+                    })
+                    .then(() => {
+                        vm.loading = false;
+                    });
+                }else{
+                    let valUpdate = response.line;
+                    if (typeof this.linelists === 'object' && this.linelists !== null && response.index in this.linelists) {
+                        const currentItem = this.linelists[response.index];
+                        if (currentItem) {
+                            if (valUpdate && typeof valUpdate === 'object') {
+                                // Object.assign(currentItem, valUpdate);
+                                Object.assign(currentItem, {
+                                    bank_account_number: valUpdate.bank_account_number,
+                                    budget_plan: valUpdate.budget_plan,
+                                    budget_type: valUpdate.budget_type,
+                                    expense_type: valUpdate.expense_type,
+                                    expense_description: valUpdate.expense_description,
+                                    expense_account: valUpdate.expense_account,
+                                    amount: valUpdate.amount,
+                                    description: valUpdate.description,
+                                    tax_code: valUpdate.tax_code,
+                                    tax_amount: valUpdate.tax_amount,
+                                    wht_code: valUpdate.wht_code,
+                                    wht_amount: valUpdate.wht_amount,
+                                    ar_receipt_id: valUpdate.ar_receipt_id,
+                                    ar_receipt_number: valUpdate.ar_receipt_number,
+                                    remaining_receipt_flag: valUpdate.remaining_receipt_flag,
+                                    remaining_receipt_id: valUpdate.remaining_receipt_id
+                                });
+                            } else {
+                                console.error('valUpdate is invalid:', valUpdate);
+                            }
+                        } else {
+                            console.error(`No item found at index ${response.index}`);
                         }
                     } else {
-                        console.error(`No item found at index ${response.index}`);
+                        console.error('Invalid response or linelists object.');
                     }
-                } else {
-                    console.error('Invalid response or linelists object.');
                 }
             },
             copyRow(index) {

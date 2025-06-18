@@ -256,10 +256,25 @@ class LovController extends Controller
     {
         $budgetType = $request->parent;
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $sourceDefault = ['500', '510', '520', '530', '540', '550'];
         if (!$budgetType) {
             $expeseType = [];
         }else{
-            $expeseType = MTLCategoriesV::where('structure_name', 'OAG Item Category Set')
+            if (in_array($request->budget_source, $sourceDefault)) {
+                // OAG_AP_WEB_MAPPING_EXP RULE
+                $expeseType = LookupV::selectRaw('meaning category_concat_segs, description')
+                            ->where('lookup_type', 'OAG_AP_WEB_MAPPING_EXP RULE')
+                            ->where('tag', $request->budget_source)
+                            ->when($keyword, function ($query, $keyword) {
+                                return $query->where(function($r) use ($keyword) {
+                                    $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%'])
+                                        ->orWhereRaw('UPPER(meaning) like ?', ['%'.strtoupper($keyword).'%']);
+                                });
+                            })
+                            ->orderBy('description')
+                            ->get();  
+            }else{
+                $expeseType = MTLCategoriesV::where('structure_name', 'OAG Item Category Set')
                             ->where('segment1', 'EXP')
                             ->when($keyword, function ($query, $keyword) {
                                 return $query->where(function($r) use ($keyword) {
@@ -272,6 +287,7 @@ class LovController extends Controller
                             })
                             ->orderBy('category_concat_segs')
                             ->get();
+            }
         }
 
         return response()->json(['data' => $expeseType]);

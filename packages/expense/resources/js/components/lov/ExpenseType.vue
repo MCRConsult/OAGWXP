@@ -28,7 +28,7 @@
 <script>
 export default {
     props: [
-        'parent', 'setData', 'error', 'editFlag'
+        'parent', 'setData', 'budgetSource', 'error', 'editFlag'
     ],
     data () {
         return {
@@ -67,6 +67,7 @@ export default {
             axios.get(`/expense/api/get-expense-type`, {
                 params: {
                     parent: this.parent,
+                    budget_source: this.budgetSource,
                     keyword: query
                 }
             })

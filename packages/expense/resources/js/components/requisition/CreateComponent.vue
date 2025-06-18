@@ -251,6 +251,7 @@
                             <expenseType
                                 :parent="reqLine.budget_type"
                                 :setData="reqLine.expense_type"
+                                :budgetSource="requisition.budget_source"
                                 :error="errors.expense_type"
                                 :editFlag="true"
                                 @setExpenseType="setExpenseType"
@@ -397,6 +398,7 @@
         data() {
             return {
                 budgetSource: ['510'], //, '520', '530', '540', '550'
+                sourceDefault: ['500', '510', '520', '530', '540', '550'],
                 errors: {
                     budget_source: false,
                     invoice_type: false,
@@ -521,6 +523,11 @@
                 this.requisition.budget_source = res.budget_source;
                 this.isARReceipt(res.budget_source);
                 this.getDocumentCate(res.budget_source);
+                // DEFAULT VALUE LINE
+                if(this.sourceDefault.indexOf(this.requisition.budget_source) !== -1){
+                    this.reqLine.budget_plan = 'EXP.400.000000.0000000000';
+                    this.reqLine.budget_type = 'EXP.400.400000.0000000000';
+                }
             },
             setDocumentCate(res){
                 this.requisition.document_category = res.document_category;

@@ -34,7 +34,7 @@
                                         :parent="temp.supplier_id"
                                         :setData="temp.bank_account_number"
                                         :error="errors.supplier_bank"
-                                        :editFlag="requisition.multiple_supplier == 'MORE'? true: false"
+                                        :editFlag="true"
                                         @setSupplierBank="setSupplierBank"
                                     ></supplierBank>
                                     <div id="_el_explode_supplier_bank" class="text-danger text-left"></div>
@@ -79,6 +79,7 @@
                                     <expenseType
                                         :parent="temp.budget_type"
                                         :setData="temp.expense_type"
+                                        :budgetSource="requisition.budget_source"
                                         :error="errors.expense_type"
                                         :editFlag="true"
                                         @setExpenseType="setExpenseType"

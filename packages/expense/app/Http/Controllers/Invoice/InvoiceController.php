@@ -142,10 +142,12 @@ class InvoiceController extends Controller
 
         \DB::beginTransaction();
         try{
+            $sourceDefault = ['500', '510', '520', '530', '540', '550'];
             $header = collect($mergeReqs)->first();
             $prefixInvRef = (new InvoiceHeader)->getInvRef($header->invoice_type);
             $docCate = '';
             $invoiceNum = '';
+            $headerDesc = '';
             if ($header->source_type == 'RECEIPT') {
                 if ($header->revenue_delivery_code == '02') {
                     $lookup = LookupV::selectRaw('lookup_type, lookup_code, meaning, description')
@@ -164,10 +166,17 @@ class InvoiceController extends Controller
             }else{
                 $invoiceNum = (new InvoiceHeader)->genDocumentNo($user->org_id, $prefixInvRef);
             }
+            // HEADER DESCRIPTION
+            if ($header->source_type == 'RECEIPT') {
+                $headerDesc = $header->description;
+            }elseif(in_array($header->budget_source, $sourceDefault)){
+                $headerDesc = $header->description;
+            }
             // CREATE NEW INVOICE
             $headerTemp                                     = new InvoiceHeader;
             $headerTemp->invoice_number                     = $invoiceNum;
             $headerTemp->org_id                             = $user->org_id;
+            $headerTemp->reference_number                   = $header->reference_number;
             $headerTemp->source_type                        = $header->source_type;
             $headerTemp->invoice_date                       = date('Y-m-d');
             $headerTemp->invoice_type                       = $header->invoice_type;
@@ -179,14 +188,14 @@ class InvoiceController extends Controller
             $headerTemp->payment_term                       = $header->supplier->terms_id;
             $headerTemp->currency                           = $header->supplier->invoice_currency_code;
             $headerTemp->contact_date                       = '';
-            $headerTemp->final_judgment                     = ''; //$header->;
+            $headerTemp->final_judgment                     = ''; //$header-> == 'Y': 'Yes': 'No';
             $headerTemp->gfmis_document_number              = '';
             $headerTemp->revenue_delivery_code              = $header->revenue_delivery_code;
             $headerTemp->total_amount                       = $header->source_type == 'REQUISITION'
                                                                 ? collect($mergeReqs)->sum('total_amount')
                                                                 : collect($mergeReqs)->sum('amount'); // SUM LINE
             $headerTemp->clear_date                         = '';
-            $headerTemp->description                        = $header->source_type == 'RECEIPT'? $header->description: '';
+            $headerTemp->description                        = $headerDesc;
             $headerTemp->note                               = '';        
             $headerTemp->status                             = 'NEW';
             $headerTemp->requester                          = $user->id;
