@@ -58,7 +58,7 @@ class InvoiceInfRepo {
             $headerInf->liability_account           = $invoice->supplierSite->liability_account; //---SUPPLIER
             $headerInf->attribute1                  = $invoice->contact_date;
             $headerInf->attribute2                  = $invoice->gfmis_document_number;
-            $headerInf->attribute3                  = $invoice->final_judgment == 'Yes'? 'Y': 'N';
+            $headerInf->attribute3                  = $invoice->final_judgment;
             $headerInf->attribute4                  = $invoice->source_type == 'RECEIPT'
                                                         ? $invoice->invoice_number
                                                         : implode(',', $invoice->requisitions->pluck('req_number')->toArray());
