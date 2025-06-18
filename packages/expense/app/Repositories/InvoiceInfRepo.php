@@ -25,7 +25,7 @@ class InvoiceInfRepo {
         $batchNo = 'INV-'.date('Ymd').'-'.$invoice->invoice_number;
         $reqDate = $invoice->source_type == 'RECEIPT'? $invoice->invoice_date: $invoice->requisitions->first()->req_date;
         $attr14 = '';
-        if ($invoice->source_type == 'RECEIPT' || $invoice->budget_source == '510') {
+        if ($invoice->source_type == 'RECEIPT') {
             if ($invoice->final_judgment == '' || $invoice->final_judgment == null || $invoice->final_judgment == 'No') {
                $attr14 = 'Remittance';
             }else{
@@ -67,7 +67,8 @@ class InvoiceInfRepo {
             $headerInf->attribute15                 = $invoice->note;
             $headerInf->remittance_message1         = $invoice->source_type == 'RECEIPT'? $invoice->invoice_number: '';
             $headerInf->revenue_delivery_code       = $invoice->revenue_delivery_code;
-            $headerInf->final_judgment_number       = $invoice->final_judgment == 'Yes'? $invoice->final_judgment_number: '';
+            $headerInf->final_judgment_number       = $invoice->final_judgment == 'Yes' && $invoice->source_type == 'RECEIPT'
+                                                        ? $invoice->final_judgment_number: '';
             $headerInf->web_batch_no                = $batchNo;
             $headerInf->creation_date               = Carbon::now();
             $headerInf->last_update_date            = Carbon::now();

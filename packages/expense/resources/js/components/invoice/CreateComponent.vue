@@ -94,15 +94,22 @@
                 </template>
                 <template v-else>
                     <div class="row">
-                        <div class="col-12">
-                            <el-checkbox v-model="isAllSelected"
-                                label="เลือกทั้งหมด"
-                                name="selectAll"
-                                @change="toggleSelectAll"
-                                border
-                                size="default"
-                                style="margin: 1rem;" 
-                            > </el-checkbox>
+                        <div class="row col-12">
+                            <div class="col-md-9">
+                                <el-checkbox v-model="isAllSelected"
+                                    label="เลือกทั้งหมด"
+                                    name="selectAll"
+                                    @change="toggleSelectAll"
+                                    border
+                                    size="default"
+                                    style="margin: 1rem;" 
+                                > </el-checkbox>
+                            </div>
+                            <div class="col-md-3 mt-3" align="right">
+                                <button v-if="listReq.length" type="button" class="btn btn-primary" @click.prevent="groupInvoice()">
+                                    ถัดไป 
+                                </button>
+                            </div>
                         </div>
                         <template :key="header.id" v-for="(header, index) in headers">
                             <div class="col-12">
