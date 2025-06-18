@@ -362,7 +362,7 @@ class LovController extends Controller
     public function getTaxes(Request $request)
     {
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
-        $taxes = Tax::selectRaw('tax_id, tax')
+        $taxes = Tax::selectRaw('tax_id, tax, tax_precision')
                         ->when($keyword, function ($query, $keyword) {
                             return $query->where(function($r) use ($keyword) {
                                 $r->WhereRaw('UPPER(tax) like ?', [strtoupper($keyword).'%']);
@@ -377,7 +377,7 @@ class LovController extends Controller
     public function getWht(Request $request)
     {
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
-        $wht = WHT::selectRaw('tax_id, name, description')
+        $wht = WHT::selectRaw('tax_id, name, description, attribute2')
                         ->when($keyword, function ($query, $keyword) {
                             return $query->where(function($r) use ($keyword) {
                                 $r->WhereRaw('UPPER(name) like ?', [strtoupper($keyword).'%'])

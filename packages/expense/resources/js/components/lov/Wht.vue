@@ -66,7 +66,13 @@ export default {
             .then(res => {
                 this.loading = false;
                 this.dataRows = res.data.data;
-                this.$emit('setWht', {wht_code: this.value});
+                let wht_percent = 0;
+                res.data.data.filter((value) => {
+                    if(value.name == this.value){
+                        wht_percent = value.attribute2;
+                    }
+                });
+                this.$emit('setWht', {wht_code: this.value, wht_percent: wht_percent});
             })
             .catch((error) => {
                 console.log('มีข้อผิดพลาด', error, 'error');

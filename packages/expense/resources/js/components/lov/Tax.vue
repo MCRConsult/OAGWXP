@@ -66,7 +66,13 @@ export default {
             .then(res => {
                 this.loading = false;
                 this.dataRows = res.data.data;
-                this.$emit('setTax', {tax_code: this.value});
+                let tax_percent = 0;
+                res.data.data.filter((value) => {
+                    if(value.tax == this.value){
+                        tax_percent = value.tax_precision;
+                    }
+                });
+                this.$emit('setTax', {tax_code: this.value, tax_percent: tax_percent});
             })
             .catch((error) => {
                 console.log('มีข้อผิดพลาด', error, 'error');

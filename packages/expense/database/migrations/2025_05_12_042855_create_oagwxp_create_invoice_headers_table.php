@@ -22,6 +22,7 @@ return new class extends Migration
             $table->increments('id');
             $table->integer('org_id')->nullable();
             $table->string('reference_number')->nullable();
+            $table->string('budget_source')->nullable();
             $table->string('voucher_number')->nullable();
             $table->string('invoice_number');
             $table->date('invoice_date');
@@ -35,6 +36,7 @@ return new class extends Migration
             $table->string('currency')->nullable();
             $table->date('contact_date')->nullable();
             $table->string('final_judgment')->nullable();
+            $table->string('final_judgment_number')->nullable(); // CASE RECEIPT ONLY
             $table->string('gfmis_document_number')->nullable();
             $table->string('revenue_delivery_code')->nullable();
             $table->integer('total_amount', 18, 2)->nullable();

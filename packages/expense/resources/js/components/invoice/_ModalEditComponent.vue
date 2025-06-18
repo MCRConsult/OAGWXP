@@ -188,12 +188,8 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-3" v-if="sourceDefault.indexOf(segment4) !== -1">
                                 <div class="form-group text-left" style="padding: 5px;">
-                                    <!-- <label class="control-label">
-                                        <strong> เลขที่ใบเสร็จรับเงินคงเหลือ </strong>
-                                    </label><br>
-                                    <el-input v-model="temp.remaining_receipt_number" style="width: 100%;" disabled/> -->
                                     <label class="control-label">
                                         <strong> เลขที่ใบเสร็จรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
                                     </label><br>
@@ -445,7 +441,6 @@
                                 </div>
                             </div>
                         </div>
-
                     </form>
                 </div>
                 <div class="modal-footer pt-2">
@@ -482,6 +477,7 @@
         emits: ['updateRow'],
         data() {
             return {
+                sourceDefault: ['500', '510', '520', '530', '540', '550'],
                 line: this.invoiceLine,
                 temp: {},
                 loading: false,
@@ -699,9 +695,11 @@
             },
             setTax(res){
                 this.temp.tax_code = res.tax_code;
+                this.temp.tax_amount = (this.temp.amount*res.tax_percent)/100;
             },
             setWht(res){
                 this.temp.wht_code = res.wht_code;
+                this.temp.wht_amount = (this.temp.amount*res.wht_percent)/100;
             },
             setRemainingReceipt(res){
                 this.temp.remaining_receipt_id = res.remaining_receipt;

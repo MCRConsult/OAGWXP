@@ -25,8 +25,8 @@ class InvoiceInfRepo {
         $batchNo = 'INV-'.date('Ymd').'-'.$invoice->invoice_number;
         $reqDate = $invoice->source_type == 'RECEIPT'? $invoice->invoice_date: $invoice->requisitions->first()->req_date;
         $attr14 = '';
-        if ($invoice->source_type == 'RECEIPT') {
-            if ($invoice->final_judgment == '' || $invoice->final_judgment == '') {
+        if ($invoice->source_type == 'RECEIPT' || $invoice->budget_source == '510') {
+            if ($invoice->final_judgment == '' || $invoice->final_judgment == null || $invoice->final_judgment == 'No') {
                $attr14 = 'Remittance';
             }else{
                 $attr14 = $invoice->invoice_number;
@@ -58,7 +58,7 @@ class InvoiceInfRepo {
             $headerInf->liability_account           = $invoice->supplierSite->liability_account; //---SUPPLIER
             $headerInf->attribute1                  = $invoice->contact_date;
             $headerInf->attribute2                  = $invoice->gfmis_document_number;
-            $headerInf->attribute3                  = $invoice->final_judgment;
+            $headerInf->attribute3                  = $invoice->final_judgment == 'Yes'? 'Y': 'N';
             $headerInf->attribute4                  = $invoice->source_type == 'RECEIPT'
                                                         ? $invoice->invoice_number
                                                         : implode(',', $invoice->requisitions->pluck('req_number')->toArray());
@@ -67,7 +67,7 @@ class InvoiceInfRepo {
             $headerInf->attribute15                 = $invoice->note;
             $headerInf->remittance_message1         = $invoice->source_type == 'RECEIPT'? $invoice->invoice_number: '';
             $headerInf->revenue_delivery_code       = $invoice->revenue_delivery_code;
-            $headerInf->final_judgment_flag         = $invoice->final_judgment == 'Yes'? 'Y': 'N';
+            $headerInf->final_judgment_number       = $invoice->final_judgment == 'Yes'? $invoice->final_judgment_number: '';
             $headerInf->web_batch_no                = $batchNo;
             $headerInf->creation_date               = Carbon::now();
             $headerInf->last_update_date            = Carbon::now();
