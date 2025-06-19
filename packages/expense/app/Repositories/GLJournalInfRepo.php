@@ -102,9 +102,9 @@ class GLJournalInfRepo {
                 $glCrInf->segment11                = $coa[10];
                 $glCrInf->segment12                = $coa[11];
                 $glCrInf->segment13                = $coa[12];
-                $glCrInf->entered_cr               = $line->total_amount;
+                $glCrInf->entered_cr               = $requistion->total_amount;
                 $glCrInf->entered_dr               = 0;
-                $glCrInf->accounted_cr             = $line->total_amount;
+                $glCrInf->accounted_cr             = $requistion->total_amount;
                 $glCrInf->accounted_dr             = 0;
                 $glCrInf->reference1               = $batchNo;
                 $glCrInf->reference2               = $requistion->req_number;

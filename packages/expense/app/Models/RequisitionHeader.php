@@ -119,6 +119,9 @@ class RequisitionHeader extends Model
             case "ERROR":
                 $result = "เบิกจ่ายไม่สำเร็จ";
                 break;
+            case "INTERFACED":
+                $result = "เบิกจ่ายแล้ว";
+                break;
             case "CANCELLED":
                 $result = "ยกเลิก";
                 break;
@@ -145,6 +148,9 @@ class RequisitionHeader extends Model
                 break;
             case "ERROR":
                 $result = "<span class='badge badge-danger' style='padding: 5px; background-color: #e3302f; color: fff;'> เบิกจ่ายไม่สำเร็จ </span>";
+                break;
+            case "INTERFACED":
+                $result = "<span class='badge badge-danger' style='padding: 5px; background-color: #e3302f; color: fff;'> เบิกจ่ายแล้ว </span>";
                 break;
             case "CANCELLED":
                 $result = "<span class='badge badge-danger' style='padding: 5px; color: fff;'> ยกเลิก </span>";

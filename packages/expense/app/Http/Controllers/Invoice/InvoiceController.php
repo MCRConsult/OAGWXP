@@ -269,9 +269,11 @@ class InvoiceController extends Controller
                         $lineTemp->save();
 
                         $requistionLine = RequisitionLine::where('req_header_id', $requisition->id)
+                                            ->where('id', $line->id)
                                             ->update([
                                                 'invl_reference_id' => $lineTemp->id
                                             ]);
+                        \DB::commit();
                     }
                 }
 
@@ -349,57 +351,70 @@ class InvoiceController extends Controller
             $header->updation_by                    = $user->person_id;
             $header->save();
 
-            InvoiceLine::where('invoice_header_id', $invoiceId)->delete();
+            // InvoiceLine::where('invoice_header_id', $invoiceId)->delete();
             foreach ($invioceLines as $key => $line) {
-                $lineTemp                           = new InvoiceLine;
-                $lineTemp->invoice_header_id        = $invoiceId;
-                $lineTemp->seq_number               = $key+1;
-                $lineTemp->supplier_id              = $line['supplier_id'];
-                $lineTemp->supplier_name            = $line['supplier_name'];
-                $lineTemp->supplier_site            = $line['supplier_site'];
-                $lineTemp->bank_account_number      = $line['bank_account_number'];
-                $lineTemp->budget_plan              = $line['budget_plan'];
-                $lineTemp->budget_type              = $line['budget_type'];
-                $lineTemp->expense_type             = $line['expense_type'];
-                $lineTemp->expense_description      = $line['expense_description'];
-                $lineTemp->expense_account          = $line['expense_account'];
-                $lineTemp->amount                   = $line['amount'];
-                $lineTemp->description              = $line['description'];
-                $lineTemp->vehicle_number           = $line['vehicle_number'];
-                $lineTemp->policy_number            = $line['policy_number'];
-                $lineTemp->vehicle_oil_type         = $line['vehicle_oil_type'];
-                $lineTemp->utility_type             = $line['utility_type'];
-                $lineTemp->utility_detail           = $line['utility_detail'];
-                $lineTemp->unit_quantity            = $line['unit_quantity'];
-                $lineTemp->req_invoice_number       = $line['req_invoice_number'];
-                $lineTemp->req_invoice_date         = $line['req_invoice_date']? date('Y-m-d', strtotime($line['req_invoice_date'])): '';
-                $lineTemp->req_receipt_number       = $line['req_receipt_number'];
-                $lineTemp->req_receipt_date         = $line['req_receipt_date']? date('Y-m-d', strtotime($line['req_receipt_date'])): '';
-                $lineTemp->remaining_receipt_flag   = $line['remaining_receipt_flag'] == true? 'Y': 'N';
-                $lineTemp->remaining_receipt_number = $line['remaining_receipt_number'];
-                $lineTemp->ar_receipt_id            = $line['ar_receipt_id'];
-                $lineTemp->ar_receipt_number        = $line['ar_receipt_number'];
-                $lineTemp->tax_code                 = $line['tax_code'];
-                $lineTemp->tax_amount               = $line['tax_amount'];
-                $lineTemp->wht_code                 = $line['wht_code'];
-                $lineTemp->wht_amount               = $line['wht_amount'];
-                $lineTemp->save();
+                $lineTemp = InvoiceLine::where('invoice_header_id', $invoiceId)
+                        ->where('id', $line['id'])
+                        ->update([
+                            'invoice_header_id'          => $invoiceId
+                            , 'seq_number'               => $key+1
+                            , 'supplier_id'              => $line['supplier_id']
+                            , 'supplier_name'            => $line['supplier_name']
+                            , 'supplier_site'            => $line['supplier_site']
+                            , 'bank_account_number'      => $line['bank_account_number']
+                            , 'budget_plan'              => $line['budget_plan']
+                            , 'budget_type'              => $line['budget_type']
+                            , 'expense_type'             => $line['expense_type']
+                            , 'expense_description'      => $line['expense_description']
+                            , 'expense_account'          => $line['expense_account']
+                            , 'amount'                   => $line['amount']
+                            , 'description'              => $line['description']
+                            , 'vehicle_number'           => $line['vehicle_number']
+                            , 'policy_number'            => $line['policy_number']
+                            , 'vehicle_oil_type'         => $line['vehicle_oil_type']
+                            , 'utility_type'             => $line['utility_type']
+                            , 'utility_detail'           => $line['utility_detail']
+                            , 'unit_quantity'            => $line['unit_quantity']
+                            , 'req_invoice_number'       => $line['req_invoice_number']
+                            , 'req_invoice_date'         => $line['req_invoice_date']? date('Y-m-d', strtotime($line['req_invoice_date'])): ''
+                            , 'req_receipt_number'       => $line['req_receipt_number']
+                            , 'req_receipt_date'         => $line['req_receipt_date']? date('Y-m-d', strtotime($line['req_receipt_date'])): ''
+                            , 'remaining_receipt_flag'   => $line['remaining_receipt_flag'] == true? 'Y': 'N'
+                            , 'remaining_receipt_number' => $line['remaining_receipt_number']
+                            , 'ar_receipt_id'            => $line['ar_receipt_id']
+                            , 'ar_receipt_number'        => $line['ar_receipt_number']
+                            , 'tax_code'                 => $line['tax_code']
+                            , 'tax_amount'               => $line['tax_amount']
+                            , 'wht_code'                 => $line['wht_code']
+                            , 'wht_amount'               => $line['wht_amount']
+                        ]);
+                \DB::commit();
             }
             \DB::commit();
             if($request->activity == 'INTERFACE'){
-                $resultInf = $this->interface($invoiceId);
-                if ($resultInf['status'] == 'S') {
-                    $header->status    = 'INTERFACED';
-                    $header->save();
-                }else{
-                    $header->status        = 'ERROR';
-                    $header->error_message = $resultInf['message'];
-                    $header->save();
-                }
-                $data = [
-                    'status' => $resultInf['status'],
-                    'message' => $resultInf['message']
-                ];
+                // UNRESERV BUDGET => TYPE IS STANDARD
+                // $result = (new BudgetInfRepo)->unReserveBudget($requisition, $user);
+                // if ($result['status'] == 'S') {
+                    $resultInf = $this->interface($invoiceId);
+                    if ($resultInf['status'] == 'S') {
+                        $header->status    = 'INTERFACED';
+                        $header->save();
+                    }else{
+                        $header->status        = 'ERROR';
+                        $header->error_message = $resultInf['message'];
+                        $header->save();
+                    }
+                    $data = [
+                        'status' => $resultInf['status'],
+                        'message' => $resultInf['message']
+                    ];
+                // }else{
+                //     $data = [
+                //         'status' => 'ERROR',
+                //         'message' => $result['message'],
+                //     ];
+                //     return response()->json($data);
+                // }
             }
             $data = [
                 'status' => 'SUCCESS',
@@ -431,6 +446,7 @@ class InvoiceController extends Controller
                         ]);
 
             // UPDATE REQUISITION
+            $requisition = RequisitionHeader::where('invoice_reference_id', $invoiceId)->get()->pluck('id')->toArray();
             RequisitionHeader::where('invoice_reference_id', $invoiceId)
                             ->update([
                                 'invoice_reference_id'  => null
@@ -439,7 +455,6 @@ class InvoiceController extends Controller
                                 , 'updation_by'         => $user->person_id
                             ]);
             // UPDATE REQUISITION LINES                      
-            $requisition = RequisitionHeader::where('invoice_reference_id', $invoiceId)->get()->pluck('id')->toArray();
             RequisitionLine::whereIn('req_header_id', $requisition)
                             ->update([
                                 'invl_reference_id' => null
