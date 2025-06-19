@@ -191,6 +191,7 @@ class InvoiceController extends Controller
             $headerTemp->contact_date                       = '';
             $headerTemp->final_judgment                     = '';
             $headerTemp->final_judgment_number              = $header->source_type == 'RECEIPT'? $header->ap_invoice_no: '';
+            $headerTemp->remit_invoice_no                   = $header->source_type == 'RECEIPT'? $header->remit_invoice_no: '';
             $headerTemp->gfmis_document_number              = '';
             $headerTemp->revenue_delivery_code              = $header->revenue_delivery_code;
             $headerTemp->total_amount                       = $header->source_type == 'REQUISITION'
@@ -392,18 +393,19 @@ class InvoiceController extends Controller
             }
             \DB::commit();
             if($request->activity == 'INTERFACE'){
-                // UNRESERV BUDGET => TYPE IS STANDARD
-                if ($invioce['invoice_type'] == 'STANDARD') {
-                    $result = (new BudgetInfRepo)->unreserveBudget($requisition, $user);
+                // UNRESERV BUDGET INVOICE => TYPE IS STANDARD
+                $invoice = InvoiceHeader::findOrFail($invoiceId);
+                if ($invoice->invoice_type == 'STANDARD' && $invoice->source_type == 'REQUISITION') {
+                    $result = (new BudgetInfRepo)->unreserveBudgetINV($invoice, $user);
                     if ($result['status'] == 'S') {
                         $resultInf = $this->interface($invoiceId);
                         if ($resultInf['status'] == 'S') {
-                            $header->status    = 'INTERFACED';
-                            $header->save();
+                            $invoice->status    = 'INTERFACED';
+                            $invoice->save();
                         }else{
-                            $header->status        = 'ERROR';
-                            $header->error_message = $resultInf['message'];
-                            $header->save();
+                            $invoice->status        = 'ERROR';
+                            $invoice->error_message = $resultInf['message'];
+                            $invoice->save();
                         }
                         $data = [
                             'status' => $resultInf['status'],
@@ -419,12 +421,12 @@ class InvoiceController extends Controller
                 }else{
                     $resultInf = $this->interface($invoiceId);
                     if ($resultInf['status'] == 'S') {
-                        $header->status    = 'INTERFACED';
-                        $header->save();
+                        $invoice->status    = 'INTERFACED';
+                        $invoice->save();
                     }else{
-                        $header->status        = 'ERROR';
-                        $header->error_message = $resultInf['message'];
-                        $header->save();
+                        $invoice->status        = 'ERROR';
+                        $invoice->error_message = $resultInf['message'];
+                        $invoice->save();
                     }
                     $data = [
                         'status' => $resultInf['status'],

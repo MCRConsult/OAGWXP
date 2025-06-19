@@ -527,6 +527,9 @@
                 if(this.sourceDefault.indexOf(this.requisition.budget_source) !== -1){
                     this.reqLine.budget_plan = 'EXP.400.000000.0000000000';
                     this.reqLine.budget_type = 'EXP.400.400000.0000000000';
+                }else{
+                    this.reqLine.budget_plan = '';
+                    this.reqLine.budget_type = '';
                 }
             },
             setDocumentCate(res){

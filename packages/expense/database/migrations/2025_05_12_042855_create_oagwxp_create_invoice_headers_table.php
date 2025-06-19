@@ -36,7 +36,8 @@ return new class extends Migration
             $table->string('currency')->nullable();
             $table->date('contact_date')->nullable();
             $table->string('final_judgment')->nullable();
-            $table->string('final_judgment_number')->nullable(); // CASE RECEIPT ONLY
+            $table->string('final_judgment_number')->nullable(); // CASE RECEIPT ONLY: AP_INVOICE_NO
+            $table->string('remit_invoice_no')->nullable(); // CASE RECEIPT ONLY: REMIT_INVOICE_NO
             $table->string('gfmis_document_number')->nullable();
             $table->string('revenue_delivery_code')->nullable();
             $table->integer('total_amount', 18, 2)->nullable();

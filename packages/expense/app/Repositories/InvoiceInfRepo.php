@@ -29,7 +29,7 @@ class InvoiceInfRepo {
             if ($invoice->final_judgment == '' || $invoice->final_judgment == null || $invoice->final_judgment == 'No') {
                $attr14 = 'Remittance';
             }else{
-                $attr14 = $invoice->invoice_number;
+                $attr14 = $invoice->remit_invoice_no;
             }
         }
         
@@ -68,7 +68,7 @@ class InvoiceInfRepo {
             $headerInf->remittance_message1         = $invoice->source_type == 'RECEIPT'? $invoice->invoice_number: '';
             $headerInf->revenue_delivery_code       = $invoice->revenue_delivery_code;
             $headerInf->final_judgment_number       = $invoice->final_judgment == 'Yes' && $invoice->source_type == 'RECEIPT'
-                                                        ? $invoice->final_judgment_number: '';
+                                                        ? $invoice->final_judgment_number: ''; // AP_INVOICE_NO
             $headerInf->web_batch_no                = $batchNo;
             $headerInf->creation_date               = Carbon::now();
             $headerInf->last_update_date            = Carbon::now();

@@ -50,6 +50,7 @@ class LovController extends Controller
 
     public function getSupplier(Request $request)
     {
+        // $defSupplier = $request->keyword;
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
         $suppliers = Supplier::selectRaw('distinct vendor_id, vendor_name')
                         ->when($keyword, function ($query, $keyword) {
@@ -61,6 +62,21 @@ class LovController extends Controller
                         ->orderBy('vendor_name')
                         ->limit(50)
                         ->get();
+
+        // if ($defSupplier) {
+            $supplier = Supplier::selectRaw('distinct vendor_id, vendor_name')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(vendor_name) like ?', ['%'.strtoupper($keyword).'%'])
+                                    ->orWhereRaw('vendor_id like ?', [$keyword.'%']);
+                            });
+                        })
+                        ->first();
+
+            if ($supplier) {
+                $suppliers = $suppliers->push($supplier)->unique('vendor_id');
+            }
+        // }
 
         return response()->json(['data' => $suppliers]);
     }

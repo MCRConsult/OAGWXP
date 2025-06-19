@@ -416,24 +416,16 @@ class RequisitionController extends Controller
                     if (isset($findFunds[$budgetAccount])) {
                         if ($findFunds[$budgetAccount] <= 0) {
                             array_push($overBudgets, $line->expense_account);
-                            // $requisition->status = 'PENDING';
-                            // $requisition->save();
                         }elseif($findFunds[$budgetAccount] - $line->amount <= 0){
                             array_push($overBudgets, $line->expense_account);
-                            // $requisition->status = 'PENDING';
-                            // $requisition->save();
                         }else{
                             $findFunds[$budgetAccount] = $findFunds[$budgetAccount] - $line->amount;
                         }
                     }else{
                         if ($budgetAvaliable <= 0) {
                             array_push($overBudgets, $line->expense_account);
-                            // $requisition->status = 'PENDING';
-                            // $requisition->save();
                         }elseif($budgetAvaliable - $line->amount <= 0){
                             array_push($overBudgets, $line->expense_account);
-                            // $requisition->status = 'PENDING';
-                            // $requisition->save();
                         }else{
                             $findFunds[$budgetAccount] = $budgetAvaliable - $line->amount;
                         }
@@ -462,26 +454,25 @@ class RequisitionController extends Controller
         return $result;
     }
 
-    // public function reSubmit($reqId)
-    // {
-    //     $requisition = RequisitionHeader::findOrFail($reqId);
-    //     // CALL PACKAGE
-    //     $infGLJournal =  GLJournalInterface::where('reference2', $requisition->req_number)
-    //                                     ->where('interface_status', 'E')
-    //                                     ->first();
-    //     $resultInf = (new RequisitionHeader)->interfaceGL($infGLJournal->reference1);
-        
-    //     if ($resultInf['status'] == 'S') {
-    //         $invoice->status  = 'INTERFACED';
-    //         $invoice->save();
+    public function reSubmit($reqId)
+    {
+        $requisition = RequisitionHeader::findOrFail($reqId);
+        // CALL PACKAGE
+        $infGLJournal =  GLJournalInterface::where('reference2', $requisition->req_number)
+                                        ->where('interface_status', 'E')
+                                        ->first();
+        $resultInf = (new RequisitionHeader)->interfaceGL($infGLJournal->reference1);
+        if ($resultInf['status'] == 'S') {
+            $requisition->status  = 'INTERFACED';
+            $requisition->save();
 
-    //         return redirect()->back()->with('message', 'ส่งข้อมูลเข้าระบบเรียบร้อยแล้ว');
-    //     }else{
-    //         $invoice->status        = 'ERROR';
-    //         $invoice->error_message = $resultInf['error_msg'];
-    //         $invoice->save();
+            return redirect()->back()->with('message', 'ส่งข้อมูลเข้าระบบเรียบร้อยแล้ว');
+        }else{
+            $requisition->status        = 'ERROR';
+            $requisition->error_message = $resultInf['error_msg'];
+            $requisition->save();
 
-    //         return redirect()->back()->withErrors($resultInf['error_msg']);
-    //     }
-    // }
+            return redirect()->back()->withErrors($resultInf['error_msg']);
+        }
+    }
 }
