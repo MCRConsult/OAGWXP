@@ -393,8 +393,30 @@ class InvoiceController extends Controller
             \DB::commit();
             if($request->activity == 'INTERFACE'){
                 // UNRESERV BUDGET => TYPE IS STANDARD
-                // $result = (new BudgetInfRepo)->unReserveBudget($requisition, $user);
-                // if ($result['status'] == 'S') {
+                if ($invioce['invoice_type'] == 'STANDARD') {
+                    $result = (new BudgetInfRepo)->unreserveBudget($requisition, $user);
+                    if ($result['status'] == 'S') {
+                        $resultInf = $this->interface($invoiceId);
+                        if ($resultInf['status'] == 'S') {
+                            $header->status    = 'INTERFACED';
+                            $header->save();
+                        }else{
+                            $header->status        = 'ERROR';
+                            $header->error_message = $resultInf['message'];
+                            $header->save();
+                        }
+                        $data = [
+                            'status' => $resultInf['status'],
+                            'message' => $resultInf['message']
+                        ];
+                    }else{
+                        $data = [
+                            'status' => 'ERROR',
+                            'message' => $result['message'],
+                        ];
+                        return response()->json($data);
+                    }
+                }else{
                     $resultInf = $this->interface($invoiceId);
                     if ($resultInf['status'] == 'S') {
                         $header->status    = 'INTERFACED';
@@ -408,13 +430,7 @@ class InvoiceController extends Controller
                         'status' => $resultInf['status'],
                         'message' => $resultInf['message']
                     ];
-                // }else{
-                //     $data = [
-                //         'status' => 'ERROR',
-                //         'message' => $result['message'],
-                //     ];
-                //     return response()->json($data);
-                // }
+                }
             }
             $data = [
                 'status' => 'SUCCESS',

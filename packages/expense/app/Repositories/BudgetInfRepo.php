@@ -53,7 +53,7 @@ class BudgetInfRepo {
         return $data;
     }
 
-    public function unReserveBudget($requisition, $user)
+    public function unreserveBudget($requisition, $user)
     {
         $batchNo = 'UNRESV-'.date('Ymd').'-'.$requisition->req_number;
         \DB::beginTransaction();

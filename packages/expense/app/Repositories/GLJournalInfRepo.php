@@ -6,7 +6,6 @@ use App\Repositories\RequestRepo;
 use Illuminate\Support\Str;
 
 use Packages\expense\app\Models\RequisitionHeader;
-use Packages\expense\app\Models\RequisitionLine;
 use Packages\expense\app\Models\GLJournalInterface;
 use Packages\expense\app\Models\GLLedger;
 
@@ -70,6 +69,11 @@ class GLJournalInfRepo {
                 $glDrInf->batch_period_name_qry    = '';
                 $glDrInf->chart_of_accounts_id     = '';
                 $glDrInf->code_combination_id      = '';
+                $glDrInf->web_batch_no             = $batchNo;
+                $glDrInf->creation_date            = Carbon::now();
+                $glDrInf->last_update_date         = Carbon::now();
+                $glDrInf->created_by               = $user->person_id;
+                $glDrInf->last_updated_by          = $user->person_id;
                 $glDrInf->save();
             }
 
@@ -119,6 +123,11 @@ class GLJournalInfRepo {
                 $glCrInf->batch_period_name_qry    = '';
                 $glCrInf->chart_of_accounts_id     = '';
                 $glCrInf->code_combination_id      = '';
+                $glCrInf->web_batch_no             = $batchNo;
+                $glCrInf->creation_date            = Carbon::now();
+                $glCrInf->last_update_date         = Carbon::now();
+                $glCrInf->created_by               = $user->person_id;
+                $glCrInf->last_updated_by          = $user->person_id;
                 $glCrInf->save();
             }
 			\DB::commit();
