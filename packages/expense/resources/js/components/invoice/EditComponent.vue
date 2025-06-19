@@ -568,6 +568,11 @@
                 if (!valid) {
                     return;
                 }
+                Swal.fire({
+                    title: 'ระบบกำลังบันทึกเอกสารขอเบิก',
+                    type: "success",
+                    showConfirmButton: false
+                });
                 axios.post('/expense/invoice/'+vm.header.id+'/update', {
                     header: vm.header,
                     lines: vm.linelists,
@@ -575,7 +580,7 @@
                     activity: activity,
                 })
                 .then(function (res) {
-                    vm.loading = false;
+                    // vm.loading = false;
                     if (res.data.message) {
                         Swal.fire({
                             title: "มีข้อผิดพลาด",
@@ -620,7 +625,7 @@
                     });
                 })
                 .then(() => {
-                    vm.loading = false;
+                    // vm.loading = false;
                 });
             },
             async interface(activity){
@@ -637,7 +642,11 @@
                     allowOutsideClick: false
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        vm.loading = true;
+                        Swal.fire({
+                            title: 'ระบบกำลังส่งข้อมูล AP Invoice',
+                            type: "success",
+                            showConfirmButton: false
+                        });
                         axios.post('/expense/invoice/'+vm.header.id+'/update', {
                             header: vm.header,
                             lines: vm.linelists,
@@ -645,7 +654,6 @@
                             activity: activity,
                         })
                         .then(function (res) {
-                            vm.loading = false;
                             if (res.data.message) {
                                 Swal.fire({
                                     title: "มีข้อผิดพลาด",
@@ -685,9 +693,6 @@
                                 confirmButtonText: "ตกลง",
                                 allowOutsideClick: false
                             });
-                        })
-                        .then(() => {
-                            vm.loading = false;
                         });
                     }
                 });
@@ -706,12 +711,16 @@
                     allowOutsideClick: false
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        vm.loading = true;
+                        Swal.fire({
+                            title: 'ระบบกำลังยกเลิกเอกสารขอเบิก',
+                            type: "success",
+                            showConfirmButton: false
+                        });
                         axios.post('/expense/invoice/'+vm.header.id+'/cancel', {
                             header: vm.header
                         })
                         .then(function (res) {
-                            vm.loading = false;
+                            // vm.loading = false;
                             if (res.data.message) {
                                 Swal.fire({
                                     title: "มีข้อผิดพลาด",
@@ -753,7 +762,7 @@
                             });
                         })
                         .then(() => {
-                            vm.loading = false;
+                            // vm.loading = false;
                         });
                     }
                 });

@@ -760,7 +760,11 @@
             },
             async importData(){
                 var vm = this;
-                vm.loading = true;
+                Swal.fire({
+                    title: 'ระบบกำลังส่งเบิกเอกสาร',
+                    type: "success",
+                    showConfirmButton: false
+                });
                 // POST METHOD
                 axios.post('/expense/requisition/'+vm.header.id+'/update', {
                     header: this.header,
@@ -768,7 +772,6 @@
                     totalApply: this.totalApply,
                 })
                 .then(function (res) {
-                    vm.loading = false;
                     if (res.data.message) {
                         Swal.fire({
                             title: "มีข้อผิดพลาด",
@@ -781,7 +784,7 @@
                         });
                     } else {
                         Swal.fire({
-                            title: "ยืนยันส่งเบิกเอกสาร",
+                            title: "ส่งเบิกเอกสาร",
                             html: "ส่งเบิกเอกสารเรียบร้อยแล้ว",
                             icon: "success",
                             showCancelButton: false,
@@ -808,9 +811,6 @@
                         confirmButtonText: "ตกลง",
                         allowOutsideClick: false
                     });
-                })
-                .then(() => {
-                    vm.loading = false;
                 });
             },
             isARReceipt(budgetSource) {

@@ -159,14 +159,7 @@
             },
         },
         watch:{
-            errors: {
-                handler(val){
-                    // val.invoice_type? this.setError('invoice_type') : this.resetError('invoice_type');
-                    // val.expense_account? this.setError('expense_account') : this.resetError('expense_account');
-                    // val.amount? this.setError('amount') : this.resetError('amount');
-                },
-                deep: true,
-            },
+            //
         },
         methods: {
             numberFormat(value) {
@@ -207,8 +200,6 @@
             },
             async update(){
                 var vm = this;
-                // var form = $('#edit-form');
-                // let errorMsg = '';
                 if (!this.valid) {
                     return;
                 }
@@ -230,7 +221,11 @@
             },
             async importData(){
                 var vm = this;
-                vm.loading = true;
+                Swal.fire({
+                    title: 'ระบบกำลังส่งเบิกเอกสาร...',
+                    type: "success",
+                    showConfirmButton: false
+                });
                 // POST METHOD
                 axios.post('/expense/requisition/'+vm.header.id+'/update', {
                     header: this.header,
@@ -239,7 +234,6 @@
                     refRequisition: this.requisition.id,
                 })
                 .then(function (res) {
-                    vm.loading = false;
                     if (res.data.message) {
                         Swal.fire({
                             title: "มีข้อผิดพลาด",
@@ -252,7 +246,7 @@
                         });
                     } else {
                         Swal.fire({
-                            title: "ยืนยันส่งเบิกเอกสาร",
+                            title: "ส่งเบิกเอกสาร",
                             html: "ส่งเบิกเอกสารเรียบร้อยแล้ว",
                             icon: "success",
                             showCancelButton: false,
@@ -279,9 +273,6 @@
                         confirmButtonText: "ตกลง",
                         allowOutsideClick: false
                     });
-                })
-                .then(() => {
-                    vm.loading = false;
                 });
             },
         },

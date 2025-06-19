@@ -25,8 +25,8 @@ use Packages\expense\app\Models\FlaxValueV;
 use Packages\expense\app\Models\COAListV;
 use Packages\expense\app\Models\LookupV;
 
-use Packages\expense\app\Repositories\BudgetInfRepo;
-use Packages\expense\app\Repositories\InvoiceInfRepo;
+use Packages\expense\app\Repositories\BudgetInterfaceRepo;
+use Packages\expense\app\Repositories\InvoiceInterfaceRepo;
 
 class InvoiceController extends Controller
 {
@@ -69,7 +69,7 @@ class InvoiceController extends Controller
                 break;
                 case "CANCEL_REQUISITION":
                     // UNRESERV BUDGETS
-                    $result = (new BudgetInfRepo)->unreserveBudget($requisition, $user);
+                    $result = (new BudgetInterfaceRepo)->unreserveBudgetREQ($requisition, $user);
                     if ($result['status'] == 'S') {
                         $requisition->status         = 'CANCELLED';
                         $requisition->cancel_reason  = $reason;
@@ -396,7 +396,7 @@ class InvoiceController extends Controller
                 // UNRESERV BUDGET INVOICE => TYPE IS STANDARD
                 $invoice = InvoiceHeader::findOrFail($invoiceId);
                 if ($invoice->invoice_type == 'STANDARD' && $invoice->source_type == 'REQUISITION') {
-                    $result = (new BudgetInfRepo)->unreserveBudgetINV($invoice, $user);
+                    $result = (new BudgetInterfaceRepo)->unreserveBudgetINV($invoice, $user);
                     if ($result['status'] == 'S') {
                         $resultInf = $this->interface($invoiceId);
                         if ($resultInf['status'] == 'S') {
@@ -497,7 +497,7 @@ class InvoiceController extends Controller
     public function interface($invoiceId)
     {
         $invoice = InvoiceHeader::findOrFail($invoiceId);
-        $result = (new InvoiceInfRepo)->insertInterface($invoice);
+        $result = (new InvoiceInterfaceRepo)->insertInterface($invoice);
         
         return $result;
     }

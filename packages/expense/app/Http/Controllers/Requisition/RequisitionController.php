@@ -28,8 +28,8 @@ use Packages\expense\app\Models\COAListV;
 use Packages\expense\app\Models\GLBudgetReservations;
 use Packages\expense\app\Models\GLAccountHierarchyV;
 
-use Packages\expense\app\Repositories\BudgetInfRepo;
-use Packages\expense\app\Repositories\GLJournalInfRepo;
+use Packages\expense\app\Repositories\BudgetInterfaceRepo;
+use Packages\expense\app\Repositories\GLInterfaceRepo;
 
 class RequisitionController extends Controller
 {
@@ -393,7 +393,7 @@ class RequisitionController extends Controller
         $requisition = RequisitionHeader::findOrFail($headerTemp->id);
         // IF PAYMENT_TYPE == NON-PAYMENT HAVE TO CALL GL INTERFACE
         if ($requisition->payment_type == 'NON-PAYMENT') {
-            $result = (new GLJournalInfRepo)->insertInterface($requisition);
+            $result = (new GLInterfaceRepo)->insertInterface($requisition);
             if ($result['status'] == 'S') {
                 $requisition->status        = 'INTERFACED';
                 $requisition->save();
@@ -434,7 +434,7 @@ class RequisitionController extends Controller
             }
             $result = [];
             if (count($overBudgets) <= 0) {
-                $result = (new BudgetInfRepo)->reserveBudget($requisition, $user);
+                $result = (new BudgetInterfaceRepo)->reserveBudget($requisition, $user);
                 if ($result['status'] == 'S') {
                     $requisition->status            = 'COMPLETED';
                     $requisition->encumbrance_flag  = 'R';

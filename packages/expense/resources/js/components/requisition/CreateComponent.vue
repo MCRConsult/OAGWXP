@@ -1102,7 +1102,12 @@
             },
             async importData(){
                 var vm = this;
-                vm.loading = true;
+                let title = vm.requisition.invoice_type == 'STANDARD'? 'ระบบกำลังส่งเบิกเอกสาร': 'ระบบส่งข้อมูลเข้า GL Journal';
+                Swal.fire({
+                    title: title,
+                    type: "success",
+                    showConfirmButton: false
+                });
                 // POST METHOD
                 axios.post('/expense/requisition/', {
                     header: this.requisition,
@@ -1111,7 +1116,6 @@
                     refRequisition: null,
                 })
                 .then(function (res) {
-                    vm.loading = false;
                     if (res.data.message) {
                         Swal.fire({
                             title: "มีข้อผิดพลาด",
@@ -1124,7 +1128,7 @@
                         });
                     } else {
                         Swal.fire({
-                            title: "ยืนยันส่งเบิกเอกสาร",
+                            title: "ส่งเบิกเอกสาร",
                             html: "ส่งเบิกเอกสารเรียบร้อยแล้ว",
                             icon: "success",
                             showCancelButton: false,
@@ -1151,9 +1155,6 @@
                         confirmButtonText: "ตกลง",
                         allowOutsideClick: false
                     });
-                })
-                .then(() => {
-                    vm.loading = false;
                 });
             },
             isARReceipt(budgetSource) {
