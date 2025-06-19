@@ -87,16 +87,16 @@
                 <thead>
                     <tr>
                         <th class="text-center sticky-col">
-                            <div width="3%"> สถานะ </div>
+                            <div width="4%"> สถานะ </div>
                         </th>
                         <th class="text-center sticky-col">
-                            <div width="8%"> วันที่อินเตอร์เฟซ </div>
+                            <div width="10%"> วันที่อินเตอร์เฟซ </div>
                         </th>
                         <th class="text-center sticky-col">
-                            <div width="10%"> เลขที่ใบสำคัญ </div>
+                            <div width="13%"> เลขที่ใบสำคัญ </div>
                         </th>
                         <th class="text-center sticky-col">
-                            <div width="10%"> เลขที่ใบกำกับ </div>
+                            <div width="13%"> เลขที่ใบกำกับ </div>
                         </th>
                         <th class="text-center sticky-col">
                             <div width="20%"> รายละเอียด </div>
@@ -121,8 +121,8 @@
                                     <small> Batch#: {{ inf.web_batch_no }} </small>
                                 </div>
                             </td>
-                            <td class="text-center text-nowrap" style="vertical-align: middle;">
-                                {{ inf.interface_msg }}
+                            <td class="text-center" style="vertical-align: middle;">
+                                {{ truncatedMessage(inf.interface_msg) }}
                             </td>
                         </tr>
                     </template>
@@ -179,10 +179,10 @@ export default {
         //invoice_date
         this.invoice_date_from_input = this.pSearch && this.pSearch.invoice_date_from
                                         ? moment(this.pSearch.invoice_date_from, 'YYYY-MM-DD')
-                                        : moment().format('YYYY-MM-DD');
+                                        : '';
         this.invoice_date_to_input = this.pSearch && this.pSearch.invoice_date_to
                                         ? moment(this.pSearch.invoice_date_to, 'YYYY-MM-DD')
-                                        : moment().format('YYYY-MM-DD');
+                                        : '';
         this.changeDateFormat();
         //req_number
         this.search.invoice_number = this.pSearch.length <= 0? '' : this.pSearch.invoice_number;
@@ -195,6 +195,10 @@ export default {
     watch: {
     },
     methods: {
+        truncatedMessage(msg) {
+            // Extract the first 20 characters
+            return msg? msg.substring(0, 70): '';
+        },
         setInvoice(res) {
             this.search.invoice_number = res.invoice;
         },
@@ -280,5 +284,10 @@ export default {
         -webkit-box-flex: 1;
         flex: 1 1 auto;
         padding: 1.25rem;
+    }
+    .truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 </style>

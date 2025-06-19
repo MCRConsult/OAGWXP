@@ -102,10 +102,9 @@ class InvoiceController extends Controller
 
     public function fetchInterfaceRenderPage()
     {
-       $interfaces = InvoiceInterfaceHeader::search(request())
-                            ->with(['user.hrEmployee', 'supplier'])
-                            ->orderByRaw('invoice_date desc, voucher_number desc')
-                            ->get();
+        $interfaces = InvoiceInterfaceHeader::search(request())
+                        ->orderByRaw('creation_date desc, invoice_num desc')
+                        ->get();
         $perPage = 25;
         $currPage = (int)request()->page;
         $interfaces = collect($interfaces)->all();
