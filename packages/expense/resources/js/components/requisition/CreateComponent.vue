@@ -110,7 +110,7 @@
                             <supplier
                                 :setData="requisition.supplier_id"
                                 :error="errors.supplier"
-                                :editFlag="true"
+                                :editFlag="requisition.multiple_supplier == 'ONE'? true: false"
                                 @setSupplier="setSupplierHeader"
                             ></supplier>
                             <div id="el_explode_supplier" class="text-danger text-left"></div>
@@ -581,8 +581,10 @@
                     this.reqLine.supplier_id = this.requisition.supplier;
                     this.reqLine.supplier_name = this.requisition.supplier_name;
                 }else{
-                    this.reqLine.supplier_id = this.defaultSupplier.vendor_id;
-                    this.reqLine.supplier_name = this.defaultSupplier.vendor_name;
+                    this.requisition.supplier_id = this.defaultSupplier.vendor_id;
+                    this.requisition.supplier_name = this.defaultSupplier.vendor_name;
+                    this.reqLine.supplier_id = '';
+                    this.reqLine.supplier_name = '';
                     this.reqLine.bank_account_number = '';
                     this.reqLine.supplier_site = '';
                 }
