@@ -393,32 +393,33 @@ class InvoiceController extends Controller
             }
             \DB::commit();
             if($request->activity == 'INTERFACE'){
-                // UNRESERV BUDGET INVOICE => TYPE IS STANDARD
+                // INTERFACE TO AP INVOICE
                 $invoice = InvoiceHeader::findOrFail($invoiceId);
-                // if ($invoice->invoice_type == 'STANDARD' && $invoice->source_type == 'REQUISITION') {
-                //     $result = (new BudgetInterfaceRepo)->unreserveBudgetINV($invoice, $user);
-                //     if ($result['status'] == 'S') {
-                //         $resultInf = $this->interface($invoiceId);
-                //         if ($resultInf['status'] == 'S') {
-                //             $invoice->status    = 'INTERFACED';
-                //             $invoice->save();
-                //         }else{
-                //             $invoice->status        = 'ERROR';
-                //             $invoice->error_message = $resultInf['message'];
-                //             $invoice->save();
-                //         }
-                //         $data = [
-                //             'status' => $resultInf['status'],
-                //             'message' => $resultInf['message']
-                //         ];
-                //     }else{
-                //         $data = [
-                //             'status' => 'ERROR',
-                //             'message' => $result['message'],
-                //         ];
-                //         return response()->json($data);
-                //     }
-                // }else{
+                if ($invoice->invoice_type == 'STANDARD' && $invoice->source_type == 'REQUISITION') {
+                    $resultInf = $this->interface($invoiceId);
+                    if ($resultInf['status'] == 'S') {
+                        // UNRESERV BUDGET INVOICE => TYPE IS STANDARD
+                        $result = (new BudgetInterfaceRepo)->unreserveBudgetINV($invoice, $user);
+                        if ($result['status'] == 'S') {
+                            $invoice->status    = 'INTERFACED';
+                            $invoice->save();
+                        }else{
+                            $invoice->status        = 'ERROR';
+                            $invoice->error_message = $result['message'];
+                            $invoice->save();
+                        }
+                        $data = [
+                            'status' => $result['status'],
+                            'message' => $result['message']
+                        ];
+                    }else{
+                        $data = [
+                            'status' => 'ERROR',
+                            'message' => $resultInf['message'],
+                        ];
+                        return response()->json($data);
+                    }
+                }else{
                     $resultInf = $this->interface($invoiceId);
                     if ($resultInf['status'] == 'S') {
                         $invoice->status    = 'INTERFACED';
@@ -433,7 +434,7 @@ class InvoiceController extends Controller
                         'message' => $resultInf['message']
                     ];
                 }
-            // }
+            }
             $data = [
                 'status' => 'SUCCESS',
                 'message' => ''
