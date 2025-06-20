@@ -222,9 +222,10 @@
             async importData(){
                 var vm = this;
                 Swal.fire({
-                    title: 'ระบบกำลังส่งเบิกเอกสาร...',
+                    title: 'ระบบกำลังส่งเบิกเอกสาร',
                     type: "success",
-                    showConfirmButton: false
+                    showConfirmButton: false,
+                    allowOutsideClick: false
                 });
                 // POST METHOD
                 axios.post('/expense/requisition/'+vm.header.id+'/update', {

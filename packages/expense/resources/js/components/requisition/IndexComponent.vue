@@ -56,7 +56,7 @@
                             </label>
                             <div class="">
                                 <input type="hidden" name="status" :value="search.status">
-                                <el-select v-model="search.status" style="width: 100%" size="default" placeholder="" filterable>
+                                <el-select v-model="search.status" style="width: 100%" size="default" placeholder="" filterable clearable>
                                     <el-option
                                         v-for="(status, index) in pStatuses"
                                         :key="index"

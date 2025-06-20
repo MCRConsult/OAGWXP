@@ -15,7 +15,8 @@
     <table class="table table-responsive-sm table-bordered" style="border: 1px solid #000000;">
         <thead>
             @php
-                $year = date('Y', strtotime($invDateTo)) + 543;
+                $reqYear = $invDateTo?? $invoice->invoice_date;
+                $year = date('Y', strtotime($reqYear)) + 543;
             @endphp
             <tr>
                 <th style="border: 1px solid #000000; text-align: center; vertical-align: middle;" colspan="2">

@@ -21,6 +21,7 @@
             reference-no="{{ $referenceNo }}"
             :invoice-types="{{ json_encode($invoiceTypes) }}"
             :default-set-name="{{ json_encode($defaultSetName) }}"
+            :default-supplier="{{ json_encode($defaultSupplier) }}"
         ></requisition-create-component>
     </div>
 </div>

@@ -467,12 +467,18 @@
                     allowOutsideClick: false
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        vm.loading = true;
+                        // vm.loading = true;
+                        Swal.fire({
+                            title: 'ระบบกำลังสร้างเอกสารขอเบิก',
+                            type: "success",
+                            showConfirmButton: false,
+                            allowOutsideClick: false
+                        });
                         axios.post('/expense/invoice/group-invoice', {
                             requisitions: this.listReq,
                         })
                         .then(function (res) {
-                            vm.loading = false;
+                            // vm.loading = false;
                             if (res.data.message) {
                                 Swal.fire({
                                     title: "มีข้อผิดพลาด",
@@ -485,7 +491,7 @@
                                 });
                             } else {
                                 Swal.fire({
-                                    title: "ยืนยันสร้างเอกสารขอเบิก",
+                                    title: "สร้างเอกสารขอเบิก",
                                     html: "สร้างเอกสารขอเบิกเรียบร้อยแล้ว",
                                     icon: "success",
                                     showCancelButton: false,
@@ -512,9 +518,6 @@
                                 confirmButtonText: "ตกลง",
                                 allowOutsideClick: false
                             });
-                        })
-                        .then(() => {
-                            vm.loading = false;
                         });
                     }
                 });

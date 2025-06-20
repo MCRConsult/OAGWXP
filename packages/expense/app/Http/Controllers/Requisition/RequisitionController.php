@@ -57,7 +57,8 @@ class RequisitionController extends Controller
         $referenceNo = date('YmdHis').'-'.Str::random(5);
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
         $defaultSetName = (new COAListV)->getDefaultSetName();
-        return view('expense::requisition.create', compact('user', 'invoiceTypes', 'referenceNo', 'defaultSetName'));
+        $defaultSupplier = Supplier::where('vendor_name', 'สำนักงานอัยการสูงสุด')->first();
+        return view('expense::requisition.create', compact('user', 'invoiceTypes', 'referenceNo', 'defaultSetName', 'defaultSupplier'));
     }
 
     public function store(Request $request)
@@ -273,6 +274,8 @@ class RequisitionController extends Controller
                 $lineTemp->remaining_receipt_number = $this->getRemainingRceipt($line['remaining_receipt_id']);
                 $lineTemp->save();
             }
+
+            // CHECK LINE BUDGET FOR UNRESERV/RESERV
 
             \DB::commit();
             $data = [

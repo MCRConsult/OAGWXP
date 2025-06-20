@@ -571,7 +571,8 @@
                 Swal.fire({
                     title: 'ระบบกำลังบันทึกเอกสารขอเบิก',
                     type: "success",
-                    showConfirmButton: false
+                    showConfirmButton: false,
+                    allowOutsideClick: false
                 });
                 axios.post('/expense/invoice/'+vm.header.id+'/update', {
                     header: vm.header,
@@ -602,14 +603,6 @@
                             confirmButtonText: "ตกลง",
                             allowOutsideClick: false
                         });
-                        // .then((result) => {
-                        //     if (result.isConfirmed) {
-                        //         setTimeout(function() {
-                        //             location.reload();
-                        //             window.location.href = '/expense/invoice/'+vm.header.id;
-                        //         }, 500);
-                        //     }
-                        // });
                     }
                 }.bind(vm))
                 .catch(err => {

@@ -394,7 +394,7 @@
         components: {
             budgetSource, documentCategory, paymentType, supplier, supplierBank, budgetPlan, budgetType, expenseType, bankAccount, detailComp, listComp, modalAccountComp
         },
-        props: ['user', 'referenceNo', 'invoiceTypes', 'defaultSetName'],
+        props: ['user', 'referenceNo', 'invoiceTypes', 'defaultSetName', 'defaultSupplier'],
         data() {
             return {
                 budgetSource: ['510'], //, '520', '530', '540', '550'
@@ -581,8 +581,8 @@
                     this.reqLine.supplier_id = this.requisition.supplier;
                     this.reqLine.supplier_name = this.requisition.supplier_name;
                 }else{
-                    this.reqLine.supplier_id = '';
-                    this.reqLine.supplier_name = '';
+                    this.reqLine.supplier_id = this.defaultSupplier.vendor_id;
+                    this.reqLine.supplier_name = this.defaultSupplier.vendor_name;
                     this.reqLine.bank_account_number = '';
                     this.reqLine.supplier_site = '';
                 }
@@ -623,11 +623,6 @@
             updateAccount(res) {
                 this.reqLine.expense_account = res.expense_account;
                 this.extractAccount();
-                // if(res.budget_avaliable != null){
-                //     if(!this.findFunds[res.budget_account]){ 
-                //         this.findFunds[res.budget_account] = res.budget_avaliable;
-                //     }
-                // }
             },
             addRequisitionLine() {
                 var vm = this;
@@ -1106,7 +1101,8 @@
                 Swal.fire({
                     title: title,
                     type: "success",
-                    showConfirmButton: false
+                    showConfirmButton: false,
+                    allowOutsideClick: false
                 });
                 // POST METHOD
                 axios.post('/expense/requisition/', {
