@@ -578,7 +578,9 @@
             changeSupplierType(){
                 this.resetValues();
                 if(this.requisition.multiple_supplier == 'ONE'){
-                    this.reqLine.supplier_id = this.requisition.supplier;
+                    this.requisition.supplier_id = '';
+                    this.requisition.supplier_name = '';
+                    this.reqLine.supplier_id = this.requisition.supplier_id;
                     this.reqLine.supplier_name = this.requisition.supplier_name;
                 }else{
                     this.requisition.supplier_id = this.defaultSupplier.vendor_id;

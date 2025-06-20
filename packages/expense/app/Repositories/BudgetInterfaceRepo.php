@@ -103,22 +103,24 @@ class BudgetInterfaceRepo {
         \DB::beginTransaction();
         try {
             // INTERFACE HEADER
-            foreach ($invoice->lines as $key => $line) {
-                $budgetAvaliable = (new GLAccountHierarchyV)->findFund($user->org_id, $line->expense_account);
-                if ($budgetAvaliable != null) {
-                    $unreserve                     = new GLBudgetReservations;
-                    $unreserve->reserve_date       = Carbon::now();
-                    $unreserve->reserve_type       = 'UNRESERVE';
-                    $unreserve->amount             = $line->amount;
-                    $unreserve->description        = $invoice->invoice_number.' '.$line->description;
-                    $unreserve->source_table_name  = $line->getTable();
-                    $unreserve->source_table_id    = $line->id;
-                    $unreserve->period_name        = strtoupper(date('M-y'));
-                    $unreserve->org_id             = $user->org_id;
-                    $unreserve->account_code       = $line->expense_account;
-                    $unreserve->batch_no           = $batchNo;
-                    $unreserve->user_je_source_name = 'Web Encumbrance';
-                    $unreserve->save();
+            foreach ($invoice->requisitions as $key => $requisition) {
+                foreach ($requisition->lines as $key => $line) {
+                    $budgetAvaliable = (new GLAccountHierarchyV)->findFund($user->org_id, $line->expense_account);
+                    if ($budgetAvaliable != null) {
+                        $unreserve                     = new GLBudgetReservations;
+                        $unreserve->reserve_date       = Carbon::now();
+                        $unreserve->reserve_type       = 'UNRESERVE';
+                        $unreserve->amount             = $line->amount;
+                        $unreserve->description        = $requisition->req_number.' '.$line->description;
+                        $unreserve->source_table_name  = $line->getTable();
+                        $unreserve->source_table_id    = $line->id;
+                        $unreserve->period_name        = strtoupper(date('M-y'));
+                        $unreserve->org_id             = $user->org_id;
+                        $unreserve->account_code       = $line->expense_account;
+                        $unreserve->batch_no           = $batchNo;
+                        $unreserve->user_je_source_name = 'Web Encumbrance';
+                        $unreserve->save();
+                    }
                 }
             }
             \DB::commit();

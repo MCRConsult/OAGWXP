@@ -239,7 +239,6 @@ class RequisitionController extends Controller
             }
             $requisition->save();
 
-
             RequisitionLine::where('req_header_id', $reqId)->delete();
             foreach ($lines as $key => $line) {
                 $lineTemp                           = new RequisitionLine;
@@ -274,10 +273,17 @@ class RequisitionController extends Controller
                 $lineTemp->remaining_receipt_number = $this->getRemainingRceipt($line['remaining_receipt_id']);
                 $lineTemp->save();
             }
+            \DB::commit();
 
             // CHECK LINE BUDGET FOR UNRESERV/RESERV
-
-            \DB::commit();
+            $result = $this->requisitionClear($request->refRequisition, $requisition);
+            if ($result['status'] == 'E') {
+                $data = [
+                    'status' => $result['status'],
+                    'message' => $result['message']
+                ];
+                return response()->json($data);
+            }
             $data = [
                 'status' => 'SUCCESS',
                 'message' => '',
@@ -454,6 +460,71 @@ class RequisitionController extends Controller
             }
         }
 
+        return $result;
+    }
+
+    public function requisitionClear($refRequisition, $requisition)
+    {
+        // CHECK LINE AMOUNT
+        $result = [];
+        $valid = true;
+        foreach ($requisition->lines as $index => $line) {
+            if ($line != $refRequisition->lines[$index]) {
+                $valid = false;
+            }
+        }
+        if (!$valid) {
+            $resUnreserv = (new BudgetInterfaceRepo)->unreserveBudgetREQ($refRequisition, $user);
+            if ($resUnreserv['status'] == 'S') {
+                // 1 FIND FUND CHECK BUDGET
+                $findFunds = [];
+                $overBudgets = [];
+                foreach ($requisition->lines as $key => $line) {
+                    // FIND FUND AVALIABLE
+                    $budgetAvaliable = (new GLAccountHierarchyV)->findFund($user->org_id, $line->expense_account);
+                    // GET SUMMARY ACCOUNT
+                    $account = GLAccountHierarchyV::where('account_code', $line->expense_account)->first();
+                    $budgetAccount = optional($account)->summary_code_combination_id;
+                    if ($budgetAvaliable != null) {
+                        if (isset($findFunds[$budgetAccount])) {
+                            if ($findFunds[$budgetAccount] <= 0) {
+                                array_push($overBudgets, $line->expense_account);
+                            }elseif($findFunds[$budgetAccount] - $line->amount <= 0){
+                                array_push($overBudgets, $line->expense_account);
+                            }else{
+                                $findFunds[$budgetAccount] = $findFunds[$budgetAccount] - $line->amount;
+                            }
+                        }else{
+                            if ($budgetAvaliable <= 0) {
+                                array_push($overBudgets, $line->expense_account);
+                            }elseif($budgetAvaliable - $line->amount <= 0){
+                                array_push($overBudgets, $line->expense_account);
+                            }else{
+                                $findFunds[$budgetAccount] = $budgetAvaliable - $line->amount;
+                            }
+                        }
+                    }
+                }
+                if (count($overBudgets) <= 0) {
+                    $result = (new BudgetInterfaceRepo)->reserveBudget($requisition, $user);
+                    if ($result['status'] == 'S') {
+                        $requisition->status            = 'COMPLETED';
+                        $requisition->encumbrance_flag  = 'R';
+                        $requisition->save();
+                    }else{
+                        $requisition->status        = 'PENDING';
+                        $requisition->error_message = $result['message'];
+                        $requisition->save();
+                    }
+                }else{
+                    $requisition->status = 'PENDING';
+                    $requisition->error_message = implode(',', $overBudgets);
+                    $requisition->save();
+                }
+            }else{
+                return $resUnreserv;
+            }
+        }
         return $result;
     }
 

@@ -120,7 +120,7 @@ class GLInterfaceRepo {
                 $glCrInf->reference7               = '';
                 $glCrInf->reference8               = '';
                 $glCrInf->reference9               = '';
-                $glCrInf->reference10              = $line->description;
+                $glCrInf->reference10              = $requistion->description;
                 $glCrInf->batch_period_name_qry    = '';
                 $glCrInf->chart_of_accounts_id     = '';
                 $glCrInf->code_combination_id      = '';
