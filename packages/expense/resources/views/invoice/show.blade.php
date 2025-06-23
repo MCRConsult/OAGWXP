@@ -240,7 +240,7 @@
                                 แก้ไขรายการ
                             </a> --}}
                             <invoice-reinterface-component
-                                p-form-url = "{{ route('expense.invoice.gl-submit', $invoice->id) }}"
+                                p-form-url = "{{ route('expense.invoice.re-submit', $invoice->id) }}"
                             ></invoice-reinterface-component>
                         @endif
                     </div>
