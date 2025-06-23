@@ -42,7 +42,7 @@ class RequisitionController extends Controller
         }else{
             $default = DocumentCategory::selectRaw('distinct doc_category_code')
                             ->whereNotNull('attribute1')
-                            ->where('attribute1', auth()->user()->org_id == 82)
+                            ->where('attribute1', auth()->user()->org_id)
                             ->where('doc_category_code', 'like', '%ขบ.%')
                             ->first();
         }
