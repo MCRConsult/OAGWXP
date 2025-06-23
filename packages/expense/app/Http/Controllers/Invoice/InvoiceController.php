@@ -163,7 +163,7 @@ class InvoiceController extends Controller
                                     ->first();
                     $docCate = optional($lookup)->description;
                 }
-                $invoiceNum = $header->req_number;
+                $invoiceNum = $header->req_number; //เปลี่ยนจาก req เปน remit_inv
             }else{
                 $invoiceNum = (new InvoiceHeader)->genDocumentNo($user->org_id, $prefixInvRef);
             }

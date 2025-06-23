@@ -225,7 +225,7 @@ class RequisitionController extends Controller
             $requisition->multiple_supplier         = $header['multiple_supplier'];
             $requisition->cash_bank_account_id      = $header['cash_bank_account_id'];
             $requisition->total_amount              = $request->totalApply;
-            // $requisition->status                    = 'COMPLETED';
+            $requisition->status                    = 'COMPLETED';
             $requisition->description               = $header['description'];
             $requisition->updated_by                = $user->id;
             $requisition->updation_by               = $user->person_id;
@@ -274,15 +274,16 @@ class RequisitionController extends Controller
                 $lineTemp->save();
             }
             \DB::commit();
-
-            // CHECK LINE BUDGET FOR UNRESERV/RESERV
-            $result = $this->requisitionClear($request->refRequisition, $requisition);
-            if ($result['status'] == 'E') {
-                $data = [
-                    'status' => $result['status'],
-                    'message' => $result['message']
-                ];
-                return response()->json($data);
+            if ($header['clear_flag'] == 'Y') {
+                // CHECK LINE BUDGET FOR UNRESERV/RESERV
+                $result = $this->requisitionClear($refRequisition, $requisition);
+                if ($result['status'] == 'E') {
+                    $data = [
+                        'status' => $result['status'],
+                        'message' => $result['message']
+                    ];
+                    return response()->json($data);
+                }
             }
             $data = [
                 'status' => 'SUCCESS',
