@@ -830,9 +830,12 @@
                 this.temp.expense_description = res.expense_description;
                 this.temp.description = res.expense_description;
                 // GET EXPENSE ACCOUNT WHEN CHOOSE EXPENSE_TYPE
-                if(this.temp.expense_type != this.line.expense_type){
+                if(this.temp.expense_type == null || this.temp.expense_type == ''){
+                    this.temp.expense_account = '';
+                }else if(this.temp.expense_type != this.line.expense_type){
                     this.getExpenseAccount();
                 }else{
+                    this.temp.expense_account = this.line.expense_account;
                     var coa = this.line.expense_account.split('.');
                     this.segment1 = coa[0];
                     this.segment2 = coa[1];

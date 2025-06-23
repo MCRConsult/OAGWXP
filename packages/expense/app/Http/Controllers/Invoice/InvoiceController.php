@@ -13,6 +13,7 @@ use Packages\expense\app\Models\RequisitionLine;
 use Packages\expense\app\Models\InvoiceHeader;
 use Packages\expense\app\Models\InvoiceLine;
 use Packages\expense\app\Models\InvoiceInterfaceHeader;
+use Packages\expense\app\Models\InvoiceInterfaceLine;
 use Packages\expense\app\Models\MappingAutoInvoiceV;
 use Packages\expense\app\Models\MTLCategoriesV;
 use Packages\expense\app\Models\InvoiceType;
@@ -392,14 +393,45 @@ class InvoiceController extends Controller
                 \DB::commit();
             }
             \DB::commit();
+
+
             if($request->activity == 'INTERFACE'){
-                // INTERFACE TO AP INVOICE
+                // CHECK HAVE TO CHANGE ACCOUNT
                 $invoice = InvoiceHeader::findOrFail($invoiceId);
+                $invLines = InvoiceLine::where('invoice_header_id', $invoiceId)->get();
+                $valid = true;
+                if ($invoice->encumbrance_flag != 'Y') {
+                    foreach ($invLines as $key => $line) {
+                        $reqLine = RequisitionLine::where('invl_reference_id', $line->id)->first();
+                        if ($line->expense_account != $reqLine->expense_account) {
+                            $valid = false;
+                        }
+                    }
+                }
+                if (!$valid) {
+                    // UNRESERV BUDGET TO REQUISITION
+                    $resultReq = (new BudgetInterfaceRepo)->unreserveBudgetREQ($invoice, $user);
+                    if ($resultReq['status'] == 'S') {
+                        // RESERV BUDGET TO INVOICE
+                        $resultInv = (new BudgetInterfaceRepo)->reserveBudgetINV($invoice, $user);
+                        if ($resultInv['status'] == 'S') {
+                            $invoice->encumbrance_flag = 'Y';
+                            $invoice->save();
+                        }else{
+                            return;
+                        }
+                    }
+                }
+                // INTERFACE TO AP INVOICE
                 if ($invoice->invoice_type == 'STANDARD' && $invoice->source_type == 'REQUISITION') {
                     $resultInf = $this->interface($invoiceId);
                     if ($resultInf['status'] == 'S') {
                         // UNRESERV BUDGET INVOICE => TYPE IS STANDARD
-                        $result = (new BudgetInterfaceRepo)->unreserveBudgetINV($invoice, $user);
+                        if ($invoice->encumbrance_flag == 'Y') {
+                            $result = (new BudgetInterfaceRepo)->unreserveBudgetINV($invoice, $user);
+                        }else{
+                            $result = (new BudgetInterfaceRepo)->unreserveBudgetREQ($invoice, $user);
+                        }
                         if ($result['status'] == 'S') {
                             $invoice->status    = 'INTERFACED';
                             $invoice->save();
@@ -413,6 +445,11 @@ class InvoiceController extends Controller
                             'message' => $result['message']
                         ];
                     }else{
+                        // DELETE TEMP INTERFACE BY INVOICE NUM
+                        InvoiceInterfaceHeader::where('invoice_num', $invoice->invoice_num)
+                                                        ->whereNull('x_invoice_id')
+                                                        ->delete();
+                        InvoiceInterfaceLine::where('invoice_num', $invoice->invoice_num)->delete();
                         $data = [
                             'status' => 'ERROR',
                             'message' => $resultInf['message'],
@@ -506,23 +543,37 @@ class InvoiceController extends Controller
     public function reSubmit($invoiceId)
     {
         $invoice = InvoiceHeader::findOrFail($invoiceId);
-        // CALL PACKAGE
-        $infIvoice =  InvoiceInterfaceHeader::where('invoice_num', $invoice->invoice_number)
-                                        ->whereNull('voucher_num')
-                                        ->first();
-        $resultInf = (new InvoiceHeader)->interfaceAP($infIvoice->web_batch_no);
-        
-        if ($resultInf['status'] == 'S') {
-            $invoice->status  = 'INTERFACED';
-            $invoice->save();
-
-            return redirect()->back()->with('message', 'ส่งข้อมูลเข้าระบบเรียบร้อยแล้ว');
-        }else{
-            $invoice->status        = 'ERROR';
-            $invoice->error_message = $resultInf['error_msg'];
-            $invoice->save();
-
-            return redirect()->back()->withErrors($resultInf['error_msg']);
+        try{
+            // CALL PACKAGE
+            $infIvoice =  InvoiceInterfaceHeader::where('invoice_num', $invoice->invoice_number)
+                                            ->whereNull('voucher_num')
+                                            ->first();
+            $resultInf = (new InvoiceHeader)->interfaceAP($infIvoice->web_batch_no);
+            if ($resultInf['status'] == 'S') {
+                $invoice->status  = 'INTERFACED';
+                $invoice->save();
+                $data = [
+                    'status' => 'SUCCESS',
+                    'message' => '',
+                    'redirect_show_page' => route('expense.invoice.show', $invoiceId)
+                ];
+            }else{
+                $invoice->status        = 'ERROR';
+                $invoice->error_message = $resultInf['error_msg'];
+                $invoice->save();
+                $data = [
+                    'status' => 'ERROR',
+                    'message' => $resultInf['error_msg']
+                ];
+            }
+        } catch (\Exception $e) {
+            \DB::rollback();
+            \Log::error($e);
+            $data = [
+                'status' => 'ERROR',
+                'message' => $e->getMessage(),
+            ];
         }
+        return response()->json($data);
     }
 }

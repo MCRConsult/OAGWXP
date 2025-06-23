@@ -12,7 +12,8 @@ class FlexValueV extends Model
     protected static function booted(): void
     {
         static::addGlobalScope('checkEnabled', function ($q) {
-            $q->where('enabled_flag', 'Y');
+            $q->where('enabled_flag', 'Y')
+                ->where('parent_flag', 'N');
         });
     }
 }

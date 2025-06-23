@@ -19,13 +19,12 @@
         </div>
         <div class="card-body">
             <div class="ibox float-e-margins">
-                <invoice-interface-component
+                <invoice-interface-log-component
                     p-form-url      = "{{ route('expense.invoice.interface-log') }}"
                     :p-search       = "{{ json_encode(request()->all()) }}"
                     :p-statuses     = "{{ json_encode($statuses) }}"
-                    {{-- DATA --}}
                     :p-interfaces   = "{{ json_encode($interfaces) }}"
-                ></invoice-interface-component>
+                ></invoice-interface-log-component>
             </div>
         </div>
     </div>

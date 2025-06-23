@@ -43,6 +43,7 @@ return new class extends Migration
             $table->integer('total_amount', 18, 2)->nullable();
             $table->string('description')->nullable();
             $table->string('note')->nullable();
+            $table->string('encumbrance_flag')->nullable();
             $table->string('requester');
             $table->string('status');
             $table->string('error_message', 4000)->nullable();

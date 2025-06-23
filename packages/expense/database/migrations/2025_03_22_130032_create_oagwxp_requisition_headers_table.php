@@ -39,7 +39,6 @@ return new class extends Migration
             $table->string('error_message', 4000)->nullable();
             $table->string('hold_reason')->nullable();
             $table->string('cancel_reason')->nullable();
-            $table->string('encumbrance_flag')->nullable();
             $table->integer('invoice_reference_id')->nullable(); // invoice update
             $table->string('invioce_number_ref')->nullable(); // invoice update
             $table->string('clear_flag')->nullable();

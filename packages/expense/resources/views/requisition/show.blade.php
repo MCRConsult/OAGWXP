@@ -216,9 +216,9 @@
                             {{-- <a href="{{ route('expense.invoice.edit', $invoice->id) }}" class="btn btn-warning btn-sm">
                                 แก้ไขรายการ
                             </a> --}}
-                            <a href="{{ route('expense.requisition.re-submit', $requisition->id) }}" class="btn btn-danger btn-sm">
-                                ส่งเข้าระบบใหม่
-                            </a>
+                            <requisition-reinterface-component
+                                p-form-url = "{{ route('expense.requisition.re-submit', $requisition->id) }}"
+                            ></requisition-reinterface-component>
                         @endif
                     </div>
                 </div>

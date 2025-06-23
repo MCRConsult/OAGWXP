@@ -22,7 +22,6 @@
         :p-search           = "{{ json_encode(request()->all()) }}"
         :p-invoice-types    = "{{ json_encode($invoiceTypes) }}"
         :p-statuses         = "{{ json_encode($statuses) }}"
-        {{-- DATA --}}
         :p-requisitions     = "{{ json_encode($requisitions) }}"
     ></requisition-component>
 @stop

@@ -144,7 +144,7 @@ class RequisitionHeader extends Model
                 $result = "<span class='badge badge-warning' style='padding: 5px; color: fff;'> รอจัดสรร </span>";
                 break;
             case "HOLD":
-                $result = "<span class='badge badge-warning' style='padding: 5px; background-color: #ff899f; color: fff;'> รอตรวจสอบ </span>";
+                $result = "<span class='badge badge-warning' style='padding: 5px; background-color: #fda668; color: fff;'> รอตรวจสอบ </span>";
                 break;
             case "ERROR":
                 $result = "<span class='badge badge-danger' style='padding: 5px; background-color: #e3302f; color: fff;'> เบิกจ่ายไม่สำเร็จ </span>";
@@ -196,31 +196,6 @@ class RequisitionHeader extends Model
                                 ) avaliable_budget")->first();
 
         return $budget;
-    }
-
-    public function callReserveBudget($batch)
-    {
-        $db = \DB::connection('oracle')->getPdo();
-        $sql = "
-            declare
-                v_status                    varchar2(20);
-                v_error                     varchar2(2000);
-                begin
-                    oaggl_process.reserve_budget(p_batch    => '{$batch}'
-                                                , p_status  => :v_status
-                                                , p_error   => :v_error
-                                            );
-                end;
-        ";
-
-        logger($sql);
-        $stmt = $db->prepare($sql);
-        $result = [];
-        $stmt->bindParam(':v_status', $result['status'], \PDO::PARAM_STR, 20);
-        $stmt->bindParam(':v_error', $result['error_msg'], \PDO::PARAM_STR, 2000);
-        $stmt->execute();
-
-        return $result;
     }
 
     public function interfaceGL($batch)

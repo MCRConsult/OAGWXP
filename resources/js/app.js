@@ -23,6 +23,7 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 // REQUISITION
 import RequisitionComponent from '/packages/expense/resources/js/components/requisition/IndexComponent.vue';
 import CreateRequisitionComponent from '/packages/expense/resources/js/components/requisition/CreateComponent.vue';
+import ReInterfaceRequisitionComponent from '/packages/expense/resources/js/components/requisition/_ReInterfaceComponent.vue';
 // HOLD REQUISITION
 import HoldRequisitionComponent from '/packages/expense/resources/js/components/requisition/hold/HoldComponent.vue';
 // CLEAR REQUISITION
@@ -32,6 +33,7 @@ import ClearRequisitionComponent from '/packages/expense/resources/js/components
 import InvoiceComponent from '/packages/expense/resources/js/components/invoice/IndexComponent.vue';
 import CreateInvoiceComponent from '/packages/expense/resources/js/components/invoice/CreateComponent.vue';
 import EditInvoiceComponent from '/packages/expense/resources/js/components/invoice/EditComponent.vue';
+import ReInterfaceInvoiceComponent from '/packages/expense/resources/js/components/invoice/_ReInterfaceComponent.vue';
 import InterfaceInvoiceComponent from '/packages/expense/resources/js/components/invoice/interface-log/IndexComponent.vue';
 
 import UserComponent from '/packages/expense/resources/js/components/settings/user/indexComponent.vue';
@@ -50,12 +52,14 @@ app.component("vue-numeric", VueNumeric)
 app.component('requisition-component', RequisitionComponent);
 app.component('requisition-create-component', CreateRequisitionComponent);
 app.component('requisition-hold-component', HoldRequisitionComponent);
-app.component('clear-requisition-component', ClearRequisitionComponent);
+app.component('requisition-clear-component', ClearRequisitionComponent);
+app.component('requisition-reinterface-component', ReInterfaceRequisitionComponent);
 
 app.component('invoice-component', InvoiceComponent);
 app.component('invoice-create-component', CreateInvoiceComponent);
 app.component('invoice-edit-component', EditInvoiceComponent);
-app.component('invoice-interface-component', InterfaceInvoiceComponent);
+app.component('invoice-reinterface-component', ReInterfaceInvoiceComponent);
+app.component('invoice-interface-log-component', InterfaceInvoiceComponent);
 
 app.component('report-component', ReportComponent);
 

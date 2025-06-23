@@ -19,10 +19,10 @@
     </div>
 
     <div class="card-body">
-        <clear-requisition-component
+        <requisition-clear-component
             :requisition="{{ json_encode($requisition) }}"
             :clear-req="{{ json_encode($clearReq) }}"
-        ></clear-requisition-component>
+        ></requisition-clear-component>
     </div>
 </div>
 @endsection
