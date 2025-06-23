@@ -1,7 +1,7 @@
 <template>
     <div>
         <div align="center">
-            <button type="button" class="btn btn-danger" @click.prevent="store()"> ส่งเข้าระบบใหม่ </button>
+            <button type="button" class="btn btn-danger" @click.prevent="reInterface()"> ส่งเข้าระบบใหม่ </button>
         </div>
     </div>
 </template>
@@ -21,7 +21,7 @@
         mounted(){
         },
         methods: {
-            async store(){
+            async reInterface(){
                 var vm = this;
                 Swal.fire({
                     title: "ขอเบิกเอกสาร",
@@ -86,10 +86,6 @@
                         });
                     }
                 });
-            },
-            async importData(){
-                var vm = this;
-                
             },
         }
     }

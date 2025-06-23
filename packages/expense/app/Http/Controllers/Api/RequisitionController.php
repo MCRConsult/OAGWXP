@@ -10,6 +10,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Packages\expense\app\Models\RequisitionHeader;
 use Packages\expense\app\Models\LookupV;
 use Packages\expense\app\Models\POExpenseAccountRuleV;
+use Packages\expense\app\Models\DocumentCategory;
 use Packages\expense\app\Models\GLPeriod;
 
 class RequisitionController extends Controller

@@ -10,6 +10,12 @@
 @endsection
 
 @section('content')
+    @if ($invoice->status == 'ERROR')
+        <div class="alert alert-danger background-danger mt-2">
+            <strong>{{ $invoice->error_message }}</strong>
+        </div>
+    @endif
+
 <div class="card">
     <div class="card-header">
         <div class="row">
@@ -234,7 +240,7 @@
                                 แก้ไขรายการ
                             </a> --}}
                             <invoice-reinterface-component
-                                p-form-url = "{{ route('expense.invoice.re-submit', $invoice->id) }}"
+                                p-form-url = "{{ route('expense.invoice.gl-submit', $invoice->id) }}"
                             ></invoice-reinterface-component>
                         @endif
                     </div>

@@ -527,7 +527,70 @@ class RequisitionController extends Controller
         return $result;
     }
 
-    public function reSubmit($reqId)
+    public function reSubmitREQ($reqId)
+    {
+        try {
+            $requisition = RequisitionHeader::findOrFail($reqId);
+            // 1 FIND FUND CHECK BUDGET
+            $findFunds = [];
+            $overBudgets = [];
+            foreach ($requisition->lines as $key => $line) {
+                // FIND FUND AVALIABLE
+                $budgetAvaliable = (new GLAccountHierarchyV)->findFund($user->org_id, $line->expense_account);
+                // GET SUMMARY ACCOUNT
+                $account = GLAccountHierarchyV::where('account_code', $line->expense_account)->first();
+                $budgetAccount = optional($account)->summary_code_combination_id;
+                if ($budgetAvaliable != null) {
+                    if (isset($findFunds[$budgetAccount])) {
+                        if ($findFunds[$budgetAccount] <= 0) {
+                            array_push($overBudgets, $line->expense_account);
+                        }elseif($findFunds[$budgetAccount] - $line->amount <= 0){
+                            array_push($overBudgets, $line->expense_account);
+                        }else{
+                            $findFunds[$budgetAccount] = $findFunds[$budgetAccount] - $line->amount;
+                        }
+                    }else{
+                        if ($budgetAvaliable <= 0) {
+                            array_push($overBudgets, $line->expense_account);
+                        }elseif($budgetAvaliable - $line->amount <= 0){
+                            array_push($overBudgets, $line->expense_account);
+                        }else{
+                            $findFunds[$budgetAccount] = $budgetAvaliable - $line->amount;
+                        }
+                    }
+                }
+            }
+            if (count($overBudgets) <= 0) {
+                $result = (new BudgetInterfaceRepo)->reserveBudget($requisition, $user);
+                if ($result['status'] == 'S') {
+                    $requisition->status            = 'COMPLETED';
+                    $requisition->save();
+                }else{
+                    $requisition->status        = 'PENDING';
+                    $requisition->error_message = $result['message'];
+                    $requisition->save();
+                }
+            }else{
+                $requisition->status = 'PENDING';
+                $requisition->error_message = implode(',', $overBudgets);
+                $requisition->save();
+            }
+            $data = [
+                'status' => 'SUCCESS',
+                'message' => '',
+            ];
+        } catch (\Exception $e) {
+            \DB::rollback();
+            \Log::error($e);
+            $data = [
+                'status' => 'ERROR',
+                'message' => $e->getMessage(),
+            ];
+        }
+        return response()->json($data);
+    }
+
+    public function reSubmitGL($reqId)
     {
         try {
             $requisition = RequisitionHeader::findOrFail($reqId);

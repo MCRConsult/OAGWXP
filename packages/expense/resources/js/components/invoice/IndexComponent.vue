@@ -133,6 +133,7 @@
                                     <tr>
                                         <td class="text-center text-nowrap" style="vertical-align: middle;">
                                             {{ invoice.voucher_number }}
+                                            <div class="small"> เลขที่ใบกำกับ : {{ invoice.invoice_number }} </div>
                                         </td>
                                         <td class="text-center text-nowrap" style="vertical-align: middle;">
                                             {{ invoice.invoice_date_format }}

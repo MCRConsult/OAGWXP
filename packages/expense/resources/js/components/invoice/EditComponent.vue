@@ -636,7 +636,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         Swal.fire({
-                            title: 'ระบบกำลังส่งข้อมูล AP Invoice',
+                            title: 'ระบบกำลังส่งข้อมูลเอกสารขอเบิก',
                             type: "success",
                             showConfirmButton: false
                         });

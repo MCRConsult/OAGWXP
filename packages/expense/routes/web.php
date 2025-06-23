@@ -64,8 +64,10 @@ Route::group(['middleware' => ['web', 'auth']], function () {
                 Route::post('remove-ar-receipt', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@removeARReceipt');
                 // CLEAR REQUISITION
                 Route::get('/{req_id}/clear', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@clear')->name('clear');
-                // RESUBMIT
-                Route::get('/{req_id}/re-submit', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@reSubmit')->name('re-submit');
+                // REINTERFACE REQUISITION
+                Route::get('/{req_id}/req-submit', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@reSubmitREQ')->name('req-submit');
+                // RESUBMIT GL INTERFACE
+                Route::get('/{req_id}/gl-submit', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@reSubmitGL')->name('gl-submit');
             });
 
             Route::prefix('invoice')->namespace('Invoice')->name('invoice.')->group(function() {

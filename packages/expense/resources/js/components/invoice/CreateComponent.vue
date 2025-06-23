@@ -188,7 +188,8 @@
                                                     </div>
                                                     <div>
                                                         <!-- RE-INTERFACE -->
-                                                        <button v-if="header.status == 'PENDING'" class="btn btn-block btn-sm btn-primary m-1">
+                                                        <button v-if="header.status == 'PENDING'" class="btn btn-block btn-sm btn-primary m-1"
+                                                            @click.prevent="reInterface(header.id)">
                                                             ส่งเบิก
                                                         </button>
                                                     </div>
@@ -524,7 +525,73 @@
             },
             updateActionReq(){
                 this.getRequisition();
-            }
+            },
+            async reInterface(reqId){
+                var vm = this;
+                Swal.fire({
+                    title: "ส่งเบิกเอกสาร",
+                    html: "ต้องการ <b>ยืนยัน</b> ส่งเบิกเอกสารใหม่อีกครั้งใช่หรือไม่?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "ใช่",
+                    cancelButtonText: "ไม่",
+                    allowOutsideClick: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'ระบบกำลังส่งเบิกเอกสารใหม่อีกครั้ง',
+                            type: "success",
+                            showConfirmButton: false,
+                            allowOutsideClick: false
+                        });
+                        // POST METHOD
+                        axios.get('/expense/requisition/'+reqId+'/req-submit')
+                        .then(function (res) {
+                            if (res.data.message) {
+                                Swal.fire({
+                                    title: "มีข้อผิดพลาด",
+                                    text: res.data.message,
+                                    icon: "error",
+                                    showCancelButton: false,
+                                    confirmButtonColor: "#3085d6",
+                                    confirmButtonText: "ตกลง",
+                                    allowOutsideClick: false
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: "ส่งเบิกเอกสาร",
+                                    html: "ส่งเบิกเอกสารเรียบร้อยแล้ว",
+                                    icon: "success",
+                                    showCancelButton: false,
+                                    confirmButtonColor: "#3085d6",
+                                    confirmButtonText: "ตกลง",
+                                    allowOutsideClick: false
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        setTimeout(function() {
+                                            location.reload();
+                                        }, 500);
+                                    }
+                                });
+                            }
+                        }.bind(vm))
+                        .catch(err => {
+                            let msg = err.response;
+                            Swal.fire({
+                                title: "มีข้อผิดพลาด",
+                                text: msg.message,
+                                icon: "error",
+                                showCancelButton: false,
+                                confirmButtonColor: "#3085d6",
+                                confirmButtonText: "ตกลง",
+                                allowOutsideClick: false
+                            });
+                        });
+                    }
+                });
+            },
         },
     }
 </script>

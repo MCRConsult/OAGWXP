@@ -1101,9 +1101,8 @@
             },
             async importData(){
                 var vm = this;
-                let title = vm.requisition.invoice_type == 'STANDARD'? 'ระบบกำลังส่งเบิกเอกสาร': 'ระบบส่งข้อมูลเข้า GL Journal';
                 Swal.fire({
-                    title: title,
+                    title: 'ระบบกำลังส่งข้อมูลเอกสารส่งเบิก',
                     type: "success",
                     showConfirmButton: false,
                     allowOutsideClick: false
