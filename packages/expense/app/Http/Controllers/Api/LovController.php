@@ -63,20 +63,18 @@ class LovController extends Controller
                         ->limit(50)
                         ->get();
 
-        // if ($defSupplier) {
-            $supplier = Supplier::selectRaw('distinct vendor_id, vendor_name')
-                        ->when($keyword, function ($query, $keyword) {
-                            return $query->where(function($r) use ($keyword) {
-                                $r->whereRaw('UPPER(vendor_name) like ?', ['%'.strtoupper($keyword).'%'])
-                                    ->orWhereRaw('vendor_id like ?', [$keyword.'%']);
-                            });
-                        })
-                        ->first();
+        $supplier = Supplier::selectRaw('distinct vendor_id, vendor_name')
+                    ->when($keyword, function ($query, $keyword) {
+                        return $query->where(function($r) use ($keyword) {
+                            $r->whereRaw('UPPER(vendor_name) like ?', ['%'.strtoupper($keyword).'%'])
+                                ->orWhereRaw('vendor_id like ?', [$keyword.'%']);
+                        });
+                    })
+                    ->first();
 
-            if ($supplier) {
-                $suppliers = $suppliers->push($supplier)->unique('vendor_id');
-            }
-        // }
+        if ($supplier) {
+            $suppliers = $suppliers->push($supplier)->unique('vendor_id');
+        }
 
         return response()->json(['data' => $suppliers]);
     }

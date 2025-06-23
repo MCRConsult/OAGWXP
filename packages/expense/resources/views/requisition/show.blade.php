@@ -213,9 +213,6 @@
                 <div class="row text-center">
                     <div class="col-md-12 ">
                         @if ($requisition->status == 'ERROR')
-                            {{-- <a href="{{ route('expense.invoice.edit', $invoice->id) }}" class="btn btn-warning btn-sm">
-                                แก้ไขรายการ
-                            </a> --}}
                             <requisition-reinterface-component
                                 p-form-url = "{{ route('expense.requisition.re-submit', $requisition->id) }}"
                             ></requisition-reinterface-component>

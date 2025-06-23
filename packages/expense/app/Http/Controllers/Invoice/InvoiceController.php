@@ -163,7 +163,7 @@ class InvoiceController extends Controller
                                     ->first();
                     $docCate = optional($lookup)->description;
                 }
-                $invoiceNum = $header->req_number; //เปลี่ยนจาก req เปน remit_inv
+                $invoiceNum = $header->req_number;
             }else{
                 $invoiceNum = (new InvoiceHeader)->genDocumentNo($user->org_id, $prefixInvRef);
             }
@@ -192,7 +192,7 @@ class InvoiceController extends Controller
             $headerTemp->contact_date                       = '';
             $headerTemp->final_judgment                     = '';
             $headerTemp->final_judgment_number              = $header->source_type == 'RECEIPT'? $header->ap_invoice_no: '';
-            $headerTemp->remit_invoice_no                   = $header->source_type == 'RECEIPT'? $header->remit_invoice_no: '';
+            $headerTemp->receipt_number                     = $header->source_type == 'RECEIPT'? $header->receipt_number: '';
             $headerTemp->gfmis_document_number              = '';
             $headerTemp->revenue_delivery_code              = $header->revenue_delivery_code;
             $headerTemp->total_amount                       = $header->source_type == 'REQUISITION'
@@ -353,7 +353,6 @@ class InvoiceController extends Controller
             $header->updation_by                    = $user->person_id;
             $header->save();
 
-            // InvoiceLine::where('invoice_header_id', $invoiceId)->delete();
             foreach ($invioceLines as $key => $line) {
                 $lineTemp = InvoiceLine::where('invoice_header_id', $invoiceId)
                         ->where('id', $line['id'])
@@ -393,7 +392,6 @@ class InvoiceController extends Controller
                 \DB::commit();
             }
             \DB::commit();
-
 
             if($request->activity == 'INTERFACE'){
                 // CHECK HAVE TO CHANGE ACCOUNT

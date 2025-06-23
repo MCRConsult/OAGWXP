@@ -33,12 +33,18 @@ class RequisitionController extends Controller
     {
         $budgetSource = $request->budget_source;
         $default = [];
-        // if (auth()->user()->org_id == 82) {
+        if (auth()->user()->org_id == 82) {
             $default = LookupV::selectRaw('distinct lookup_code, tag')
                             ->where('lookup_type', 'OAG_AP_SOURCE_CATEGORY')
                             ->where('lookup_code', $budgetSource)
                             ->first();
-        // }
+        }else{
+            $default = DocumentCategory::selectRaw('distinct doc_category_code')
+                            ->whereNotNull('attribute1')
+                            ->where('attribute1', auth()->user()->org_id == 82)
+                            ->where('doc_category_code', 'like', '%ขบ.%')
+                            ->first();
+        }
 
         return response()->json(['data' => $default]);
     }

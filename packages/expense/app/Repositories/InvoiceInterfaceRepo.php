@@ -29,7 +29,7 @@ class InvoiceInterfaceRepo {
             if ($invoice->final_judgment == '' || $invoice->final_judgment == null || $invoice->final_judgment == 'No') {
                $attr14 = 'Remittance';
             }else{
-                $attr14 = $invoice->remit_invoice_no;
+                $attr14 = $invoice->invoice_number;
             }
         }
         
@@ -60,12 +60,12 @@ class InvoiceInterfaceRepo {
             $headerInf->attribute2                  = $invoice->gfmis_document_number;
             $headerInf->attribute3                  = $invoice->final_judgment;
             $headerInf->attribute4                  = $invoice->source_type == 'RECEIPT'
-                                                        ? $invoice->invoice_number
+                                                        ? $invoice->receipt_number
                                                         : implode(',', $invoice->requisitions->pluck('req_number')->toArray());
             $headerInf->attribute5                  = date('Y-m-d', strtotime($reqDate));
             $headerInf->attribute14                 = $attr14;
             $headerInf->attribute15                 = $invoice->note;
-            $headerInf->remittance_message1         = $invoice->source_type == 'RECEIPT'? $invoice->invoice_number: '';
+            $headerInf->remittance_message1         = $invoice->source_type == 'RECEIPT'? $invoice->receipt_number: '';
             $headerInf->revenue_delivery_code       = $invoice->revenue_delivery_code;
             $headerInf->final_judgment_number       = $invoice->final_judgment == 'Yes' && $invoice->source_type == 'RECEIPT'
                                                         ? $invoice->final_judgment_number: ''; // AP_INVOICE_NO
