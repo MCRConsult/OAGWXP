@@ -14,8 +14,7 @@
     export default {
         props: ['pFormUrl'],
         data() {
-            return {
-                //
+            return { 
             };
         },
         mounted(){

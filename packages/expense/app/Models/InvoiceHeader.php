@@ -108,6 +108,12 @@ class InvoiceHeader extends Model
     {
         return false;
     }
+    
+    public function scopeByRelatedUser($query)
+    {
+        $user = \Auth::user();
+        return $query->where('created_by', $user->id);
+    }
 
     public function getStatusIconAttribute()
     {

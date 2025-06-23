@@ -29,8 +29,8 @@ return new class extends Migration
             $table->string('req_number')->nullable();
             $table->date('req_date');
             $table->string('payment_type');
-            $table->integer('supplier_id')->nullable();  // vendor_id
-            $table->string('supplier_name')->nullable();  // vendor_id
+            $table->integer('supplier_id')->nullable();
+            $table->string('supplier_name')->nullable();
             $table->string('multiple_supplier')->nullable();
             $table->string('description')->nullable();
             $table->integer('total_amount', 18, 2)->nullable();
@@ -39,12 +39,12 @@ return new class extends Migration
             $table->string('error_message', 4000)->nullable();
             $table->string('hold_reason')->nullable();
             $table->string('cancel_reason')->nullable();
-            $table->integer('invoice_reference_id')->nullable(); // invoice update
-            $table->string('invioce_number_ref')->nullable(); // invoice update
+            $table->integer('invoice_reference_id')->nullable(); // INVOICE UPDATE
+            $table->string('invioce_number_ref')->nullable(); // INVOICE UPDATE
             $table->string('clear_flag')->nullable();
-            $table->integer('clear_reference_id')->nullable(); // clear ref
-            $table->date('clear_reference_date')->nullable(); // clear date
-
+            $table->integer('clear_reference_id')->nullable(); // CLEAR REF
+            $table->date('clear_reference_date')->nullable(); // CLEAR DATE
+            $table->date('reverse_flag')->nullable(); // REVERSE GL JOURNAL
             $table->integer('created_by');
             $table->integer('updated_by')->nullable();
             $table->integer('creation_by')->nullable();

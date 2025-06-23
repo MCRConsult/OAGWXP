@@ -6,7 +6,7 @@
     </li>
     <div class="col-md-10" style="padding-right: 0px;">
         <div class="text-right m-t-lg" style="padding-right: 0px;">
-            <a class="btn btn-white btn-md mr-2" data-toggle="collapse" href="#search_form" role="button" aria-expanded="false" aria-controls="invoice_form">
+            <a class="btn btn-white btn-sm mr-2" data-toggle="collapse" href="#search_form" role="button" aria-expanded="false" aria-controls="invoice_form">
                 <i class="fa fa-search"></i> ค้นหา
             </a>
             <a href="{{ route('expense.invoice.create') }}" class="btn btn-primary btn-sm">

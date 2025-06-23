@@ -38,6 +38,7 @@ class RequisitionController extends Controller
         $search = request()->all();
         $requisitions = RequisitionHeader::search(request()->all())
                                     ->with(['user.hrEmployee', 'invoiceType', 'invoice', 'clear'])
+                                    ->byRelatedUser()
                                     ->whereNotNull('req_number')
                                     ->orderBy('req_number', 'desc')
                                     ->paginate(25);
@@ -45,6 +46,7 @@ class RequisitionController extends Controller
         $statuses = ['COMPLETED'    => 'รอเบิกจ่าย'
                     , 'PENDING'     => 'รอจัดสรร'
                     , 'HOLD'        => 'รอตรวจสอบ'
+                    , 'INTERFACED'  => 'เบิกจ่ายแล้ว'
                     , 'ERROR'       => 'เบิกจ่ายไม่สำเร็จ'
                     , 'CANCELLED'   => 'ยกเลิก'];
 
@@ -275,7 +277,7 @@ class RequisitionController extends Controller
             }
             \DB::commit();
             if ($header['clear_flag'] == 'Y') {
-                // CHECK LINE BUDGET FOR UNRESERV/RESERV
+                // CHECK LINE BUDGET FOR UNRESERV/RESERV -- PROCESS CLEAR
                 $result = $this->requisitionClear($refRequisition, $requisition);
                 if ($result['status'] == 'E') {
                     $data = [
@@ -299,103 +301,6 @@ class RequisitionController extends Controller
             ];
         }
         return response()->json($data);
-    }
-
-    //======================= AR RECEIPT =======================
-    public function useARReceipt(Request $request)
-    {
-        $header = $request->header;
-        $line = $request->line;
-        $user = auth()->user();
-        \DB::beginTransaction();
-        try {
-            $headerTemp                             = new RequisitionReceiptTemp;
-            $headerTemp->org_id                     = $user->org_id;
-            $headerTemp->reference_number           = $header['reference_number'];
-            $headerTemp->seq_number                 = $request->seq+1;
-            $headerTemp->remaining_receipt_flag     = $line['remaining_receipt_flag']? 'Y': 'N';
-            $headerTemp->remaining_receipt_number   = $this->getRemainingRceipt($line['remaining_receipt_id']);
-            $headerTemp->amount                     = $line['amount'];
-            $headerTemp->created_by                 = $user->id;
-            $headerTemp->updated_by                 = $user->id;
-            $headerTemp->creation_by                = $user->person_id;
-            $headerTemp->updation_by                = $user->person_id;
-            $headerTemp->save();
-            \DB::commit();
-            $data = [
-                'status' => 'SUCCESS',
-                'message' => '',
-            ];
-        } catch (\Exception $e) {
-            \DB::rollback();
-            \Log::error($e);
-            $data = [
-                'status' => 'ERROR',
-                'message' => $e->getMessage(),
-            ];
-        }
-        return response()->json($data);
-    }
-
-    public function updateARReceipt(Request $request)
-    {
-        $header = $request->header;
-        $line = $request->line;
-        \DB::beginTransaction();
-        try {
-            RequisitionReceiptTemp::where('reference_number', $header['reference_number'])
-                                ->where('remaining_receipt_number', $this->getRemainingRceipt($line['remaining_receipt_id']))
-                                ->where('seq_number', $request->index+1)
-                                ->update([
-                                    'remaining_receipt_number'  => $this->getRemainingRceipt($line['remaining_receipt_id'])
-                                    , 'amount'                  => $line['amount']
-                                ]);
-            \DB::commit();
-            $data = [
-                'status' => 'SUCCESS',
-                'message' => '',
-            ];
-        } catch (\Exception $e) {
-            \DB::rollback();
-            \Log::error($e);
-            $data = [
-                'status' => 'ERROR',
-                'message' => $e->getMessage(),
-            ];
-        }
-        return response()->json($data);
-    }
-
-    public function removeARReceipt(Request $request)
-    {
-        $header = $request->header;
-        $line = $request->line;
-        \DB::beginTransaction();
-        try {
-            $receiptTemp = RequisitionReceiptTemp::where('reference_number', $header['reference_number'])
-                                            ->where('remaining_receipt_number', $this->getRemainingRceipt($line['remaining_receipt_id']))
-                                            ->where('seq_number', $request->index+1)
-                                            ->delete();
-            \DB::commit();
-            $data = [
-                'status' => 'SUCCESS',
-                'message' => '',
-            ];
-        } catch (\Exception $e) {
-            \DB::rollback();
-            \Log::error($e);
-            $data = [
-                'status' => 'ERROR',
-                'message' => $e->getMessage(),
-            ];
-        }
-        return response()->json($data);
-    }
-
-    private function getRemainingRceipt($receiptId)
-    {
-        $receipt = ARBudgetReceiptV::where('cash_receipt_id', $receiptId)->first();
-        return optional($receipt)->receipt_number;
     }
 
     public function requisitionConfirm($headerTemp, $user)
@@ -527,6 +432,104 @@ class RequisitionController extends Controller
         return $result;
     }
 
+    //======================= AR RECEIPT =======================
+    public function useARReceipt(Request $request)
+    {
+        $header = $request->header;
+        $line = $request->line;
+        $user = auth()->user();
+        \DB::beginTransaction();
+        try {
+            $headerTemp                             = new RequisitionReceiptTemp;
+            $headerTemp->org_id                     = $user->org_id;
+            $headerTemp->reference_number           = $header['reference_number'];
+            $headerTemp->seq_number                 = $request->seq+1;
+            $headerTemp->remaining_receipt_flag     = $line['remaining_receipt_flag']? 'Y': 'N';
+            $headerTemp->remaining_receipt_number   = $this->getRemainingRceipt($line['remaining_receipt_id']);
+            $headerTemp->amount                     = $line['amount'];
+            $headerTemp->created_by                 = $user->id;
+            $headerTemp->updated_by                 = $user->id;
+            $headerTemp->creation_by                = $user->person_id;
+            $headerTemp->updation_by                = $user->person_id;
+            $headerTemp->save();
+            \DB::commit();
+            $data = [
+                'status' => 'SUCCESS',
+                'message' => '',
+            ];
+        } catch (\Exception $e) {
+            \DB::rollback();
+            \Log::error($e);
+            $data = [
+                'status' => 'ERROR',
+                'message' => $e->getMessage(),
+            ];
+        }
+        return response()->json($data);
+    }
+
+    public function updateARReceipt(Request $request)
+    {
+        $header = $request->header;
+        $line = $request->line;
+        \DB::beginTransaction();
+        try {
+            RequisitionReceiptTemp::where('reference_number', $header['reference_number'])
+                                ->where('remaining_receipt_number', $this->getRemainingRceipt($line['remaining_receipt_id']))
+                                ->where('seq_number', $request->index+1)
+                                ->update([
+                                    'remaining_receipt_number'  => $this->getRemainingRceipt($line['remaining_receipt_id'])
+                                    , 'amount'                  => $line['amount']
+                                ]);
+            \DB::commit();
+            $data = [
+                'status' => 'SUCCESS',
+                'message' => '',
+            ];
+        } catch (\Exception $e) {
+            \DB::rollback();
+            \Log::error($e);
+            $data = [
+                'status' => 'ERROR',
+                'message' => $e->getMessage(),
+            ];
+        }
+        return response()->json($data);
+    }
+
+    public function removeARReceipt(Request $request)
+    {
+        $header = $request->header;
+        $line = $request->line;
+        \DB::beginTransaction();
+        try {
+            $receiptTemp = RequisitionReceiptTemp::where('reference_number', $header['reference_number'])
+                                            ->where('remaining_receipt_number', $this->getRemainingRceipt($line['remaining_receipt_id']))
+                                            ->where('seq_number', $request->index+1)
+                                            ->delete();
+            \DB::commit();
+            $data = [
+                'status' => 'SUCCESS',
+                'message' => '',
+            ];
+        } catch (\Exception $e) {
+            \DB::rollback();
+            \Log::error($e);
+            $data = [
+                'status' => 'ERROR',
+                'message' => $e->getMessage(),
+            ];
+        }
+        return response()->json($data);
+    }
+
+    private function getRemainingRceipt($receiptId)
+    {
+        $receipt = ARBudgetReceiptV::where('cash_receipt_id', $receiptId)->first();
+        return optional($receipt)->receipt_number;
+    }
+
+    // PROCESS RE-INTERFACE
     public function reSubmitREQ($reqId)
     {
         try {

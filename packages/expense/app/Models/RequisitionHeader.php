@@ -70,6 +70,13 @@ class RequisitionHeader extends Model
         }
     }
 
+    public function scopeByRelatedUser($query)
+    {
+        $user = \Auth::user();
+        return $query->where('created_by', $user->id);
+    }
+    
+
     public static function genDocumentNo($orgId, $prefix)
     {
         $date = now()->addYear(543)->format('y');

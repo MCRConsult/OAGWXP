@@ -17,9 +17,9 @@
                             />
                         </div>
 
-                        <div class="form-group col-md-3">
+                        <div class="form-group col-md-2">
                             <label class="control-label">
-                                <strong> ประเภทการขอเบิก </strong>
+                                <strong> ประเภทเอกสาร </strong>
                             </label>
                             <input type="hidden" name="invoice_type" :value="search.invoice_type">
                             <el-select v-model="search.invoice_type" style="width: 100%" size="default" placeholder="" filterable>
@@ -30,6 +30,19 @@
                                     :value="type.lookup_code">
                                 </el-option>
                             </el-select>
+                        </div>
+
+                        <div class="form-group col-md-2">
+                            <label class="control-label">
+                                <strong> ประเภทการขอเบิก </strong>
+                            </label>
+                            <input type="hidden" name="payment_type" :value="search.payment_type">
+                            <paymentType
+                                :setData="search.payment_type"
+                                :error="false"
+                                :editFlag="true"
+                                @setPaymentType="setPaymentType"
+                            ></paymentType>
                         </div>
 
                         <div class="form-group col-md-3">
@@ -50,7 +63,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group col-md-3">
+                        <div class="form-group col-md-2">
                             <label class="control-label">
                                 <strong> สถานะ </strong>
                             </label>
@@ -155,7 +168,7 @@
                                             <div v-html="requisition.status_icon"></div>
                                         </td>
                                         <td class="text-center text-nowrap" style="vertical-align: middle;">
-                                            <div style="border-collapse: collapse; width: 120px; display:inline-block; flex-direction: row;">
+                                            <div style="border-collapse: collapse; width: 150px; display:inline-block; flex-direction: row;">
                                                 <template v-if="requisition.invoice
                                                     && requisition.status == 'COMPLETED'
                                                     && (requisition.clear_reference_id == null || requisition.clear_reference_id == '')
@@ -169,16 +182,22 @@
                                                     </template>
                                                 </template>
                                                 <template v-if="requisition.status == 'HOLD'">
-                                                    <a class="btn btn-sm btn-light active mr-1"
+                                                    <a class="btn btn-sm btn-secondary mr-1"
                                                         :href="'/expense/requisition/'+requisition.id+'/hold'">
                                                         ตรวจสอบ
                                                     </a>
                                                 </template>
                                                 <template v-else>
-                                                    <a class="btn btn-sm btn-light active mr-1"
+                                                    <a class="btn btn-sm btn-secondary mr-1"
                                                         :href="'/expense/requisition/'+requisition.id">
                                                         ตรวจสอบ
                                                     </a>
+                                                </template>
+                                                <template v-if="requisition.payment_type == 'NON-PAYMENT'
+                                                    && requisition.status == 'INTERFACED'
+                                                    && (requisition.reverse_flag == '' || requisition.reverse_flag == null)">
+                                                    <!-- @click.prevent="store()" -->
+                                                    <button type="button" class="btn btn-sm btn-primary" style="background-color: #CD5656; border-color: #CD5656;"> Reverse </button>
                                                 </template>
                                             </div>
                                         </td>
@@ -212,11 +231,12 @@
 import moment from "moment";
 import numeral  from "numeral";
 import lovRequisition from "./lov/Requisition.vue";
+import paymentType      from "../lov/PaymentType.vue";
 
 export default {
     props: ['pFormUrl', 'pSearch', 'pInvoiceTypes', 'pStatuses', 'pRequisitions'],
     components: {
-        lovRequisition
+        lovRequisition, paymentType
     },
     data() {
         return {
@@ -226,6 +246,7 @@ export default {
             search: {
                 req_number: '',
                 invoice_type: '',
+                payment_type: '',
                 req_date: '',
                 status: '',
             },
@@ -240,6 +261,7 @@ export default {
     mounted() {
         this.search.req_number = this.pSearch.length <= 0? '' : this.pSearch.req_number;
         this.search.invoice_type = this.pSearch.length <= 0? '' : this.pSearch.invoice_type;
+        this.search.payment_type = this.pSearch.length <= 0? '' : this.pSearch.payment_type;
         this.req_date_input = this.req_date_input = this.pSearch && this.pSearch.req_date? moment(this.pSearch.req_date, 'YYYY-MM-DD'): '';
         this.changeDateFormat();
         this.search.status = this.pSearch.length <= 0? '' : this.pSearch.status;
@@ -256,6 +278,9 @@ export default {
     methods: {
         setRequisition(res) {
             this.search.req_number = res.requisition;
+        },
+        setPaymentType(res){
+            this.search.payment_type = res.payment_type;
         },
         changeDateFormat() {
             this.search.req_date = '';
@@ -280,6 +305,7 @@ export default {
                 page: page
                 , req_number: this.search.req_number
                 , invoice_type: this.search.invoice_type
+                , payment_type: this.search.payment_type
                 , req_date: this.search.req_date
                 , status: this.search.status
             })
