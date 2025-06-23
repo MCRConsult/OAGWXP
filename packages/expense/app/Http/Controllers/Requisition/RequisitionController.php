@@ -530,6 +530,7 @@ class RequisitionController extends Controller
     public function reSubmitREQ($reqId)
     {
         try {
+            $user = auth()->user();
             $requisition = RequisitionHeader::findOrFail($reqId);
             // 1 FIND FUND CHECK BUDGET
             $findFunds = [];
