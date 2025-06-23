@@ -40,7 +40,7 @@ class RequisitionController extends Controller
                             ->where('lookup_code', $budgetSource)
                             ->first();
         }else{
-            $default = DocumentCategory::selectRaw('distinct doc_category_code')
+            $default = DocumentCategory::selectRaw('distinct doc_category_code tag')
                             ->whereNotNull('attribute1')
                             ->where('attribute1', auth()->user()->org_id)
                             ->where('doc_category_code', 'like', '%ขบ.%')
