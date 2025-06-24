@@ -1,7 +1,7 @@
 <template>
     <div class="el_select">
         <el-select v-model="value"
-                name="payment_type"
+                name=""
                 placeholder=""
                 :remote-method="getDataRows"
                 :loading="loading"

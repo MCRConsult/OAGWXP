@@ -289,7 +289,7 @@ class LovController extends Controller
                             ->get();  
             }else{
                 $expeseType = MTLCategoriesV::where('structure_name', 'OAG Item Category Set')
-                            ->where('segment1', 'EXP')
+                            // ->where('segment1', 'EXP')
                             ->when($keyword, function ($query, $keyword) {
                                 return $query->where(function($r) use ($keyword) {
                                     $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%'])

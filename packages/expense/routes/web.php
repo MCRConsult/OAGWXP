@@ -65,11 +65,11 @@ Route::group(['middleware' => ['web', 'auth']], function () {
                 // CLEAR REQUISITION
                 Route::get('/{req_id}/clear', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@clear')->name('clear');
                 // REINTERFACE REQUISITION
-                Route::get('/{req_id}/req-submit', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@reSubmitREQ')->name('req-submit');
+                Route::get('/{req_id}/req-resubmit', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@reSubmitRequisition')->name('req-resubmit');
                 // RESUBMIT GL INTERFACE
-                Route::get('/{req_id}/gl-submit', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@reSubmitGL')->name('gl-submit');
+                Route::get('/{req_id}/journal-resubmit', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@reSubmitJournal')->name('journal-resubmit');
                 // REVERSE
-                Route::get('/{req_id}/gl-reverse', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@reverseGL');
+                Route::get('/{req_id}/reverse-journal', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@reverseJournal');
             });
 
             Route::prefix('invoice')->namespace('Invoice')->name('invoice.')->group(function() {

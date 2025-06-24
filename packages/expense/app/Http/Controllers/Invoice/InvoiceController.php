@@ -399,7 +399,7 @@ class InvoiceController extends Controller
                 $invoice = InvoiceHeader::findOrFail($invoiceId);
                 $invLines = InvoiceLine::where('invoice_header_id', $invoiceId)->get();
                 $valid = true;
-                if ($invoice->encumbrance_flag != 'Y') {
+                if ($invoice->encumbrance_flag != 'Y' && $invoice->source_type == 'REQUISITION') {
                     foreach ($invLines as $key => $line) {
                         $reqLine = RequisitionLine::where('invl_reference_id', $line->id)->first();
                         if ($line->expense_account != $reqLine->expense_account) {

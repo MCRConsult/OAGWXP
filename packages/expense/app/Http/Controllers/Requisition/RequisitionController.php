@@ -27,6 +27,7 @@ use Packages\expense\app\Models\GLPeriod;
 use Packages\expense\app\Models\COAListV;
 use Packages\expense\app\Models\GLBudgetReservations;
 use Packages\expense\app\Models\GLAccountHierarchyV;
+use Packages\expense\app\Models\GLJournalInterface;
 
 use Packages\expense\app\Repositories\BudgetInterfaceRepo;
 use Packages\expense\app\Repositories\GLInterfaceRepo;
@@ -182,6 +183,8 @@ class RequisitionController extends Controller
             $clearReq->req_date             = date('Y-m-d');
             $clearReq->status               = 'CLEAR';
             $clearReq->clear_flag           = 'Y';
+            $clearReq->invoice_reference_id = null;
+            $clearReq->invioce_number_ref   = null;
             $clearReq->created_by           = $user->id;
             $clearReq->updated_by           = $user->id;
             $clearReq->creation_by          = $user->person_id;
@@ -532,7 +535,7 @@ class RequisitionController extends Controller
     }
 
     // PROCESS RE-INTERFACE
-    public function reSubmitREQ($reqId)
+    public function reSubmitRequisition($reqId)
     {
         try {
             $user = auth()->user();
@@ -596,7 +599,7 @@ class RequisitionController extends Controller
         return response()->json($data);
     }
 
-    public function reSubmitGL($reqId)
+    public function reSubmitJournal($reqId)
     {
         try {
             $requisition = RequisitionHeader::findOrFail($reqId);
@@ -633,23 +636,23 @@ class RequisitionController extends Controller
         return response()->json($data);
     }
 
-    public function reverseGL($reqId)
+    public function reverseJournal($reqId)
     {
         try {
             $requisition = RequisitionHeader::findOrFail($reqId);
-            // CALL PACKAGE
+            // UPDATE DATA FOR REVERSE
             $infGLJournal =  GLJournalInterface::where('reference2', $requisition->req_number)
                                             ->where('interface_status', 'S')
-                                            ->first();
-            // UPDATE DATA FOR REVERSE
-            $infGLJournal->process_flag         = 'NEW';
-            $infGLJournal->interface_msg        = '';
-            $infGLJournal->interface_status     = '';
-            $infGLJournal->revers_flag          = 'Y';
-            $infGLJournal->save(); 
-            dd($infGLJournal);
+                                            ->update([
+                                                'process_flag'         => 'NEW'
+                                               , 'interface_msg'       => ''
+                                               , 'interface_status'    => ''
+                                               , 'revers_flag'         => 'Y'
+                                            ]);
+            \DB::commit();
             // INTERFACE GL REVERSE
-            $resultInf = (new RequisitionHeader)->interfaceGL($infGLJournal->reference1);
+            $reverseJournal =  GLJournalInterface::where('reference2', $requisition->req_number)->first();
+            $resultInf = (new RequisitionHeader)->interfaceGL($reverseJournal->reference1);
             if ($resultInf['status'] == 'S') {
                 $requisition->status  = 'REVERSED';
                 $requisition->save();

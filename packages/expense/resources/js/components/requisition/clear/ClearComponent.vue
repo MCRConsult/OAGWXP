@@ -15,7 +15,8 @@
                     </div>
                     <div class="col-md-2">
                         <h3 style="font-weight: bold;">
-                            สกุลเงิน : {{ requisition.invoice.currency }}
+                            สกุลเงิน : THB
+                            <!-- สกุลเงิน : {{ requisition.invoice.currency }} -->
                         </h3>
                     </div>
                 </div>

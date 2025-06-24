@@ -184,8 +184,9 @@
                                                 <template v-if="requisition.payment_type == 'NON-PAYMENT'
                                                     && requisition.status == 'INTERFACED'
                                                     && (requisition.reverse_flag == '' || requisition.reverse_flag == null)">
-                                                    <!-- @click.prevent="store()" -->
-                                                    <button type="button" class="btn btn-sm btn-primary mr-1" style="background-color: #129990; border-color: #129990;"  @click.prevent="reverse(requisition.id)"> กลับรายการบัญชี </button>
+                                                    <button type="button" class="btn btn-sm btn-primary mr-1" style="background-color: #129990; border-color: #129990;" @click.prevent="reverse(requisition.id)">
+                                                        กลับรายการบัญชี
+                                                    </button>
                                                 </template>
                                                 <template v-if="requisition.status == 'HOLD'">
                                                     <a class="btn btn-sm btn-secondary mr-1"
@@ -228,8 +229,9 @@
 </template>
 
 <script>
-import moment from "moment";
+import moment   from "moment";
 import numeral  from "numeral";
+import Swal     from 'sweetalert2';
 import lovRequisition from "./lov/Requisition.vue";
 import paymentType    from "./lov/PaymentType.vue";
 
@@ -324,71 +326,71 @@ export default {
             this.loading = false;
         },
         async reverse(reqId){
-                var vm = this;
-                Swal.fire({
-                    title: "กลับรายการบัญชี",
-                    html: "ต้องการ <b>ยืนยัน</b> กลับรายการบัญชีใช่หรือไม่?",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#3085d6",
-                    cancelButtonColor: "#d33",
-                    confirmButtonText: "ใช่",
-                    cancelButtonText: "ไม่",
-                    allowOutsideClick: false
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Swal.fire({
-                            title: 'ระบบกำลังกลับรายการบัญชี',
-                            type: "success",
-                            showConfirmButton: false,
-                            allowOutsideClick: false
-                        });
-                        // GET METHOD
-                        axios.get('/expense/requisition/'+reqId+'/gl-reverse')
-                        .then(function (res) {
-                            if (res.data.message) {
-                                Swal.fire({
-                                    title: "มีข้อผิดพลาด",
-                                    text: res.data.message,
-                                    icon: "error",
-                                    showCancelButton: false,
-                                    confirmButtonColor: "#3085d6",
-                                    confirmButtonText: "ตกลง",
-                                    allowOutsideClick: false
-                                });
-                            } else {
-                                Swal.fire({
-                                    title: "ส่งเบิกเอกสาร",
-                                    html: "ส่งเบิกเอกสารเรียบร้อยแล้ว",
-                                    icon: "success",
-                                    showCancelButton: false,
-                                    confirmButtonColor: "#3085d6",
-                                    confirmButtonText: "ตกลง",
-                                    allowOutsideClick: false
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        setTimeout(function() {
-                                            location.href = res.data.redirect_show_page;
-                                        }, 500);
-                                    }
-                                });
-                            }
-                        }.bind(vm))
-                        .catch(err => {
-                            let msg = err.response;
+            var vm = this;
+            Swal.fire({
+                title: "กลับรายการบัญชี",
+                html: "ต้องการ <b>ยืนยัน</b> กลับรายการบัญชีใช่หรือไม่?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "ใช่",
+                cancelButtonText: "ไม่",
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'ระบบกำลังกลับรายการบัญชี',
+                        type: "success",
+                        showConfirmButton: false,
+                        allowOutsideClick: false
+                    });
+                    // GET METHOD
+                    axios.get('/expense/requisition/'+reqId+'/reverse-journal')
+                    .then(function (res) {
+                        if (res.data.message) {
                             Swal.fire({
                                 title: "มีข้อผิดพลาด",
-                                text: msg.message,
+                                text: res.data.message,
                                 icon: "error",
                                 showCancelButton: false,
                                 confirmButtonColor: "#3085d6",
                                 confirmButtonText: "ตกลง",
                                 allowOutsideClick: false
                             });
+                        } else {
+                            Swal.fire({
+                                title: "กลับรายการบัญชี",
+                                html: "กลับรายการบัญชีเรียบร้อยแล้ว",
+                                icon: "success",
+                                showCancelButton: false,
+                                confirmButtonColor: "#3085d6",
+                                confirmButtonText: "ตกลง",
+                                allowOutsideClick: false
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    setTimeout(function() {
+                                        location.href = res.data.redirect_show_page;
+                                    }, 500);
+                                }
+                            });
+                        }
+                    }.bind(vm))
+                    .catch(err => {
+                        let msg = err.response;
+                        Swal.fire({
+                            title: "มีข้อผิดพลาด",
+                            text: msg.message,
+                            icon: "error",
+                            showCancelButton: false,
+                            confirmButtonColor: "#3085d6",
+                            confirmButtonText: "ตกลง",
+                            allowOutsideClick: false
                         });
-                    }
-                });
-            },
+                    });
+                }
+            });
+        },
     }
 };
 </script>

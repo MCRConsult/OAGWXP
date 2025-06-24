@@ -547,7 +547,7 @@
                             allowOutsideClick: false
                         });
                         // POST METHOD
-                        axios.get('/expense/requisition/'+reqId+'/req-submit')
+                        axios.get('/expense/requisition/'+reqId+'/req-resubmit')
                         .then(function (res) {
                             if (res.data.message) {
                                 Swal.fire({

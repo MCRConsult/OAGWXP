@@ -214,7 +214,7 @@
                     <div class="col-md-12 ">
                         @if ($requisition->status == 'ERROR' || $requisition->status == 'UNREVERSED')
                             <requisition-reinterface-component
-                                p-form-url = "{{ route('expense.requisition.gl-submit', $requisition->id) }}"
+                                p-form-url = "{{ route('expense.requisition.journal-resubmit', $requisition->id) }}"
                             ></requisition-reinterface-component>
                         @endif
                     </div>
