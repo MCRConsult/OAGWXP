@@ -92,9 +92,16 @@
                                     <label class="control-label">
                                         <strong> รายการบัญชี </strong>
                                     </label><br>
-                                    <el-input name="expense_account" placeholder="" v-model="temp.expense_account" @click="accounrCollp == !accounrCollp"
-                                        size="default" style="width: 100%" readonly data-toggle="collapse" href="#expense_account_collp"
+                                    <el-input name="expense_account" placeholder="" v-model="temp.expense_account"
+                                        @click="accounrCollp == !accounrCollp"
+                                        size="default"
+                                        style="width: 100%"
+                                        readonly
+                                        data-toggle="collapse" 
+                                        href="#expense_account_collp"
+                                        ref="expense_account"
                                     > </el-input>
+                                    <div id="_el_explode_expense_account" class="text-danger text-left"></div>
                                 </div>
                             </div>
                         </div>
@@ -547,6 +554,7 @@
                     budget_plan: false,
                     budget_type: false,
                     expense_type: false,
+                    expense_type: false,
                     amount: false,
                     remaining_receipt: false,
                     segment1: false,
@@ -577,6 +585,7 @@
             errors: {
                 handler(val){
                     val.amount? this.setError('amount') : this.resetError('amount');
+                    val.expense_account? this.setError('expense_account') : this.resetError('expense_account');
                 },
                 deep: true,
             },
@@ -603,6 +612,7 @@
                 vm.errors.budget_plan = false;
                 vm.errors.budget_type = false;
                 vm.errors.expense_type = false;
+                vm.errors.expense_account = false;
                 vm.errors.amount = false;
                 vm.errors.remaining_receipt = false;
                 vm.errors.segment1 = false;
@@ -625,6 +635,7 @@
                 $(form).find("div[id='_el_explode_budget_plan']").html("");
                 $(form).find("div[id='_el_explode_budget_type']").html("");
                 $(form).find("div[id='_el_explode_expense_type']").html("");
+                $(form).find("div[id='_el_explode_expense_account']").html("");
                 $(form).find("div[id='_el_explode_amount']").html("");
                 $(form).find("div[id='_el_explode_remaining_receipt']").html("");
                 $(form).find("div[id='_el_explode_acc_1']").html("");
@@ -653,7 +664,6 @@
                     errorMsg = "กรุณาเลือกเลขที่บัญชีธนาคาร";
                     $(form).find("div[id='_el_explode_supplier_bank']").html(errorMsg);
                 }
-
                 if (vm.line.budget_plan == '' || vm.line.budget_plan == undefined) {
                     vm.errors.budget_plan = true;
                     valid = false;
@@ -683,6 +693,12 @@
                     valid = false;
                     errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ";
                     $(form).find("div[id='_el_explode_remaining_receipt']").html(errorMsg);
+                }
+                if ((vm.segment6 == '' || vm.segment6 == undefined) || (vm.segment7 == '' || vm.segment7 == undefined) || (vm.segment9 == '' || vm.segment9 == undefined) || (vm.segment10 == '' || vm.segment10 == undefined) || (vm.segment11 == '' || vm.segment11 == undefined)) {
+                    vm.errors.expense_account = true;
+                    valid = false;
+                    errorMsg = "กรุณาตรวจสอบรายการบัญชี";
+                    $(form).find("div[id='_el_explode_expense_account']").html(errorMsg);
                 }
                 if (vm.segment1 == '' || vm.segment1 == undefined) {
                     vm.errors.segment1 = true;
@@ -828,12 +844,12 @@
             setExpenseType(res){
                 this.temp.expense_type = res.expense_type;
                 this.temp.expense_description = res.expense_description;
-                this.temp.description = res.expense_description;
                 // GET EXPENSE ACCOUNT WHEN CHOOSE EXPENSE_TYPE
                 if(this.temp.expense_type == null || this.temp.expense_type == ''){
                     this.temp.expense_account = '';
                 }else if(this.temp.expense_type != this.line.expense_type){
                     this.getExpenseAccount();
+                    this.temp.description = res.expense_description;
                 }else{
                     this.temp.expense_account = this.line.expense_account;
                     var coa = this.line.expense_account.split('.');

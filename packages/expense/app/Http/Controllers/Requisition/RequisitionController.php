@@ -48,6 +48,8 @@ class RequisitionController extends Controller
                     , 'HOLD'        => 'รอตรวจสอบ'
                     , 'INTERFACED'  => 'เบิกจ่ายแล้ว'
                     , 'ERROR'       => 'เบิกจ่ายไม่สำเร็จ'
+                    , 'REVERSED'    => 'กลับรายการบัญชีแล้ว'
+                    , 'UNREVERSED'  => 'กลับรายการบัญชีไม่สำเร็จ'
                     , 'CANCELLED'   => 'ยกเลิก'];
 
         return view('expense::requisition.index', compact('requisitions', 'invoiceTypes', 'statuses'));
@@ -613,6 +615,51 @@ class RequisitionController extends Controller
                 ];
             }else{
                 $requisition->status        = 'ERROR';
+                $requisition->error_message = $resultInf['error_msg'];
+                $requisition->save();
+                $data = [
+                    'status' => 'ERROR',
+                    'message' => $resultInf['error_msg']
+                ];
+            }
+        } catch (\Exception $e) {
+            \DB::rollback();
+            \Log::error($e);
+            $data = [
+                'status' => 'ERROR',
+                'message' => $e->getMessage(),
+            ];
+        }
+        return response()->json($data);
+    }
+
+    public function reverseGL($reqId)
+    {
+        try {
+            $requisition = RequisitionHeader::findOrFail($reqId);
+            // CALL PACKAGE
+            $infGLJournal =  GLJournalInterface::where('reference2', $requisition->req_number)
+                                            ->where('interface_status', 'S')
+                                            ->first();
+            // UPDATE DATA FOR REVERSE
+            $infGLJournal->process_flag         = 'NEW';
+            $infGLJournal->interface_msg        = '';
+            $infGLJournal->interface_status     = '';
+            $infGLJournal->revers_flag          = 'Y';
+            $infGLJournal->save(); 
+            dd($infGLJournal);
+            // INTERFACE GL REVERSE
+            $resultInf = (new RequisitionHeader)->interfaceGL($infGLJournal->reference1);
+            if ($resultInf['status'] == 'S') {
+                $requisition->status  = 'REVERSED';
+                $requisition->save();
+                $data = [
+                    'status' => 'SUCCESS',
+                    'message' => '',
+                    'redirect_show_page' => route('expense.requisition.show', $reqId)
+                ];
+            }else{
+                $requisition->status        = 'UNREVERSED';
                 $requisition->error_message = $resultInf['error_msg'];
                 $requisition->save();
                 $data = [

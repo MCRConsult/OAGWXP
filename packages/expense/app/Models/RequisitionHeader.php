@@ -123,11 +123,17 @@ class RequisitionHeader extends Model
             case "HOLD":
                 $result = "รอตรวจสอบ";
                 break;
+            case "INTERFACED":
+                $result = "เบิกจ่ายแล้ว";
+                break;
             case "ERROR":
                 $result = "เบิกจ่ายไม่สำเร็จ";
                 break;
-            case "INTERFACED":
-                $result = "เบิกจ่ายแล้ว";
+            case "REVERSED":
+                $result = "กลับรายการบัญชีแล้ว";
+                break;
+            case "UNREVERSED":
+                $result = "กลับรายการบัญชีไม่สำเร็จ";
                 break;
             case "CANCELLED":
                 $result = "ยกเลิก";
@@ -153,11 +159,17 @@ class RequisitionHeader extends Model
             case "HOLD":
                 $result = "<span class='badge badge-warning' style='padding: 5px; background-color: #fda668; color: fff;'> รอตรวจสอบ </span>";
                 break;
+            case "INTERFACED":
+                $result = "<span class='badge badge-primary' style='padding: 5px;'> เบิกจ่ายแล้ว </span>";
+                break;
             case "ERROR":
                 $result = "<span class='badge badge-danger' style='padding: 5px; background-color: #e3302f; color: fff;'> เบิกจ่ายไม่สำเร็จ </span>";
                 break;
-            case "INTERFACED":
-                $result = "<span class='badge badge-primary' style='padding: 5px;'> เบิกจ่ายแล้ว </span>";
+            case "REVERSED":
+                $result = "<span class='badge badge-primary' style='padding: 5px; background-color: #129990; color: fff;'> กลับรายการบัญชีแล้ว </span>";
+                break;
+            case "UNREVERSED":
+                $result = "<span class='badge badge-primary' style='padding: 5px; background-color: #bb3e00; color: fff;'> กลับรายการบัญชีไม่สำเร็จ </span>";
                 break;
             case "CANCELLED":
                 $result = "<span class='badge badge-danger' style='padding: 5px; color: fff;'> ยกเลิก </span>";
@@ -176,7 +188,8 @@ class RequisitionHeader extends Model
 
     public function scopeSearch($q, $search)
     {
-        $cols = ['req_number', 'invoice_type', 'status', 'document_category'];
+        // dd($search);
+        $cols = ['req_number', 'invoice_type', 'status', 'payment_type'];
         foreach ($search as $key => $value) {
             $value = trim($value);
             if ($value) {

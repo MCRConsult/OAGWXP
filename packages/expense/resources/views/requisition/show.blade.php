@@ -212,7 +212,7 @@
                 </div>
                 <div class="row text-center">
                     <div class="col-md-12 ">
-                        @if ($requisition->status == 'ERROR')
+                        @if ($requisition->status == 'ERROR' || $requisition->status == 'UNREVERSED')
                             <requisition-reinterface-component
                                 p-form-url = "{{ route('expense.requisition.gl-submit', $requisition->id) }}"
                             ></requisition-reinterface-component>

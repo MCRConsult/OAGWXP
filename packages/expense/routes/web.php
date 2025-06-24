@@ -68,6 +68,8 @@ Route::group(['middleware' => ['web', 'auth']], function () {
                 Route::get('/{req_id}/req-submit', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@reSubmitREQ')->name('req-submit');
                 // RESUBMIT GL INTERFACE
                 Route::get('/{req_id}/gl-submit', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@reSubmitGL')->name('gl-submit');
+                // REVERSE
+                Route::get('/{req_id}/gl-reverse', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@reverseGL');
             });
 
             Route::prefix('invoice')->namespace('Invoice')->name('invoice.')->group(function() {
