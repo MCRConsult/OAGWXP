@@ -81,7 +81,7 @@ class InvoiceInterfaceRepo {
                 $lineInf                            = new InvoiceInterfaceLine;
                 $lineInf->invoice_num               = $invoice->invoice_number;
                 $lineInf->line_number               = $line->seq_number;
-                $lineInf->line_type_lookup_code     = $invoice->invoice_type == 'STANDARD'? 'ITEM': 'PREPAY';
+                $lineInf->line_type_lookup_code     = 'ITEM'; // $invoice->invoice_type == 'STANDARD'? 'ITEM': 'PREPAY';
                 $lineInf->accounting_date           = date('Y-m-d', strtotime($invoice->invoice_date));
                 $lineInf->amount                    = $line->amount;
                 $lineInf->wht_code                  = $line->wht_code;
