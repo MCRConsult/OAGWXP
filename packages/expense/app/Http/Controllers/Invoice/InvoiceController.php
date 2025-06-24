@@ -71,7 +71,7 @@ class InvoiceController extends Controller
                 break;
                 case "CANCEL_REQUISITION":
                     // UNRESERV BUDGETS
-                    $result = (new BudgetInterfaceRepo)->unreserveBudgetREQ($requisition, $user);
+                    $result = (new BudgetInterfaceRepo)->unreserveBudget($requisition, $user);
                     if ($result['status'] == 'S') {
                         $requisition->status         = 'CANCELLED';
                         $requisition->cancel_reason  = $reason;

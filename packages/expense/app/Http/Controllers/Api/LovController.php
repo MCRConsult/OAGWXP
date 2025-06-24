@@ -359,8 +359,9 @@ class LovController extends Controller
 
     public function getReceipt(Request $request)
     {
+        $user = auth()->user();
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
-        $budgetSource = ARReceiptNumberAllV::where('org_id', 81)
+        $budgetSource = ARReceiptNumberAllV::where('org_id', $user->org_id)
                         ->when($keyword, function ($query, $keyword) {
                             return $query->where(function($r) use ($keyword) {
                                 $r->whereRaw('UPPER(receipt_number) like ?', ['%'.strtoupper($keyword).'%'])
