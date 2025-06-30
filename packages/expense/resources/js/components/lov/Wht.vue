@@ -69,7 +69,7 @@ export default {
                 let wht_percent = 0;
                 res.data.data.filter((value) => {
                     if(value.name == this.value){
-                        wht_percent = value.attribute2;
+                        wht_percent = value.tax_rates;
                     }
                 });
                 this.$emit('setWht', {wht_code: this.value, wht_percent: wht_percent});

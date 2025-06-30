@@ -10,10 +10,11 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
 
 use Packages\expense\app\Models\InvoiceReportV;
 
-class InvoiceExport implements FromView, ShouldAutoSize, WithColumnFormatting, WithStyles
+class InvoiceExport implements FromView, ShouldAutoSize, WithColumnFormatting, WithStyles, WithColumnWidths
 {
     public function view(): View
     {
@@ -31,6 +32,21 @@ class InvoiceExport implements FromView, ShouldAutoSize, WithColumnFormatting, W
     {
         return [
             'F' => '#,##0.00',
+        ];
+    }
+
+    public function columnWidths(): array
+    {
+        return [
+            'A' => 20,
+            'B' => 25,
+            'C' => 45,
+            'D' => 65,
+            'E' => 20,
+            'F' => 30,
+            'G' => 25,
+            'H' => 25,
+            'I' => 65,
         ];
     }
 

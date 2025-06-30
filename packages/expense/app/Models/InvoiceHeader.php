@@ -130,21 +130,11 @@ class InvoiceHeader extends Model
         $status = $this->status;
         $result = "";
         switch ($status) {
-            case "NEW":
-                $result = 'รอเบิกจ่าย';
-                break;
-            case "INTERFACED":
-                $result = 'เบิกจ่ายแล้ว';
-                break;
-            case "ERROR":
-                $result = 'เบิกจ่ายไม่สำเร็จ';
-                break;
-            case "CANCELLED":
-                $result = 'ยกเลิก';
-                break;
-            default:
-                $result = 'รายการใหม่';
-                break;
+            case "NEW": $result = 'ขอเบิก'; break;
+            case "INTERFACED": $result = 'ตั้งเบิก'; break;
+            case "ERROR": $result = 'ตั้งเบิกไม่สำเร็จ'; break;
+            case "CANCELLED": $result = 'ยกเลิก'; break;
+            default: $result = 'รายการใหม่'; break;
         }
         return $result;
     }
@@ -158,10 +148,10 @@ class InvoiceHeader extends Model
                 $result = "<span class='badge badge-primary' style='padding: 5px; background-color: #38ca8c; color: fff;'> ขอเบิก </span>";
                 break;
             case "INTERFACED":
-                $result = "<span class='badge badge-primary' style='padding: 5px; color: fff;'> เบิกจ่ายแล้ว </span>";
+                $result = "<span class='badge badge-primary' style='padding: 5px; color: fff;'> ตั้งเบิก </span>";
                 break;
             case "ERROR":
-                $result = "<span class='badge badge-danger' style='padding: 5px; background-color: #e3302f; color: fff;'> เบิกจ่ายไม่สำเร็จ </span>";
+                $result = "<span class='badge badge-danger' style='padding: 5px; background-color: #e3302f; color: fff;'> ตั้งเบิกไม่สำเร็จ </span>";
                 break;
             case "CANCELLED":
                 $result = "<span class='badge badge-danger' style='padding: 5px; color: fff;'> ยกเลิก </span>";
@@ -200,7 +190,7 @@ class InvoiceHeader extends Model
         return $q;
     }
 
-    public function interfaceAP($batch)
+    public function callInterfaceAPInvoice($batch)
     {
         $db = \DB::connection('oracle')->getPdo();
         $sql = "

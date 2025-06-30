@@ -19,7 +19,7 @@ use Excel;
 
 class InvoiceInterfaceRepo {
 
-	public function insertInterface($invoice)
+	public function insertInterfaceAPInvoice($invoice)
 	{
         $user = auth()->user();
         $batchNo = 'INV-'.date('Ymd').'-'.$invoice->invoice_number;
@@ -113,7 +113,7 @@ class InvoiceInterfaceRepo {
             }
 			\DB::commit();
             // CALL PACKAGE
-            $result = (new InvoiceHeader)->interfaceAP($batchNo);
+            $result = (new InvoiceHeader)->callInterfaceAPInvoice($batchNo);
             $data = [
                 'status' => $result['status'],
                 'message' => $result['error_msg'],

@@ -109,6 +109,7 @@
                                 <coaComponent
                                     @coa="updateCoa"
                                     :set-name="defaultSetName.segment6"
+                                    :parent="segment5"
                                     :set-data="segment6"
                                     :default-set-name="defaultSetName"
                                     :error="errors.segment6"
@@ -126,6 +127,7 @@
                                 <coaComponent
                                     @coa="updateCoa"
                                     :set-name="defaultSetName.segment7"
+                                    :parent="segment5"
                                     :set-data="segment7"
                                     :default-set-name="defaultSetName"
                                     :error="errors.segment7"
@@ -253,7 +255,7 @@
                         style="color: #fff; background-color: #01b471; border-color: #01b471;">
                         ตกลง
                     </button>
-                    <button type="button" class="btn btn-warning btn-sm" @click.private="cancel">
+                    <button type="button" class="btn btn-danger btn-sm" @click.private="cancel">
                         ยกเลิก
                     </button>
                 </div>

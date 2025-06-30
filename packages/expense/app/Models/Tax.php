@@ -6,6 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Tax extends Model
 {
-    protected $table = 'ZX_TAXES_VL';
+    protected $table = 'ZX_RATES_VL';
     protected $connection = 'oracle';
 }

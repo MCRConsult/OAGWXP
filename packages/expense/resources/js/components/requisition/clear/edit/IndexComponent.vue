@@ -197,9 +197,8 @@
                                 :attribute="row"
                                 :defaultSetName="defaultSetName"
                                 @updateRow="updateRow"
+                                @removeRow="removeRow"
                             />
-                            <!-- @copyRow="copyRow"
-                            @removeRow="removeRow" -->
                         </tbody>
                     </table>
                 </div>
@@ -223,7 +222,8 @@
                     </div>
                 </div>
                 <div align="center">
-                    <button type="button" class="btn btn-primary" @click.prevent="update()"> ส่งเบิก </button>
+                    <button type="button" class="btn btn-save mr-2" @click.prevent="update()" style="color: #FFF;"> บันทึกรายการ </button>
+                    <button type="button" class="btn btn-primary" @click.prevent="store()"> ส่งเบิก </button>
                 </div>
             </div>
         </form>
@@ -236,28 +236,26 @@
     import Swal     from 'sweetalert2';
     import {ElNotification} from 'element-plus';
     //========================================================
-    import budgetSource     from "../../lov/BudgetSource.vue";
-    import documentCategory from "../../lov/DocumentCategory.vue";
-    import paymentType      from "../../lov/PaymentType.vue";
-    import supplier         from "../../lov/Supplier.vue";
-    import supplierBank     from "../../lov/SupplierBank.vue";
-    import budgetPlan       from "../../lov/BudgetPlan.vue";
-    import budgetType       from "../../lov/BudgetType.vue";
-    import expenseType      from "../../lov/ExpenseType.vue";
-    import bankAccount      from "../../lov/BankAccount.vue";
+    import budgetSource     from "../../../lov/BudgetSource.vue";
+    import documentCategory from "../../../lov/DocumentCategory.vue";
+    import paymentType      from "../../../lov/PaymentType.vue";
+    import supplier         from "../../../lov/Supplier.vue";
+    import supplierBank     from "../../../lov/SupplierBank.vue";
+    import budgetPlan       from "../../../lov/BudgetPlan.vue";
+    import budgetType       from "../../../lov/BudgetType.vue";
+    import expenseType      from "../../../lov/ExpenseType.vue";
+    import bankAccount      from "../../../lov/BankAccount.vue";
 
-    import detailComp       from "../DetailComponent.vue";
     import listComp         from "./ListComponent.vue";
-    import modalAccountComp from "../_ModalAccountComponent.vue";
 
     export default {
         components: {
-            budgetSource, documentCategory, paymentType, supplier, supplierBank, budgetPlan, budgetType, expenseType, bankAccount, detailComp, listComp, modalAccountComp
+            budgetSource, documentCategory, paymentType, supplier, supplierBank, budgetPlan, budgetType, expenseType, bankAccount, listComp
         },
         props: ['requisition', 'invoiceTypes', 'defaultSetName'],
         data() {
             return {
-                budgetSource: ['510'], //, '520', '530', '540', '550'
+                budgetSource: ['510'],
                 errors: {
                     budget_source: false,
                     invoice_type: false,
@@ -313,8 +311,8 @@
         computed: {
             totalApply() {
                 return this.linelists.reduce((accumulator, line) => {
-                    this.totalApplyAmount = accumulator + parseFloat(line.amount);
-                    return accumulator + parseFloat(line.amount);
+                    this.totalApplyAmount = accumulator + parseFloat(line.actual_amount);
+                    return accumulator + parseFloat(line.actual_amount);
                 }, 0);
             },
         },
@@ -434,6 +432,7 @@
                                             expense_description: valUpdate.expense_description,
                                             expense_account: valUpdate.expense_account,
                                             amount: valUpdate.amount,
+                                            actual_amount: valUpdate.actual_amount,
                                             description: valUpdate.description,
                                             vehicle_number: valUpdate.vehicle_number,
                                             policy_number: valUpdate.policy_number,
@@ -491,6 +490,7 @@
                                     expense_description: valUpdate.expense_description,
                                     expense_account: valUpdate.expense_account,
                                     amount: valUpdate.amount,
+                                    actual_amount: valUpdate.actual_amount,
                                     description: valUpdate.description,
                                     vehicle_number: valUpdate.vehicle_number,
                                     policy_number: valUpdate.policy_number,
@@ -548,8 +548,17 @@
                 var vm = this;
                 var form = $('#edit-form');
                 let errorMsg = '';
-                this.resetValues();
+                vm.resetValues();
                 let valid = true;
+                if (vm.requisition.total_amount != vm.totalApply) {
+                    valid = false;
+                    errorMsg = "กรุณาตรวจสอบข้อมูล และจำนวนเงินให้ถูกต้อง";
+                    ElNotification({
+                        title: 'ข้อผิดผลาด',
+                        message: errorMsg,
+                        type: 'error',
+                    });
+                }
                 if (vm.requisition.budget_source == '') {
                     vm.errors.budget_source = true;
                     valid = false;
@@ -588,7 +597,7 @@
                 }
                 if (vm.linelists.length == 0) {
                     valid = false;
-                    this.$notify({
+                    vm.$notify({
                         title: 'แจ้งเตือน',
                         message: 'ไม่พบข้อมูลรายการ กรุณาตรวจสอบ',
                         type: 'warning'
@@ -598,7 +607,137 @@
                     return;
                 }
                 Swal.fire({
-                    title: "ยืนยันส่งเบิกเอกสาร",
+                    title: "บันทึกเอกสารเคลียร์เงินยืม",
+                    html: "ต้องการ <b>ยืนยัน</b> บันทึกเอกสารเคลียร์เงินยืมใช่หรือไม่?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "ใช่",
+                    cancelButtonText: "ไม่",
+                    allowOutsideClick: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'ระบบกำลังบันทึกเอกสารเคลียร์เงินยืม',
+                            type: "success",
+                            showConfirmButton: false,
+                            allowOutsideClick: false
+                        });
+                        // POST METHOD
+                        axios.post('/expense/requisition/'+vm.header.id+'/update', {
+                            header: this.header,
+                            lines: this.linelists,
+                            totalApply: this.totalApply
+                        })
+                        .then(function (res) {
+                            if (res.data.message) {
+                                Swal.fire({
+                                    title: "มีข้อผิดพลาด",
+                                    text: res.data.message,
+                                    icon: "error",
+                                    showCancelButton: false,
+                                    confirmButtonColor: "#3085d6",
+                                    confirmButtonText: "ตกลง",
+                                    allowOutsideClick: false
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: "บันทึกเอกสารเคลียร์เงินยืม",
+                                    html: "บันทึกเอกสารเคลียร์เงินยืมเรียบร้อยแล้ว",
+                                    icon: "success",
+                                    showCancelButton: false,
+                                    confirmButtonColor: "#3085d6",
+                                    confirmButtonText: "ตกลง",
+                                    allowOutsideClick: false
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        setTimeout(function() {
+                                            location.href = res.data.redirect_show_page;
+                                        }, 500);
+                                    }
+                                });
+                            }
+                        }.bind(vm))
+                        .catch(err => {
+                            let msg = err.response;
+                            Swal.fire({
+                                title: "มีข้อผิดพลาด",
+                                text: msg.message,
+                                icon: "error",
+                                showCancelButton: false,
+                                confirmButtonColor: "#3085d6",
+                                confirmButtonText: "ตกลง",
+                                allowOutsideClick: false
+                            });
+                        });
+                    }
+                });
+            },
+            async store(){
+                var vm = this;
+                var form = $('#edit-form');
+                let errorMsg = '';
+                vm.resetValues();
+                let valid = true;
+                if (vm.requisition.total_amount != vm.totalApply) {
+                    valid = false;
+                    errorMsg = "กรุณาตรวจสอบข้อมูล และจำนวนเงินให้ถูกต้อง";
+                    ElNotification({
+                        title: 'ข้อผิดผลาด',
+                        message: errorMsg,
+                        type: 'error',
+                    });
+                }
+                if (vm.requisition.budget_source == '') {
+                    vm.errors.budget_source = true;
+                    valid = false;
+                    errorMsg = "กรุณาเลือกแหล่งเงิน";
+                    $(form).find("div[id='el_explode_budget_source']").html(errorMsg);
+                }
+                if (vm.requisition.invoice_type == '') {
+                    vm.errors.invoice_type = true;
+                    valid = false;
+                    errorMsg = "กรุณาเลือกประเภท";
+                    $(form).find("div[id='el_explode_invoice_type']").html(errorMsg);
+                }
+                if (vm.requisition.document_category == '') {
+                    vm.errors.document_category = true;
+                    valid = false;
+                    errorMsg = "กรุณาเลือกสำนักงานผู้เบิกจ่าย";
+                    $(form).find("div[id='el_explode_document_category']").html(errorMsg);
+                }
+                if (vm.requisition.req_date == '') {
+                    vm.errors.req_date = true;
+                    valid = false;
+                    errorMsg = "กรุณาเลือกวันที่เอกสาร";
+                    $(form).find("div[id='el_explode_req_date']").html(errorMsg);
+                }
+                if (vm.requisition.payment_type == '') {
+                    vm.errors.payment_type = true;
+                    valid = false;
+                    errorMsg = "กรุณาเลือกประเภทการขอเบิก";
+                    $(form).find("div[id='el_explode_payment_type']").html(errorMsg);
+                }
+                if (vm.requisition.supplier_id == '') {
+                    vm.errors.supplier = true;
+                    valid = false;
+                    errorMsg = "กรุณาเลือกผู้สั่งจ่าย";
+                    $(form).find("div[id='el_explode_supplier']").html(errorMsg);
+                }
+                if (vm.linelists.length == 0) {
+                    valid = false;
+                    vm.$notify({
+                        title: 'แจ้งเตือน',
+                        message: 'ไม่พบข้อมูลรายการ กรุณาตรวจสอบ',
+                        type: 'warning'
+                    });
+                }
+                if (!valid) {
+                    return;
+                }
+                Swal.fire({
+                    title: "ส่งเบิกเอกสาร",
                     html: "ต้องการ <b>ยืนยัน</b> ส่งเบิกเอกสารใช่หรือไม่?",
                     icon: "warning",
                     showCancelButton: true,
@@ -609,64 +748,56 @@
                     allowOutsideClick: false
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        this.importData();
-                    }
-                });
-            },
-            async importData(){
-                var vm = this;
-                Swal.fire({
-                    title: 'ระบบกำลังส่งเบิกเอกสาร',
-                    type: "success",
-                    showConfirmButton: false,
-                    allowOutsideClick: false
-                });
-                // POST METHOD
-                axios.post('/expense/requisition/'+vm.header.id+'/update', {
-                    header: this.header,
-                    lines: this.linelists,
-                    totalApply: this.totalApply,
-                })
-                .then(function (res) {
-                    if (res.data.message) {
                         Swal.fire({
-                            title: "มีข้อผิดพลาด",
-                            text: res.data.message,
-                            icon: "error",
-                            showCancelButton: false,
-                            confirmButtonColor: "#3085d6",
-                            confirmButtonText: "ตกลง",
+                            title: 'ระบบกำลังส่งข้อมูลเอกสารส่งเบิก',
+                            type: "success",
+                            showConfirmButton: false,
                             allowOutsideClick: false
                         });
-                    } else {
-                        Swal.fire({
-                            title: "ส่งเบิกเอกสาร",
-                            html: "ส่งเบิกเอกสารเรียบร้อยแล้ว",
-                            icon: "success",
-                            showCancelButton: false,
-                            confirmButtonColor: "#3085d6",
-                            confirmButtonText: "ตกลง",
-                            allowOutsideClick: false
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                setTimeout(function() {
-                                    location.href = res.data.redirect_show_page;
-                                }, 500);
+                        // POST METHOD
+                        axios.get('/expense/requisition/'+vm.header.id+'/submit-clearing')
+                        .then(function (res) {
+                            if (res.data.message) {
+                                Swal.fire({
+                                    title: "มีข้อผิดพลาด",
+                                    text: res.data.message,
+                                    icon: "error",
+                                    showCancelButton: false,
+                                    confirmButtonColor: "#3085d6",
+                                    confirmButtonText: "ตกลง",
+                                    allowOutsideClick: false
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: "ส่งเบิกเอกสาร",
+                                    html: "ส่งเบิกเอกสารเรียบร้อยแล้ว",
+                                    icon: "success",
+                                    showCancelButton: false,
+                                    confirmButtonColor: "#3085d6",
+                                    confirmButtonText: "ตกลง",
+                                    allowOutsideClick: false
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        setTimeout(function() {
+                                            location.href = res.data.redirect_show_page;
+                                        }, 500);
+                                    }
+                                });
                             }
+                        }.bind(vm))
+                        .catch(err => {
+                            let msg = err.response;
+                            Swal.fire({
+                                title: "มีข้อผิดพลาด",
+                                text: msg.message,
+                                icon: "error",
+                                showCancelButton: false,
+                                confirmButtonColor: "#3085d6",
+                                confirmButtonText: "ตกลง",
+                                allowOutsideClick: false
+                            });
                         });
                     }
-                }.bind(vm))
-                .catch(err => {
-                    let msg = err.response;
-                    Swal.fire({
-                        title: "มีข้อผิดพลาด",
-                        text: msg.message,
-                        icon: "error",
-                        showCancelButton: false,
-                        confirmButtonColor: "#3085d6",
-                        confirmButtonText: "ตกลง",
-                        allowOutsideClick: false
-                    });
                 });
             },
             isARReceipt(budgetSource) {

@@ -47,6 +47,10 @@ export default {
             this.value = this.setData;
             this.getValueSetList(this.value);
         },
+        parent() {
+            this.value = this.setData;
+            this.getValueSetList(this.value);
+        },
         error() {
             let ref = this.$refs['input'].$refs.wrapperRef;
             ref.style = "";

@@ -1,6 +1,6 @@
 <template>
     <div v-loading="loading">
-        <form id="edit-form">
+        <form id="create-form">
             <div class="col-md-12">
                 <div class="row">
                     <div class="col-md-3">
@@ -11,10 +11,38 @@
                             <budgetSource 
                                 :setData="header.budget_source"
                                 :error="errors.budget_source"
-                                :editFlag="false"
+                                :editFlag="true"
                                 @setBudgetSource="setBudgetSource"
                             ></budgetSource>
                             <div id="el_explode_budget_source" class="text-danger text-left"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ประเภทการขอเบิก <span class="text-danger"> *</span></strong>
+                            </label><br>
+                            <paymentType
+                                :setData="header.payment_type"
+                                :error="errors.payment_type"
+                                :editFlag="true"
+                                @setPaymentType="setPaymentType"
+                            ></paymentType>
+                            <div id="el_explode_payment_type" class="text-danger text-left"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-3" v-if="header.payment_type == 'NON-PAYMENT'">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ธนาคาร <span class="text-danger"> * </span></strong>
+                            </label><br>
+                            <bankAccount
+                                :setData="header.cash_bank_account_id"
+                                :error="errors.cash_bank_account"
+                                :editFlag="true"
+                                @setBankAccount="setBankAccount"
+                            ></bankAccount>
+                            <div id="el_explode_cash_bank_account" class="text-danger text-left"></div>
                         </div>
                     </div>
                 </div>
@@ -61,23 +89,10 @@
                                 clearable
                                 format="DD-MM-YYYY"
                                 style="width: 100%;"
-                                @change="changeReqDateFormat"
+                                readonly
                             />
+                            <!-- @change="changeReqDateFormat" -->
                             <div id="el_explode_req_date" class="text-danger text-left"></div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group" style="padding: 5px;">
-                            <label class="control-label">
-                                <strong> ประเภทการขอเบิก <span class="text-danger"> *</span></strong>
-                            </label><br>
-                            <paymentType
-                                :setData="header.payment_type"
-                                :error="errors.payment_type"
-                                :editFlag="true"
-                                @setPaymentType="setPaymentType"
-                            ></paymentType>
-                            <div id="el_explode_payment_type" class="text-danger text-left"></div>
                         </div>
                     </div>
                 </div>
@@ -96,7 +111,7 @@
                             <supplier
                                 :setData="header.supplier_id"
                                 :error="errors.supplier"
-                                :editFlag="true"
+                                :editFlag="header.multiple_supplier == 'ONE'? true: false"
                                 @setSupplier="setSupplierHeader"
                             ></supplier>
                             <div id="el_explode_supplier" class="text-danger text-left"></div>
@@ -105,9 +120,18 @@
                     <div class="col-md-6">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
-                                <strong> คำอธิบาย </strong>
+                                <strong> คำอธิบาย <span class="text-danger"> *</span></strong>
                             </label><br>
-                            <el-input v-model="header.description" type="textarea" :rows="2" style="width: 100%;" placeholder="" maxlength="240" show-word-limit/>
+                            <el-input :style="errors.header_desc? 'border: 1px solid red; border-radius: 5px;': ''"
+                                v-model="header.description"
+                                type="textarea"
+                                :rows="2"
+                                style="width: 100%;"
+                                placeholder=""
+                                maxlength="240"
+                                show-word-limit
+                            />
+                            <div id="el_explode_header_desc" class="text-danger text-left"></div>
                         </div>
                     </div>
                 </div>
@@ -128,7 +152,7 @@
                             <label class="control-label">
                                 <strong> ผู้รับผิดชอบ </strong>
                             </label><br>
-                            <el-input v-model="header.user.hr_employee.full_name" style="width: 100%;" disabled/>
+                            <el-input v-model="header.user.full_name" style="width: 100%;" disabled/>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -136,7 +160,7 @@
                             <label class="control-label">
                                 <strong> สถานะ </strong>
                             </label><br>
-                            <el-input v-model="header.status_text" style="width: 100%;" disabled/>
+                            <el-input v-model="header.status" style="width: 100%;" disabled/>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -148,7 +172,7 @@
                         </div>
                     </div>
                 </div>
-                <!-- <hr>
+                <hr>
                 <div class="card row" style="background-color: #8cbbff; border: 1px solid #8cbbff;">
                     <div class="card-header" style="background-color: #8cbbff; padding: 10px;">
                         <strong> รายการเอกสารส่งเบิก </strong>
@@ -158,6 +182,7 @@
                     <div class="col-md-3">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label" style="margin-bottom: 0.4rem;">
+                                <!-- เพิ่มเงื่อนไขเช็ค multi -->
                                 <strong> ชื่อสั่งจ่าย <span class="text-danger"> * </span></strong> &nbsp;
                             </label><br>
                             <supplier
@@ -174,6 +199,7 @@
                             <label class="control-label">
                                 <strong> เลขที่บัญชีธนาคาร <span class="text-danger"> *</span></strong>
                             </label><br>
+                            <!-- เพิ่มเงื่อนไขเช็ค multi -->
                             <supplierBank
                                 :parent="reqLine.supplier_id"
                                 :setData="reqLine.bank_account_number"
@@ -182,20 +208,6 @@
                                 @setSupplierBank="setSupplierBank"
                             ></supplierBank>
                             <div id="el_explode_supplier_bank" class="text-danger text-left"></div>
-                        </div>
-                    </div>
-                    <div class="col-md-3" v-if="header.payment_type == 'NON-PAYMENT'">
-                        <div class="form-group" style="padding: 5px;">
-                            <label class="control-label">
-                                <strong> ธนาคาร <span class="text-danger"> * </span></strong>
-                            </label><br>
-                            <bankAccount
-                                :setData="reqLine.cash_bank_account_id"
-                                :error="errors.cash_bank_account"
-                                :editFlag="true"
-                                @setBankAccount="setBankAccount"
-                            ></bankAccount>
-                            <div id="el_explode_cash_bank_account" class="text-danger text-left"></div>
                         </div>
                     </div>
                     <div class="col-md-2">
@@ -249,6 +261,7 @@
                             <expenseType
                                 :parent="reqLine.budget_type"
                                 :setData="reqLine.expense_type"
+                                :budgetSource="header.budget_source"
                                 :error="errors.expense_type"
                                 :editFlag="true"
                                 @setExpenseType="setExpenseType"
@@ -277,14 +290,14 @@
                             </label><br>
                             <vue-numeric style="width: 100%;"
                                 name="amount"
-                                v-bind:minus="false"
-                                v-bind:precision="2"
-                                :min="0"
-                                :max="999999999"
                                 class="form-control text-right"
                                 v-model="reqLine.amount"
-                                ref="amount"
+                                v-bind:minus="false"
+                                v-bind:precision="2"
+                                :min="-999999999"
+                                :max="999999999"
                                 autocomplete="off"
+                                ref="amount"
                             ></vue-numeric>
                             <div id="el_explode_amount" class="text-danger text-left"></div>
                         </div>
@@ -301,7 +314,7 @@
                 <div align="right">
                     <button type="submit" class="btn btn-sm btn-success" @click.prevent="addRequisitionLine()">เพิ่มรายการ</button>
                 </div>
-                <br> -->
+                <br>
                 <!-- TABLE LINE LISTS-->
                 <div class="table-responsive" style="max-height: 600px;">
                     <table class="table text-nowrap table-hover">
@@ -361,7 +374,7 @@
                     </div>
                 </div>
                 <div align="center">
-                    <button type="button" class="btn btn-primary" @click.prevent="update()"> ส่งเบิก </button>
+                    <button type="button" class="btn btn-primary" @click.prevent="store()"> ส่งเบิก </button>
                 </div>
             </div>
         </form>
@@ -374,19 +387,18 @@
     import Swal     from 'sweetalert2';
     import {ElNotification} from 'element-plus';
     //========================================================
-    import budgetSource     from "../../lov/BudgetSource.vue";
-    import documentCategory from "../../lov/DocumentCategory.vue";
-    import paymentType      from "../../lov/PaymentType.vue";
-    import supplier         from "../../lov/Supplier.vue";
-    import supplierBank     from "../../lov/SupplierBank.vue";
-    import budgetPlan       from "../../lov/BudgetPlan.vue";
-    import budgetType       from "../../lov/BudgetType.vue";
-    import expenseType      from "../../lov/ExpenseType.vue";
-    import bankAccount      from "../../lov/BankAccount.vue";
-
-    import detailComp       from "../DetailComponent.vue";
+    import budgetSource     from "../lov/BudgetSource.vue";
+    import documentCategory from "../lov/DocumentCategory.vue";
+    import paymentType      from "../lov/PaymentType.vue";
+    import supplier         from "../lov/Supplier.vue";
+    import supplierBank     from "../lov/SupplierBank.vue";
+    import budgetPlan       from "../lov/BudgetPlan.vue";
+    import budgetType       from "../lov/BudgetType.vue";
+    import expenseType      from "../lov/ExpenseType.vue";
+    import bankAccount      from "../lov/BankAccount.vue";
+    import detailComp       from "./DetailComponent.vue";
     import listComp         from "./ListComponent.vue";
-    import modalAccountComp from "../_ModalAccountComponent.vue";
+    import modalAccountComp from "./_ModalAccountComponent.vue";
 
     export default {
         components: {
@@ -396,6 +408,7 @@
         data() {
             return {
                 budgetSource: ['510'], //, '520', '530', '540', '550'
+                sourceDefault: ['500', '510', '520', '530', '540', '550'],
                 errors: {
                     budget_source: false,
                     invoice_type: false,
@@ -403,8 +416,10 @@
                     req_date: false,
                     payment_type: false,
                     supplier: false,
+                    header_desc: false,
                     supplier_detail: false,
                     supplier_bank: false,
+                    cash_bank_account: false,
                     budget_plan: false,
                     budget_type: false,
                     expense_type: false,
@@ -438,7 +453,6 @@
                     receipt_date: '',
                     remaining_receipt_flag: 'N',
                     remaining_receipt_id: '',
-                    cash_bank_account_id: '',
                 },
                 loading: false,
                 // SEGMENT
@@ -472,10 +486,11 @@
                 return numeral(value).format("0,0.00");
             },
             changeReqDateFormat() {
-                const formattedDate = moment(this.requisition.req_date, "YYYY-MM-DD").format("YYYY-MM-DD");
-                this.requisition.req_date = formattedDate;
+                const formattedDate = moment(this.header.req_date, "YYYY-MM-DD").format("YYYY-MM-DD");
+                this.header.req_date = formattedDate;
             },
             setError(ref_name){
+                console.log(this.$refs['header_desc']);
                 let ref =  this.$refs[ref_name].$refs.referenceRef
                         ? this.$refs[ref_name].$refs.referenceRef.$refs.wrapperRef
                         : (this.$refs[ref_name].$refs.textareaRef
@@ -500,20 +515,28 @@
                 ref.style = "";
             },
             setBudgetSource(res){
-                this.requisition.budget_source = res.budget_source;
+                this.header.budget_source = res.budget_source;
                 this.isARReceipt(res.budget_source);
                 this.getDocumentCate(res.budget_source);
+                // DEFAULT VALUE LINE
+                if(this.sourceDefault.indexOf(this.header.budget_source) !== -1){
+                    this.reqLine.budget_plan = 'EXP.400.000000.0000000000';
+                    this.reqLine.budget_type = 'EXP.400.400000.0000000000';
+                }else{
+                    this.reqLine.budget_plan = '';
+                    this.reqLine.budget_type = '';
+                }
             },
             setDocumentCate(res){
-                this.requisition.document_category = res.document_category;
+                this.header.document_category = res.document_category;
             },
             setPaymentType(res){
-                this.requisition.payment_type = res.payment_type;
+                this.header.payment_type = res.payment_type;
             },
             setSupplierHeader(res){
-                this.requisition.supplier_id = res.supplier;
-                this.requisition.supplier_name = res.vendor_name;
-                if(this.requisition.multiple_supplier == 'ONE'){
+                this.header.supplier_id = res.supplier;
+                this.header.supplier_name = res.vendor_name;
+                if(this.header.multiple_supplier == 'ONE'){
                     this.reqLine.supplier_id = res.supplier;
                     this.reqLine.supplier_name = res.vendor_name;
                 }
@@ -527,7 +550,7 @@
                 this.reqLine.bank_account_number = res.supplier_bank;
             },
             setBankAccount(res){
-                this.reqLine.cash_bank_account_id = res.cash_bank_account_id;
+                this.header.cash_bank_account_id = res.cash_bank_account_id;
             },
             setBudgetPlan(res){
                 this.reqLine.budget_plan = res.budget_plan;
@@ -549,10 +572,14 @@
             },
             changeSupplierType(){
                 this.resetValues();
-                if(this.requisition.multiple_supplier == 'ONE'){
-                    this.reqLine.supplier_id = this.requisition.supplier;
-                    this.reqLine.supplier_name = this.requisition.supplier_name;
+                if(this.header.multiple_supplier == 'ONE'){
+                    this.header.supplier_id = '';
+                    this.header.supplier_name = '';
+                    this.reqLine.supplier_id = this.header.supplier_id;
+                    this.reqLine.supplier_name = this.header.supplier_name;
                 }else{
+                    this.header.supplier_id = this.defaultSupplier.vendor_id;
+                    this.header.supplier_name = this.defaultSupplier.vendor_name;
                     this.reqLine.supplier_id = '';
                     this.reqLine.supplier_name = '';
                     this.reqLine.bank_account_number = '';
@@ -561,9 +588,9 @@
             },
             async getExpenseAccount(){
                 var vm = this;
-                if(vm.reqLine.expense_type != ''){
+                if(vm.reqLine.expense_type != '' || vm.reqLine.expense_type != undefined){
                     axios.post('/expense/api/requisition/get-expense-account', {
-                        header: vm.requisition,
+                        header: vm.header,
                         line: vm.reqLine,
                     })
                     .then(function (res) {
@@ -598,16 +625,24 @@
             },
             addRequisitionLine() {
                 var vm = this;
-                var form = $('#edit-form');
+                var form = $('#create-form');
                 let errorMsg = '';
                 this.resetValues();
                 let valid = true;
-                if (vm.requisition.supplier_id == '') {
+                if (vm.header.supplier_id == '') {
                     vm.errors.supplier = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกผู้สั่งจ่าย";
                     $(form).find("div[id='el_explode_supplier']").html(errorMsg);
                 }
+
+                if (vm.header.payment_type == 'NON-PAYMENT' && vm.header.cash_bank_account_id == '') {
+                    vm.errors.cash_bank_account = true;
+                    valid = false;
+                    errorMsg = "กรุณาเลือกธนาคาร";
+                    $(form).find("div[id='el_explode_cash_bank_account']").html(errorMsg);
+                }
+
                 if (vm.reqLine.supplier_id == '') {
                     vm.errors.supplier_detail = true;
                     valid = false;
@@ -638,7 +673,7 @@
                     errorMsg = "กรุณาเลือกประเภทค่าใช้จ่าย";
                     $(form).find("div[id='el_explode_expense_type']").html(errorMsg);
                 }
-                if (vm.reqLine.amount == '') {
+                if (vm.reqLine.amount == '' || vm.reqLine.amount == 0) {
                     vm.errors.amount = true;
                     valid = false;
                     errorMsg = "กรุณากรอกจำนวนเงิน";
@@ -655,7 +690,7 @@
                     });
                 }
                 if ((vm.segment6 == '' || vm.segment6 == undefined) || (vm.segment7 == '' || vm.segment7 == undefined) || (vm.segment9 == '' || vm.segment9 == undefined) || (vm.segment10 == '' || vm.segment10 == undefined) || (vm.segment11 == '' || vm.segment11 == undefined)) {
-                    vm.errors.remaining_receipt = true;
+                    vm.errors.expense_account = true;
                     valid = false;
                     errorMsg = "กรุณาตรวจสอบรายการบัญชี";
                     $(form).find("div[id='el_explode_expense_account']").html(errorMsg);
@@ -666,7 +701,7 @@
                 // INSERT RECEIPT TEMP WHEN IN_ARRAY
                 if (vm.reqLine.remaining_receipt_flag == 'Y') {
                     axios.post('/expense/requisition/use-ar-receipt', {
-                        header: this.requisition,
+                        header: this.header,
                         line: this.reqLine,
                         seq: this.linelists.length
                     })
@@ -689,9 +724,9 @@
                             let defaultLine = {
                                 budget_plan: '',
                                 budget_type: '',
-                                supplier_id: this.requisition.multiple_supplier == 'ONE' ? this.requisition.supplier_id : '',
-                                supplier_name: this.requisition.multiple_supplier == 'ONE' ? this.requisition.supplier_name : '',
-                                bank_account_number: this.requisition.multiple_supplier == 'ONE' ? this.reqLine.bank_account_number : '',
+                                supplier_id: this.header.multiple_supplier == 'ONE' ? this.header.supplier_id : '',
+                                supplier_name: this.header.multiple_supplier == 'ONE' ? this.header.supplier_name : '',
+                                bank_account_number: this.header.multiple_supplier == 'ONE' ? this.reqLine.bank_account_number : '',
                                 expense_type: '',
                                 expense_account: '',
                                 expense_description: '',
@@ -707,9 +742,8 @@
                                 invoice_date: '',
                                 receipt_number: '',
                                 receipt_date: '',
-                                remaining_receipt_flag: this.budgetSource.indexOf(this.requisition.budget_source) !== -1? 'Y': 'N',
-                                remaining_receipt_id: '',
-                                cash_bank_account_id: '',
+                                remaining_receipt_flag: this.budgetSource.indexOf(this.header.budget_source) !== -1? 'Y': 'N',
+                                remaining_receipt_id: ''
                             };
                             Object.assign(this.reqLine, defaultLine);
                         }
@@ -733,9 +767,9 @@
                     let defaultLine = {
                         budget_plan: '',
                         budget_type: '',
-                        supplier_id: this.requisition.multiple_supplier == 'ONE' ? this.requisition.supplier_id : '',
-                        supplier_name: this.requisition.multiple_supplier == 'ONE' ? this.requisition.supplier_name : '',
-                        bank_account_number: this.requisition.multiple_supplier == 'ONE' ? this.reqLine.bank_account_number : '',
+                        supplier_id: this.header.multiple_supplier == 'ONE' ? this.header.supplier_id : '',
+                        supplier_name: this.header.multiple_supplier == 'ONE' ? this.header.supplier_name : '',
+                        bank_account_number: this.header.multiple_supplier == 'ONE' ? this.reqLine.bank_account_number : '',
                         expense_type: '',
                         expense_description: '',
                         expense_account: '',
@@ -751,9 +785,8 @@
                         invoice_date: '',
                         receipt_number: '',
                         receipt_date: '',
-                        remaining_receipt_flag: this.budgetSource.indexOf(this.requisition.budget_source) !== -1? 'Y': 'N',
-                        remaining_receipt_id: '',
-                        cash_bank_account_id: '',
+                        remaining_receipt_flag: this.budgetSource.indexOf(this.header.budget_source) !== -1? 'Y': 'N',
+                        remaining_receipt_id: ''
                     };
                     Object.assign(this.reqLine, defaultLine);
                 }
@@ -764,7 +797,7 @@
                 let index = response.index;
                 if (vm.linelists[index].remaining_receipt_flag == 'Y') {
                     axios.post('/expense/requisition/update-ar-receipt', {
-                        header: vm.requisition,
+                        header: vm.header,
                         line: response.line,
                         seq: index,
                     })
@@ -809,8 +842,7 @@
                                             receipt_number: valUpdate.receipt_number,
                                             receipt_date: valUpdate.receipt_date,
                                             remaining_receipt_flag: valUpdate.remaining_receipt_flag,
-                                            remaining_receipt_id: valUpdate.remaining_receipt_id,
-                                            cash_bank_account_id: valUpdate.cash_bank_account_id
+                                            remaining_receipt_id: valUpdate.remaining_receipt_id
                                         });
                                     } else {
                                         console.error('valUpdate is invalid:', valUpdate);
@@ -867,8 +899,7 @@
                                     receipt_number: valUpdate.receipt_number,
                                     receipt_date: valUpdate.receipt_date,
                                     remaining_receipt_flag: valUpdate.remaining_receipt_flag,
-                                    remaining_receipt_id: valUpdate.remaining_receipt_id,
-                                    cash_bank_account_id: valUpdate.cash_bank_account_id
+                                    remaining_receipt_id: valUpdate.remaining_receipt_id
                                 });
                             } else {
                                 console.error('valUpdate is invalid:', valUpdate);
@@ -886,7 +917,7 @@
                 let copyLine = JSON.parse(JSON.stringify(vm.linelists[index]));
                 if (copyLine.remaining_receipt_flag == 'Y') {
                     axios.post('/expense/requisition/use-ar-receipt', {
-                        header: vm.requisition,
+                        header: vm.header,
                         line: copyLine,
                         seq: vm.linelists.length
                     })
@@ -926,7 +957,7 @@
                 var vm = this;
                 if (vm.linelists[index].remaining_receipt_flag == 'Y') {
                     axios.post('/expense/requisition/remove-ar-receipt', {
-                        header: vm.requisition,
+                        header: vm.header,
                         line: vm.linelists[index],
                         seq: index,
                     })
@@ -967,12 +998,13 @@
             },
             resetValues(){
                 var vm = this;
-                var form = $('#edit-form');
+                var form = $('#create-form');
                 vm.errors.invoice_type = false;
                 vm.errors.document_category = false;
                 vm.errors.req_date = false;
                 vm.errors.payment_type = false;
                 vm.errors.supplier = false;
+                vm.errors.header_desc = false;
                 vm.errors.supplier_detail = false;
                 vm.errors.supplier_bank = false;
                 vm.errors.budget_plan = false;
@@ -985,55 +1017,63 @@
                 $(form).find("div[id='el_explode_req_date']").html("");
                 $(form).find("div[id='el_explode_payment_type']").html("");
                 $(form).find("div[id='el_explode_supplier']").html("");
+                $(form).find("div[id='el_explode_header_desc']").html("");
                 $(form).find("div[id='el_explode_supplier_detail']").html("");
                 $(form).find("div[id='el_explode_supplier_bank']").html("");
+                $(form).find("div[id='el_explode_cash_bank_account']").html("");
                 $(form).find("div[id='el_explode_budget_plan']").html("");
                 $(form).find("div[id='el_explode_budget_type']").html("");
                 $(form).find("div[id='el_explode_expense_type']").html("");
                 $(form).find("div[id='el_explode_amount']").html("");
                 $(form).find("div[id='el_explode_expense_account']").html("");
             },
-            async update(){
+            async store(){
                 var vm = this;
-                var form = $('#edit-form');
+                var form = $('#create-form');
                 let errorMsg = '';
                 this.resetValues();
                 let valid = true;
-                if (vm.requisition.budget_source == '') {
+                if (vm.header.budget_source == '') {
                     vm.errors.budget_source = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกแหล่งเงิน";
                     $(form).find("div[id='el_explode_budget_source']").html(errorMsg);
                 }
-                if (vm.requisition.invoice_type == '') {
+                if (vm.header.invoice_type == '') {
                     vm.errors.invoice_type = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกประเภท";
                     $(form).find("div[id='el_explode_invoice_type']").html(errorMsg);
                 }
-                if (vm.requisition.document_category == '') {
+                if (vm.header.document_category == '') {
                     vm.errors.document_category = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกสำนักงานผู้เบิกจ่าย";
                     $(form).find("div[id='el_explode_document_category']").html(errorMsg);
                 }
-                if (vm.requisition.req_date == '') {
+                if (vm.header.req_date == '') {
                     vm.errors.req_date = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกวันที่เอกสาร";
                     $(form).find("div[id='el_explode_req_date']").html(errorMsg);
                 }
-                if (vm.requisition.payment_type == '') {
+                if (vm.header.payment_type == '') {
                     vm.errors.payment_type = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกประเภทการขอเบิก";
                     $(form).find("div[id='el_explode_payment_type']").html(errorMsg);
                 }
-                if (vm.requisition.supplier_id == '') {
+                if (vm.header.supplier_id == '') {
                     vm.errors.supplier = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกผู้สั่งจ่าย";
                     $(form).find("div[id='el_explode_supplier']").html(errorMsg);
+                }
+                if (vm.header.description == '') {
+                    vm.errors.header_desc = true;
+                    valid = false;
+                    errorMsg = "กรุณากรอกคำฮธิบาย";
+                    $(form).find("div[id='el_explode_header_desc']").html(errorMsg);
                 }
                 if (vm.linelists.length == 0) {
                     valid = false;
@@ -1064,15 +1104,20 @@
             },
             async importData(){
                 var vm = this;
-                vm.loading = true;
+                Swal.fire({
+                    title: 'ระบบกำลังส่งข้อมูลเอกสารส่งเบิก',
+                    type: "success",
+                    showConfirmButton: false,
+                    allowOutsideClick: false
+                });
                 // POST METHOD
-                axios.post('/expense/requisition/'+vm.header.id+'/update', {
+                axios.post('/expense/requisition/', {
                     header: this.header,
                     lines: this.linelists,
                     totalApply: this.totalApply,
+                    refRequisition: null,
                 })
                 .then(function (res) {
-                    vm.loading = false;
                     if (res.data.message) {
                         Swal.fire({
                             title: "มีข้อผิดพลาด",
@@ -1085,7 +1130,7 @@
                         });
                     } else {
                         Swal.fire({
-                            title: "ยืนยันส่งเบิกเอกสาร",
+                            title: "ส่งเบิกเอกสาร",
                             html: "ส่งเบิกเอกสารเรียบร้อยแล้ว",
                             icon: "success",
                             showCancelButton: false,
@@ -1112,9 +1157,6 @@
                         confirmButtonText: "ตกลง",
                         allowOutsideClick: false
                     });
-                })
-                .then(() => {
-                    vm.loading = false;
                 });
             },
             isARReceipt(budgetSource) {
@@ -1135,7 +1177,7 @@
                     //     });
                     // }else if(budgetSource != null || budgetSource != ''){
                         // console.log(res.data.data);
-                        this.requisition.document_category = res.data.data? res.data.data.tag: '';
+                        this.header.document_category = res.data.data? res.data.data.tag: '';
                     // }
                 })
                 .catch((error) => {

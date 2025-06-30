@@ -14,9 +14,9 @@ use DB;
 use PDO;
 use Excel;
 
-class GLInterfaceRepo {
+class JournalInterfaceRepo {
 
-	public function insertInterface($requistion)
+	public function insertInterfaceJournal($requistion)
 	{
         $user = auth()->user();
         $batchNo = 'GL-'.date('Ymd').'-'.$requistion->req_number;
@@ -134,7 +134,7 @@ class GLInterfaceRepo {
             }
 			\DB::commit();
             // CALL PACKAGE
-            $result = (new RequisitionHeader)->interfaceGL($batchNo);
+            $result = (new RequisitionHeader)->callInterfaceJournal($batchNo);
             $data = [
                 'status' => $result['status'],
                 'message' => $result['error_msg'],

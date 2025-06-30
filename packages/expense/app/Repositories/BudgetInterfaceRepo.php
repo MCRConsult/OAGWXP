@@ -22,7 +22,7 @@ class BudgetInterfaceRepo {
                     $reserve                     = new GLBudgetReservations;
                     $reserve->reserve_date       = Carbon::now();
                     $reserve->reserve_type       = 'RESERVE';
-                    $reserve->amount             = $line->amount;
+                    $reserve->amount             = $requisition->clear_flag == 'Y'? $line->actual_amount: $line->amount;
                     $reserve->description        = $requisition->req_number.' '.$line->description;
                     $reserve->source_table_name  = $line->getTable();
                     $reserve->source_table_id    = $line->id;
@@ -64,7 +64,7 @@ class BudgetInterfaceRepo {
                     $unreserve                     = new GLBudgetReservations;
                     $unreserve->reserve_date       = Carbon::now();
                     $unreserve->reserve_type       = 'UNRESERVE';
-                    $unreserve->amount             = $line->amount;
+                    $unreserve->amount             = $requisition->clear_flag == 'Y'? $line->actual_amount: $line->amount;
                     $unreserve->description        = $requisition->req_number.' '.$line->description;
                     $unreserve->source_table_name  = $line->getTable();
                     $unreserve->source_table_id    = $line->id;
@@ -107,7 +107,7 @@ class BudgetInterfaceRepo {
                         $unreserve                     = new GLBudgetReservations;
                         $unreserve->reserve_date       = Carbon::now();
                         $unreserve->reserve_type       = 'UNRESERVE';
-                        $unreserve->amount             = $line->amount;
+                        $unreserve->amount             = $requisition->clear_flag == 'Y'? $line->actual_amount: $line->amount;
                         $unreserve->description        = $requisition->invoice_number.' '.$line->description;
                         $unreserve->source_table_name  = $line->getTable();
                         $unreserve->source_table_id    = $line->id;

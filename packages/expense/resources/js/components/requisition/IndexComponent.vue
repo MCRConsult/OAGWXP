@@ -45,7 +45,7 @@
                             ></paymentType>
                         </div>
 
-                        <div class="form-group col-md-3">
+                        <div class="form-group col-md-2">
                             <label class="control-label">
                                 <strong> วันที่เอกสาร </strong>
                             </label>
@@ -63,7 +63,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group col-md-2">
+                        <div class="form-group col-md-3">
                             <label class="control-label">
                                 <strong> สถานะ </strong>
                             </label>
@@ -131,7 +131,7 @@
                                         <div style="width: 120px;"> จำนวนเงิน </div>
                                     </th>
                                     <th class="text-center sticky-col">
-                                        <div style="width: 60px;"> สถานะ </div>
+                                        <div style="width: 100px;"> สถานะ </div>
                                     </th>
                                     <th class="text-center sticky-col">
                                         <div style="width: 60px;"> </div>
@@ -168,7 +168,7 @@
                                             <div v-html="requisition.status_icon"></div>
                                         </td>
                                         <td class="text-center text-nowrap" style="vertical-align: middle;">
-                                            <div style="border-collapse: collapse; width: 150px; display:inline-block; flex-direction: row;">
+                                            <div style="border-collapse: collapse; width: 130px; display:inline-block; flex-direction: row;">
                                                 <template v-if="requisition.invoice
                                                     && requisition.status == 'COMPLETED'
                                                     && (requisition.clear_reference_id == null || requisition.clear_reference_id == '')
@@ -189,13 +189,19 @@
                                                     </button>
                                                 </template>
                                                 <template v-if="requisition.status == 'HOLD'">
-                                                    <a class="btn btn-sm btn-secondary mr-1"
+                                                    <a class="btn btn-sm btn-check mr-1"
                                                         :href="'/expense/requisition/'+requisition.id+'/hold'">
                                                         ตรวจสอบ
                                                     </a>
                                                 </template>
+                                                <template v-else-if="requisition.status == 'WAITING_CLEAR'">
+                                                    <a class="btn btn-sm btn-check mr-1"
+                                                        :href="'/expense/requisition/'+requisition.id+'/clear-edit'">
+                                                        ตรวจสอบ
+                                                    </a>
+                                                </template>
                                                 <template v-else>
-                                                    <a class="btn btn-sm btn-secondary"
+                                                    <a class="btn btn-sm btn-check"
                                                         :href="'/expense/requisition/'+requisition.id">
                                                         ตรวจสอบ
                                                     </a>

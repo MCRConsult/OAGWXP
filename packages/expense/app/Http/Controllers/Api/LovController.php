@@ -26,6 +26,8 @@ use Packages\expense\app\Models\Tax;
 use Packages\expense\app\Models\WHT;
 use Packages\expense\app\Models\BankAccount;
 use Packages\expense\app\Models\COAListV;
+use Packages\expense\app\Models\GLBudgetProductV;
+use Packages\expense\app\Models\GLBudgetActivityV;
 use Packages\expense\app\Models\GLSubAccountV;
 
 class LovController extends Controller
@@ -377,7 +379,7 @@ class LovController extends Controller
     public function getTaxes(Request $request)
     {
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
-        $taxes = Tax::selectRaw('tax_id, tax, tax_precision')
+        $taxes = Tax::selectRaw('tax_rate_id, tax, tax_rate_code, percentage_rate')
                         ->when($keyword, function ($query, $keyword) {
                             return $query->where(function($r) use ($keyword) {
                                 $r->WhereRaw('UPPER(tax) like ?', [strtoupper($keyword).'%']);
@@ -392,7 +394,7 @@ class LovController extends Controller
     public function getWht(Request $request)
     {
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
-        $wht = WHT::selectRaw('tax_id, name, description, attribute2')
+        $wht = WHT::selectRaw('tax_id, name, description, tax_rates')
                         ->when($keyword, function ($query, $keyword) {
                             return $query->where(function($r) use ($keyword) {
                                 $r->WhereRaw('UPPER(name) like ?', [strtoupper($keyword).'%'])
@@ -444,10 +446,10 @@ class LovController extends Controller
             $flexValue = (new COAListV)->LOVResult($setName, $setValue, $text);
         }
         if ($setName == 'OAG_GL_BUDGET_PRODUCT') {
-            $flexValue = (new COAListV)->LOVResult($setName, $setValue, $text);
+            $flexValue = (new GLBudgetProductV)->LOVResult($setName, $parent, $setValue, $text);
         }
         if ($setName == 'OAG_GL_BUDGET_ACTIVITY') {
-            $flexValue = (new COAListV)->LOVResult($setName, $setValue, $text);
+            $flexValue = (new GLBudgetActivityV)->LOVResult($setName, $parent, $setValue, $text);
         }
         if ($setName == 'OAG_GL_BUDGET_TYPE') {
             $flexValue = (new COAListV)->LOVResult($setName, $setValue, $text);

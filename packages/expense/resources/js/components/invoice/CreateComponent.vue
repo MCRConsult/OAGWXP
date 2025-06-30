@@ -3,7 +3,7 @@
         <form id="create-form">
             <div class="col-md-12">
                 <div class="row">
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
                                 <strong> ข้อมูลต้นทาง </strong>
@@ -19,7 +19,7 @@
                             </el-select>
                         </div>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
                                 <strong> เลขที่เอกสารส่งเบิก </strong>
@@ -33,7 +33,7 @@
                             />
                         </div>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
                                 <strong> ประเภทการขอเบิก </strong>
@@ -48,7 +48,7 @@
                             </el-select>
                         </div>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
                                 <strong> สำนักงานผู้เบิกจ่าย </strong>
@@ -61,7 +61,9 @@
                             ></lovDocumentCategory>
                         </div>
                     </div>
-                    <div class="col-md-2">
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
                                 <strong> วันที่เอกสาร </strong>
@@ -78,7 +80,20 @@
                             <div id="el_explode_req_date" class="text-danger text-left"></div>
                         </div>
                     </div>
-                    <div class="col-md-2" align="right">
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ชื่อผู้สั่งจ่าย </strong>
+                            </label><br>
+                            <supplier
+                                :setData="search.supplier_id"
+                                :error="false"
+                                :editFlag="true"
+                                @setSupplier="setSupplier"
+                            ></supplier>
+                        </div>
+                    </div>
+                    <div class="col-md-6" align="right">
                         <p><br></p>
                         <button type="button" class="btn btn-primary btn-sm m-1" @click.prevent="getRequisition()">
                             ค้นหา
@@ -128,8 +143,10 @@
                                                 />
                                                 <h5 class="mb-1 d-inline">
                                                     <template v-if="header.source_type == 'REQUISITION'">
-                                                        <a :href="'/expense/requisition/'+header.id" target="_blank" style="color: black;">
-                                                            {{ header.req_number }} {{ header.description? ' : '+header.description: '' }}
+                                                        {{ header.req_number }} {{ header.description? ' : '+header.description: '' }}
+                                                        <a class="btn btn-check btn-sm" style="font-size: 10px; padding: 2px;" 
+                                                            :href="'/expense/requisition/'+header.id" target="_blank">
+                                                            ตรวจสอบ
                                                         </a>
                                                     </template>
                                                     <template v-else>
@@ -224,17 +241,18 @@
 </template>
 
 <script>
-    import moment from "moment";
-    import numeral from "numeral";
-    import Swal from 'sweetalert2';
-    import lovRequisition from "./lov/Requisition.vue";
-    import lovDocumentCategory from "../lov/DocumentCategory.vue";
-    import modalHoldComp from "./_ModalHoldComponent.vue";
-    import modalCancelComp from "./_ModalCancelComponent.vue";
+    import moment   from "moment";
+    import numeral  from "numeral";
+    import Swal     from 'sweetalert2';
+    import lovRequisition       from "./lov/Requisition.vue";
+    import lovDocumentCategory  from "../lov/DocumentCategory.vue";
+    import modalHoldComp        from "./_ModalHoldComponent.vue";
+    import modalCancelComp      from "./_ModalCancelComponent.vue";
+    import supplier             from "../lov/Supplier.vue";
 
     export default {
         components: {
-            lovRequisition, lovDocumentCategory, modalHoldComp, modalCancelComp
+            lovRequisition, lovDocumentCategory, modalHoldComp, modalCancelComp, supplier
         },
         props: ['invoiceTypes'],
         data() {
@@ -244,7 +262,7 @@
                     label: 'เอกสารส่งเบิก'
                 }, {
                     value: 'RECEIPT',
-                    label: 'ใบเสร็จรับเงิน'
+                    label: 'นำส่งรายได้แผ่นดิน'
                 }],
                 errors: {
                     invoice_type: false,
@@ -265,6 +283,7 @@
                     invoice_type: '',
                     req_date: '',
                     document_category: '',
+                    supplier: '',
                 },
                 loading: false,
                 currPage: 1,
@@ -298,6 +317,9 @@
             changeDateFormat() {
                 const formattedDate = moment(this.req_date_input, "YYYY-MM-DD").format("YYYY-MM-DD");
                 this.search.req_date = formattedDate;
+            },
+            setSupplier(res){
+                this.search.supplier = res.supplier;
             },
             setError(ref_name){
                 let ref =  this.$refs[ref_name].$refs.referenceRef
@@ -392,7 +414,8 @@
                     source_data: 'REQUISITION',
                     req_number: '',
                     invoice_type: '',
-                    req_date: ''
+                    req_date: '',
+                    supplier: ''
                 }
                 this.getRequisition();
             },

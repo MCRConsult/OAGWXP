@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 
 use Packages\expense\app\Models\POExpenseAccountRuleV;
 use Packages\expense\app\Models\GLPeriod;
-use Packages\expense\app\Models\GLAccountHierarchyV;
 
 class AccountController extends Controller
 {
@@ -87,19 +86,4 @@ class AccountController extends Controller
 
         return ['expense_account' => $concatenatedSegments];
     }
-
-    // public function getFund(Request $request)
-    // {
-    //     $orgId = auth()->user()->org_id;
-    //     $expAccount = $request['expense_account'];
-    //     // FIND FUND AVALIABLE
-    //     $budgetAvaliable = (new GLAccountHierarchyV)->findFund($orgId, $expAccount);
-    //     // GET SUMMARY ACCOUNT
-    //     $account = GLAccountHierarchyV::where('account_code', $expAccount)->first();
-    //     $budgetAccount = optional($account)->summary_account_code ?? $expAccount;
-    //     if ($budgetAvaliable == null) {
-    //         return ['budgetAccount' => $budgetAccount, 'budgetAvaliable' => $budgetAvaliable];
-    //     }
-    //     return ['budgetAccount' => $budgetAccount, 'budgetAvaliable' => $budgetAvaliable];
-    // }
 }

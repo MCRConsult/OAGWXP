@@ -16,9 +16,9 @@
             >
             <el-option
                 v-for="(row, index) in dataRows"
-                :key="row.tax_id"
-                :label="row.tax"
-                :value="row.tax"
+                :key="row.tax_rate_id"
+                :label="row.tax_rate_code"
+                :value="row.tax_rate_code"
             >
             </el-option>
         </el-select>
@@ -69,7 +69,7 @@ export default {
                 let tax_percent = 0;
                 res.data.data.filter((value) => {
                     if(value.tax == this.value){
-                        tax_percent = value.tax_precision;
+                        tax_percent = value.percentage_rate;
                     }
                 });
                 this.$emit('setTax', {tax_code: this.value, tax_percent: tax_percent});

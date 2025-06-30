@@ -89,8 +89,9 @@
                                 clearable
                                 format="DD-MM-YYYY"
                                 style="width: 100%;"
-                                @change="changeReqDateFormat"
+                                readonly
                             />
+                            <!-- @change="changeReqDateFormat" -->
                             <div id="el_explode_req_date" class="text-danger text-left"></div>
                         </div>
                     </div>
@@ -119,9 +120,18 @@
                     <div class="col-md-6">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
-                                <strong> คำอธิบาย </strong>
+                                <strong> คำอธิบาย <span class="text-danger"> *</span></strong>
                             </label><br>
-                            <el-input v-model="requisition.description" type="textarea" :rows="2" style="width: 100%;" placeholder="" maxlength="240" show-word-limit/>
+                            <el-input :style="errors.header_desc? 'border: 1px solid red; border-radius: 5px;': ''"
+                                v-model="requisition.description"
+                                type="textarea"
+                                :rows="2"
+                                style="width: 100%;"
+                                placeholder=""
+                                maxlength="240"
+                                show-word-limit
+                            />
+                            <div id="el_explode_header_desc" class="text-danger text-left"></div>
                         </div>
                     </div>
                 </div>
@@ -406,6 +416,7 @@
                     req_date: false,
                     payment_type: false,
                     supplier: false,
+                    header_desc: false,
                     supplier_detail: false,
                     supplier_bank: false,
                     cash_bank_account: false,
@@ -463,7 +474,6 @@
                 // SEGMENT
                 segment1: '', segment2: '', segment3: '', segment4: '', segment5: '', segment6: '',
                 segment7: '', segment8: '', segment9: '', segment10: '', segment11: '', segment12: '', segment13: '',
-                findFunds: {},
             };
         },
         mounted(){
@@ -678,7 +688,7 @@
                     errorMsg = "กรุณาเลือกประเภทค่าใช้จ่าย";
                     $(form).find("div[id='el_explode_expense_type']").html(errorMsg);
                 }
-                if (vm.reqLine.amount == '') {
+                if (vm.reqLine.amount == '' || vm.reqLine.amount == 0) {
                     vm.errors.amount = true;
                     valid = false;
                     errorMsg = "กรุณากรอกจำนวนเงิน";
@@ -1009,6 +1019,7 @@
                 vm.errors.req_date = false;
                 vm.errors.payment_type = false;
                 vm.errors.supplier = false;
+                vm.errors.header_desc = false;
                 vm.errors.supplier_detail = false;
                 vm.errors.supplier_bank = false;
                 vm.errors.budget_plan = false;
@@ -1021,6 +1032,7 @@
                 $(form).find("div[id='el_explode_req_date']").html("");
                 $(form).find("div[id='el_explode_payment_type']").html("");
                 $(form).find("div[id='el_explode_supplier']").html("");
+                $(form).find("div[id='el_explode_header_desc']").html("");
                 $(form).find("div[id='el_explode_supplier_detail']").html("");
                 $(form).find("div[id='el_explode_supplier_bank']").html("");
                 $(form).find("div[id='el_explode_cash_bank_account']").html("");
@@ -1072,6 +1084,12 @@
                     errorMsg = "กรุณาเลือกผู้สั่งจ่าย";
                     $(form).find("div[id='el_explode_supplier']").html(errorMsg);
                 }
+                if (vm.requisition.description == '') {
+                    vm.errors.header_desc = true;
+                    valid = false;
+                    errorMsg = "กรุณากรอกคำฮธิบาย";
+                    $(form).find("div[id='el_explode_header_desc']").html(errorMsg);
+                }
                 if (vm.linelists.length == 0) {
                     valid = false;
                     this.$notify({
@@ -1084,7 +1102,7 @@
                     return;
                 }
                 Swal.fire({
-                    title: "ยืนยันส่งเบิกเอกสาร",
+                    title: "ส่งเบิกเอกสาร",
                     html: "ต้องการ <b>ยืนยัน</b> ส่งเบิกเอกสารใช่หรือไม่?",
                     icon: "warning",
                     showCancelButton: true,

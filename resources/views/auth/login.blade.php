@@ -13,7 +13,6 @@
     body {
         background-color: #ef6c00 !important;
     }
-
 </style>
 @stop
 
@@ -48,9 +47,16 @@
                                     </div>
                                     <div class="form-group{{ $errors->has('username') ? ' has-error' : '' }}">
                                         <div class="col-md-12">
-                                            {{-- <input id="username" placeholder="ชื่อผู้ใช้งาน" type="text" class="form-control" name="username" value="{{ old('username') }}" required autofocus> --}}
                                             <input id="username" placeholder="ชื่อผู้ใช้งาน" type="text" class="form-control" name="username"
                                                 value="{{ old('username', \Cookie::get('remember_username')) }}" required autofocus>
+
+                                            {{-- <div class="input-group">
+                                                <span class="input-group-text"><i class="fa fa-user"></i></span>
+                                                <input id="username" placeholder="ชื่อผู้ใช้งาน" type="text" class="form-control" 
+                                                       name="username" value="{{ old('username', \Cookie::get('remember_username')) }}" 
+                                                       required autofocus>
+                                            </div> --}}
+
                                             @if ($errors->has('username'))
                                                 <span class="help-block">
                                                     <strong>{{ $errors->first('username') }}</strong>
@@ -61,17 +67,18 @@
                                     <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
                                         <div class="col-md-12">
                                             <input id="password" placeholder="รหัสผ่านผู้ใช้งาน" type="password" class="form-control" name="password" autocomplete="off" required value="{{ old('password', Cookie::get('remember_password') ? decrypt(Cookie::get('remember_password')) : '') }}">
-                                            {{-- value="{{ old('password', Cookie::get('remember_password') ? decrypt(Cookie::get('remember_password')) : '') }}" --}}
-                                            <i class="bi bi-eye-slash bi-xl"
+
+                                            <i class="fa fa-eye-slash"
                                                 id="togglePassword"
                                                 style="
-                                                    font-size: 1.8rem;
+                                                    /*font-size: 1.8rem;*/
                                                     float: right;
+                                                    padding-top: 7px;
                                                     margin-right: 15px;
                                                     margin-top: -30px;
                                                     position: relative;
                                                     z-index: 2;
-                                                    color: black;"
+                                                    color: #b2b6c1;"
                                                 ></i>
 
                                             @if ($errors->has('password'))
@@ -115,8 +122,18 @@
             const type = password.getAttribute("type") === "password" ? "text" : "password";
             password.setAttribute("type", type);
 
+            if (type === 'password') {
+                togglePassword.type = 'text';
+                togglePassword.classList.remove('fa-eye');
+                togglePassword.classList.add('fa-eye-slash');
+            } else {
+                togglePassword.type = 'password';
+                togglePassword.classList.remove('fa-eye-slash');
+                togglePassword.classList.add('fa-eye');
+            }
+
             // toggle the icon
-            this.classList.toggle("bi-eye");
+            // togglePassword.classList.add('fa-eye');
         });
     </script>
 @stop

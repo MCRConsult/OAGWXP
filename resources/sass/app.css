@@ -88,3 +88,27 @@ body {
     font-family: 'TH Sarabun', sans-serif !important;
     font-size: 13px !important;
 }
+
+.btn-check {
+  color: #fff;
+  background-color: #FF8A8A;
+  border-color: #FF8A8A;
+}
+
+.btn-check:hover {
+  color: #fff;
+  background-color: #DA6C6C;
+  border-color: #DA6C6C;
+}
+
+.btn-save {
+  color: #fff;
+  background-color: #85a947;
+  border-color: #85a947;
+}
+
+.btn-save:hover {
+  color: #fff;
+  background-color: #7b954d;
+  border-color: #7b954d;
+}

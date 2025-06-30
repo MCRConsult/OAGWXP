@@ -28,6 +28,7 @@ import ReInterfaceRequisitionComponent from '/packages/expense/resources/js/comp
 import HoldRequisitionComponent from '/packages/expense/resources/js/components/requisition/hold/HoldComponent.vue';
 // CLEAR REQUISITION
 import ClearRequisitionComponent from '/packages/expense/resources/js/components/requisition/clear/ClearComponent.vue';
+import ClearEditRequisitionComponent from '/packages/expense/resources/js/components/requisition/clear/edit/IndexComponent.vue';
 
 // INVOICE
 import InvoiceComponent from '/packages/expense/resources/js/components/invoice/IndexComponent.vue';
@@ -53,6 +54,7 @@ app.component('requisition-component', RequisitionComponent);
 app.component('requisition-create-component', CreateRequisitionComponent);
 app.component('requisition-hold-component', HoldRequisitionComponent);
 app.component('requisition-clear-component', ClearRequisitionComponent);
+app.component('requisition-clear-edit-component', ClearEditRequisitionComponent);
 app.component('requisition-reinterface-component', ReInterfaceRequisitionComponent);
 
 app.component('invoice-component', InvoiceComponent);

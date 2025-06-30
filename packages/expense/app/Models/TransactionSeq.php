@@ -15,7 +15,7 @@ class TransactionSeq extends Model
         $new_tran_id = '';
         try {
             \DB::beginTransaction();
-            $last_seq = self::firstOrCreate(['org_id'=> $orgId, 'name' => $name, 'year' => date('y', strtotime($year)), 'prefix' => $prefix]);
+            $last_seq = self::firstOrCreate(['org_id'=> $orgId, 'name' => $name, 'year' => $year, 'prefix' => $prefix]);
             $last_seq = self::lockForUpdate()->find($last_seq->id);
             $new_tran_id = (int)$last_seq->tran_id+1;
             $last_seq->tran_id = $new_tran_id;

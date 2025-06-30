@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 use App\Models\User;
+use Packages\expense\app\Models\GLPeriod;
 
 class RequisitionHeader extends Model
 {
@@ -28,7 +29,7 @@ class RequisitionHeader extends Model
 
     public function clear()
     {
-        return $this->hasOne(self::class, 'id', 'clear_reference_id');
+        return $this->hasOne(self::class, 'clear_reference_id', 'id');
     }
 
     public function invoice()
@@ -76,10 +77,11 @@ class RequisitionHeader extends Model
         return $query->where('created_by', $user->id);
     }
     
-
     public static function genDocumentNo($orgId, $prefix)
     {
-        $date = now()->addYear(543)->format('y');
+        $year = strtoupper(date('M-y'));
+        $period = GLPeriod::selectRaw("period_year+543 period_year")->where('period_name', $year)->first();
+        $date = date('y', strtotime($period->period_year));
         do {
             $runningTranId = \Packages\expense\app\Models\TransactionSeq::getTranID(
                 $orgId,
@@ -114,33 +116,16 @@ class RequisitionHeader extends Model
         $status = $this->status;
         $result = "";
         switch ($status) {
-            case "COMPLETED":
-                $result = "รอเบิกจ่าย";
-                break;
-            case "PENDING":
-                $result = "รอจัดสรร";
-                break;
-            case "HOLD":
-                $result = "รอตรวจสอบ";
-                break;
-            case "INTERFACED":
-                $result = "เบิกจ่ายแล้ว";
-                break;
-            case "ERROR":
-                $result = "เบิกจ่ายไม่สำเร็จ";
-                break;
-            case "REVERSED":
-                $result = "กลับรายการบัญชีแล้ว";
-                break;
-            case "UNREVERSED":
-                $result = "กลับรายการบัญชีไม่สำเร็จ";
-                break;
-            case "CANCELLED":
-                $result = "ยกเลิก";
-                break;
-            default:
-                $result = "รายการใหม่";
-                break;
+            case "COMPLETED": $result = "รอเบิกจ่าย"; break;
+            case "PENDING": $result = "รอจัดสรร"; break;
+            case "HOLD": $result = "รอตรวจสอบ"; break;
+            case "WAITING_CLEAR": $result = "รอเคลียร์เงินยืม"; break;
+            case "INTERFACED": $result = "ตั้งเบิก"; break;
+            case "ERROR": $result = "ตั้งเบิกไม่สำเร็จ"; break;
+            case "REVERSED": $result = "กลับรายการบัญชีแล้ว"; break;
+            case "UNREVERSED": $result = "กลับรายการบัญชีไม่สำเร็จ"; break;
+            case "CANCELLED": $result = "ยกเลิก"; break;
+            default: $result = "รายการใหม่"; break;
         }
         return $result;
     }
@@ -159,11 +144,14 @@ class RequisitionHeader extends Model
             case "HOLD":
                 $result = "<span class='badge badge-warning' style='padding: 5px; background-color: #fda668; color: fff;'> รอตรวจสอบ </span>";
                 break;
+            case "WAITING_CLEAR":
+                $result = "<span class='badge badge-warning' style='padding: 5px; background-color: #fda668; color: fff;'> รอเคลียร์เงินยืม </span>";
+                break;
             case "INTERFACED":
-                $result = "<span class='badge badge-primary' style='padding: 5px;'> เบิกจ่ายแล้ว </span>";
+                $result = "<span class='badge badge-primary' style='padding: 5px;'> ตั้งเบิก </span>";
                 break;
             case "ERROR":
-                $result = "<span class='badge badge-danger' style='padding: 5px; background-color: #e3302f; color: fff;'> เบิกจ่ายไม่สำเร็จ </span>";
+                $result = "<span class='badge badge-danger' style='padding: 5px; background-color: #e3302f; color: fff;'> ตั้งเบิกไม่สำเร็จ </span>";
                 break;
             case "REVERSED":
                 $result = "<span class='badge badge-primary' style='padding: 5px; background-color: #129990; color: fff;'> กลับรายการบัญชีแล้ว </span>";
@@ -188,14 +176,15 @@ class RequisitionHeader extends Model
 
     public function scopeSearch($q, $search)
     {
-        // dd($search);
-        $cols = ['req_number', 'invoice_type', 'status', 'payment_type'];
+        $cols = ['req_number', 'invoice_type', 'status', 'payment_type', 'document_category'];
         foreach ($search as $key => $value) {
             $value = trim($value);
             if ($value) {
                 if (in_array($key, $cols)) {
                     $q->where($key, 'like', "%$value%");
-                } else if ($key == 'req_date') {
+                }else if ($key == 'supplier') {
+                    $q->where('supplier_id', $value);
+                }else if ($key == 'req_date') {
                     $date = date('Y-m-d', strtotime($value));
                     $q->whereDate('req_date', $date);
                 }
@@ -218,7 +207,7 @@ class RequisitionHeader extends Model
         return $budget;
     }
 
-    public function interfaceGL($batch)
+    public function callInterfaceJournal($batch)
     {
         $db = \DB::connection('oracle')->getPdo();
         $sql = "

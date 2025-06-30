@@ -171,7 +171,7 @@
                             />
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-3" v-if="budgetSource.indexOf(header.budget_source)">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
                                 <strong> ใบโอนล้างถึงที่สุด (บอ.) </strong>
@@ -199,7 +199,16 @@
                             <label class="control-label">
                                 <strong> คำอธิบาย </strong>
                             </label><br>
-                            <el-input v-model="header.description" type="textarea" :rows="2" style="width: 100%;" placeholder="" maxlength="240" show-word-limit/>
+                            <el-input :style="errors.header_desc? 'border: 1px solid red; border-radius: 5px;': ''"
+                                v-model="header.description"
+                                type="textarea"
+                                :rows="2"
+                                style="width: 100%;"
+                                placeholder=""
+                                maxlength="240"
+                                show-word-limit
+                            />
+                            <div id="el_explode_header_desc" class="text-danger text-left"></div>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -280,9 +289,9 @@
                 </div>
                 <br>
                 <div align="center">
-                    <button type="button" class="btn btn-primary" @click.prevent="update('UPDATE')" style="color: #FFF;"> บันทึกรายการ </button>
+                    <button type="button" class="btn btn-save" @click.prevent="update('UPDATE')" style="color: #FFF;"> บันทึกรายการ </button>
                     <button type="button" class="btn btn-danger ml-1" @click.prevent="cancel()"> ยกเลิกรายการ </button>
-                    <button v-if="confirm_flag" type="button" class="btn btn-success ml-1" 
+                    <button v-if="confirm_flag" type="button" class="btn btn-primary ml-1" 
                         @click.prevent="interface('INTERFACE')">
                         ขอเบิก
                     </button>
@@ -316,11 +325,13 @@
         props: ['invoice', 'invoiceTypes', 'defaultSetName'],
         data() {
             return {
+                budgetSource: ['510'],
                 errors: {
                     invoice_date: false,
                     currency: false,
                     payment_method: false,
                     payment_term: false,
+                    header_desc: false,
                 },
                 loading: false,
                 header: this.invoice,
@@ -337,16 +348,6 @@
                     this.totalApplyAmount = accumulator + parseFloat(line.amount);
                     return accumulator + parseFloat(line.amount);
                 }, 0);
-            },
-        },
-        watch:{
-            errors: {
-                handler(val){
-                    // val.invoice_date? this.setError('invoice_date') : this.resetError('invoice_date');
-                    // val.payment_method? this.setError('payment_method') : this.resetError('payment_method');
-                    // val.payment_term? this.setError('payment_term') : this.resetError('payment_term');
-                },
-                deep: true,
             },
         },
         methods: {
@@ -535,10 +536,12 @@
                 vm.errors.currency = false;
                 vm.errors.invoice_date = false;
                 vm.errors.payment_term = false;
+                vm.errors.header_desc = false;
                 $(form).find("div[id='el_explode_invoice_date']").html(errorMsg);
                 $(form).find("div[id='el_explode_currency']").html(errorMsg);
                 $(form).find("div[id='el_explode_payment_method']").html(errorMsg);
                 $(form).find("div[id='el_explode_payment_term']").html(errorMsg);
+                $(form).find("div[id='el_explode_header_desc']").html(errorMsg);
                 if (vm.header.currency == '' || vm.header.currency == null) {
                     vm.errors.currency = true;
                     valid = false;
@@ -556,6 +559,12 @@
                     valid = false;
                     errorMsg = "กรุณาระบุเทอมการชำระเงิน";
                     $(form).find("div[id='el_explode_payment_term']").html(errorMsg);
+                }
+                if (vm.header.description == '' || vm.header.description == null) {
+                    vm.errors.header_desc = true;
+                    valid = false;
+                    errorMsg = "กรุณากรอกคำอธิบาย";
+                    $(form).find("div[id='el_explode_header_desc']").html(errorMsg);
                 }
                 if (vm.linelists.length == 0) {
                     valid = false;

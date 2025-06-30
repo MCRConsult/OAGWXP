@@ -104,7 +104,6 @@
                                     <label class="control-label">
                                         <strong> จำนวนเงิน <span class="text-danger"> * </span></strong>
                                     </label><br>
-                                    <!-- <el-input v-model="temp.amount" style="width: 100%;" placeholder="" ref="amount"/> -->
                                     <vue-numeric style="width: 100%;"
                                         name="amount"
                                         v-bind:minus="false"
@@ -112,10 +111,9 @@
                                         :min="-999999999"
                                         :max="999999999"
                                         class="form-control text-right"
-                                        v-model="temp.amount"
+                                        v-model="temp.actual_amount"
                                         ref="amount"
                                         autocomplete="off"
-                                        disabled
                                     ></vue-numeric>
                                     <div id="_el_explode_amount" class="text-danger text-left"></div>
                                 </div>
@@ -264,7 +262,7 @@
                         style="color: #fff; background-color: #01b471; border-color: #01b471;">
                         ตกลง
                     </button>
-                    <button type="button" class="btn btn-danger btn-sm" @click.private="cancel">
+                    <button type="button" class="btn btn-warning btn-sm" @click.private="cancel">
                         ยกเลิก
                     </button>
                 </div>
@@ -273,16 +271,16 @@
     </div>
 </template>
 <script>
-    import supplier         from "../../lov/Supplier.vue";
-    import supplierBank     from "../../lov/SupplierBank.vue";
-    import vehicleOilType   from "../../lov/vehicleOilType.vue";
-    import utilityType      from "../../lov/UtilityType.vue";
-    import utilityDetail    from "../../lov/UtilityDetail.vue";
-    import budgetPlan       from "../../lov/BudgetPlan.vue";
-    import budgetType       from "../../lov/BudgetType.vue";
-    import expenseType      from "../../lov/ExpenseType.vue";
-    import remainingReceipt from "../../lov/RemainingReceipt.vue";
-    import coaComponent     from '../InputCOAComponent.vue';
+    import supplier         from "../../../lov/Supplier.vue";
+    import supplierBank     from "../../../lov/SupplierBank.vue";
+    import vehicleOilType   from "../../../lov/vehicleOilType.vue";
+    import utilityType      from "../../../lov/UtilityType.vue";
+    import utilityDetail    from "../../../lov/UtilityDetail.vue";
+    import budgetPlan       from "../../../lov/BudgetPlan.vue";
+    import budgetType       from "../../../lov/BudgetType.vue";
+    import expenseType      from "../../../lov/ExpenseType.vue";
+    import remainingReceipt from "../../../lov/RemainingReceipt.vue";
+    import coaComponent     from '../../InputCOAComponent.vue';
 
     export default {
         components: {
@@ -353,43 +351,43 @@
                 $(form).find("div[id='_el_explode_amount']").html("");
                 $(form).find("div[id='_el_explode_remaining_receipt']").html("");
                 
-                if ((vm.line.supplier_id == '' || vm.line.supplier_id == undefined) && vm.requisition.multiple_supplier == 'MORE') {
+                if ((vm.temp.supplier_id == '' || vm.temp.supplier_id == undefined) && vm.requisition.multiple_supplier == 'MORE') {
                     vm.errors.supplier_detail = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกผู้สั่งจ่าย";
                     $(form).find("div[id='_el_explode_supplier_detail']").html(errorMsg);
                 }
-                if ((vm.line.bank_account_number == '' || vm.line.bank_account_number == undefined) && vm.requisition.multiple_supplier == 'MORE') {
+                if ((vm.temp.bank_account_number == '' || vm.temp.bank_account_number == undefined) && vm.requisition.multiple_supplier == 'MORE') {
                     vm.errors.supplier_bank = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกเลขที่บัญชีธนาคาร";
                     $(form).find("div[id='_el_explode_supplier_bank']").html(errorMsg);
                 }
-                if (vm.line.budget_plan == '' || vm.line.budget_plan == undefined) {
+                if (vm.temp.budget_plan == '' || vm.temp.budget_plan == undefined) {
                     vm.errors.budget_plan = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกแผนงาน";
                     $(form).find("div[id='_el_explode_budget_plan']").html(errorMsg);
                 }
-                if (vm.line.budget_type == '' || vm.line.budget_type == undefined) {
+                if (vm.temp.budget_type == '' || vm.temp.budget_type == undefined) {
                     vm.errors.budget_type = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกประเภทรายจ่าย";
                     $(form).find("div[id='_el_explode_budget_type']").html(errorMsg);
                 }
-                if (vm.line.expense_type == '' || vm.line.expense_type == undefined) {
+                if (vm.temp.expense_type == '' || vm.temp.expense_type == undefined) {
                     vm.errors.expense_type = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกประเภทค่าใช้จ่าย";
                     $(form).find("div[id='_el_explode_expense_type']").html(errorMsg);
                 }
-                if (vm.line.amount == '' || vm.line.amount == undefined) {
+                if (vm.temp.actual_amount == '' || vm.temp.actual_amount == 0 || vm.temp.actual_amount == undefined) {
                     vm.errors.amount = true;
                     valid = false;
                     errorMsg = "กรุณากรอกจำนวนเงิน";
                     $(form).find("div[id='_el_explode_amount']").html(errorMsg);
                 }
-                if (vm.line.remaining_receipt_flag == 'Y' && (vm.line.remaining_receipt_id == '' || vm.line.remaining_receipt_id == undefined)) {
+                if (vm.temp.remaining_receipt_flag == 'Y' && (vm.temp.remaining_receipt_id == '' || vm.temp.remaining_receipt_id == undefined)) {
                     vm.errors.remaining_receipt = true;
                     valid = false;
                     errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ";

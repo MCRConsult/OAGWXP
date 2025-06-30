@@ -150,7 +150,7 @@
                                         :max="999999999"
                                         class="form-control text-right"
                                         v-model="temp.tax_amount"
-                                        ref="amount"
+                                        ref="tax_amount"
                                         autocomplete="off"
                                     ></vue-numeric>
                                 </div>
@@ -181,7 +181,7 @@
                                         :max="999999999"
                                         class="form-control text-right"
                                         v-model="temp.wht_amount"
-                                        ref="amount"
+                                        ref="wht_amount"
                                         autocomplete="off"
                                     ></vue-numeric>
                                 </div>
@@ -448,7 +448,7 @@
                         style="color: #fff; background-color: #01b471; border-color: #01b471;">
                         ตกลง
                     </button>
-                    <button type="button" class="btn btn-warning btn-sm" @click.private="cancel">
+                    <button type="button" class="btn btn-danger btn-sm" @click.private="cancel">
                         ยกเลิก
                     </button>
                 </div>
@@ -581,7 +581,12 @@
                     errorMsg = "กรุณากรอกจำนวนเงิน";
                     $(form).find("div[id='_el_explode_amount']").html(errorMsg);
                 }
-
+                if (vm.temp.amount > vm.line.origin_amount) {
+                    vm.errors.amount = true;
+                    valid = false;
+                    errorMsg = "กรุณากรอกจำนวนเงินไม่เกินยอดขอเบิก";
+                    $(form).find("div[id='_el_explode_amount']").html(errorMsg);
+                }
                 if (vm.temp.remaining_receipt_flag == 'Y' && vm.temp.remaining_receipt_id == '') {
                     vm.errors.remaining_receipt = true;
                     valid = false;

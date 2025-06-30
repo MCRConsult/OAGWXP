@@ -16,7 +16,6 @@
                     <div class="col-md-2">
                         <h3 style="font-weight: bold;">
                             สกุลเงิน : THB
-                            <!-- สกุลเงิน : {{ requisition.invoice.currency }} -->
                         </h3>
                     </div>
                 </div>
@@ -125,7 +124,6 @@
     import moment   from "moment";
     import numeral  from "numeral";
     import Swal     from 'sweetalert2';
-    import {ElNotification} from 'element-plus';
     //========================================================
     import listComp  from "./ListComponent.vue";
 
@@ -205,8 +203,8 @@
                     return;
                 }
                 Swal.fire({
-                    title: "ยืนยันส่งเบิกเอกสาร",
-                    html: "ต้องการ <b>ยืนยัน</b> ส่งเบิกเอกสารใช่หรือไม่?",
+                    title: "บันทึกเอกสารเคลียร์เงินยืม",
+                    html: "ต้องการ <b>ยืนยัน</b> บันทึกเอกสารเคลียร์เงินยืมใช่หรือไม่?",
                     icon: "warning",
                     showCancelButton: true,
                     confirmButtonColor: "#3085d6",
@@ -223,7 +221,7 @@
             async importData(){
                 var vm = this;
                 Swal.fire({
-                    title: 'ระบบกำลังส่งเบิกเอกสาร',
+                    title: 'ระบบกำลังบันทึกเอกสารเคลียร์เงินยืม',
                     type: "success",
                     showConfirmButton: false,
                     allowOutsideClick: false
@@ -233,7 +231,7 @@
                     header: this.header,
                     lines: this.linelists,
                     totalApply: this.totalActualApply,
-                    refRequisition: this.requisition.id,
+                    refRequisition: this.requisition.id
                 })
                 .then(function (res) {
                     if (res.data.message) {
@@ -248,8 +246,8 @@
                         });
                     } else {
                         Swal.fire({
-                            title: "ส่งเบิกเอกสาร",
-                            html: "ส่งเบิกเอกสารเรียบร้อยแล้ว",
+                            title: "บันทึกเอกสารเคลียร์เงินยืม",
+                            html: "บันทึกเอกสารเคลียร์เงินยืมเรียบร้อยแล้ว",
                             icon: "success",
                             showCancelButton: false,
                             confirmButtonColor: "#3085d6",

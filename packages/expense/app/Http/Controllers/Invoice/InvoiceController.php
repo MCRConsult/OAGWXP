@@ -238,6 +238,7 @@ class InvoiceController extends Controller
                     $lineTemp->amount                       = $requisition->amount;
                     $lineTemp->description                  = $requisition->description;
                     $lineTemp->reference_req_number         = $requisition->req_number;
+                    $lineTemp->origin_amount                = $requisition->amount;
                     $lineTemp->save();
                 }else{
                     foreach ($requisition->lines as $key => $line) {
@@ -269,6 +270,7 @@ class InvoiceController extends Controller
                         $lineTemp->remaining_receipt_id     = $line->remaining_receipt_id;
                         $lineTemp->remaining_receipt_number = $line->remaining_receipt_number;
                         $lineTemp->reference_req_number     = $requisition->req_number;
+                        $lineTemp->origin_amount            = $header->clear_flag == 'Y'? $line->actual_amount: $line->amount;
                         $lineTemp->save();
 
                         $requistionLine = RequisitionLine::where('req_header_id', $requisition->id)
@@ -385,9 +387,9 @@ class InvoiceController extends Controller
                             , 'remaining_receipt_number' => $line['remaining_receipt_number']
                             , 'ar_receipt_id'            => $line['ar_receipt_id']
                             , 'ar_receipt_number'        => $line['ar_receipt_number']
-                            , 'tax_code'                 => $line['tax_code']
+                            , 'tax_code'                 => isset($line['tax_code'])? $line['tax_code']: ''
                             , 'tax_amount'               => $line['tax_amount']
-                            , 'wht_code'                 => $line['wht_code']
+                            , 'wht_code'                 => isset($line['wht_code'])? $line['wht_code']: ''
                             , 'wht_amount'               => $line['wht_amount']
                         ]);
                 \DB::commit();
@@ -423,8 +425,13 @@ class InvoiceController extends Controller
                 }
                 // INTERFACE TO AP INVOICE
                 if ($invoice->invoice_type == 'STANDARD' && $invoice->source_type == 'REQUISITION') {
-                    $resultInf = $this->interface($invoiceId);
+                    $resultInf = $this->interfaceAPInvoice($invoiceId);
                     if ($resultInf['status'] == 'S') {
+                        RequisitionHeader::where('invoice_reference_id', $invoiceId)
+                                            ->update([
+                                                'status' => 'INTERFACED'
+                                            ]);
+                        \DB::commit();
                         // UNRESERV BUDGET INVOICE => TYPE IS STANDARD
                         if ($invoice->encumbrance_flag == 'Y') {
                             $result = (new BudgetInterfaceRepo)->unreserveBudgetINV($invoice, $user);
@@ -456,10 +463,14 @@ class InvoiceController extends Controller
                         return response()->json($data);
                     }
                 }else{
-                    $resultInf = $this->interface($invoiceId);
+                    $resultInf = $this->interfaceAPInvoice($invoiceId);
                     if ($resultInf['status'] == 'S') {
                         $invoice->status    = 'INTERFACED';
                         $invoice->save();
+                        RequisitionHeader::where('invoice_reference_id', $invoiceId)
+                                            ->update([
+                                                'status' => 'INTERFACED'
+                                            ]);
                     }else{
                         $invoice->status        = 'ERROR';
                         $invoice->error_message = $resultInf['message'];
@@ -471,6 +482,7 @@ class InvoiceController extends Controller
                     ];
                 }
             }
+            \DB::commit();
             $data = [
                 'status' => 'SUCCESS',
                 'message' => ''
@@ -531,10 +543,11 @@ class InvoiceController extends Controller
         return response()->json($data);
     }
 
-    public function interface($invoiceId)
+    public function interfaceAPInvoice($invoiceId)
     {
         $invoice = InvoiceHeader::findOrFail($invoiceId);
-        $result = (new InvoiceInterfaceRepo)->insertInterface($invoice);
+        logger('LOG Insert Inv==========='.date('Y-m-d H:i:s'));
+        $result = (new InvoiceInterfaceRepo)->insertInterfaceAPInvoice($invoice);
         
         return $result;
     }
@@ -547,7 +560,7 @@ class InvoiceController extends Controller
             $infIvoice =  InvoiceInterfaceHeader::where('invoice_num', $invoice->invoice_number)
                                             ->whereNull('voucher_num')
                                             ->first();
-            $resultInf = (new InvoiceHeader)->interfaceAP($infIvoice->web_batch_no);
+            $resultInf = (new InvoiceHeader)->callInterfaceAPInvoice($infIvoice->web_batch_no);
             if ($resultInf['status'] == 'S') {
                 $invoice->status  = 'INTERFACED';
                 $invoice->save();

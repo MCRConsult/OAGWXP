@@ -85,7 +85,7 @@ class MappingAutoInvoiceV extends Model
 
     public function mappingExpenseAccount($header, $expeseType)
     {
-        $docCate = explode('-', $header->document_category);
+        $docCate = explode('_', $header->document_category);
         $user = auth()->user();
         $employee = $user->hrEmployee;
         $expenseRules = POExpenseAccountRuleV::where('item_category', $expeseType)

@@ -131,9 +131,9 @@
                             <tbody>
                                 <template v-for="invoice in invoices">
                                     <tr>
-                                        <td class="text-center text-nowrap" style="vertical-align: middle;">
+                                        <td class="text-left text-nowrap" style="vertical-align: middle;">
                                             {{ invoice.voucher_number }}
-                                            <div class="text-left small">
+                                            <div class="text-left small mt-1">
                                                 <strong>  เลขที่ใบกำกับ : {{ invoice.invoice_number }} </strong>
                                             </div>
                                         </td>
@@ -165,13 +165,13 @@
                                                 <template v-if="invoice.status == 'CANCELLED'
                                                     || invoice.status == 'INTERFACED'
                                                     || invoice.status == 'ERROR'">
-                                                    <a class="btn btn-sm btn-secondary mr-1"
+                                                    <a class="btn btn-sm btn-check mr-1"
                                                         :href="'/expense/invoice/'+invoice.id">
                                                         ตรวจสอบ
                                                     </a>
                                                 </template>
                                                 <template v-else>
-                                                    <a class="btn btn-sm btn-secondary mr-1"
+                                                    <a class="btn btn-sm btn-check mr-1"
                                                         :href="'/expense/invoice/'+invoice.id+'/edit'">
                                                         ตรวจสอบ
                                                     </a>

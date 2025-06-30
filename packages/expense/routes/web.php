@@ -57,6 +57,7 @@ Route::group(['middleware' => ['web', 'auth']], function () {
                 Route::get('/create', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@create')->name('create');
                 Route::post('/', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@store')->name('store');
                 Route::get('/{req_id}', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@show')->name('show');
+                // Route::get('/{req_id}/edit', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@edit')->name('edit');
                 Route::get('/{req_id}/hold', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@hold')->name('hold');
                 Route::post('/{req_id}/update', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@update')->name('update');
                 Route::post('use-ar-receipt', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@useARReceipt');
@@ -64,7 +65,10 @@ Route::group(['middleware' => ['web', 'auth']], function () {
                 Route::post('remove-ar-receipt', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@removeARReceipt');
                 // CLEAR REQUISITION
                 Route::get('/{req_id}/clear', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@clear')->name('clear');
-                // REINTERFACE REQUISITION
+                Route::get('/{req_id}/clear-edit', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@clearEdit')->name('clear-edit');
+                Route::get('/{req_id}/submit-clearing', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@submitClearing')->name('submit-clearing');
+
+                // REINTERFACE REQUISITION FROM INVOICE
                 Route::get('/{req_id}/req-resubmit', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@reSubmitRequisition')->name('req-resubmit');
                 // RESUBMIT GL INTERFACE
                 Route::get('/{req_id}/journal-resubmit', '\Packages\expense\app\Http\Controllers\Requisition\RequisitionController@reSubmitJournal')->name('journal-resubmit');
