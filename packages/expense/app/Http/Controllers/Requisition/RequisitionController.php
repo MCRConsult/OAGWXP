@@ -273,11 +273,12 @@ class RequisitionController extends Controller
             }
             $requisition->save();
 
-            RequisitionLine::where('req_header_id', $reqId)->delete();
+            if ($requisition->status == 'WAITING_CLEAR') {
+                RequisitionLine::where('req_header_id', $reqId)->where('split_flag', 'Y')->delete();
+            }
             foreach ($lines as $key => $line) {
-                if (is_null($line['split_flag'])) {
-                    $lineTemp                           = new RequisitionLine;
-                    $lineTemp->req_header_id            = $reqId;
+                if (is_null($line['split_flag']) || $requisition->status != 'WAITING_CLEAR') {
+                    $lineTemp = RequisitionLine::FindOrfail($line['id']);
                     $lineTemp->seq_number               = $key+1;
                     $lineTemp->supplier_id              = $line['supplier_id'];
                     $lineTemp->supplier_name            = $line['supplier_name'];
@@ -310,7 +311,7 @@ class RequisitionController extends Controller
                 }
             }
             // UPDATE CLEAR FIRST TIME ONLY
-            if ($header['clear_flag'] == 'Y') {
+            if ($header['clear_flag'] == 'Y' && $requisition->status == 'WAITING_CLEAR') {
                 $this->handleClearingBalance($reqId, $requisition, $lines);
             }
             \DB::commit();
@@ -349,7 +350,7 @@ class RequisitionController extends Controller
                         ->where('category_concat_segs', $budgetType->attribute3)
                         ->first();
                 // SET EXPENSE ACCOUNT
-                $expAccount = (new MappingAutoInvoiceV)->mappingExpenseAccount($header, $expense_category);
+                $expAccount = (new MappingAutoInvoiceV)->mappingClearingAccount($header, $expense_category);
                 // INSERT NEW LINE : คืนเงินทดรอง เมื่อยอดไม่เท่ากับยอดตั้งต้น
                 $lineTemp                          = new RequisitionLine;
                 $lineTemp->req_header_id            = $reqId;
@@ -712,8 +713,10 @@ class RequisitionController extends Controller
             $headerTemp->reference_number           = $header['reference_number'];
             $headerTemp->seq_number                 = $request->seq+1;
             $headerTemp->remaining_receipt_flag     = $line['remaining_receipt_flag']? 'Y': 'N';
+            $headerTemp->remaining_receipt_id       = $line['remaining_receipt_id'];
             $headerTemp->remaining_receipt_number   = $this->getRemainingRceipt($line['remaining_receipt_id']);
             $headerTemp->amount                     = $line['amount'];
+            $headerTemp->expense_account            = $line['expense_account'];
             $headerTemp->created_by                 = $user->id;
             $headerTemp->updated_by                 = $user->id;
             $headerTemp->creation_by                = $user->person_id;
@@ -742,6 +745,7 @@ class RequisitionController extends Controller
         \DB::beginTransaction();
         try {
             RequisitionReceiptTemp::where('reference_number', $header['reference_number'])
+                                ->where('remaining_receipt_id', $line['remaining_receipt_id'])
                                 ->where('remaining_receipt_number', $this->getRemainingRceipt($line['remaining_receipt_id']))
                                 ->where('seq_number', $request->index+1)
                                 ->update([
@@ -771,6 +775,7 @@ class RequisitionController extends Controller
         \DB::beginTransaction();
         try {
             $receiptTemp = RequisitionReceiptTemp::where('reference_number', $header['reference_number'])
+                                            ->where('remaining_receipt_id', $line['remaining_receipt_id'])
                                             ->where('remaining_receipt_number', $this->getRemainingRceipt($line['remaining_receipt_id']))
                                             ->where('seq_number', $request->index+1)
                                             ->delete();

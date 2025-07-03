@@ -21,12 +21,13 @@ Route::group(['middleware' => ['web', 'auth']], function () {
                 Route::get('/get-budget-plan', '\Packages\expense\app\Http\Controllers\Api\LovController@getBudgetPlan');
                 Route::get('/get-budget-type', '\Packages\expense\app\Http\Controllers\Api\LovController@getBudgetType');
                 Route::get('/get-expense-type', '\Packages\expense\app\Http\Controllers\Api\LovController@getExpenseType');
-                Route::get('/get-remaining-receipt', '\Packages\expense\app\Http\Controllers\Api\LovController@getRemainingReceipt');
                 Route::get('/get-receipt', '\Packages\expense\app\Http\Controllers\Api\LovController@getReceipt');
                 Route::get('/get-taxes', '\Packages\expense\app\Http\Controllers\Api\LovController@getTaxes');
                 Route::get('/get-wht', '\Packages\expense\app\Http\Controllers\Api\LovController@getWht');
                 Route::get('/get-bank-account', '\Packages\expense\app\Http\Controllers\Api\LovController@getBankAccount');
                 Route::get('/get-expense-account', '\Packages\expense\app\Http\Controllers\Api\LovController@getExpenseAccount');
+                Route::get('/get-remaining-receipt', '\Packages\expense\app\Http\Controllers\Api\LovController@getRemainingReceipt');
+                Route::get('/get-receipt-account', '\Packages\expense\app\Http\Controllers\Api\LovController@getReceiptAccount');
                 
                 Route::prefix('requisition')->namespace('Requisition')->name('requisition.')->group(function() {
                     Route::post('/fetch-render-page', '\Packages\expense\app\Http\Controllers\Api\RequisitionController@fetchRequisitionRenderPage');

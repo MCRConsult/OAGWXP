@@ -123,7 +123,7 @@
                                         <el-input v-model="line.receipt_number" style="width: 100%;" placeholder=""/>
                                     </div>
                                 </div>
-                                <div v-if="line.remaining_receipt_flag == 'Y'" class="col-md-3">
+                                <!-- <div v-if="line.remaining_receipt_flag == 'Y'" class="col-md-3">
                                     <div class="form-group" style="padding: 5px;">
                                         <label class="control-label">
                                             <strong> เลขที่ใบเสร็จรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
@@ -136,7 +136,7 @@
                                         ></remainingReceipt>
                                         <div v-if="error.remaining_receipt" class="text-danger text-left"> กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ </div>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                         </form>
                     </div>

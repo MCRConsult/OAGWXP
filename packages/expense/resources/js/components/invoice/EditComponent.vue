@@ -260,6 +260,7 @@
                                 :key="index"
                                 :index="index"
                                 :attribute="row"
+                                :header="header"
                                 :defaultSetName="defaultSetName"
                                 @updateRow="updateRow"
                                 @copyRow="copyRow"

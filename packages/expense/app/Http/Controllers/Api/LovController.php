@@ -18,9 +18,10 @@ use Packages\expense\app\Models\Currency;
 use Packages\expense\app\Models\FlexValueV;
 use Packages\expense\app\Models\LookupV;
 use Packages\expense\app\Models\MTLCategoriesV;
-use Packages\expense\app\Models\ARBudgetReceiptV;
 use Packages\expense\app\Models\PaymentMethod;
 use Packages\expense\app\Models\PaymentTerm;
+use Packages\expense\app\Models\ARBudgetReceiptV;
+use Packages\expense\app\Models\ARReceiptAccountV;
 use Packages\expense\app\Models\ARReceiptNumberAllV;
 use Packages\expense\app\Models\Tax;
 use Packages\expense\app\Models\WHT;
@@ -312,7 +313,7 @@ class LovController extends Controller
     public function getRemainingReceipt(Request $request)
     {
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
-        $budgetSource = ARBudgetReceiptV::where('remaining_amount', '>', 0)
+        $remainingReceipt = ARBudgetReceiptV::where('remaining_amount', '>', 0)
                         ->when($keyword, function ($query, $keyword) {
                             return $query->where(function($r) use ($keyword) {
                                 $r->whereRaw('UPPER(receipt_number) like ?', ['%'.strtoupper($keyword).'%']);
@@ -321,7 +322,26 @@ class LovController extends Controller
                         ->orderBy('receipt_number')
                         ->get();
 
-        return response()->json(['data' => $budgetSource]);
+        return response()->json(['data' => $remainingReceipt]);
+    }
+
+    public function getReceiptAccount(Request $request)
+    {
+        $receiptId = $request->parent;
+        $keyword = isset($request->keyword)? $request->keyword: '';
+        $receiptAccount = ARReceiptAccountV::where('amount', '>', 0)
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->where('account_code', $keyword);
+                            });
+                        })
+                        ->when($receiptId, function ($query, $receiptId) {
+                            return $query->where('cash_receipt_id', $receiptId);
+                        })
+                        ->orderBy('code_combination_id')
+                        ->get();
+
+        return response()->json(['data' => $receiptAccount]);
     }
 
     public function getPaymentMethod(Request $request)

@@ -223,6 +223,37 @@
                         </div>
                     </div>
                 </div>
+                <div class="row" v-if="reqLine.remaining_receipt_flag == 'Y'">
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> เลขที่ใบเสร็จรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
+                            </label><br>
+                            <remainingReceipt
+                                :setData="reqLine.remaining_receipt_id"
+                                :editFlag="true"
+                                :error="errors.remaining_receipt"
+                                @setRemainingReceipt="setRemainingReceipt"
+                            ></remainingReceipt>
+                            <div id="el_explode_remaining_receipt" class="text-danger text-left"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> รายการบัญชีรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
+                            </label><br>
+                            <receiptAccount
+                                :parent="reqLine.remaining_receipt_id"
+                                :setData="reqLine.receipt_account"
+                                :editFlag="true"
+                                :error="errors.receipt_account"
+                                @setReceiptAccount="setReceiptAccount"
+                            ></receiptAccount>
+                            <div id="el_explode_receipt_account" class="text-danger text-left"></div>
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group" style="padding: 5px;">
@@ -396,13 +427,15 @@
     import budgetType       from "../lov/BudgetType.vue";
     import expenseType      from "../lov/ExpenseType.vue";
     import bankAccount      from "../lov/BankAccount.vue";
+    import remainingReceipt from "../lov/RemainingReceipt.vue";
+    import receiptAccount   from "../lov/ReceiptAccount.vue";
     import detailComp       from "./DetailComponent.vue";
     import listComp         from "./ListComponent.vue";
     import modalAccountComp from "./_ModalAccountComponent.vue";
 
     export default {
         components: {
-            budgetSource, documentCategory, paymentType, supplier, supplierBank, budgetPlan, budgetType, expenseType, bankAccount, detailComp, listComp, modalAccountComp
+            budgetSource, documentCategory, paymentType, supplier, supplierBank, budgetPlan, budgetType, expenseType, bankAccount, detailComp, listComp, modalAccountComp, remainingReceipt, receiptAccount
         },
         props: ['user', 'referenceNo', 'invoiceTypes', 'defaultSetName', 'defaultSupplier'],
         data() {
@@ -468,6 +501,8 @@
                     receipt_date: '',
                     remaining_receipt_flag: 'N',
                     remaining_receipt_id: '',
+                    receipt_account: '',
+                    receipt_amount: '',
                 },
                 loading: false,
                 linelists: [],
@@ -584,6 +619,13 @@
             },
             setRemainingReceipt(res){
                 this.reqLine.remaining_receipt_id = res.remaining_receipt;
+                this.reqLine.receipt_amount = res.receipt_amount;
+            },
+            setReceiptAccount(res){
+                this.reqLine.receipt_account = res.receipt_account;
+                this.reqLine.expense_account = res.receipt_account;
+                this.reqLine.receipt_amount = res.receipt_amount;
+                this.extractAccount();
             },
             changeSupplierType(){
                 this.resetValues();
@@ -603,7 +645,7 @@
             },
             async getExpenseAccount(){
                 var vm = this;
-                if(vm.reqLine.expense_type != '' || vm.reqLine.expense_type != undefined){
+                if(vm.reqLine.remaining_receipt_flag == 'N' && (vm.reqLine.expense_type != '' || vm.reqLine.expense_type != undefined)){
                     axios.post('/expense/api/requisition/get-expense-account', {
                         header: vm.requisition,
                         line: vm.reqLine,
@@ -697,12 +739,20 @@
                 if (vm.reqLine.remaining_receipt_flag == 'Y' && vm.reqLine.remaining_receipt_id == '') {
                     vm.errors.remaining_receipt = true;
                     valid = false;
-                    errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ ระดับรายละเอียดเพิ่มเติม";
-                    ElNotification({
-                        title: 'ข้อผิดผลาด',
-                        message: errorMsg,
-                        type: 'error',
-                    });
+                    errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ";
+                    $(form).find("div[id='el_explode_remaining_receipt']").html(errorMsg);
+                }
+                if (vm.reqLine.remaining_receipt_flag == 'Y' && vm.reqLine.receipt_account == '') {
+                    vm.errors.receipt_account = true;
+                    valid = false;
+                    errorMsg = "กรุณาเลือกรายการบัญชีรับเงินคงเหลือ";
+                    $(form).find("div[id='el_explode_receipt_account']").html(errorMsg);
+                }
+                if (vm.reqLine.amount > vm.reqLine.receipt_amount) {
+                    vm.errors.amount = true;
+                    valid = false;
+                    errorMsg = "จำนวนเงินที่ระบุ เกินกว่า งบประมาณที่มี";
+                    $(form).find("div[id='el_explode_amount']").html(errorMsg);
                 }
                 if ((vm.segment6 == '' || vm.segment6 == undefined) || (vm.segment7 == '' || vm.segment7 == undefined) || (vm.segment9 == '' || vm.segment9 == undefined) || (vm.segment10 == '' || vm.segment10 == undefined) || (vm.segment11 == '' || vm.segment11 == undefined)) {
                     vm.errors.expense_account = true;
@@ -758,7 +808,8 @@
                                 receipt_number: '',
                                 receipt_date: '',
                                 remaining_receipt_flag: this.budgetSource.indexOf(this.requisition.budget_source) !== -1? 'Y': 'N',
-                                remaining_receipt_id: ''
+                                remaining_receipt_id: '',
+                                receipt_account: ''
                             };
                             Object.assign(this.reqLine, defaultLine);
                         }
@@ -801,7 +852,8 @@
                         receipt_number: '',
                         receipt_date: '',
                         remaining_receipt_flag: this.budgetSource.indexOf(this.requisition.budget_source) !== -1? 'Y': 'N',
-                        remaining_receipt_id: ''
+                        remaining_receipt_id: '',
+                        receipt_account: ''
                     };
                     Object.assign(this.reqLine, defaultLine);
                 }

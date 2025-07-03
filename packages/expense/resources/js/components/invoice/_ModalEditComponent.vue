@@ -188,7 +188,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-3" v-if="sourceDefault.indexOf(segment4) !== -1">
+                            <div class="col-md-3" v-if="budgetSource.indexOf(header.budget_source) !== -1">
                                 <div class="form-group text-left" style="padding: 5px;">
                                     <label class="control-label">
                                         <strong> เลขที่ใบเสร็จรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
@@ -473,11 +473,11 @@
         components: {
             coaComponent, supplier, supplierBank, budgetPlan, budgetType, expenseType, arReceipt, tax, wht, remainingReceipt
         },
-        props: ['index', 'invoiceLine', 'defaultSetName'],
+        props: ['index', 'invoiceLine', 'defaultSetName', 'header'],
         emits: ['updateRow'],
         data() {
             return {
-                sourceDefault: ['500', '510', '520', '530', '540', '550'],
+                budgetSource: ['510'],
                 line: this.invoiceLine,
                 temp: {},
                 loading: false,

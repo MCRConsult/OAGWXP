@@ -24,6 +24,7 @@
                     :index="index"
                     :invoiceLine="line"
                     :defaultSetName="defaultSetName"
+                    :header="header"
                     @updateRow="updateRow"
                 />
                 <!-- <button type="button" @click.prevent="copy(index)" class="btn btn-sm btn-primary m-1" style="">
@@ -45,7 +46,7 @@
         components: {
             modalEditComp
         },
-        props: ['index', 'attribute', 'defaultSetName'],
+        props: ['index', 'attribute', 'defaultSetName', 'header'],
         emits: ['updateRow', 'copyRow', 'removeRow'],
         data() {
             return {

@@ -1,24 +1,20 @@
 <template>
     <div class="el_select">
         <el-select v-model="value"
-                name="receipt"
+                name="receipt_account"
                 placeholder=""
                 :remote-method="getDataRows"
                 :loading="loading"
-                remote
-                clearable
-                filterable
                 remote-show-suffix
                 style="width: 100%"
                 ref="input"
-                :disabled="!editFlag"
                 @change="getDataRows"
             >
             <el-option
                 v-for="(row, index) in dataRows"
-                :key="row.cash_receipt_id"
-                :label="row.receipt_number"
-                :value="row.cash_receipt_id"
+                :key="row.code_combination_id+'_'+row.cash_receipt_id"
+                :label="row.account_code"
+                :value="row.account_code"
             >
             </el-option>
         </el-select>
@@ -28,7 +24,7 @@
 <script>
 export default {
     props: [
-       'setData', 'error', 'editFlag'
+       'parent', 'setData', 'error', 'editFlag'
     ],
     data () {
         return {
@@ -38,14 +34,21 @@ export default {
         }
     },
     mounted() {
-        this.loading = true;
-        this.value = this.setData;
-        this.getDataRows(this.value);
+        // this.loading = true;
+        // this.value = this.setData;
+        // this.getDataRows(this.value);
     },
     watch: {
         setData() {
             this.value = this.setData;
             this.getDataRows(this.value);
+        },
+        parent() {
+            this.value = '';
+            this.dataRows = [];
+            if(this.parent){
+                this.getDataRows(this.value);
+            }
         },
         error() {
             let ref = this.$refs['input'].$refs.wrapperRef;
@@ -58,23 +61,22 @@ export default {
     methods: {
         getDataRows (query) {
             this.loading = true;
-            axios.get(`/expense/api/get-receipt`, {
+            axios.get(`/expense/api/get-receipt-account`, {
                 params: {
+                    parent: this.parent,
                     keyword: query
                 }
             })
             .then(res => {
                 this.loading = false;
                 this.dataRows = res.data.data;
-                let receipt_number = '';
                 let receipt_amount = '';
                 res.data.data.filter((value) => {
-                    if(value.cash_receipt_id == this.value){
-                        receipt_number = value.receipt_number;
+                    if(value.account_code == this.value){
                         receipt_amount = value.amount;
                     }
                 });
-                this.$emit('setArReceipt', {receipt: this.value, receipt_number: receipt_number, receipt_amount: receipt_amount});
+                this.$emit('setReceiptAccount', {receipt_account: this.value, receipt_amount: receipt_amount});
             })
             .catch((error) => {
                 console.log('มีข้อผิดพลาด', error, 'error');
