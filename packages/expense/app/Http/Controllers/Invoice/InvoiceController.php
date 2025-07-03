@@ -514,7 +514,6 @@ class InvoiceController extends Controller
                             , 'updated_by'  => $user->id
                             , 'updation_by' => $user->person_id
                         ]);
-
             // UPDATE REQUISITION
             $requisition = RequisitionHeader::where('invoice_reference_id', $invoiceId)->get()->pluck('id')->toArray();
             RequisitionHeader::where('invoice_reference_id', $invoiceId)
