@@ -1,7 +1,13 @@
 <template>
     <div v-loading="loading">
         <form id="edit-form">
-            <div class="col-md-12">
+            <el-alert :title="'สาเหตุการตรวจสอบ : '+(header.hold_reason == ''|| header.hold_reason == null? '': header.hold_reason)"
+                type="error" show-icon :closable="false">
+                <template #icon>
+                    <i class="fa fa-bell"></i>
+                </template>                
+            </el-alert>
+            <div class="col-md-12 mt-2">
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group" style="padding: 5px;">
@@ -89,7 +95,7 @@
                                 clearable
                                 format="DD-MM-YYYY"
                                 style="width: 100%;"
-                                readonly
+                                disabled
                             />
                             <!-- v-model="header.req_date"
                             @change="changeReqDateFormat" -->
@@ -309,6 +315,7 @@
             };
         },
         mounted(){
+            this.changeReqDateFormat();
         },
         computed: {
             totalApply() {
@@ -334,7 +341,7 @@
                 return numeral(value).format("0,0.00");
             },
             changeReqDateFormat() {
-                const formattedDate = moment(this.header.req_date, "YYYY-MM-DD").format("YYYY-MM-DD");
+                const formattedDate = moment(this.req_date, "YYYY-MM-DD").format("YYYY-MM-DD");
                 this.header.req_date = formattedDate;
             },
             setError(ref_name){

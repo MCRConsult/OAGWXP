@@ -10,11 +10,11 @@
 @endsection
 
 @section('content')
-    @if ($invoice->status == 'ERROR')
+    {{-- @if ($invoice->status == 'ERROR')
         <div class="alert alert-danger background-danger mt-2">
             <strong>{{ $invoice->error_message }}</strong>
         </div>
-    @endif
+    @endif --}}
 
 <div class="card">
     <div class="card-header">
@@ -28,7 +28,12 @@
 
     <div class="card-body">
         <div class="ibox float-e-margins">
-            <div class="col-md-12">
+            <el-alert title="ข้อผิดพลาด : {{ $invoice->error_message }}" type="error" show-icon :closable="false">
+                <template #icon>
+                    <i class="fa fa-bell"></i>
+                </template>                
+            </el-alert>
+            <div class="col-md-12 mt-2">
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group" style="padding: 5px;">

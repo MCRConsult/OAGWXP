@@ -509,11 +509,11 @@ class InvoiceController extends Controller
         \DB::beginTransaction();
         try {
             $invoice = InvoiceHeader::where('id', $invoiceId)
-                        ->update([
-                            'status'        => 'CANCELLED'
-                            , 'updated_by'  => $user->id
-                            , 'updation_by' => $user->person_id
-                        ]);
+                                    ->update([
+                                        'status'        => 'CANCELLED'
+                                        , 'updated_by'  => $user->id
+                                        , 'updation_by' => $user->person_id
+                                    ]);
             // UPDATE REQUISITION
             $requisition = RequisitionHeader::where('invoice_reference_id', $invoiceId)->get()->pluck('id')->toArray();
             RequisitionHeader::where('invoice_reference_id', $invoiceId)
@@ -562,22 +562,29 @@ class InvoiceController extends Controller
             $infIvoice =  InvoiceInterfaceHeader::where('invoice_num', $invoice->invoice_number)
                                             ->whereNull('voucher_num')
                                             ->first();
-            $resultInf = (new InvoiceHeader)->callInterfaceAPInvoice($infIvoice->web_batch_no);
-            if ($resultInf['status'] == 'S') {
-                $invoice->status  = 'INTERFACED';
-                $invoice->save();
-                $data = [
-                    'status' => 'SUCCESS',
-                    'message' => '',
-                    'redirect_show_page' => route('expense.invoice.show', $invoiceId)
-                ];
+            if ($infIvoice) {
+                $resultInf = (new InvoiceHeader)->callInterfaceAPInvoice($infIvoice->web_batch_no);
+                if ($resultInf['status'] == 'S') {
+                    $invoice->status  = 'INTERFACED';
+                    $invoice->save();
+                    $data = [
+                        'status' => 'SUCCESS',
+                        'message' => '',
+                        'redirect_show_page' => route('expense.invoice.show', $invoiceId)
+                    ];
+                }else{
+                    $invoice->status        = 'ERROR';
+                    $invoice->error_message = $resultInf['error_msg'];
+                    $invoice->save();
+                    $data = [
+                        'status' => 'ERROR',
+                        'message' => $resultInf['error_msg']
+                    ];
+                }
             }else{
-                $invoice->status        = 'ERROR';
-                $invoice->error_message = $resultInf['error_msg'];
-                $invoice->save();
                 $data = [
                     'status' => 'ERROR',
-                    'message' => $resultInf['error_msg']
+                    'message' => 'ไม่พบข้อมูล'
                 ];
             }
         } catch (\Exception $e) {

@@ -10,11 +10,11 @@
 @endsection
 
 @section('content')
-    @if ($requisition->status == 'CANCELLED')
+    {{-- @if ($requisition->status == 'CANCELLED')
         <div class="alert alert-danger background-danger mt-2">
             <strong>{{ $requisition->cancel_reason }}</strong>
         </div>
-    @endif
+    @endif --}}
 
 <div class="card">
     <div class="card-header">
@@ -28,7 +28,14 @@
     
     <div class="card-body">
         <div class="ibox float-e-margins">
-            <div class="col-md-12">
+            @if ($requisition->status == 'CANCELLED')
+                <el-alert title="สาเหตุการยกเลิก : {{ $requisition->cancel_reason }}" type="error" show-icon :closable="false">
+                    <template #icon>
+                        <i class="fa fa-bell"></i>
+                    </template>                
+                </el-alert>
+            @endif
+            <div class="col-md-12 mt-2">
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group" style="padding: 5px;">

@@ -89,7 +89,7 @@
                                 clearable
                                 format="DD-MM-YYYY"
                                 style="width: 100%;"
-                                readonly
+                                disabled
                             />
                             <!-- @change="changeReqDateFormat" -->
                             <div id="el_explode_req_date" class="text-danger text-left"></div>

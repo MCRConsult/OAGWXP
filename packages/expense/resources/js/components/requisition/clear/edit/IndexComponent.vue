@@ -89,7 +89,7 @@
                                 clearable
                                 format="DD-MM-YYYY"
                                 style="width: 100%;"
-                                readonly
+                                disabled
                             />
                             <!-- v-model="header.req_date"
                             @change="changeReqDateFormat" -->
@@ -307,6 +307,7 @@
             };
         },
         mounted(){
+            this.changeReqDateFormat();
         },
         computed: {
             totalApply() {
@@ -332,7 +333,7 @@
                 return numeral(value).format("0,0.00");
             },
             changeReqDateFormat() {
-                const formattedDate = moment(this.header.req_date, "YYYY-MM-DD").format("YYYY-MM-DD");
+                const formattedDate = moment(this.req_date, "YYYY-MM-DD").format("YYYY-MM-DD");
                 this.header.req_date = formattedDate;
             },
             setError(ref_name){

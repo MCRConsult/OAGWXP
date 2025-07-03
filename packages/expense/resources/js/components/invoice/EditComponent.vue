@@ -197,7 +197,7 @@
                     <div class="col-md-6">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
-                                <strong> คำอธิบาย </strong>
+                                <strong> คำอธิบาย <span class="text-danger"> *</span></strong>
                             </label><br>
                             <el-input :style="errors.header_desc? 'border: 1px solid red; border-radius: 5px;': ''"
                                 v-model="header.description"
