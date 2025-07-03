@@ -14,6 +14,7 @@ use Packages\expense\app\Models\InvoiceHeader;
 use Packages\expense\app\Models\InvoiceLine;
 use Packages\expense\app\Models\InvoiceInterfaceHeader;
 use Packages\expense\app\Models\InvoiceInterfaceLine;
+use Packages\expense\app\Models\RequisitionReceiptTemp;
 use Packages\expense\app\Models\MappingAutoInvoiceV;
 use Packages\expense\app\Models\MTLCategoriesV;
 use Packages\expense\app\Models\InvoiceType;
@@ -78,6 +79,8 @@ class InvoiceController extends Controller
                         $requisition->updated_by     = $user->id;
                         $requisition->updation_by    = $user->person_id;
                         $requisition->save();
+                        // DELETE RECEIPT RESERVE BUDGET
+                        RequisitionReceiptTemp::where('reference_number', $requisition->reference_number)->delete();
                     }else{
                         $requisition->status         = 'ERROR';
                         $requisition->error_message  = $result['message'];
