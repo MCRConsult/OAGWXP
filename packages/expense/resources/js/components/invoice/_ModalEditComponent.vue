@@ -244,6 +244,7 @@
                                     <coaComponent
                                         @coa="updateCoa"
                                         :set-name="defaultSetName.segment2"
+                                        :parent="segment1"
                                         :set-data="segment2"
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment2"

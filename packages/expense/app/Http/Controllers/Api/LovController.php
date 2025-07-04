@@ -27,6 +27,7 @@ use Packages\expense\app\Models\Tax;
 use Packages\expense\app\Models\WHT;
 use Packages\expense\app\Models\BankAccount;
 use Packages\expense\app\Models\COAListV;
+use Packages\expense\app\Models\GLCostCenterV;
 use Packages\expense\app\Models\GLBudgetProductV;
 use Packages\expense\app\Models\GLBudgetActivityV;
 use Packages\expense\app\Models\GLSubAccountV;
@@ -454,7 +455,7 @@ class LovController extends Controller
             $flexValue = (new COAListV)->LOVResult($setName, $setValue, $text);
         }
         if ($setName == 'OAG_GL_COST_CENTER') {
-            $flexValue = (new COAListV)->LOVResult($setName, $setValue, $text);
+            $flexValue = (new GLCostCenterV)->LOVResult($setName, $parent, $setValue, $text);
         }
         if ($setName == 'OAG_GL_BUDGET_YEAR') {
             $flexValue = (new COAListV)->LOVResult($setName, $setValue, $text);

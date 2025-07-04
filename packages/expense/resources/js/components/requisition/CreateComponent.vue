@@ -1153,6 +1153,14 @@
                     errorMsg = "กรุณากรอกคำฮธิบาย";
                     $(form).find("div[id='el_explode_header_desc']").html(errorMsg);
                 }
+                if (vm.totalApply < 0) {
+                    valid = false;
+                    this.$notify({
+                        title: 'แจ้งเตือน',
+                        message: 'ข้อมูลส่งเบิกไม่สามารถระบุยอดติดลบได้ กรุณาตรวจสอบ',
+                        type: 'warning'
+                    });
+                }
                 if (vm.linelists.length == 0) {
                     valid = false;
                     this.$notify({

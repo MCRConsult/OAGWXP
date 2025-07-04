@@ -15,7 +15,7 @@ class GLBudgetProductV extends Model
             ->where('flex_value_set_name', $setName)
             ->when($text, function ($query, $text) {
                 return $query->where(function($r) use ($text) {
-                    $r->where('flex_value', 'like', "${text}%")
+                    $r->where('flex_value', 'like', "%${text}%")
                         ->orWhere('description', 'like', "%${text}%");
                 });
             })

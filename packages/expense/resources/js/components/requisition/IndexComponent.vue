@@ -168,9 +168,9 @@
                                             <div v-html="requisition.status_icon"></div>
                                         </td>
                                         <td class="text-center text-nowrap" style="vertical-align: middle;">
-                                            <div style="border-collapse: collapse; width: 130px; display:inline-block; flex-direction: row;">
+                                            <div style="border-collapse: collapse; width: 150px; display:inline-block; flex-direction: row;">
                                                 <template v-if="requisition.invoice
-                                                    && requisition.status == 'COMPLETED'
+                                                    && requisition.status == 'INTERFACED'
                                                     && (requisition.clear_reference_id == null || requisition.clear_reference_id == '')
                                                     && requisition.invoice_reference_id != ''
                                                     && requisition.invoice_type.lookup_code == 'PREPAYMENT'">

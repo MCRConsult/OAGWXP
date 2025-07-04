@@ -4,14 +4,15 @@ namespace Packages\expense\app\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class GLBudgetActivityV extends Model
+class GLCostCenterV extends Model
 {
-    protected $table = 'OAGGL_BUDGET_ACTIVITY_V';
+    protected $table = 'oaggl_security_rule_segment_v';
     protected $connection = 'oracle';
 
     public function LOVResult($setName, $parent, $setValue, $text)
     {
-        $flexValue = self::selectRaw('distinct flex_value, fv_description description')
+        $parent = substr($parent, -3);
+        $flexValue = self::selectRaw('distinct flex_value, description')
             ->where('flex_value_set_name', $setName)
             ->when($text, function ($query, $text) {
                 return $query->where(function($r) use ($text) {
@@ -21,11 +22,9 @@ class GLBudgetActivityV extends Model
             })
             ->when($parent, function ($query, $parent) {
                 return $query->where(function($r) use ($parent) {
-                    $r->where('dep_flex_value', $parent);
+                    $r->where('flex_value_rule_name', $parent);
                 });
             })
-            ->where('summary_flag', 'N')
-            ->where('enabled_flag', 'Y')
             ->orderBy('flex_value')
             ->limit(50)
             ->get();
@@ -57,6 +56,4 @@ class GLBudgetActivityV extends Model
         }
         return $flexValue;
     }
-
-
 }
