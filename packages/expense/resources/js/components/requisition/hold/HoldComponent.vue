@@ -129,7 +129,16 @@
                             <label class="control-label">
                                 <strong> คำอธิบาย <span class="text-danger"> *</span></strong>
                             </label><br>
-                            <el-input v-model="header.description" type="textarea" :rows="2" style="width: 100%;" placeholder="" maxlength="240" show-word-limit/>
+                            <el-input :style="errors.header_desc? 'border: 1px solid red; border-radius: 5px;': ''"
+                                v-model="header.description"
+                                type="textarea"
+                                :rows="2"
+                                style="width: 100%;"
+                                placeholder=""
+                                maxlength="240"
+                                show-word-limit
+                            />
+                            <div id="el_explode_header_desc" class="text-danger text-left"></div>
                         </div>
                     </div>
                 </div>
@@ -263,7 +272,7 @@
         props: ['requisition', 'invoiceTypes', 'defaultSetName'],
         data() {
             return {
-                budgetSource: ['510'], //, '520', '530', '540', '550'
+                budgetSource: ['510'],
                 errors: {
                     budget_source: false,
                     invoice_type: false,
@@ -271,6 +280,7 @@
                     req_date: false,
                     payment_type: false,
                     supplier: false,
+                    header_desc: false
                     supplier_detail: false,
                     supplier_bank: false,
                     budget_plan: false,
@@ -453,7 +463,8 @@
                                             receipt_number: valUpdate.receipt_number,
                                             receipt_date: valUpdate.receipt_date,
                                             remaining_receipt_flag: valUpdate.remaining_receipt_flag,
-                                            remaining_receipt_id: valUpdate.remaining_receipt_id
+                                            remaining_receipt_id: valUpdate.remaining_receipt_id,
+                                            contract_number: valUpdate.contract_number
                                         });
                                     } else {
                                         console.error('valUpdate is invalid:', valUpdate);
@@ -510,7 +521,8 @@
                                     receipt_number: valUpdate.receipt_number,
                                     receipt_date: valUpdate.receipt_date,
                                     remaining_receipt_flag: valUpdate.remaining_receipt_flag,
-                                    remaining_receipt_id: valUpdate.remaining_receipt_id
+                                    remaining_receipt_id: valUpdate.remaining_receipt_id,
+                                    contract_number: valUpdate.contract_number
                                 });
                             } else {
                                 console.error('valUpdate is invalid:', valUpdate);
@@ -531,6 +543,7 @@
                 vm.errors.req_date = false;
                 vm.errors.payment_type = false;
                 vm.errors.supplier = false;
+                vm.errors.header_desc = false;
                 vm.errors.supplier_detail = false;
                 vm.errors.supplier_bank = false;
                 vm.errors.budget_plan = false;
@@ -543,6 +556,7 @@
                 $(form).find("div[id='el_explode_req_date']").html("");
                 $(form).find("div[id='el_explode_payment_type']").html("");
                 $(form).find("div[id='el_explode_supplier']").html("");
+                $(form).find("div[id='el_explode_header_desc']").html("");
                 $(form).find("div[id='el_explode_supplier_detail']").html("");
                 $(form).find("div[id='el_explode_supplier_bank']").html("");
                 $(form).find("div[id='el_explode_budget_plan']").html("");
@@ -592,6 +606,12 @@
                     valid = false;
                     errorMsg = "กรุณาเลือกผู้สั่งจ่าย";
                     $(form).find("div[id='el_explode_supplier']").html(errorMsg);
+                }
+                if (vm.requisition.description == '') {
+                    vm.errors.header_desc = true;
+                    valid = false;
+                    errorMsg = "กรุณากรอกคำอธิบาย";
+                    $(form).find("div[id='el_explode_header_desc']").html(errorMsg);
                 }
                 if (vm.linelists.length == 0) {
                     valid = false;

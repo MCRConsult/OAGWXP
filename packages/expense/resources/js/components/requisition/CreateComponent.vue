@@ -1155,7 +1155,7 @@
                 if (vm.requisition.description == '') {
                     vm.errors.header_desc = true;
                     valid = false;
-                    errorMsg = "กรุณากรอกคำฮธิบาย";
+                    errorMsg = "กรุณากรอกคำอธิบาย";
                     $(form).find("div[id='el_explode_header_desc']").html(errorMsg);
                 }
                 if (vm.totalApply < 0) {

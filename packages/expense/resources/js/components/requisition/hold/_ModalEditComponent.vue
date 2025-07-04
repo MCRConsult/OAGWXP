@@ -242,7 +242,19 @@
                                     <el-input v-model="temp.receipt_number" style="width: 100%;" placeholder=""/>
                                 </div>
                             </div>
-                            <div v-if="line.remaining_receipt_flag == 'Y'" class="col-md-3 text-left">
+                            <div class="col-md-3 text-left" v-if="contractSource.indexOf(requisition?.budget_source) !== -1">
+                                <div class="form-group" style="padding: 5px;">
+                                    <label class="control-label">
+                                        <strong> เลขที่สัญญา</strong>
+                                    </label><br>
+                                    <contract
+                                        :setData="temp.contract_number"
+                                        :editFlag="true"
+                                        @setContract= "setContract"
+                                    ></contract>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-lefttext-left" v-if="line.remaining_receipt_flag == 'Y'">
                                 <div class="form-group" style="padding: 5px;">
                                     <label class="control-label">
                                         <strong> เลขที่ใบเสร็จรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>

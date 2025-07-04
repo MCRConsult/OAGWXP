@@ -42,7 +42,7 @@ class InvoiceLine extends Model
 
     public function tax()
     {
-        return $this->hasOne(Tax::class, 'tax', 'tax_code')->selectRaw('tax, tax_id');
+        return $this->hasOne(Tax::class, 'tax', 'tax_code')->selectRaw('tax')->where('rate_type_code', '!=', 'RECOVERY');
     }
 
     public function wht()

@@ -407,6 +407,7 @@ class LovController extends Controller
                                 $r->WhereRaw('UPPER(tax) like ?', [strtoupper($keyword).'%']);
                             });
                         })
+                        ->where('rate_type_code', '!=', 'RECOVERY')
                         ->orderBy('tax')
                         ->get();
 
