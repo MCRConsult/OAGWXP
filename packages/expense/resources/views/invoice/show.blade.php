@@ -28,11 +28,13 @@
 
     <div class="card-body">
         <div class="ibox float-e-margins">
-            <el-alert title="ข้อผิดพลาด : {{ $invoice->error_message }}" type="error" show-icon :closable="false">
-                <template #icon>
-                    <i class="fa fa-bell"></i>
-                </template>                
-            </el-alert>
+            @if ($invoice->status == 'ERROR')
+                <el-alert title="ข้อผิดพลาด : {{ $invoice->error_message }}" type="error" show-icon :closable="false">
+                    <template #icon>
+                        <i class="fa fa-bell"></i>
+                    </template>                
+                </el-alert>
+            @endif
             <div class="col-md-12 mt-2">
                 <div class="row">
                     <div class="col-md-3">
