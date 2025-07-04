@@ -248,6 +248,18 @@
                                     <el-input v-model="temp.receipt_number" style="width: 100%;" placeholder=""/>
                                 </div>
                             </div>
+                            <div class="col-md-3" v-if="contractSource.indexOf(requisition?.budget_source) !== -1">
+                                <div class="form-group" style="padding: 5px;">
+                                    <label class="control-label">
+                                        <strong> เลขที่สัญญา</strong>
+                                    </label><br>
+                                    <contract
+                                        :setData="temp.contract_number"
+                                        :editFlag="true"
+                                        @setContract= "setContract"
+                                    ></contract>
+                                </div>
+                            </div>
                             <div v-if="line.remaining_receipt_flag == 'Y'" class="col-md-3 text-left">
                                 <div class="form-group" style="padding: 5px;">
                                     <label class="control-label">
@@ -283,7 +295,7 @@
                                         :set-data="segment1"
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment1"
-                                        :editFlag="true"
+                                        :editFlag="false"
                                         placeholder=""
                                         ref="segment1"
                                     >
@@ -536,16 +548,18 @@
     import budgetType       from "../lov/BudgetType.vue";
     import expenseType      from "../lov/ExpenseType.vue";
     import remainingReceipt from "../lov/RemainingReceipt.vue";
+    import contract         from "../lov/Contract.vue";
     import coaComponent     from './InputCOAComponent.vue';
 
     export default {
         components: {
-            supplier, supplierBank, vehicleOilType, utilityType, utilityDetail, budgetPlan, budgetType, expenseType, remainingReceipt,  coaComponent
+            supplier, supplierBank, vehicleOilType, utilityType, utilityDetail, budgetPlan, budgetType, expenseType, remainingReceipt, contract, coaComponent
         },
         props: ['index', 'requisition', 'reqLine', 'defaultSetName'],
         emits: ['updateRow'],
         data() {
             return {
+                contractSource: ['540'],
                 line: this.reqLine,
                 loading: false,
                 accounrCollp: false,
@@ -843,6 +857,9 @@
             },
             setBudgetType(res){
                 this.temp.budget_type = res.budget_type;
+            },
+            setContract(res){
+                this.temp.contract_number = res.contract;
             },
             setExpenseType(res){
                 this.temp.expense_type = res.expense_type;

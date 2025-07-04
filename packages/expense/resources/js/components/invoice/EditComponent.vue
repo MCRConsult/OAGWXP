@@ -171,7 +171,7 @@
                             />
                         </div>
                     </div>
-                    <div class="col-md-3" v-if="budgetSource.indexOf(header.budget_source)">
+                    <div class="col-md-3" v-if="budgetSource.indexOf(header.budget_source) !== -1">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
                                 <strong> ใบโอนล้างถึงที่สุด (บอ.) </strong>
@@ -457,7 +457,8 @@
                                             ar_receipt_id: valUpdate.ar_receipt_id,
                                             ar_receipt_number: valUpdate.ar_receipt_number,
                                             remaining_receipt_flag: valUpdate.remaining_receipt_flag,
-                                            remaining_receipt_id: valUpdate.remaining_receipt_id
+                                            remaining_receipt_id: valUpdate.remaining_receipt_id,
+                                            contract_number: valUpdate.contract_number
                                         });
                                     } else {
                                         console.error('valUpdate is invalid:', valUpdate);
@@ -508,7 +509,8 @@
                                     ar_receipt_id: valUpdate.ar_receipt_id,
                                     ar_receipt_number: valUpdate.ar_receipt_number,
                                     remaining_receipt_flag: valUpdate.remaining_receipt_flag,
-                                    remaining_receipt_id: valUpdate.remaining_receipt_id
+                                    remaining_receipt_id: valUpdate.remaining_receipt_id,
+                                    contract_number: valUpdate.contract_number
                                 });
                             } else {
                                 console.error('valUpdate is invalid:', valUpdate);

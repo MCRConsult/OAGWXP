@@ -99,10 +99,12 @@ class InvoiceInterfaceRepo {
                 $lineInf->attribute12               = $line->unit_quantity;
                 $lineInf->attribute13               = $line->req_receipt_date? date('Y-m-d', strtotime($line->req_receipt_date)): '';
                 $lineInf->attribute14               = $line->req_receipt_number;
-
+                $lineInf->attribute15               = $line->contract_number;
                 $lineInf->global_attribute1         = $line->vehicle_number;
                 $lineInf->global_attribute2         = $line->policy_number;
                 $lineInf->global_attribute3         = $line->vehicle_oil_type;
+                $lineInf->perpay_invoice_id         = $invoice->requisition->clear->invoice_reference_id;
+                $lineInf->perpay_invoice_number     = $invoice->requisition->clear->invioce_number_ref;
 
                 $lineInf->web_batch_no              = $batchNo;
                 $lineInf->creation_date             = Carbon::now();

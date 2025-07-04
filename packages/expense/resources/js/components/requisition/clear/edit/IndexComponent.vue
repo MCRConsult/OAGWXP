@@ -102,17 +102,17 @@
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
                                 <strong> ชื่อสั่งจ่าย <span class="text-danger"> *</span></strong> &nbsp;
-                                    <el-radio v-model="header.multiple_supplier" label="ONE" @change="changeSupplierType">
+                                    <el-radio v-model="header.multiple_supplier" label="ONE" @change="changeSupplierType" disabled>
                                         รายเดียว
                                     </el-radio>
-                                    <el-radio v-model="header.multiple_supplier" label="MORE" @change="changeSupplierType">
+                                    <el-radio v-model="header.multiple_supplier" label="MORE" @change="changeSupplierType" disabled>
                                         หลายราย (กรอกข้อมูลระดับรายการ)
                                     </el-radio>
                             </label><br>
                             <supplier
                                 :setData="header.supplier_id"
                                 :error="errors.supplier"
-                                :editFlag="true"
+                                :editFlag="false"
                                 @setSupplier="setSupplierHeader"
                             ></supplier>
                             <div id="el_explode_supplier" class="text-danger text-left"></div>
@@ -121,7 +121,7 @@
                     <div class="col-md-6">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
-                                <strong> คำอธิบาย </strong>
+                                <strong> คำอธิบาย <span class="text-danger"> *</span></strong>
                             </label><br>
                             <el-input v-model="header.description" type="textarea" :rows="2" style="width: 100%;" placeholder="" maxlength="240" show-word-limit/>
                         </div>

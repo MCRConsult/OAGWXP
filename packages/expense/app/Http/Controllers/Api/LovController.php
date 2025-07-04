@@ -31,6 +31,7 @@ use Packages\expense\app\Models\GLCostCenterV;
 use Packages\expense\app\Models\GLBudgetProductV;
 use Packages\expense\app\Models\GLBudgetActivityV;
 use Packages\expense\app\Models\GLSubAccountV;
+use Packages\expense\app\Models\ARPOATT1V;
 
 class LovController extends Controller
 {
@@ -442,6 +443,22 @@ class LovController extends Controller
                         ->get();
 
         return response()->json(['data' => $bankAccount]);
+    }
+
+    public function getContract(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $contracts = ARPOATT1V::selectRaw('attribute1, meaning')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->WhereRaw('UPPER(attribute1) like ?', [strtoupper($keyword).'%'])
+                                ->orWhereRaw('UPPER(meaning) like ?', [strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->orderBy('attribute1')
+                        ->get();
+
+        return response()->json(['data' => $contracts]);
     }
 
     public function getExpenseAccount(Request $request)

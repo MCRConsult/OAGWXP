@@ -274,6 +274,7 @@ class InvoiceController extends Controller
                         $lineTemp->remaining_receipt_number = $line->remaining_receipt_number;
                         $lineTemp->reference_req_number     = $requisition->req_number;
                         $lineTemp->origin_amount            = $header->clear_flag == 'Y'? $line->actual_amount: $line->amount;
+                        $lineTemp->contract_number          = $line->contract_number;
                         $lineTemp->save();
 
                         $requistionLine = RequisitionLine::where('req_header_id', $requisition->id)
@@ -394,6 +395,7 @@ class InvoiceController extends Controller
                             , 'tax_amount'               => $line['tax_amount']
                             , 'wht_code'                 => isset($line['wht_code'])? $line['wht_code']: ''
                             , 'wht_amount'               => $line['wht_amount']
+                            , 'contract_number'          => $line['contract_number']
                         ]);
                 \DB::commit();
             }

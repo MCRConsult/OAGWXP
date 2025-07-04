@@ -173,7 +173,8 @@
                                                     && requisition.status == 'INTERFACED'
                                                     && (requisition.clear_reference_id == null || requisition.clear_reference_id == '')
                                                     && requisition.invoice_reference_id != ''
-                                                    && requisition.invoice_type.lookup_code == 'PREPAYMENT'">
+                                                    && requisition.invoice_type.lookup_code == 'PREPAYMENT'
+                                                    && requisition.invoice_status.status == 'AVAILABLE'">
                                                     <template v-if="requisition.invoice.voucher_number">
                                                         <a class="btn btn-sm btn-danger active mr-1"
                                                             :href="'/expense/requisition/'+requisition.id+'/clear'">

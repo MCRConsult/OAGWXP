@@ -28,6 +28,7 @@ Route::group(['middleware' => ['web', 'auth']], function () {
                 Route::get('/get-expense-account', '\Packages\expense\app\Http\Controllers\Api\LovController@getExpenseAccount');
                 Route::get('/get-remaining-receipt', '\Packages\expense\app\Http\Controllers\Api\LovController@getRemainingReceipt');
                 Route::get('/get-receipt-account', '\Packages\expense\app\Http\Controllers\Api\LovController@getReceiptAccount');
+                Route::get('/get-contract', '\Packages\expense\app\Http\Controllers\Api\LovController@getContract');
                 
                 Route::prefix('requisition')->namespace('Requisition')->name('requisition.')->group(function() {
                     Route::post('/fetch-render-page', '\Packages\expense\app\Http\Controllers\Api\RequisitionController@fetchRequisitionRenderPage');

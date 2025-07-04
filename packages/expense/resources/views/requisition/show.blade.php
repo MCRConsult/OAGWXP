@@ -180,7 +180,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($requisition->lines as $line)
+                        @foreach ($requisition->lines->sortBy('seq_number') as $line)
                             <tr>
                                 <td class="text-center" style="vertical-align: middle;"> {{ $line->seq_number }} </td>
                                 <td class="text-center" style="vertical-align: middle;"> {{ $line->expense->description }} </td>

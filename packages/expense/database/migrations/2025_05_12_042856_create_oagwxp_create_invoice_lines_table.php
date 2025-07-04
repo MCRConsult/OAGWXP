@@ -57,6 +57,7 @@ return new class extends Migration
             $table->string('ar_receipt_number')->nullable();
             $table->string('reference_req_number')->nullable();
             $table->integer('origin_amount', 18,2);
+            $table->string('contract_number')->nullable();
             $table->timestamps();
         });
     }

@@ -24,7 +24,7 @@
                                     :set-data="segment1"
                                     :default-set-name="defaultSetName"
                                     :error="errors.segment1"
-                                    :editFlag="true"
+                                    :editFlag="false"
                                     placeholder=""
                                     ref="segment1"
                                 >

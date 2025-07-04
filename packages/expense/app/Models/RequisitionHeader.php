@@ -62,6 +62,11 @@ class RequisitionHeader extends Model
         return $this->hasOne(BankAccount::class, 'bank_account_id', 'cash_bank_account_id');
     }
 
+    public function invoiceStatus()
+    {
+        return $this->hasOne(APInvoiceStatusV::class, 'id', 'id')->where('invoice_type_lookup_code', 'PREPAYMENT');
+    }
+
     public function getInvRef($invType)
     {
         if($invType == 'PREPAYMENT') {

@@ -62,6 +62,14 @@
                         </div>
                     </div>
                     <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group" style="padding: 5px;">
+                                <label class="control-label">
+                                    <strong> เลขที่ใบเสร็จรับเงินคงเหลือ </strong>
+                                </label><br>
+                                {{ $line->remaining_receipt_number ?? '-' }}
+                            </div>
+                        </div>
                         <div class="col-md-3 text-left">
                             <div class="form-group" style="padding: 5px;">
                                 <label class="control-label">
@@ -168,9 +176,9 @@
                         <div class="col-md-3">
                             <div class="form-group" style="padding: 5px;">
                                 <label class="control-label">
-                                    <strong> เลขที่ใบเสร็จรับเงินคงเหลือ </strong>
+                                    <strong> เลขที่สัญญา </strong>
                                 </label><br>
-                                {{ $line->remaining_receipt_number ?? '-' }}
+                                {{ $line->contract_number ?? '-' }}
                             </div>
                         </div>
                     </div>

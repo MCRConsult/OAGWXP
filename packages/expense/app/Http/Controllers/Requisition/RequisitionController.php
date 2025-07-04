@@ -40,7 +40,7 @@ class RequisitionController extends Controller
     {
         $search = request()->all();
         $requisitions = RequisitionHeader::search(request()->all())
-                                    ->with(['user.hrEmployee', 'invoiceType', 'invoice', 'clear'])
+                                    ->with(['user.hrEmployee', 'invoiceType', 'invoice', 'clear', 'invoiceStatus'])
                                     ->byRelatedUser()
                                     ->whereNotNull('req_number')
                                     ->orderBy('req_number', 'desc')
@@ -132,6 +132,7 @@ class RequisitionController extends Controller
                 $lineTemp->remaining_receipt_flag   = $line['remaining_receipt_flag'];
                 $lineTemp->remaining_receipt_id     = $line['remaining_receipt_id'];
                 $lineTemp->remaining_receipt_number = $this->getRemainingRceipt($line['remaining_receipt_id']);
+                $lineTemp->contract_number          = $line['contract_number'];
                 $lineTemp->save();
 
                 if ($line['remaining_receipt_flag'] == 'Y') {
@@ -316,6 +317,7 @@ class RequisitionController extends Controller
                     $lineTemp->remaining_receipt_flag   = $line['remaining_receipt_flag'];
                     $lineTemp->remaining_receipt_id     = $line['remaining_receipt_id'];
                     $lineTemp->remaining_receipt_number = $this->getRemainingRceipt($line['remaining_receipt_id']);
+                    $lineTemp->contract_number          = $line['contract_number'];
                     $lineTemp->save();
                 }
             }

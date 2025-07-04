@@ -202,6 +202,18 @@
                                     <div id="_el_explode_remaining_receipt" class="text-danger text-left"></div>
                                 </div>
                             </div>
+                            <div class="col-md-3" v-if="contractSource.indexOf(header?.budget_source) !== -1">
+                                <div class="form-group" style="padding: 5px;">
+                                    <label class="control-label">
+                                        <strong> เลขที่สัญญา</strong>
+                                    </label><br>
+                                    <contract
+                                        :setData="temp.contract_number"
+                                        :editFlag="true"
+                                        @setContract= "setContract"
+                                    ></contract>
+                                </div>
+                            </div>
                             <div class="col-md-6">
                                 <div class="form-group text-left" style="padding: 5px;">
                                     <label class="control-label">
@@ -232,6 +244,7 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment1"
                                         placeholder=""
+                                        :editFlag="false"
                                         ref="segment1"
                                     >
                                     </coaComponent>
@@ -249,6 +262,7 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment2"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment2"
                                     >
                                     </coaComponent>
@@ -265,6 +279,7 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment3"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment3"
                                     >
                                     </coaComponent>
@@ -281,6 +296,7 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment4"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment4"
                                     >
                                     </coaComponent>
@@ -300,6 +316,7 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment5"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment5"
                                     >
                                     </coaComponent>
@@ -316,6 +333,7 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment6"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment6"
                                     >
                                     </coaComponent>
@@ -332,6 +350,7 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment7"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment7"
                                     >
                                     </coaComponent>
@@ -348,6 +367,7 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment8"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment8"
                                     >
                                     </coaComponent>
@@ -367,6 +387,7 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment9"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment9"
                                     >
                                     </coaComponent>
@@ -383,6 +404,7 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment10"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment10"
                                     >
                                     </coaComponent>
@@ -400,6 +422,7 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment11"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment11"
                                     >
                                     </coaComponent>
@@ -416,6 +439,7 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment12"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment12"
                                     >
                                     </coaComponent>
@@ -435,6 +459,7 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment13"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment13"
                                     >
                                     </coaComponent>
@@ -468,17 +493,19 @@
     import arReceipt        from "../lov/ARReceipt.vue";
     import tax              from "../lov/Tax.vue";
     import wht              from "../lov/Wht.vue";
+    import contract         from "../lov/Contract.vue";
     import remainingReceipt from "../lov/RemainingReceipt.vue";
 
     export default {
         components: {
-            coaComponent, supplier, supplierBank, budgetPlan, budgetType, expenseType, arReceipt, tax, wht, remainingReceipt
+            coaComponent, supplier, supplierBank, budgetPlan, budgetType, expenseType, arReceipt, tax, wht, contract, remainingReceipt
         },
         props: ['index', 'invoiceLine', 'defaultSetName', 'header'],
         emits: ['updateRow'],
         data() {
             return {
                 budgetSource: ['510'],
+                contractSource: ['540'],
                 line: this.invoiceLine,
                 temp: {},
                 loading: false,
@@ -709,6 +736,9 @@
             },
             setRemainingReceipt(res){
                 this.temp.remaining_receipt_id = res.remaining_receipt;
+            },
+            setContract(res){
+                this.temp.contract_number = res.contract;
             },
             updateCoa(res){
                 if (res.name == this.defaultSetName.segment1) { 

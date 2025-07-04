@@ -440,7 +440,7 @@
         props: ['user', 'referenceNo', 'invoiceTypes', 'defaultSetName', 'defaultSupplier'],
         data() {
             return {
-                budgetSource: ['510'], //, '520', '530', '540', '550'
+                budgetSource: ['510'],
                 sourceDefault: ['500', '510', '520', '530', '540', '550'],
                 errors: {
                     budget_source: false,
@@ -503,6 +503,7 @@
                     remaining_receipt_id: '',
                     receipt_account: '',
                     receipt_amount: '',
+                    contract_number: '',
                 },
                 loading: false,
                 linelists: [],
@@ -820,7 +821,8 @@
                                 receipt_date: '',
                                 remaining_receipt_flag: this.budgetSource.indexOf(this.requisition.budget_source) !== -1? 'Y': 'N',
                                 remaining_receipt_id: '',
-                                receipt_account: ''
+                                receipt_account: '',
+                                contract_number: ''
                             };
                             Object.assign(this.reqLine, defaultLine);
                         }
@@ -864,7 +866,8 @@
                         receipt_date: '',
                         remaining_receipt_flag: this.budgetSource.indexOf(this.requisition.budget_source) !== -1? 'Y': 'N',
                         remaining_receipt_id: '',
-                        receipt_account: ''
+                        receipt_account: '',
+                        contract_number: ''
                     };
                     Object.assign(this.reqLine, defaultLine);
                 }
@@ -920,7 +923,8 @@
                                             receipt_number: valUpdate.receipt_number,
                                             receipt_date: valUpdate.receipt_date,
                                             remaining_receipt_flag: valUpdate.remaining_receipt_flag,
-                                            remaining_receipt_id: valUpdate.remaining_receipt_id
+                                            remaining_receipt_id: valUpdate.remaining_receipt_id,
+                                            contract_number: valUpdate.contract_number
                                         });
                                     } else {
                                         console.error('valUpdate is invalid:', valUpdate);
@@ -977,7 +981,8 @@
                                     receipt_number: valUpdate.receipt_number,
                                     receipt_date: valUpdate.receipt_date,
                                     remaining_receipt_flag: valUpdate.remaining_receipt_flag,
-                                    remaining_receipt_id: valUpdate.remaining_receipt_id
+                                    remaining_receipt_id: valUpdate.remaining_receipt_id,
+                                    contract_number: valUpdate.contract_number
                                 });
                             } else {
                                 console.error('valUpdate is invalid:', valUpdate);

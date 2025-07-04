@@ -123,20 +123,18 @@
                                         <el-input v-model="line.receipt_number" style="width: 100%;" placeholder=""/>
                                     </div>
                                 </div>
-                                <!-- <div v-if="line.remaining_receipt_flag == 'Y'" class="col-md-3">
+                                <div class="col-md-3" v-if="contractSource.indexOf(requisition?.budget_source) !== -1">
                                     <div class="form-group" style="padding: 5px;">
                                         <label class="control-label">
-                                            <strong> เลขที่ใบเสร็จรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
+                                            <strong> เลขที่สัญญา</strong>
                                         </label><br>
-                                        <remainingReceipt
-                                            :setData="line.remaining_receipt_id"
+                                        <contract
+                                            :setData="line.contract_number"
                                             :editFlag="true"
-                                            :error="error.remaining_receipt"
-                                            @setRemainingReceipt="setRemainingReceipt"
-                                        ></remainingReceipt>
-                                        <div v-if="error.remaining_receipt" class="text-danger text-left"> กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ </div>
+                                            @setContract= "setContract"
+                                        ></contract>
                                     </div>
-                                </div> -->
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -159,14 +157,16 @@
     import utilityType from "../lov/UtilityType.vue";
     import utilityDetail from "../lov/UtilityDetail.vue";
     import remainingReceipt from "../lov/RemainingReceipt.vue";
+    import contract from "../lov/Contract.vue";
 
     export default {
         components: {
-            vehicleOilType, utilityType, utilityDetail, remainingReceipt
+            vehicleOilType, utilityType, utilityDetail, remainingReceipt, contract
         },
         props: ['requisition', 'reqLine', 'errors'],
         data() {
             return {
+                contractSource: ['540'],
                 line: this.reqLine,
                 loading: false,
                 error: this.errors,
@@ -175,7 +175,6 @@
         mounted() {
         },
         watch: {
-            //
         },
         methods: {
             setError(ref_name){
@@ -215,6 +214,9 @@
             },
             setRemainingReceipt(res){
                 this.line.remaining_receipt_id = res.remaining_receipt;
+            },
+            setContract(res){
+                this.line.contract_number = res.contract;
             },
         }
     };
