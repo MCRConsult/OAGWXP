@@ -292,7 +292,7 @@
                                 name="amount"
                                 class="form-control text-right"
                                 v-model="reqLine.amount"
-                                v-bind:minus="false"
+                                v-bind:minus="true"
                                 v-bind:precision="2"
                                 :min="-999999999"
                                 :max="999999999"

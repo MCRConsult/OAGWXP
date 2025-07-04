@@ -107,7 +107,7 @@
                                     <!-- <el-input v-model="temp.amount" style="width: 100%;" placeholder="" ref="amount"/> -->
                                     <vue-numeric style="width: 100%;"
                                         name="amount"
-                                        v-bind:minus="false"
+                                        v-bind:minus="true"
                                         v-bind:precision="2"
                                         :min="-999999999"
                                         :max="999999999"

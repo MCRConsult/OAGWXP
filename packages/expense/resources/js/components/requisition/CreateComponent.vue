@@ -323,7 +323,7 @@
                                 name="amount"
                                 class="form-control text-right"
                                 v-model="reqLine.amount"
-                                v-bind:minus="false"
+                                v-bind:minus="true"
                                 v-bind:precision="2"
                                 :min="-999999999"
                                 :max="999999999"
@@ -748,7 +748,7 @@
                     errorMsg = "กรุณาเลือกรายการบัญชีรับเงินคงเหลือ";
                     $(form).find("div[id='el_explode_receipt_account']").html(errorMsg);
                 }
-                if (vm.reqLine.amount > vm.reqLine.receipt_amount) {
+                if (vm.reqLine.remaining_receipt_flag == 'Y' && vm.reqLine.amount > vm.reqLine.receipt_amount) {
                     vm.errors.amount = true;
                     valid = false;
                     errorMsg = "จำนวนเงินที่ระบุ เกินกว่า งบประมาณที่มี";
@@ -760,6 +760,17 @@
                     errorMsg = "กรุณาตรวจสอบรายการบัญชี";
                     $(form).find("div[id='el_explode_expense_account']").html(errorMsg);
                 }
+                // =====================================================================
+                var cate = this.reqLine.budget_plan.split('.');
+                if(cate[0] == 'XPN'){
+                    if (vm.reqLine.amount > 0) {
+                        vm.errors.amount = true;
+                        valid = false;
+                        errorMsg = "จำนวนเงินที่ระบุ ต้องติดลบ";
+                        $(form).find("div[id='el_explode_amount']").html(errorMsg);
+                    }
+                }
+
                 if (!valid) {
                     return;
                 }
