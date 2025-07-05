@@ -39,7 +39,7 @@ class LovController extends Controller
     public function getDocumentType(Request $request)
     {
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
-        $docCategory = DocumentCategory::selectRaw('distinct doc_category_code')
+        $docCategories = DocumentCategory::selectRaw('distinct doc_category_code')
                         ->whereNotNull('attribute1')
                         ->when($keyword, function ($query, $keyword) {
                             return $query->where(function($r) use ($keyword) {
@@ -50,12 +50,24 @@ class LovController extends Controller
                         ->limit(50)
                         ->get();
 
-        return response()->json(['data' => $docCategory]);
+        $docCategory = DocumentCategory::selectRaw('distinct doc_category_code')
+                        ->whereNotNull('attribute1')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(doc_category_code) like ?', ['%'.strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->first();
+
+        if ($docCategory) {
+            $docCategories = $docCategories->push($docCategory)->unique('doc_category_code');
+        }
+
+        return response()->json(['data' => $docCategories]);
     }
 
     public function getSupplier(Request $request)
     {
-        // $defSupplier = $request->keyword;
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
         $suppliers = Supplier::selectRaw('distinct vendor_id, vendor_name')
                         ->when($keyword, function ($query, $keyword) {
@@ -69,14 +81,13 @@ class LovController extends Controller
                         ->get();
 
         $supplier = Supplier::selectRaw('distinct vendor_id, vendor_name')
-                    ->when($keyword, function ($query, $keyword) {
-                        return $query->where(function($r) use ($keyword) {
-                            $r->whereRaw('UPPER(vendor_name) like ?', ['%'.strtoupper($keyword).'%'])
-                                ->orWhereRaw('vendor_id like ?', [$keyword.'%']);
-                        });
-                    })
-                    ->first();
-
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(vendor_name) like ?', ['%'.strtoupper($keyword).'%'])
+                                    ->orWhereRaw('vendor_id like ?', [$keyword.'%']);
+                            });
+                        })
+                        ->first();
         if ($supplier) {
             $suppliers = $suppliers->push($supplier)->unique('vendor_id');
         }
@@ -126,6 +137,19 @@ class LovController extends Controller
                         ->limit(50)
                         ->get();
 
+        $paymentType = LookupV::selectRaw('distinct lookup_code, meaning, description')
+                        ->where('lookup_type', 'OAG_AP_PAYMENT_TYPE')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%'])
+                                    ->orWhereRaw('UPPER(lookup_code) like ?', [strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->first();
+        if ($paymentType) {
+            $paymentTypes = $paymentTypes->push($paymentType)->unique('lookup_code');
+        }
+
         return response()->json(['data' => $paymentTypes]);
     }
 
@@ -173,7 +197,20 @@ class LovController extends Controller
                             });
                         })
                         ->orderBy('description')
+                        ->limit(50)
                         ->get();
+
+        $oilType = FlexValueV::selectRaw('distinct flex_value, description')
+                        ->where('flex_value_set_name', 'OAG_VEH_OIL_TYPE')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->first();
+        if ($oilType) {
+            $oilTypes = $oilTypes->push($oilType)->unique('flex_value');
+        }
 
         return response()->json(['data' => $oilTypes]);
     }
@@ -189,7 +226,20 @@ class LovController extends Controller
                             });
                         })
                         ->orderBy('description')
+                        ->limit(50)
                         ->get();
+
+        $utilityType = FlexValueV::selectRaw('distinct flex_value, description')
+                        ->where('flex_value_set_name', 'OAG_AP_PUBLIC_UTILITIES')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->first();
+        if ($utilityType) {
+            $utilityTypes = $utilityTypes->push($utilityType)->unique('flex_value');
+        }
 
         return response()->json(['data' => $utilityTypes]);
     }
@@ -207,7 +257,21 @@ class LovController extends Controller
                             });
                         })
                         ->orderBy('description')
+                        ->limit(50)
                         ->get();
+
+        $utilityDetail = FlexValueV::selectRaw('distinct flex_value, description, parent_flex_value_low')
+                        ->where('flex_value_set_name', 'OAG_AP_BUILDING/CODE/DAD')
+                        ->where('parent_flex_value_low', $parent)
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->first();
+        if ($utilityDetail) {
+            $utilityDetails = $utilityDetails->push($utilityDetail)->unique('flex_value');
+        }
 
         return response()->json(['data' => $utilityDetails]);
     }
@@ -224,6 +288,7 @@ class LovController extends Controller
                             });
                         })
                         ->orderBy('flex_value')
+                        ->limit(50)
                         ->get();
 
         return response()->json(['data' => $budgetSource]);
@@ -232,18 +297,32 @@ class LovController extends Controller
     public function getBudgetPlan(Request $request)
     {
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
-        $budgetSource = MTLCategoriesV::where('structure_name', 'OAG Item Category Set')
-                            ->where('attribute1', 'Yes')
-                            ->when($keyword, function ($query, $keyword) {
-                                return $query->where(function($r) use ($keyword) {
-                                    $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%'])
-                                        ->orWhereRaw('UPPER(category_concat_segs) like ?', ['%'.strtoupper($keyword).'%']);
-                                });
-                            })
-                            ->orderBy('category_concat_segs')
-                            ->get();
+        $budgetPlans = MTLCategoriesV::where('structure_name', 'OAG Item Category Set')
+                        ->where('attribute1', 'Yes')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%'])
+                                    ->orWhereRaw('UPPER(category_concat_segs) like ?', ['%'.strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->orderBy('category_concat_segs')
+                        ->limit(50)
+                        ->get();
 
-        return response()->json(['data' => $budgetSource]);
+        $budgetPlan = MTLCategoriesV::where('structure_name', 'OAG Item Category Set')
+                        ->where('attribute1', 'Yes')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%'])
+                                    ->orWhereRaw('UPPER(category_concat_segs) like ?', ['%'.strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->first();
+        if ($budgetPlan) {
+            $budgetPlans = $budgetPlans->push($budgetPlan)->unique('category_concat_segs');
+        }
+
+        return response()->json(['data' => $budgetPlans]);
     }
 
     public function getBudgetType(Request $request)
@@ -251,9 +330,9 @@ class LovController extends Controller
         $budgetPlan = $request->parent;
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
         if (!$budgetPlan) {
-            $budgetType = [];
+            $budgetTypes = [];
         }else{
-                $budgetType = MTLCategoriesV::where('structure_name', 'OAG Item Category Set')
+            $budgetTypes = MTLCategoriesV::where('structure_name', 'OAG Item Category Set')
                             ->where('attribute2', 'Yes')
                             ->when($keyword, function ($query, $keyword) {
                                 return $query->where(function($r) use ($keyword) {
@@ -266,9 +345,25 @@ class LovController extends Controller
                             })
                             ->orderBy('category_concat_segs')
                             ->get();
+
+            $budgetType = MTLCategoriesV::where('structure_name', 'OAG Item Category Set')
+                            ->where('attribute2', 'Yes')
+                            ->when($keyword, function ($query, $keyword) {
+                                return $query->where(function($r) use ($keyword) {
+                                    $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%'])
+                                        ->orWhereRaw('UPPER(category_concat_segs) like ?', ['%'.strtoupper($keyword).'%']);
+                                });
+                            })
+                            ->when($budgetPlan, function ($query, $budgetPlan) {
+                                return $query->where('attribute3', $budgetPlan);
+                            })
+                            ->first();
+            if ($budgetType) {
+                $budgetTypes = $budgetTypes->push($budgetType)->unique('category_concat_segs');
+            }
         }
 
-        return response()->json(['data' => $budgetType]);
+        return response()->json(['data' => $budgetTypes]);
     }
 
     public function getExpenseType(Request $request)
@@ -277,11 +372,11 @@ class LovController extends Controller
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
         $sourceDefault = ['500', '510', '520', '530', '540', '550'];
         if (!$budgetType) {
-            $expeseType = [];
+            $expeseTypes = [];
         }else{
             if (in_array($request->budget_source, $sourceDefault)) {
                 // OAG_AP_WEB_MAPPING_EXP RULE
-                $expeseType = LookupV::selectRaw('meaning category_concat_segs, description')
+                $expeseTypes = LookupV::selectRaw('meaning category_concat_segs, description')
                             ->where('lookup_type', 'OAG_AP_WEB_MAPPING_EXP RULE')
                             ->where('tag', $request->budget_source)
                             ->when($keyword, function ($query, $keyword) {
@@ -291,47 +386,89 @@ class LovController extends Controller
                                 });
                             })
                             ->orderBy('description')
-                            ->get();  
-            }else{
-                $expeseType = MTLCategoriesV::where('structure_name', 'OAG Item Category Set')
-                            // ->where('segment1', 'EXP')
+                            ->get();
+
+                $expeseType = LookupV::selectRaw('meaning category_concat_segs, description')
+                            ->where('lookup_type', 'OAG_AP_WEB_MAPPING_EXP RULE')
+                            ->where('tag', $request->budget_source)
                             ->when($keyword, function ($query, $keyword) {
                                 return $query->where(function($r) use ($keyword) {
                                     $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%'])
-                                        ->orWhereRaw('UPPER(category_concat_segs) like ?', ['%'.strtoupper($keyword).'%']);
+                                        ->orWhereRaw('UPPER(meaning) like ?', ['%'.strtoupper($keyword).'%']);
                                 });
                             })
-                            ->when($budgetType, function ($query, $budgetType) {
-                                return $query->where('attribute4', $budgetType);
-                            })
-                            ->orderBy('category_concat_segs')
-                            ->get();
+                            ->first();
+                if ($expeseType) {
+                    $expeseTypes = $expeseTypes->push($expeseType)->unique('meaning');
+                }
+            }else{
+                $expeseTypes = MTLCategoriesV::where('structure_name', 'OAG Item Category Set')
+                                ->when($keyword, function ($query, $keyword) {
+                                    return $query->where(function($r) use ($keyword) {
+                                        $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%'])
+                                            ->orWhereRaw('UPPER(category_concat_segs) like ?', ['%'.strtoupper($keyword).'%']);
+                                    });
+                                })
+                                ->when($budgetType, function ($query, $budgetType) {
+                                    return $query->where('attribute4', $budgetType);
+                                })
+                                ->orderBy('category_concat_segs')
+                                ->get();
+
+                $expeseType =  MTLCategoriesV::where('structure_name', 'OAG Item Category Set')
+                                ->when($keyword, function ($query, $keyword) {
+                                    return $query->where(function($r) use ($keyword) {
+                                        $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%'])
+                                            ->orWhereRaw('UPPER(category_concat_segs) like ?', ['%'.strtoupper($keyword).'%']);
+                                    });
+                                })
+                                ->when($budgetType, function ($query, $budgetType) {
+                                    return $query->where('attribute4', $budgetType);
+                                })
+                            ->first();
+                if ($expeseType) {
+                    $expeseTypes = $expeseTypes->push($expeseType)->unique('category_concat_segs');
+                }
             }
         }
 
-        return response()->json(['data' => $expeseType]);
+        return response()->json(['data' => $expeseTypes]);
     }
 
     public function getRemainingReceipt(Request $request)
     {
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
-        $remainingReceipt = ARBudgetReceiptV::where('remaining_amount', '>', 0)
-                        ->when($keyword, function ($query, $keyword) {
-                            return $query->where(function($r) use ($keyword) {
-                                $r->whereRaw('UPPER(receipt_number) like ?', ['%'.strtoupper($keyword).'%']);
-                            });
-                        })
-                        ->orderBy('receipt_number')
-                        ->get();
+        $remainingReceipts = ARBudgetReceiptV::where('remaining_amount', '>', 0)
+                            ->when($keyword, function ($query, $keyword) {
+                                return $query->where(function($r) use ($keyword) {
+                                    $r->whereRaw('UPPER(receipt_number) like ?', ['%'.strtoupper($keyword).'%'])
+                                        ->orWhereRaw('cash_receipt_id like ?', ['%'.strtoupper($keyword).'%']);
+                                });
+                            })
+                            ->orderBy('receipt_number')
+                            ->limit(50)
+                            ->get();
 
-        return response()->json(['data' => $remainingReceipt]);
+        $remainingReceipt = ARBudgetReceiptV::where('remaining_amount', '>', 0)
+                            ->when($keyword, function ($query, $keyword) {
+                                return $query->where(function($r) use ($keyword) {
+                                    $r->whereRaw('UPPER(receipt_number) like ?', ['%'.strtoupper($keyword).'%'])
+                                        ->orWhereRaw('cash_receipt_id like ?', ['%'.strtoupper($keyword).'%']);
+                                });
+                            })
+                            ->first();
+        if ($remainingReceipt) {
+            $remainingReceipts = $remainingReceipts->push($remainingReceipt)->unique('cash_receipt_id');
+        }
+
+        return response()->json(['data' => $remainingReceipts]);
     }
 
     public function getReceiptAccount(Request $request)
     {
         $receiptId = $request->parent;
         $keyword = isset($request->keyword)? $request->keyword: '';
-        $receiptAccount = ARReceiptAccountV::where('amount', '>', 0)
+        $receiptAccounts = ARReceiptAccountV::where('amount', '>', 0)
                         ->when($keyword, function ($query, $keyword) {
                             return $query->where(function($r) use ($keyword) {
                                 $r->where('account_code', $keyword);
@@ -343,7 +480,7 @@ class LovController extends Controller
                         ->orderBy('code_combination_id')
                         ->get();
 
-        return response()->json(['data' => $receiptAccount]);
+        return response()->json(['data' => $receiptAccounts]);
     }
 
     public function getPaymentMethod(Request $request)
@@ -361,6 +498,19 @@ class LovController extends Controller
                         ->limit(50)
                         ->get();
 
+        $paymentMethod = PaymentMethod::selectRaw('distinct description, payment_method_code')
+                        ->whereNull('inactive_date')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%'])
+                                ->orWhereRaw('UPPER(payment_method_code) like ?', [strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->first();
+        if ($paymentMethod) {
+            $paymentMethods = $paymentMethods->push($paymentMethod)->unique('payment_method_code');
+        }
+
         return response()->json(['data' => $paymentMethods]);
     }
 
@@ -376,7 +526,21 @@ class LovController extends Controller
                             });
                         })
                         ->orderBy('term_id')
+                        ->limit(50)
                         ->get();
+
+        $paymentTerm = PaymentTerm::selectRaw('term_id, description')
+                        ->whereNull('end_date_active')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(description) like ?', ['%'.strtoupper($keyword).'%'])
+                                ->orWhereRaw('UPPER(term_id) like ?', [strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->first();
+        if ($paymentTerm) {
+            $paymentTerms = $paymentTerms->push($paymentTerm)->unique('term_id');
+        }
 
         return response()->json(['data' => $paymentTerms]);
     }
@@ -385,7 +549,7 @@ class LovController extends Controller
     {
         $user = auth()->user();
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
-        $budgetSource = ARReceiptNumberAllV::where('org_id', $user->org_id)
+        $receipts = ARReceiptNumberAllV::where('org_id', $user->org_id)
                         ->when($keyword, function ($query, $keyword) {
                             return $query->where(function($r) use ($keyword) {
                                 $r->whereRaw('UPPER(receipt_number) like ?', ['%'.strtoupper($keyword).'%'])
@@ -393,9 +557,22 @@ class LovController extends Controller
                             });
                         })
                         ->orderBy('receipt_number')
+                        ->limit(50)
                         ->get();
 
-        return response()->json(['data' => $budgetSource]);
+        $receipt = ARReceiptNumberAllV::where('org_id', $user->org_id)
+                    ->when($keyword, function ($query, $keyword) {
+                        return $query->where(function($r) use ($keyword) {
+                            $r->whereRaw('UPPER(receipt_number) like ?', ['%'.strtoupper($keyword).'%'])
+                            ->orWhereRaw('UPPER(cash_receipt_id) like ?', [strtoupper($keyword).'%']);
+                        });
+                    })
+                    ->first();
+        if ($receipt) {
+            $receipts = $receipts->push($receipt)->unique('cash_receipt_id');
+        }
+
+        return response()->json(['data' => $receipts]);
     }
 
     public function getTaxes(Request $request)
@@ -409,7 +586,20 @@ class LovController extends Controller
                         })
                         ->where('rate_type_code', '!=', 'RECOVERY')
                         ->orderBy('tax')
+                        ->limit(50)
                         ->get();
+
+        $tax = Tax::selectRaw('tax_rate_id, tax, tax_rate_code, percentage_rate')
+                    ->when($keyword, function ($query, $keyword) {
+                        return $query->where(function($r) use ($keyword) {
+                            $r->WhereRaw('UPPER(tax) like ?', [strtoupper($keyword).'%']);
+                        });
+                    })
+                    ->where('rate_type_code', '!=', 'RECOVERY')
+                    ->first();
+        if ($tax) {
+            $taxes = $taxes->push($tax)->unique('tax_rate_id');
+        }
 
         return response()->json(['data' => $taxes]);
     }
@@ -417,23 +607,36 @@ class LovController extends Controller
     public function getWht(Request $request)
     {
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
-        $wht = WHT::selectRaw('tax_id, name, description, tax_rates')
-                        ->when($keyword, function ($query, $keyword) {
-                            return $query->where(function($r) use ($keyword) {
-                                $r->WhereRaw('UPPER(name) like ?', [strtoupper($keyword).'%'])
-                                ->orWhereRaw('UPPER(description) like ?', [strtoupper($keyword).'%']);
-                            });
-                        })
-                        ->orderBy('name')
-                        ->get();
+        $whts = WHT::selectRaw('tax_id, name, description, tax_rates')
+                ->when($keyword, function ($query, $keyword) {
+                    return $query->where(function($r) use ($keyword) {
+                        $r->WhereRaw('UPPER(name) like ?', [strtoupper($keyword).'%'])
+                        ->orWhereRaw('UPPER(description) like ?', [strtoupper($keyword).'%']);
+                    });
+                })
+                ->orderBy('name')
+                ->limit(50)
+                ->get();
 
-        return response()->json(['data' => $wht]);
+        $wht = WHT::selectRaw('tax_id, name, description, tax_rates')
+                ->when($keyword, function ($query, $keyword) {
+                    return $query->where(function($r) use ($keyword) {
+                        $r->WhereRaw('UPPER(name) like ?', [strtoupper($keyword).'%'])
+                        ->orWhereRaw('UPPER(description) like ?', [strtoupper($keyword).'%']);
+                    });
+                })
+                ->first();
+        if ($wht) {
+            $whts = $whts->push($wht)->unique('tax_id');
+        }
+
+        return response()->json(['data' => $whts]);
     }
 
     public function getBankAccount(Request $request)
     {
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
-        $bankAccount = BankAccount::selectRaw('bank_account_id, bank_account_name, bank_account_num')
+        $bankAccounts = BankAccount::selectRaw('bank_account_id, bank_account_name, bank_account_num')
                         ->when($keyword, function ($query, $keyword) {
                             return $query->where(function($r) use ($keyword) {
                                 $r->WhereRaw('UPPER(bank_account_name) like ?', [strtoupper($keyword).'%'])
@@ -441,9 +644,22 @@ class LovController extends Controller
                             });
                         })
                         ->orderBy('bank_account_name')
+                        ->limit(50)
                         ->get();
 
-        return response()->json(['data' => $bankAccount]);
+        $bankAccount = BankAccount::selectRaw('bank_account_id, bank_account_name, bank_account_num')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->WhereRaw('UPPER(bank_account_name) like ?', [strtoupper($keyword).'%'])
+                                ->orWhereRaw('UPPER(bank_account_num) like ?', [strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->first();
+        if ($bankAccount) {
+            $bankAccounts = $bankAccounts->push($bankAccount)->unique('bank_account_id');
+        }
+
+        return response()->json(['data' => $bankAccounts]);
     }
 
     public function getContract(Request $request)
@@ -457,6 +673,7 @@ class LovController extends Controller
                             });
                         })
                         ->orderBy('attribute1')
+                        ->limit(50)
                         ->get();
 
         return response()->json(['data' => $contracts]);

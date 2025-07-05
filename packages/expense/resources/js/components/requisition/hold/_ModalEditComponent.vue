@@ -41,6 +41,37 @@
                                     <div id="_el_explode_supplier_bank" class="text-danger text-left"></div>
                                 </div>
                             </div>
+                            <template v-if="temp.remaining_receipt_flag == 'Y'">
+                                <div class="col-md-3 text-left">
+                                    <div class="form-group" style="padding: 5px;">
+                                        <label class="control-label">
+                                            <strong> เลขที่ใบเสร็จรับเงินคงเหลือ </strong>
+                                        </label><br>
+                                        <remainingReceipt
+                                            :setData="temp.remaining_receipt_id"
+                                            :editFlag="false"
+                                            :error="errors.remaining_receipt"
+                                            @setRemainingReceipt="setRemainingReceipt"
+                                        ></remainingReceipt>
+                                        <div id="_el_explode_remaining_receipt" class="text-danger text-left"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 text-left">
+                                    <div class="form-group" style="padding: 5px;">
+                                        <label class="control-label">
+                                            <strong> รายการบัญชีรับเงินคงเหลือ </strong>
+                                        </label><br>
+                                        <receiptAccount
+                                            :parent="temp.remaining_receipt_id"
+                                            :setData="temp.receipt_account"
+                                            :editFlag="false"
+                                            :error="errors.receipt_account"
+                                            @setReceiptAccount="setReceiptAccount"
+                                        ></receiptAccount>
+                                        <div id="_el_explode_receipt_account" class="text-danger text-left"></div>
+                                    </div>
+                                </div>
+                            </template>
                         </div>
                         <div class="row">
                             <div class="col-md-3 text-left">
@@ -254,20 +285,6 @@
                                     ></contract>
                                 </div>
                             </div>
-                            <div class="col-md-3 text-lefttext-left" v-if="line.remaining_receipt_flag == 'Y'">
-                                <div class="form-group" style="padding: 5px;">
-                                    <label class="control-label">
-                                        <strong> เลขที่ใบเสร็จรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
-                                    </label><br>
-                                    <remainingReceipt
-                                        :setData="temp.remaining_receipt_id"
-                                        :editFlag="true"
-                                        :error="errors.remaining_receipt"
-                                        @setRemainingReceipt="setRemainingReceipt"
-                                    ></remainingReceipt>
-                                    <div id="_el_explode_remaining_receipt" class="text-danger text-left"></div>
-                                </div>
-                            </div>
                         </div>
                     </form>
                 </div>
@@ -294,16 +311,19 @@
     import budgetType       from "../../lov/BudgetType.vue";
     import expenseType      from "../../lov/ExpenseType.vue";
     import remainingReceipt from "../../lov/RemainingReceipt.vue";
+    import receiptAccount   from "../../lov/ReceiptAccount.vue";
+    import contract         from "../../lov/Contract.vue";
     import coaComponent     from '../InputCOAComponent.vue';
 
     export default {
         components: {
-            supplier, supplierBank, vehicleOilType, utilityType, utilityDetail, budgetPlan, budgetType, expenseType, remainingReceipt, coaComponent
+            supplier, supplierBank, vehicleOilType, utilityType, utilityDetail, budgetPlan, budgetType, expenseType, remainingReceipt, receiptAccount, contract, coaComponent
         },
         props: ['index', 'requisition', 'reqLine', 'defaultSetName'],
         emits: ['updateRow'],
         data() {
             return {
+                contractSource: ['540'],
                 line: this.reqLine,
                 loading: false,
                 accounrCollp: false,
@@ -364,6 +384,7 @@
                 $(form).find("div[id='_el_explode_expense_type']").html("");
                 $(form).find("div[id='_el_explode_amount']").html("");
                 $(form).find("div[id='_el_explode_remaining_receipt']").html("");
+                $(form).find("div[id='_el_explode_receipt_account']").html("");
                 
                 if ((vm.line.supplier_id == '' || vm.line.supplier_id == undefined) && vm.requisition.multiple_supplier == 'MORE') {
                     vm.errors.supplier_detail = true;
@@ -395,18 +416,44 @@
                     errorMsg = "กรุณาเลือกประเภทค่าใช้จ่าย";
                     $(form).find("div[id='_el_explode_expense_type']").html(errorMsg);
                 }
-                if (vm.line.amount == '' || vm.line.amount == undefined) {
+                if (vm.line.amount == '' || vm.line.amount == undefined || vm.line.amount == 0) {
                     vm.errors.amount = true;
                     valid = false;
                     errorMsg = "กรุณากรอกจำนวนเงิน";
                     $(form).find("div[id='_el_explode_amount']").html(errorMsg);
                 }
-                if (vm.line.remaining_receipt_flag == 'Y' && (vm.line.remaining_receipt_id == '' || vm.line.remaining_receipt_id == undefined)) {
-                    vm.errors.remaining_receipt = true;
-                    valid = false;
-                    errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ";
-                    $(form).find("div[id='_el_explode_remaining_receipt']").html(errorMsg);
+
+                var cate = vm.temp.budget_plan.split('.');
+                if(cate[0] == 'XPN'){
+                    if (vm.temp.amount > 0) {
+                        vm.errors.amount = true;
+                        valid = false;
+                        errorMsg = "จำนวนเงินที่ระบุ ต้องติดลบ";
+                        $(form).find("div[id='_el_explode_amount']").html(errorMsg);
+                    }
                 }
+
+                if (vm.temp.remaining_receipt_flag == 'Y'){
+                    if ( vm.temp.remaining_receipt_id == '' || vm.temp.remaining_receipt_id == undefined) {
+                        vm.errors.remaining_receipt = true;
+                        valid = false;
+                        errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ";
+                        $(form).find("div[id='_el_explode_remaining_receipt']").html(errorMsg);
+                    }
+                    if (vm.temp.receipt_account == '') {
+                        vm.errors.receipt_account = true;
+                        valid = false;
+                        errorMsg = "กรุณาเลือกรายการบัญชีรับเงินคงเหลือ";
+                        $(form).find("div[id='_el_explode_receipt_account']").html(errorMsg);
+                    }
+                    if (vm.temp.amount > vm.temp.receipt_amount) {
+                        vm.errors.amount = true;
+                        valid = false;
+                        errorMsg = "จำนวนเงินที่ระบุ เกินกว่า งบประมาณที่มี";
+                        $(form).find("div[id='_el_explode_amount']").html(errorMsg);
+                    }
+                }
+
                 if (!valid) {
                     return;
                 }
@@ -481,6 +528,11 @@
             },
             setRemainingReceipt(res){
                 this.temp.remaining_receipt_id = res.remaining_receipt;
+            },
+            setReceiptAccount(res){
+                this.temp.receipt_account = res.receipt_account;
+                this.temp.expense_account = res.receipt_account;
+                this.temp.receipt_amount = res.receipt_amount;
             },
             async getExpenseAccount(){
                 var vm = this;

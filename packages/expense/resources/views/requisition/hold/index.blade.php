@@ -8,12 +8,6 @@
     </li>
 @endsection
 @section('content')
-    {{-- @if ($requisition->status == 'HOLD')
-        <div class="alert alert-danger background-danger mt-2">
-            <strong>{{ $requisition->hold_reason }}</strong>
-        </div>
-    @endif --}}
-
     <div class="card">
         <div class="card-header">
             <div class="row">

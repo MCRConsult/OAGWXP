@@ -50,6 +50,7 @@ return new class extends Migration
             $table->string('remaining_receipt_flag')->nullable();
             $table->integer('remaining_receipt_id')->nullable();
             $table->string('remaining_receipt_number')->nullable();
+            $table->string('receipt_account')->nullable();
             $table->integer('invl_reference_id')->nullable();
             $table->integer('cash_bank_account_id')->nullable(); // bank_account_id
             $table->string('contract_number')->nullable(); // bank_account_id

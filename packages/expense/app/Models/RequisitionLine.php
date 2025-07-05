@@ -49,4 +49,9 @@ class RequisitionLine extends Model
     {
         return $this->hasOne(FlexValueV::class, 'flex_value', 'utility_detail')->where('flex_value_set_name', 'OAG_AP_BUILDING/CODE/DAD');
     }
+
+    public function contract()
+    {
+        return $this->hasOne(ARPOATT1V::class, 'attribute1', 'contract_number');
+    }
 }

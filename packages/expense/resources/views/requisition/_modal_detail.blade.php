@@ -26,6 +26,16 @@
                                 {{ $line->bank_account_number }}
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group" style="padding: 5px;">
+                                <label class="control-label">
+                                    <strong> เลขที่ใบเสร็จรับเงินคงเหลือ </strong>
+                                </label><br>
+                                {{ $line->remaining_receipt_number ?? '-' }}
+                            </div>
+                        </div>
                         <div class="col-md-3 text-left">
                             <div class="form-group" style="padding: 5px;">
                                 <label class="control-label">
@@ -42,8 +52,6 @@
                                 {{ $line->budgetType->description }}
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-md-3 text-left">
                             <div class="form-group" style="padding: 5px;">
                                 <label class="control-label">
@@ -52,22 +60,14 @@
                                 {{ $line->expense->description }}
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-9 text-left">
                             <div class="form-group text-left" style="padding: 5px;">
                                 <label class="control-label">
                                     <strong> รายการบัญชี </strong>
                                 </label><br>
                                 {{ $line->expense_account }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="form-group" style="padding: 5px;">
-                                <label class="control-label">
-                                    <strong> เลขที่ใบเสร็จรับเงินคงเหลือ </strong>
-                                </label><br>
-                                {{ $line->remaining_receipt_number ?? '-' }}
                             </div>
                         </div>
                         <div class="col-md-3 text-left">
@@ -78,6 +78,8 @@
                                 {{ number_format($line->amount, 2) }}
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group" style="padding: 5px;">
                                 <label class="control-label">
@@ -178,7 +180,7 @@
                                 <label class="control-label">
                                     <strong> เลขที่สัญญา </strong>
                                 </label><br>
-                                {{ $line->contract_number ?? '-' }}
+                                {{ $line->contract_number? $line->contract->attribute1.': '.$line->contract->meaning: '-' }}
                             </div>
                         </div>
                     </div>

@@ -40,6 +40,37 @@
                                     <div id="_el_explode_supplier_bank" class="text-danger text-left"></div>
                                 </div>
                             </div>
+                            <template v-if="temp.remaining_receipt_flag == 'Y'">
+                                <div class="col-md-3 text-left">
+                                    <div class="form-group" style="padding: 5px;">
+                                        <label class="control-label">
+                                            <strong> เลขที่ใบเสร็จรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
+                                        </label><br>
+                                        <remainingReceipt
+                                            :setData="temp.remaining_receipt_id"
+                                            :editFlag="true"
+                                            :error="errors.remaining_receipt"
+                                            @setRemainingReceipt="setRemainingReceipt"
+                                        ></remainingReceipt>
+                                        <div id="_el_explode_remaining_receipt" class="text-danger text-left"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 text-left">
+                                    <div class="form-group" style="padding: 5px;">
+                                        <label class="control-label">
+                                            <strong> รายการบัญชีรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
+                                        </label><br>
+                                        <receiptAccount
+                                            :parent="temp.remaining_receipt_id"
+                                            :setData="temp.receipt_account"
+                                            :editFlag="true"
+                                            :error="errors.receipt_account"
+                                            @setReceiptAccount="setReceiptAccount"
+                                        ></receiptAccount>
+                                        <div id="_el_explode_receipt_account" class="text-danger text-left"></div>
+                                    </div>
+                                </div>
+                            </template>
                         </div>
                         <div class="row">
                             <div class="col-md-3 text-left">
@@ -248,7 +279,7 @@
                                     <el-input v-model="temp.receipt_number" style="width: 100%;" placeholder=""/>
                                 </div>
                             </div>
-                            <div class="col-md-3" v-if="contractSource.indexOf(requisition?.budget_source) !== -1">
+                            <div class="col-md-3 text-left" v-if="contractSource.indexOf(requisition?.budget_source) !== -1">
                                 <div class="form-group" style="padding: 5px;">
                                     <label class="control-label">
                                         <strong> เลขที่สัญญา</strong>
@@ -258,20 +289,6 @@
                                         :editFlag="true"
                                         @setContract= "setContract"
                                     ></contract>
-                                </div>
-                            </div>
-                            <div v-if="line.remaining_receipt_flag == 'Y'" class="col-md-3 text-left">
-                                <div class="form-group" style="padding: 5px;">
-                                    <label class="control-label">
-                                        <strong> เลขที่ใบเสร็จรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
-                                    </label><br>
-                                    <remainingReceipt
-                                        :setData="temp.remaining_receipt_id"
-                                        :editFlag="true"
-                                        :error="errors.remaining_receipt"
-                                        @setRemainingReceipt="setRemainingReceipt"
-                                    ></remainingReceipt>
-                                    <div id="_el_explode_remaining_receipt" class="text-danger text-left"></div>
                                 </div>
                             </div>
                         </div>
@@ -547,12 +564,13 @@
     import budgetType       from "../lov/BudgetType.vue";
     import expenseType      from "../lov/ExpenseType.vue";
     import remainingReceipt from "../lov/RemainingReceipt.vue";
+    import receiptAccount   from "../lov/ReceiptAccount.vue";
     import contract         from "../lov/Contract.vue";
     import coaComponent     from './InputCOAComponent.vue';
 
     export default {
         components: {
-            supplier, supplierBank, vehicleOilType, utilityType, utilityDetail, budgetPlan, budgetType, expenseType, remainingReceipt, contract, coaComponent
+            supplier, supplierBank, vehicleOilType, utilityType, utilityDetail, budgetPlan, budgetType, expenseType, remainingReceipt, receiptAccount, contract, coaComponent
         },
         props: ['index', 'requisition', 'reqLine', 'defaultSetName'],
         emits: ['updateRow'],
@@ -573,6 +591,7 @@
                     expense_type: false,
                     amount: false,
                     remaining_receipt: false,
+                    receipt_account: false,
                     segment1: false,
                     segment2: false,
                     segment3: false,
@@ -615,7 +634,6 @@
                 $('.modal-edit'+index).modal('show');
             },
             copyDataForEdit() {
-                // this.temp = { ...this.line };
                 this.temp = JSON.parse(JSON.stringify(this.line));
             },
             confirm(index) {
@@ -644,7 +662,7 @@
                 vm.errors.segment11 = false;
                 vm.errors.segment12 = false;
                 vm.errors.segment13 = false;
-
+                // MESSAGE ===================================================
                 $(form).find("div[id='_el_explode_supplier_detail']").html("");
                 $(form).find("div[id='_el_explode_supplier_bank']").html("");
                 $(form).find("div[id='_el_explode_cash_bank_account']").html("");
@@ -654,6 +672,7 @@
                 $(form).find("div[id='_el_explode_expense_account']").html("");
                 $(form).find("div[id='_el_explode_amount']").html("");
                 $(form).find("div[id='_el_explode_remaining_receipt']").html("");
+                $(form).find("div[id='_el_explode_receipt_account']").html("");
                 $(form).find("div[id='_el_explode_acc_1']").html("");
                 $(form).find("div[id='_el_explode_acc_2']").html("");
                 $(form).find("div[id='_el_explode_acc_3']").html("");
@@ -668,48 +687,74 @@
                 $(form).find("div[id='_el_explode_acc_12']").html("");
                 $(form).find("div[id='_el_explode_acc_13']").html("");
                 
-                if ((vm.line.supplier_id == '' || vm.line.supplier_id == undefined) && vm.requisition.multiple_supplier == 'MORE') {
+                if ((vm.temp.supplier_id == '' || vm.temp.supplier_id == undefined) && vm.requisition.multiple_supplier == 'MORE') {
                     vm.errors.supplier_detail = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกผู้สั่งจ่าย";
                     $(form).find("div[id='_el_explode_supplier_detail']").html(errorMsg);
                 }
-                if ((vm.line.bank_account_number == '' || vm.line.bank_account_number == undefined) && vm.requisition.multiple_supplier == 'MORE') {
+                if ((vm.temp.bank_account_number == '' || vm.temp.bank_account_number == undefined) && vm.requisition.multiple_supplier == 'MORE') {
                     vm.errors.supplier_bank = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกเลขที่บัญชีธนาคาร";
                     $(form).find("div[id='_el_explode_supplier_bank']").html(errorMsg);
                 }
-                if (vm.line.budget_plan == '' || vm.line.budget_plan == undefined) {
+                if (vm.temp.budget_plan == '' || vm.temp.budget_plan == undefined) {
                     vm.errors.budget_plan = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกแผนงาน";
                     $(form).find("div[id='_el_explode_budget_plan']").html(errorMsg);
                 }
-                if (vm.line.budget_type == '' || vm.line.budget_type == undefined) {
+                if (vm.temp.budget_type == '' || vm.temp.budget_type == undefined) {
                     vm.errors.budget_type = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกประเภทรายจ่าย";
                     $(form).find("div[id='_el_explode_budget_type']").html(errorMsg);
                 }
-                if (vm.line.expense_type == '' || vm.line.expense_type == undefined) {
+                if (vm.temp.expense_type == '' || vm.temp.expense_type == undefined) {
                     vm.errors.expense_type = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกประเภทค่าใช้จ่าย";
                     $(form).find("div[id='_el_explode_expense_type']").html(errorMsg);
                 }
-                if (vm.line.amount == '' || vm.line.amount == undefined) {
+                if (vm.temp.amount == '' || vm.temp.amount == undefined || vm.temp.amount == 0) {
                     vm.errors.amount = true;
                     valid = false;
                     errorMsg = "กรุณากรอกจำนวนเงิน";
                     $(form).find("div[id='_el_explode_amount']").html(errorMsg);
                 }
-                if (vm.line.remaining_receipt_flag == 'Y' && (vm.line.remaining_receipt_id == '' || vm.line.remaining_receipt_id == undefined)) {
-                    vm.errors.remaining_receipt = true;
-                    valid = false;
-                    errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ";
-                    $(form).find("div[id='_el_explode_remaining_receipt']").html(errorMsg);
+
+                var cate = this.temp.budget_plan.split('.');
+                if(cate[0] == 'XPN'){
+                    if (vm.temp.amount > 0) {
+                        vm.errors.amount = true;
+                        valid = false;
+                        errorMsg = "จำนวนเงินที่ระบุ ต้องติดลบ";
+                        $(form).find("div[id='_el_explode_amount']").html(errorMsg);
+                    }
                 }
+
+                if (vm.temp.remaining_receipt_flag == 'Y'){
+                    if ( vm.temp.remaining_receipt_id == '' || vm.temp.remaining_receipt_id == undefined) {
+                        vm.errors.remaining_receipt = true;
+                        valid = false;
+                        errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ";
+                        $(form).find("div[id='_el_explode_remaining_receipt']").html(errorMsg);
+                    }
+                    if (vm.temp.receipt_account == '') {
+                        vm.errors.receipt_account = true;
+                        valid = false;
+                        errorMsg = "กรุณาเลือกรายการบัญชีรับเงินคงเหลือ";
+                        $(form).find("div[id='_el_explode_receipt_account']").html(errorMsg);
+                    }
+                    if (vm.temp.amount > vm.temp.receipt_amount) {
+                        vm.errors.amount = true;
+                        valid = false;
+                        errorMsg = "จำนวนเงินที่ระบุ เกินกว่า งบประมาณที่มี";
+                        $(form).find("div[id='_el_explode_amount']").html(errorMsg);
+                    }
+                }
+
                 if ((vm.segment6 == '' || vm.segment6 == undefined) || (vm.segment7 == '' || vm.segment7 == undefined) || (vm.segment9 == '' || vm.segment9 == undefined) || (vm.segment10 == '' || vm.segment10 == undefined) || (vm.segment11 == '' || vm.segment11 == undefined)) {
                     vm.errors.expense_account = true;
                     valid = false;
@@ -807,7 +852,6 @@
                 }
             },
             cancel() {
-                // this.temp = null;
                 $('.modal-edit'+this.index).modal('hide');
             },
             setError(ref_name){
@@ -889,6 +933,12 @@
             },
             setRemainingReceipt(res){
                 this.temp.remaining_receipt_id = res.remaining_receipt;
+            },
+            setReceiptAccount(res){
+                this.temp.receipt_account = res.receipt_account;
+                this.temp.expense_account = res.receipt_account;
+                this.temp.receipt_amount = res.receipt_amount;
+                this.extractAccount();
             },
             updateCoa(res){
                 if (res.name == this.defaultSetName.segment1) { 

@@ -459,6 +459,7 @@
                     expense_account: false,
                     amount: false,
                     remaining_receipt: false,
+                    receipt_account: false,
                 },
                 requisition: {
                     reference_number: this.referenceNo,
@@ -737,23 +738,25 @@
                     errorMsg = "กรุณากรอกจำนวนเงิน";
                     $(form).find("div[id='el_explode_amount']").html(errorMsg);
                 }
-                if (vm.reqLine.remaining_receipt_flag == 'Y' && vm.reqLine.remaining_receipt_id == '') {
-                    vm.errors.remaining_receipt = true;
-                    valid = false;
-                    errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ";
-                    $(form).find("div[id='el_explode_remaining_receipt']").html(errorMsg);
-                }
-                if (vm.reqLine.remaining_receipt_flag == 'Y' && vm.reqLine.receipt_account == '') {
-                    vm.errors.receipt_account = true;
-                    valid = false;
-                    errorMsg = "กรุณาเลือกรายการบัญชีรับเงินคงเหลือ";
-                    $(form).find("div[id='el_explode_receipt_account']").html(errorMsg);
-                }
-                if (vm.reqLine.remaining_receipt_flag == 'Y' && vm.reqLine.amount > vm.reqLine.receipt_amount) {
-                    vm.errors.amount = true;
-                    valid = false;
-                    errorMsg = "จำนวนเงินที่ระบุ เกินกว่า งบประมาณที่มี";
-                    $(form).find("div[id='el_explode_amount']").html(errorMsg);
+                if (vm.reqLine.remaining_receipt_flag == 'Y' ) {
+                    if (vm.reqLine.remaining_receipt_id == '') {
+                        vm.errors.remaining_receipt = true;
+                        valid = false;
+                        errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ";
+                        $(form).find("div[id='el_explode_remaining_receipt']").html(errorMsg);
+                    }
+                    if (vm.reqLine.receipt_account == '') {
+                        vm.errors.receipt_account = true;
+                        valid = false;
+                        errorMsg = "กรุณาเลือกรายการบัญชีรับเงินคงเหลือ";
+                        $(form).find("div[id='el_explode_receipt_account']").html(errorMsg);
+                    }
+                    if (vm.reqLine.amount > vm.reqLine.receipt_amount) {
+                        vm.errors.amount = true;
+                        valid = false;
+                        errorMsg = "จำนวนเงินที่ระบุ เกินกว่า งบประมาณที่มี";
+                        $(form).find("div[id='el_explode_amount']").html(errorMsg);
+                    }
                 }
                 if ((vm.segment6 == '' || vm.segment6 == undefined) || (vm.segment7 == '' || vm.segment7 == undefined) || (vm.segment9 == '' || vm.segment9 == undefined) || (vm.segment10 == '' || vm.segment10 == undefined) || (vm.segment11 == '' || vm.segment11 == undefined)) {
                     vm.errors.expense_account = true;
@@ -799,8 +802,8 @@
                             console.log(JSON.parse(JSON.stringify(this.reqLine)));
                             this.linelists.push(JSON.parse(JSON.stringify(this.reqLine)));
                             let defaultLine = {
-                                budget_plan: '',
-                                budget_type: '',
+                                budget_plan: this.sourceDefault.indexOf(this.requisition.budget_source) !== -1? 'EXP.400.000000.0000000000':'',
+                                budget_type: this.sourceDefault.indexOf(this.requisition.budget_source) !== -1? 'EXP.400.400000.0000000000':'',
                                 supplier_id: this.requisition.multiple_supplier == 'ONE' ? this.requisition.supplier_id : '',
                                 supplier_name: this.requisition.multiple_supplier == 'ONE' ? this.requisition.supplier_name : '',
                                 bank_account_number: this.requisition.multiple_supplier == 'ONE' ? this.reqLine.bank_account_number : '',

@@ -8,6 +8,7 @@
                 remote-show-suffix
                 style="width: 100%"
                 ref="input"
+                :disabled="!editFlag"
                 @change="getDataRows"
             >
             <el-option
@@ -34,9 +35,9 @@ export default {
         }
     },
     mounted() {
-        // this.loading = true;
-        // this.value = this.setData;
-        // this.getDataRows(this.value);
+        this.loading = true;
+        this.value = this.setData;
+        this.getDataRows(this.value);
     },
     watch: {
         setData() {
