@@ -109,7 +109,7 @@
                 </template>
                 <template v-else>
                     <div class="row">
-                        <div class="row col-12">
+                        <div class="row col-12 pr-0">
                             <div class="col-md-9">
                                 <el-checkbox v-model="isAllSelected"
                                     label="เลือกทั้งหมด"
@@ -120,7 +120,7 @@
                                     style="margin: 1rem;" 
                                 > </el-checkbox>
                             </div>
-                            <div class="col-md-3 mt-3" align="right">
+                            <div class="col-md-3 mt-3 pr-0" align="right">
                                 <button v-if="listReq.length" type="button" class="btn btn-primary" @click.prevent="groupInvoice()">
                                     ถัดไป 
                                 </button>
@@ -144,7 +144,7 @@
                                                 <h5 class="mb-1 d-inline">
                                                     <template v-if="header.source_type == 'REQUISITION'">
                                                         {{ header.req_number }} {{ header.description? ' : '+header.description: '' }}
-                                                        <a class="btn btn-check btn-sm" style="font-size: 10px; padding: 2px;" 
+                                                        <a class="btn btn-check btn-sm" style="font-size: 12px; padding: 3px;" 
                                                             :href="'/expense/requisition/'+header.id" target="_blank">
                                                             ตรวจสอบ
                                                         </a>
