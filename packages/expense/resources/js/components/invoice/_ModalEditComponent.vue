@@ -107,6 +107,7 @@
                                         v-model="temp.amount"
                                         ref="amount"
                                         autocomplete="off"
+                                        @blur="changeAmount()"
                                     ></vue-numeric>
                                     <div id="_el_explode_amount" class="text-danger text-left"></div>
                                 </div>
@@ -528,6 +529,9 @@
                 // Segment
                 segment1: '', segment2: '', segment3: '', segment4: '', segment5: '', segment6: '',
                 segment7: '', segment8: '', segment9: '', segment10: '', segment11: '', segment12: '', segment13: '',
+                // Rate Percentage
+                tax_percent: 0,
+                wht_percent: 0,
             };
         },
         mounted() {
@@ -678,7 +682,6 @@
             },
             cancel() {
                 $('.modal-edit'+this.index).modal('hide');
-                // this.temp = null;
             },
             setError(ref_name){
                 let ref =  this.$refs[ref_name].$refs.referenceRef
@@ -728,11 +731,17 @@
             },
             setTax(res){
                 this.temp.tax_code = res.tax_code;
-                this.temp.tax_amount = (this.temp.amount*res.tax_percent)/100;
+                this.tax_percent = res.tax_percent;
+                this.temp.tax_amount = (this.temp.amount * res.tax_percent)/100;
             },
             setWht(res){
                 this.temp.wht_code = res.wht_code;
-                this.temp.wht_amount = (this.temp.amount*res.wht_percent)/100;
+                this.wht_percent = res.wht_percent;
+                this.temp.wht_amount = (this.temp.amount * res.wht_percent)/100;
+            },
+            changeAmount(){
+                this.temp.tax_amount = (this.temp.amount * this.tax_percent)/100;
+                this.temp.wht_amount = (this.temp.amount * this.wht_percent)/100;
             },
             setRemainingReceipt(res){
                 this.temp.remaining_receipt_id = res.remaining_receipt;

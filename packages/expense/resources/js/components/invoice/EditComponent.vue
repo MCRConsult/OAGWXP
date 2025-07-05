@@ -347,7 +347,7 @@
             totalApply() {
                 return this.linelists.reduce((accumulator, line) => {
                     this.totalApplyAmount = accumulator + parseFloat(line.amount);
-                    return accumulator + parseFloat(line.amount);
+                    return accumulator + parseFloat(line.amount) + parseFloat(line.tax_amount);
                 }, 0);
             },
         },
