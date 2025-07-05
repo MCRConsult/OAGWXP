@@ -431,6 +431,7 @@ class InvoiceController extends Controller
                 // INTERFACE TO AP INVOICE
                 if ($invoice->invoice_type == 'STANDARD' && $invoice->source_type == 'REQUISITION') {
                     $resultInf = $this->interfaceAPInvoice($invoiceId);
+                    logger('status interface AP : '. $resultInf);
                     if ($resultInf['status'] == 'S') {
                         RequisitionHeader::where('invoice_reference_id', $invoiceId)
                                             ->update([
@@ -444,7 +445,7 @@ class InvoiceController extends Controller
                             $result = (new BudgetInterfaceRepo)->unreserveBudgetREQ($invoice, $user);
                         }
                         if ($result['status'] == 'S') {
-                            $invoice->status    = 'INTERFACED';
+                            $invoice->status        = 'INTERFACED';
                             $invoice->save();
                         }else{
                             $invoice->status        = 'ERROR';
@@ -456,6 +457,7 @@ class InvoiceController extends Controller
                             'message' => $result['message']
                         ];
                     }else{
+                        logger('===== status interface AP is E then delete data out temp =====');
                         // DELETE TEMP INTERFACE BY INVOICE NUM
                         InvoiceInterfaceHeader::where('invoice_num', $invoice->invoice_num)
                                                         ->whereNull('x_invoice_id')
@@ -550,7 +552,7 @@ class InvoiceController extends Controller
     public function interfaceAPInvoice($invoiceId)
     {
         $invoice = InvoiceHeader::findOrFail($invoiceId);
-        logger('LOG Insert Inv==========='.date('Y-m-d H:i:s'));
+        logger('Insert Invoice==========='.date('Y-m-d H:i:s'));
         $result = (new InvoiceInterfaceRepo)->insertInterfaceAPInvoice($invoice);
         
         return $result;

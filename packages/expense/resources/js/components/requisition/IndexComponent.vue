@@ -4,7 +4,7 @@
             <div class="card-body tw-bg-yellow-200" style="border: 2px solid #ddd; border-radius: 5px;">
                 <form :action="pFormUrl">
                     <div class="row">
-                        <div class="form-group col-md-3">
+                        <div class="form-group col-md-2">
                             <label class="control-label">
                                 <strong> เลขที่เอกสารส่งเบิก </strong>
                             </label>
@@ -14,6 +14,19 @@
                                 :error="false"
                                 :editFlag="true"
                                 @setRequisition="setRequisition"
+                            />
+                        </div>
+
+                        <div class="form-group col-md-2">
+                            <label class="control-label">
+                                <strong> เลขที่ใบกำกับ </strong>
+                            </label>
+                            <input type="hidden" name="invoice_number" :value="search.invoice_number">
+                            <lovInvoice
+                                :setData="search.invoice_number"
+                                :error="false"
+                                :editFlag="true"
+                                @setInvoice="setInvoice"
                             />
                         </div>
 
@@ -63,7 +76,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group col-md-3">
+                        <div class="form-group col-md-2">
                             <label class="control-label">
                                 <strong> สถานะ </strong>
                             </label>
@@ -143,8 +156,15 @@
                                     <tr>
                                         <td class="text-left text-nowrap" style="vertical-align: middle;">
                                             {{ requisition.req_number }}
+                                            <template v-if="requisition.invoice_reference_id">
+                                                <div class="text-left small mt-1">
+                                                    <strong> เลขที่ใบกำกับ : {{ requisition.invioce_number_ref }} </strong>
+                                                </div>
+                                            </template>
                                             <template v-if="requisition.clear">
-                                                <br><small style="font-weight: bold;"> เคลียร์เงินยืม : {{ requisition.clear.req_number }} </small>
+                                                <div class="text-left small mt-1">
+                                                    <strong> เคลียร์เงินยืม : {{ requisition.clear.req_number }} </strong>
+                                                </div>
                                             </template>
                                         </td>
                                         <td class="text-center text-nowrap" style="vertical-align: middle;">
@@ -240,12 +260,13 @@ import moment   from "moment";
 import numeral  from "numeral";
 import Swal     from 'sweetalert2';
 import lovRequisition from "./lov/Requisition.vue";
+import lovInvoice from "./lov/Invoice.vue";
 import paymentType    from "./lov/PaymentType.vue";
 
 export default {
     props: ['pFormUrl', 'pSearch', 'pInvoiceTypes', 'pStatuses', 'pRequisitions'],
     components: {
-        lovRequisition, paymentType
+        lovRequisition, paymentType, lovInvoice
     },
     data() {
         return {
@@ -254,6 +275,7 @@ export default {
             req_date_input: '',
             search: {
                 req_number: '',
+                invoice_number: '',
                 invoice_type: '',
                 payment_type: '',
                 req_date: '',
@@ -269,6 +291,7 @@ export default {
     },
     mounted() {
         this.search.req_number = this.pSearch.length <= 0? '' : this.pSearch.req_number;
+        this.search.invoice_number = this.pSearch.length <= 0? '' : this.pSearch.invoice_number;
         this.search.invoice_type = this.pSearch.length <= 0? '' : this.pSearch.invoice_type;
         this.search.payment_type = this.pSearch.length <= 0? '' : this.pSearch.payment_type;
         this.req_date_input = this.req_date_input = this.pSearch && this.pSearch.req_date? moment(this.pSearch.req_date, 'YYYY-MM-DD'): '';
@@ -287,6 +310,9 @@ export default {
     methods: {
         setRequisition(res) {
             this.search.req_number = res.requisition;
+        },
+        setInvoice(res) {
+            this.search.invoice_number = res.nvoice;
         },
         setPaymentType(res){
             this.search.payment_type = res.payment_type;

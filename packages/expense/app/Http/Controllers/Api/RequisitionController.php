@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 use Packages\expense\app\Models\RequisitionHeader;
+use Packages\expense\app\Models\InvoiceHeader;
 use Packages\expense\app\Models\LookupV;
 use Packages\expense\app\Models\POExpenseAccountRuleV;
 use Packages\expense\app\Models\DocumentCategory;
@@ -25,9 +26,27 @@ class RequisitionController extends Controller
                             });
                         })
                         ->orderBy('req_number')
+                        ->limit(50)
                         ->get();
 
         return response()->json(['data' => $reqNumber]);
+    }
+
+    public function getInvoice(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $invNumber = InvoiceHeader::selectRaw('distinct invoice_number')
+                        ->whereHas('requisition')
+                        ->when($keyword, function ($query, $keyword) {
+                            return $query->where(function($r) use ($keyword) {
+                                $r->whereRaw('UPPER(invoice_number) like ?', ['%'.strtoupper($keyword).'%']);
+                            });
+                        })
+                        ->orderBy('invoice_number')
+                        ->limit(50)
+                        ->get();
+
+        return response()->json(['data' => $invNumber]);
     }
 
     public function getDocumentCategory(Request $request)

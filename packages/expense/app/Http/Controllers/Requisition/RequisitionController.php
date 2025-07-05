@@ -166,22 +166,8 @@ class RequisitionController extends Controller
     public function show($reqId)
     {
         $requisition = RequisitionHeader::findOrFail($reqId);
-        // if ($requisition->clear_flag == 'Y') {
-        //     return view('expense::requisition.clear.show', compact('requisition'));
-        // }
         return view('expense::requisition.show', compact('requisition'));
     }
-
-    // public function edit($reqId)
-    // {
-    //     $requisition = RequisitionHeader::where('id', $reqId)
-    //                         ->with(['lines', 'lines.expense', 'user', 'user.hrEmployee'])
-    //                         ->first();
-    //     $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
-    //     $defaultSetName = (new COAListV)->getDefaultSetName();
-
-    //     return view('expense::requisition.edit', compact('requisition', 'invoiceTypes', 'defaultSetName'));
-    // }
 
     public function hold($reqId)
     {
@@ -248,6 +234,7 @@ class RequisitionController extends Controller
         return view('expense::requisition.clear.edit', compact('requisition', 'invoiceTypes', 'defaultSetName'));
     }
 
+    // THIS FUNCTION USE HOLD AND CLEAR(SAVE CLEARING)
     public function update(Request $request, $reqId)
     {
         $user = auth()->user();
@@ -283,9 +270,6 @@ class RequisitionController extends Controller
             }
             $requisition->save();
 
-            if ($requisition->status == 'WAITING_CLEAR') {
-                RequisitionLine::where('req_header_id', $reqId)->where('split_flag', 'Y')->delete();
-            }
             foreach ($lines as $key => $line) {
                 if (is_null($line['split_flag']) || $requisition->status != 'WAITING_CLEAR') {
                     $lineTemp = RequisitionLine::FindOrfail($line['id']);
@@ -395,11 +379,109 @@ class RequisitionController extends Controller
                 $lineTemp->save();
             }
         }
-
-        return $lineTemp;
+        return;
     }
 
-    public function submitClearing($reqId)
+    public function clearUpdate(Request $request, $reqId)
+    {
+        $user = auth()->user();
+        $header = $request->header;
+        $lines = $request->lines;
+        \DB::beginTransaction();
+        try {
+            $requisition = RequisitionHeader::findOrFail($reqId);
+            $prefixReq = explode('_', $requisition->document_category);
+            $requisition->budget_source             = $header['budget_source'];
+            $requisition->invoice_type              = $header['invoice_type'];
+            $requisition->document_category         = $header['document_category'];
+            $requisition->req_date                  = date('Y-m-d', strtotime($header['req_date']));
+            $requisition->payment_type              = $header['payment_type'];
+            $requisition->supplier_id               = $header['supplier_id'];
+            $requisition->supplier_name             = $header['supplier_name'];
+            $requisition->multiple_supplier         = $header['multiple_supplier'];
+            $requisition->cash_bank_account_id      = $header['cash_bank_account_id'];
+            $requisition->total_amount              = $header['clear_flag'] == 'Y'? $requisition->total_amount: $request->totalApply;
+            $requisition->status                    = 'WAITING_CLEAR';
+            $requisition->description               = $header['description'];
+            $requisition->updated_by                = $user->id;
+            $requisition->updation_by               = $user->person_id;
+            $requisition->save();
+
+            foreach ($lines as $key => $line) {
+                $lineTemp = RequisitionLine::FindOrfail($line['id']);
+                $lineTemp->seq_number               = $key+1;
+                $lineTemp->supplier_id              = $line['supplier_id'];
+                $lineTemp->supplier_name            = $line['supplier_name'];
+                $lineTemp->supplier_site            = $line['supplier_site'];
+                $lineTemp->bank_account_number      = $line['bank_account_number'];
+                $lineTemp->budget_plan              = $line['budget_plan'];
+                $lineTemp->budget_type              = $line['budget_type'];
+                $lineTemp->expense_type             = $line['expense_type'];
+                $lineTemp->expense_description      = $line['expense_description'];
+                $lineTemp->expense_account          = $line['expense_account'];
+                $lineTemp->amount                   = $line['amount'];
+                if ($header['clear_flag'] == 'Y') {
+                    $lineTemp->actual_amount        = $line['actual_amount'];
+                }
+                $lineTemp->description              = $line['description'];
+                $lineTemp->vehicle_number           = $line['vehicle_number'];
+                $lineTemp->policy_number            = $line['policy_number'];
+                $lineTemp->vehicle_oil_type         = $line['vehicle_oil_type'];
+                $lineTemp->utility_type             = $line['utility_type'];
+                $lineTemp->utility_detail           = $line['utility_detail'];
+                $lineTemp->unit_quantity            = $line['unit_quantity'];
+                $lineTemp->invoice_number           = $line['invoice_number'];
+                $lineTemp->invoice_date             = !is_null($line['invoice_date'])? date('Y-m-d', strtotime($line['invoice_date'])): '';
+                $lineTemp->receipt_number           = $line['receipt_number'];
+                $lineTemp->receipt_date             = !is_null($line['receipt_date'])? date('Y-m-d', strtotime($line['receipt_date'])): '';
+                $lineTemp->remaining_receipt_flag   = $line['remaining_receipt_flag'];
+                $lineTemp->remaining_receipt_id     = $line['remaining_receipt_id'];
+                $lineTemp->remaining_receipt_number = $this->getRemainingRceipt($line['remaining_receipt_id']);
+                $lineTemp->contract_number          = $line['contract_number'];
+                $lineTemp->save();
+            }
+            \DB::commit();
+            $data = [
+                'status' => 'SUCCESS',
+                'message' => '',
+                'redirect_show_page' => $header['clear_flag'] == 'Y'
+                                        ? route('expense.requisition.clear-edit', $reqId)
+                                        : route('expense.requisition.show', $reqId)
+            ];
+        } catch (\Exception $e) {
+            \DB::rollback();
+            \Log::error($e);
+            $data = [
+                'status' => 'ERROR',
+                'message' => $e->getMessage(),
+            ];
+        }
+        return response()->json($data);
+    }
+
+    public function clearRemove(Request $request, $reqId)
+    {
+        \DB::beginTransaction();
+        try {
+            $line = $request->line;
+            $lineTemp = RequisitionLine::where('id', $line['id'])->delete();
+            \DB::commit();
+            $data = [
+                'status' => 'SUCCESS',
+                'message' => '',
+            ];
+        } catch (Exception $e) {
+            \DB::rollback();
+            \Log::error($e);
+            $data = [
+                'status' => 'ERROR',
+                'message' => $e->getMessage(),
+            ];
+        }
+        return response()->json($data);
+    }
+
+    public function clearSubmit($reqId)
     {
         $user = auth()->user();
         \DB::beginTransaction();

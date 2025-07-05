@@ -32,10 +32,19 @@ class InvoiceInterfaceRepo {
                 $attr14 = $invoice->invoice_number;
             }
         }
-        
+        // DELETE TEMP INTERFACE BY INVOICE NUM ==========================================
+        $invoiceInf = InvoiceInterfaceHeader::where('invoice_num', $invoice->invoice_num)
+                                        ->whereNull('x_invoice_id')
+                                        ->first();
+        if ($invoiceInf) {
+            InvoiceInterfaceHeader::where('invoice_num', $invoice->invoice_num)
+                                        ->whereNull('x_invoice_id')
+                                        ->delete();
+            InvoiceInterfaceLine::where('invoice_num', $invoice->invoice_num)->delete();
+        }
+        // ===============================================================================
 		\DB::beginTransaction();
 		try {
-            // INTERFACE HEADER
             $headerInf                              = new InvoiceInterfaceHeader;
             $headerInf->invoice_num                 = $invoice->invoice_number;
             $headerInf->source                      = 'Manual Invoice Entry';
@@ -81,7 +90,7 @@ class InvoiceInterfaceRepo {
                 $lineInf                            = new InvoiceInterfaceLine;
                 $lineInf->invoice_num               = $invoice->invoice_number;
                 $lineInf->line_number               = $line->seq_number;
-                $lineInf->line_type_lookup_code     = 'ITEM'; // $invoice->invoice_type == 'STANDARD'? 'ITEM': 'PREPAY';
+                $lineInf->line_type_lookup_code     = 'ITEM';
                 $lineInf->accounting_date           = date('Y-m-d', strtotime($invoice->invoice_date));
                 $lineInf->amount                    = $line->amount;
                 $lineInf->wht_code                  = $line->wht_code;
@@ -104,7 +113,6 @@ class InvoiceInterfaceRepo {
                 $lineInf->global_attribute2         = $line->policy_number;
                 $lineInf->global_attribute3         = $line->vehicle_oil_type;
                 $lineInf->perpay_invoice_number     = optional(optional($invoice->requisition)->clear)->invioce_number_ref;
-
                 $lineInf->web_batch_no              = $batchNo;
                 $lineInf->creation_date             = Carbon::now();
                 $lineInf->last_update_date          = Carbon::now();
@@ -113,7 +121,8 @@ class InvoiceInterfaceRepo {
                 $lineInf->save();
             }
 			\DB::commit();
-            // CALL PACKAGE
+
+            // ======== CALL PACKAGE
             $result = (new InvoiceHeader)->callInterfaceAPInvoice($batchNo);
             $data = [
                 'status' => $result['status'],

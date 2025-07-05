@@ -331,8 +331,6 @@
             errors: {
                 handler(val){
                     val.invoice_type? this.setError('invoice_type') : this.resetError('invoice_type');
-                    val.expense_account? this.setError('expense_account') : this.resetError('expense_account');
-                    val.amount? this.setError('amount') : this.resetError('amount');
                 },
                 deep: true,
             },
@@ -403,6 +401,35 @@
                     this.reqLine.bank_account_number = '';
                     this.reqLine.supplier_site = '';
                 }
+            },
+            isARReceipt(budgetSource) {
+                this.reqLine.remaining_receipt_flag = this.budgetSource.indexOf(budgetSource) !== -1? 'Y': 'N';
+            },
+            getDocumentCate(budgetSource){
+                axios.get(`/expense/api/requisition/get-document-category`, {
+                    params: {
+                        budget_source: budgetSource
+                    }
+                })
+                .then(res => {
+                    // if(budgetSource != null && res.data.data == null){
+                    //     this.$notify({
+                    //         title: 'แจ้งเตือน',
+                    //         message: 'ไม่พบข้อมูล กรุณาตรวจสอบ',
+                    //         type: 'warning'
+                    //     });
+                    // }else if(budgetSource != null || budgetSource != ''){
+                        // console.log(res.data.data);
+                        this.requisition.document_category = res.data.data? res.data.data.tag: '';
+                    // }
+                })
+                .catch((error) => {
+                    this.$notify({
+                        title: 'แจ้งเตือน',
+                        message: error,
+                        type: 'warning'
+                    });
+                })
             },
             updateRow(response){
                 console.log(response.line);
@@ -610,6 +637,24 @@
                     errorMsg = "กรุณาเลือกผู้สั่งจ่าย";
                     $(form).find("div[id='el_explode_supplier']").html(errorMsg);
                 }
+                if (vm.requisition.description == '') {
+                    vm.errors.header_desc = true;
+                    valid = false;
+                    errorMsg = "กรุณากรอกคำอธิบาย";
+                    $(form).find("div[id='el_explode_header_desc']").html(errorMsg);
+                }
+                // VALIDATE ACCOUNT LINE LEVEL
+                vm.linelists.forEach((item, index) => {
+                    var coa = item.expense_account.split('.');
+                    if ((coa[5] == '' || coa[5] == undefined) || (coa[6] == '' || coa[6] == undefined) || (coa[8] == '' || coa[8] == undefined) || (coa[9] == '' || coa[9] == undefined) || (coa[10] == '' || coa[10] == undefined)) {
+                        valid = false;
+                        vm.$notify({
+                            title: 'แจ้งเตือน',
+                            message: 'กรุณาตรวจสอบรายการบัญชีแต่ละรายการอีกครั้ง',
+                            type: 'warning'
+                        });
+                    }
+                });
                 if (vm.linelists.length == 0) {
                     valid = false;
                     vm.$notify({
@@ -640,7 +685,7 @@
                             allowOutsideClick: false
                         });
                         // POST METHOD
-                        axios.post('/expense/requisition/'+vm.header.id+'/update', {
+                        axios.post('/expense/requisition/'+vm.header.id+'/clear-update', {
                             header: this.header,
                             lines: this.linelists,
                             totalApply: this.totalApply
@@ -746,6 +791,18 @@
                     errorMsg = "กรุณากรอกคำอธิบาย";
                     $(form).find("div[id='el_explode_header_desc']").html(errorMsg);
                 }
+                // VALIDATE ACCOUNT LINE LEVEL
+                vm.linelists.forEach((item, index) => {
+                    var coa = item.expense_account.split('.');
+                    if ((coa[5] == '' || coa[5] == undefined) || (coa[6] == '' || coa[6] == undefined) || (coa[8] == '' || coa[8] == undefined) || (coa[9] == '' || coa[9] == undefined) || (coa[10] == '' || coa[10] == undefined)) {
+                        valid = false;
+                        vm.$notify({
+                            title: 'แจ้งเตือน',
+                            message: 'กรุณาตรวจสอบรายการบัญชีแต่ละรายการอีกครั้ง',
+                            type: 'warning'
+                        });
+                    }
+                });
                 if (vm.linelists.length == 0) {
                     valid = false;
                     vm.$notify({
@@ -776,7 +833,7 @@
                             allowOutsideClick: false
                         });
                         // POST METHOD
-                        axios.get('/expense/requisition/'+vm.header.id+'/submit-clearing')
+                        axios.get('/expense/requisition/'+vm.header.id+'/clear-submit')
                         .then(function (res) {
                             if (res.data.message) {
                                 Swal.fire({
@@ -821,34 +878,43 @@
                     }
                 });
             },
-            isARReceipt(budgetSource) {
-                this.reqLine.remaining_receipt_flag = this.budgetSource.indexOf(budgetSource) !== -1? 'Y': 'N';
-            },
-            getDocumentCate(budgetSource){
-                axios.get(`/expense/api/requisition/get-document-category`, {
-                    params: {
-                        budget_source: budgetSource
+            async removeRow(index) {
+                var vm = this;
+                axios.post('/expense/requisition/'+vm.header.id+'/clear-remove', {
+                    line: vm.linelists[index],
+                    seq: index,
+                })
+                .then(function (res) {
+                    vm.loading = false;
+                    if (res.data.message) {
+                        Swal.fire({
+                            title: "มีข้อผิดพลาด",
+                            text: res.data.message,
+                            icon: "error",
+                            showCancelButton: false,
+                            confirmButtonColor: "#3085d6",
+                            confirmButtonText: "ตกลง",
+                            allowOutsideClick: false
+                        });
+                    } else {
+                        vm.linelists.splice(index, 1);
                     }
-                })
-                .then(res => {
-                    // if(budgetSource != null && res.data.data == null){
-                    //     this.$notify({
-                    //         title: 'แจ้งเตือน',
-                    //         message: 'ไม่พบข้อมูล กรุณาตรวจสอบ',
-                    //         type: 'warning'
-                    //     });
-                    // }else if(budgetSource != null || budgetSource != ''){
-                        // console.log(res.data.data);
-                        this.requisition.document_category = res.data.data? res.data.data.tag: '';
-                    // }
-                })
-                .catch((error) => {
-                    this.$notify({
-                        title: 'แจ้งเตือน',
-                        message: error,
-                        type: 'warning'
+                }.bind(vm))
+                .catch(err => {
+                    let msg = err.response;
+                    Swal.fire({
+                        title: "มีข้อผิดพลาด",
+                        text: msg.message,
+                        icon: "error",
+                        showCancelButton: false,
+                        confirmButtonColor: "#3085d6",
+                        confirmButtonText: "ตกลง",
+                        allowOutsideClick: false
                     });
                 })
+                .then(() => {
+                    vm.loading = false;
+                });
             },
         },
     }

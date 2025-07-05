@@ -24,7 +24,7 @@ class RequisitionHeader extends Model
 
     public function lines()
     {
-        return $this->hasMany(RequisitionLine::class, 'req_header_id', 'id');
+        return $this->hasMany(RequisitionLine::class, 'req_header_id', 'id')->orderBy('seq_number');
     }
 
     public function clear()
@@ -189,6 +189,8 @@ class RequisitionHeader extends Model
                     $q->where($key, 'like', "%$value%");
                 }else if ($key == 'supplier') {
                     $q->where('supplier_id', $value);
+                }else if ($key == 'invoice_number') {
+                    $q->where('invioce_number_ref', $value);
                 }else if ($key == 'req_date') {
                     $date = date('Y-m-d', strtotime($value));
                     $q->whereDate('req_date', $date);

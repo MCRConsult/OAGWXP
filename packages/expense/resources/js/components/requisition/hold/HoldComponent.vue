@@ -280,7 +280,7 @@
                     req_date: false,
                     payment_type: false,
                     supplier: false,
-                    header_desc: false
+                    header_desc: false,
                     supplier_detail: false,
                     supplier_bank: false,
                     budget_plan: false,
