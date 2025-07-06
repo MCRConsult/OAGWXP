@@ -431,7 +431,8 @@ class InvoiceController extends Controller
                 // INTERFACE TO AP INVOICE
                 if ($invoice->invoice_type == 'STANDARD' && $invoice->source_type == 'REQUISITION') {
                     $resultInf = $this->interfaceAPInvoice($invoiceId);
-                    logger('status interface AP : '. $resultInf);
+                    logger('status interface AP');
+                    logger($resultInf);
                     if ($resultInf['status'] == 'S') {
                         RequisitionHeader::where('invoice_reference_id', $invoiceId)
                                             ->update([
@@ -459,10 +460,11 @@ class InvoiceController extends Controller
                     }else{
                         logger('===== status interface AP is E then delete data out temp =====');
                         // DELETE TEMP INTERFACE BY INVOICE NUM
-                        InvoiceInterfaceHeader::where('invoice_num', $invoice->invoice_num)
+                        InvoiceInterfaceHeader::where('invoice_num', $invoice->invoice_number)
                                                         ->whereNull('x_invoice_id')
                                                         ->delete();
-                        InvoiceInterfaceLine::where('invoice_num', $invoice->invoice_num)->delete();
+                        InvoiceInterfaceLine::where('invoice_num', $invoice->invoice_number)->delete();
+                        \DB::commit();
                         $data = [
                             'status' => 'ERROR',
                             'message' => $resultInf['message'],

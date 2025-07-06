@@ -32,17 +32,7 @@ class InvoiceInterfaceRepo {
                 $attr14 = $invoice->invoice_number;
             }
         }
-        // DELETE TEMP INTERFACE BY INVOICE NUM ==========================================
-        $invoiceInf = InvoiceInterfaceHeader::where('invoice_num', $invoice->invoice_num)
-                                        ->whereNull('x_invoice_id')
-                                        ->first();
-        if ($invoiceInf) {
-            InvoiceInterfaceHeader::where('invoice_num', $invoice->invoice_num)
-                                        ->whereNull('x_invoice_id')
-                                        ->delete();
-            InvoiceInterfaceLine::where('invoice_num', $invoice->invoice_num)->delete();
-        }
-        // ===============================================================================
+
 		\DB::beginTransaction();
 		try {
             $headerInf                              = new InvoiceInterfaceHeader;
