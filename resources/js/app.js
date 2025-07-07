@@ -37,8 +37,14 @@ import EditInvoiceComponent from '/packages/expense/resources/js/components/invo
 import ReInterfaceInvoiceComponent from '/packages/expense/resources/js/components/invoice/_ReInterfaceComponent.vue';
 import InterfaceInvoiceComponent from '/packages/expense/resources/js/components/invoice/interface-log/IndexComponent.vue';
 
+// SETTING
+// USER
 import UserComponent from '/packages/expense/resources/js/components/settings/user/indexComponent.vue';
 import ShowUserComponent from '/packages/expense/resources/js/components/settings/user/ShowComponent.vue';
+// PERMISSION
+import PermissionComponent from '/packages/expense/resources/js/components/settings/permission/IndexComponent.vue';
+import CreatePermissionComponent from '/packages/expense/resources/js/components/settings/permission/CreateComponent.vue';
+import ShowPermissionComponent from '/packages/expense/resources/js/components/settings/permission/ShowComponent.vue';
 
 import ReportComponent from '/packages/expense/resources/js/components/report/ReportComponent.vue';
 
@@ -67,6 +73,10 @@ app.component('report-component', ReportComponent);
 
 app.component('user-component', UserComponent);
 app.component('user-show-component', ShowUserComponent);
+
+app.component('permission-component', PermissionComponent);
+app.component('permission-create-component', CreatePermissionComponent);
+app.component('permission-show-component', ShowPermissionComponent);
 
 // ## Register Component is here
 app.mount("#app");

@@ -105,6 +105,14 @@ Route::group(['middleware' => ['web', 'auth']], function () {
                 Route::get('/{user_id}', '\Packages\expense\app\Http\Controllers\Settings\UserController@show')->name('show');
                 Route::post('/{user_id}/update', '\Packages\expense\app\Http\Controllers\Settings\UserController@update')->name('update');
             });
+
+            Route::prefix('permission')->namespace('Permission')->name('permission.')->group(function() {
+                Route::get('/', '\Packages\expense\app\Http\Controllers\Settings\PermissionController@index')->name('index');
+                Route::get('/create', '\Packages\expense\app\Http\Controllers\Settings\PermissionController@create')->name('create');
+                Route::post('/', '\Packages\expense\app\Http\Controllers\Settings\PermissionController@store')->name('store');
+                Route::get('/{permission_id}', '\Packages\expense\app\Http\Controllers\Settings\PermissionController@show')->name('show');
+                Route::post('/{permission_id}/update', '\Packages\expense\app\Http\Controllers\Settings\PermissionController@update')->name('update');
+            });
         });
     });
 });

@@ -45,6 +45,11 @@
                             <i class="nav-icon fa fa-users "></i> ผู้ใช้งาน
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-title nav-link" href="{{ route('expense.settings.permission.index') }}">
+                            <i class="nav-icon fa fa-user-secret "></i> สิทธิ์เข้าถึงการใช้งาน
+                        </a>
+                    </li>
                 </ul>
             </li>
         </ul>

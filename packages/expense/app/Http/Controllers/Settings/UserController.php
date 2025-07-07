@@ -9,6 +9,7 @@ use Auth;
 use Carbon\Carbon;
 
 use App\Models\User;
+use Packages\expense\app\Models\Permission;
 
 class UserController extends Controller
 {
@@ -36,7 +37,8 @@ class UserController extends Controller
         $user = User::with(['hrEmployee', 'organizationV', 'location'])
                     ->where('id', $userId)
                     ->first();
-        
+        // $permission = Permission::
+
         return view('expense::settings.user.show', compact('user'));
     }
 

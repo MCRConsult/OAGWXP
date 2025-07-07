@@ -125,11 +125,13 @@ class InvoiceController extends Controller
     // GROUP REQUISITION ============================================
     public function fetchRequisition(Request $request)
     {
+        $user = auth()->user();
         $requistion = [];
         $invMapping = [];
         if ($request->search['source_data'] == 'REQUISITION') {
             $requistion = RequisitionHeader::search($request->search)
                                 ->with(['user', 'user.hrEmployee', 'invoiceType', 'supplier'])
+                                ->where('org_id', $user->org_id)
                                 ->where('payment_type', 'PAYMENT')
                                 ->whereIn('status', ['PENDING', 'COMPLETED'])
                                 ->whereNull('invoice_reference_id')
@@ -138,6 +140,7 @@ class InvoiceController extends Controller
         }else{
             $invMapping = MappingAutoInvoiceV::selectRaw('distinct supplier_id, invoice_type, req_number, sum(amount) total_amount')
                                 ->search($request->search)
+                                ->where('org_id', $user->org_id)
                                 ->doesntHave('invoiceLine')
                                 ->with(['invoiceType', 'supplier'])
                                 ->groupBy('invoice_type', 'req_number', 'supplier_id')
@@ -167,12 +170,14 @@ class InvoiceController extends Controller
         if ($request->search['source_data'] == 'REQUISITION') {
             $requistion = RequisitionHeader::search($request->search)
                                 ->with(['user', 'user.hrEmployee', 'invoiceType', 'supplier'])
+                                ->where('org_id', $user->org_id)
                                 ->whereIn('status', ['PENDING', 'COMPLETED'])
                                 ->whereNull('invoice_reference_id')
                                 ->orderBy('req_number')
                                 ->get();
         }else{
            $invMapping = MappingAutoInvoiceV::selectRaw('distinct supplier_id, invoice_type, req_number, sum(amount) total_amount')
+                                ->where('org_id', $user->org_id)
                                 ->doesntHave('invoiceLine')
                                 ->with(['invoiceType', 'supplier'])
                                 ->groupBy('invoice_type', 'req_number', 'supplier_id')

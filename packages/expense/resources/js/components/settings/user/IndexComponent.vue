@@ -91,7 +91,7 @@
                                 </template>
                             </td>
                             <td class="text-center text-nowrap" style="vertical-align: middle;">
-                                <a class="btn btn-sm btn-light active mr-1"
+                                <a class="btn btn-sm btn-check"
                                     :href="'/expense/settings/user/'+user.id">
                                     ตรวจสอบ
                                 </a>

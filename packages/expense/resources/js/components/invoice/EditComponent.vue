@@ -82,7 +82,7 @@
                             <supplier
                                 :setData="header.supplier_id"
                                 :error="errors.supplier"
-                                :editFlag="false"
+                                :editFlag="header.source_type == 'RECEIPT'? true: false"
                                 @setSupplier="setSupplier"
                             ></supplier>
                         </div>
@@ -347,7 +347,7 @@
             totalApply() {
                 return this.linelists.reduce((accumulator, line) => {
                     this.totalApplyAmount = accumulator + parseFloat(line.amount);
-                    return accumulator + parseFloat(line.amount) + parseFloat(line.tax_amount);
+                    return accumulator + parseFloat(line.amount) + parseFloat(line.tax_amount? line.tax_amount: 0);
                 }, 0);
             },
         },
