@@ -49,7 +49,7 @@ class RequisitionController extends Controller
         $statuses = ['COMPLETED'        => 'รอเบิกจ่าย'
                     , 'PENDING'         => 'รอจัดสรร'
                     , 'HOLD'            => 'รอตรวจสอบ'
-                    , 'WAITING_CLEAR'   => 'ล้างบัญชี'
+                    , 'WAITING_CLEAR'   => 'รอเคลียร์เงินยืม'
                     , 'INTERFACED'      => 'ตั้งเบิก'
                     , 'ERROR'           => 'ตั้งเบิกไม่สำเร็จ'
                     , 'REVERSED'        => 'กลับรายการบัญชีแล้ว'
