@@ -14,7 +14,7 @@ class PermissionController extends Controller
 {
     public function index()
     {
-        $permissions = Permission::orderBy('seq_number')->get();
+        $permissions = Permission::orderBy('id')->get();
 
         return view('expense::settings.permission.index', compact('permissions'));
     }
@@ -75,6 +75,16 @@ class PermissionController extends Controller
         $perm = $request->permission;
         try {
             $perCode = $perm['group'].'_'.$perm['code'];
+            $checkPermission = Permission::where('id', '!=', $permission_id)
+                                    ->where('permission_code', $perCode)
+                                    ->first();
+            if ($checkPermission) {
+                $data = [
+                    'status' => 'ERROR',
+                    'message' => 'มีข้อมูลสิทธิ์การใช้งานนี้แล้ว'
+                ];
+                return response()->json($data);
+            }
 
             $permission = Permission::findOrFail($permission_id);
             $permission->permission_group   = $perm['group'];

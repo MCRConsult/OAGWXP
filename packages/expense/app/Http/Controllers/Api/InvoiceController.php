@@ -165,12 +165,14 @@ class InvoiceController extends Controller
 
     public function fetchRequisitionRenderPage(Request $request)
     {
+        $user = auth()->user();
         $requistion = [];
         $invMapping = [];
         if ($request->search['source_data'] == 'REQUISITION') {
             $requistion = RequisitionHeader::search($request->search)
                                 ->with(['user', 'user.hrEmployee', 'invoiceType', 'supplier'])
                                 ->where('org_id', $user->org_id)
+                                ->where('payment_type', 'PAYMENT')
                                 ->whereIn('status', ['PENDING', 'COMPLETED'])
                                 ->whereNull('invoice_reference_id')
                                 ->orderBy('req_number')

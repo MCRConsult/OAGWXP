@@ -49,9 +49,9 @@ return new class extends Migration
             $table->string('remaining_receipt_number')->nullable();
 
             $table->string('tax_code')->nullable();
-            $table->string('tax_amount', 18,2)->nullable();
+            $table->string('tax_amount', 18,2)->nullable()->default(0);
             $table->string('wht_code')->nullable();
-            $table->string('wht_amount', 18,2)->nullable();
+            $table->string('wht_amount', 18,2)->nullable()->default(0);
 
             $table->integer('ar_receipt_id')->nullable();
             $table->string('ar_receipt_number')->nullable();

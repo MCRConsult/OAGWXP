@@ -37,9 +37,11 @@ class UserController extends Controller
         $user = User::with(['hrEmployee', 'organizationV', 'location'])
                     ->where('id', $userId)
                     ->first();
-        // $permission = Permission::
+        // PERMISSION
+        $permissionGroups = Permission::selectRaw("distinct permission_group")->get()->groupBy('permission_group');
+        $permissions = Permission::orderBy('id')->get()->groupBy('permission_group');
 
-        return view('expense::settings.user.show', compact('user'));
+        return view('expense::settings.user.show', compact('user', 'permissionGroups', 'permissions'));
     }
 
     public function update(Request $request, $userId)

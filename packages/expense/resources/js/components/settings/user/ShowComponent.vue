@@ -57,16 +57,36 @@
                 <div class="col-md-6">
                     <div class="row">
                         <div class="col-md-12">
-                            <div class="form-group" >
-                                <label class="control-label">
+                            <div class="form-group">
+                                <label class="control-label mb-3">
                                     <strong> <i class="fa fa-user-secret"></i> &nbsp; สิทธิ์การเข้าถึงการใช้งาน </strong>
                                 </label>
+                                <template v-for="(perm_in_group, group) in permissions">
+                                    <div class="mb-2">
+                                        <span class="badge badge-primary"
+                                            :style="'font-size: 12px; padding: 4px; background-color: #'+permissionGroups[group][0].perm_group_color+'; border-color: #'+permissionGroups[group][0].perm_group_color+';'">
+                                            {{ permissionGroups[group][0].perm_group_title }}
+                                        </span>
+                                        <template v-for="(perm) in perm_in_group">
+                                            <div class="ml-4">
+                                                <el-checkbox
+                                                    class="small mb-0 m-0 mr-2"
+                                                    :key="perm.permission_code"
+                                                    v-model="selectPerms[perm.permission_code]" 
+                                                    :name="'check_perm_'+perm.permission_code"
+                                                    size="default"
+                                                    @change="choosePerm(perm)"
+                                                /> {{ perm.description }}
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
                             </div>
                         </div>   
                     </div>
                 </div>
             </div>
-            <div align="center">
+            <div class=" mt-3" align="center">
                 <button type="button" class="btn btn-primary btn-sm mr-2" @click.prevent="update()"> บันทีก </button>
                 <a :href="pFormUrl" type="button" class="btn btn-danger btn-sm"> ยกเลิก </a>
             </div>
@@ -78,7 +98,7 @@
 import Swal from 'sweetalert2';
 
 export default {
-    props: ['pFormUrl', 'user'],
+    props: ['pFormUrl', 'user', 'permissionGroups', 'permissions'],
     components: {
         //
     },
@@ -86,13 +106,33 @@ export default {
         return {
             loading: false,
             status: this.user.is_active == 1? true: false,
-            permissions: {},
+            selectPerms: {},
+            listPerms: [],
         };
     },
     mounted() {
         
     },
     methods: {
+        fetchPerm(){
+            // LOOP DATA FOR SET PERMISSION
+            // vm.selectPerms[code] = true;
+            // vm.listPerms.push(code);
+        },
+        choosePerm(perm){
+            let vm = this;
+            let code = perm.permission_code;
+            let checked = $('input[name="check_perm_'+code+'"]').prop('checked');
+            if(checked){
+                vm.selectPerms[code] = true;
+                vm.listPerms.push(code);
+            }else{
+                vm.selectPerms[code] = false;
+                vm.listPerms = vm.listPerms.filter(function(value) {
+                    return value != code
+                });
+            }
+        },
         async update(){
             let vm = this;
             vm.loading = true;

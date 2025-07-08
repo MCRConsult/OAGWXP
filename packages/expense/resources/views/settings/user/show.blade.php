@@ -23,8 +23,10 @@
         <div class="card-body">
             <div class="ibox float-e-margins">
                 <user-show-component
-                    p-form-url  = "{{ route('expense.settings.user.index') }}"
-                    :user       = "{{ json_encode($user) }}"
+                    p-form-url   = "{{ route('expense.settings.user.index') }}"
+                    :user        = "{{ json_encode($user) }}"
+                    :permission-groups = "{{ json_encode($permissionGroups) }}"
+                    :permissions = "{{ json_encode($permissions) }}"
                 ></user-show-component>
             </div>
         </div>
