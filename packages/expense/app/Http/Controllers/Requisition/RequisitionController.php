@@ -762,14 +762,15 @@ class RequisitionController extends Controller
                                                 'process_flag'         => 'NEW'
                                                , 'interface_msg'       => ''
                                                , 'interface_status'    => ''
-                                               , 'revers_flag'         => 'Y'
+                                               , 'reverse_flag'         => 'Y'
                                             ]);
             \DB::commit();
             // INTERFACE GL REVERSE
             $reverseJournal =  GLJournalInterface::where('reference2', $requisition->req_number)->first();
             $resultInf = (new RequisitionHeader)->callInterfaceJournal($reverseJournal->reference1);
             if ($resultInf['status'] == 'S') {
-                $requisition->status  = 'REVERSED';
+                $requisition->status        = 'REVERSED';
+                $requisition->reverse_flag  = 'Y';
                 $requisition->save();
                 $data = [
                     'status' => 'SUCCESS',

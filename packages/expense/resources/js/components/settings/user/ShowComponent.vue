@@ -98,7 +98,7 @@
 import Swal from 'sweetalert2';
 
 export default {
-    props: ['pFormUrl', 'user', 'permissionGroups', 'permissions'],
+    props: ['pFormUrl', 'user', 'permissionGroups', 'permissions', 'permissionUsers'],
     components: {
         //
     },
@@ -111,13 +111,16 @@ export default {
         };
     },
     mounted() {
-        
+        this.fetchPerm();
     },
     methods: {
         fetchPerm(){
             // LOOP DATA FOR SET PERMISSION
-            // vm.selectPerms[code] = true;
-            // vm.listPerms.push(code);
+            this.permissionUsers.forEach(perm => {
+                let code = perm.permission.permission_code;
+                this.selectPerms[code] = true;
+                this.listPerms.push(code);
+            });
         },
         choosePerm(perm){
             let vm = this;
@@ -138,7 +141,7 @@ export default {
             vm.loading = true;
             axios.post('/expense/settings/user/'+vm.user.id+'/update', {
                 status: vm.status,
-                permissions: vm.permissions,
+                listPerms: vm.listPerms,
             })
             .then(function (res) {
                 vm.loading = false;

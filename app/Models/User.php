@@ -32,6 +32,14 @@ class User extends Authenticatable
         ];
     }
 
+    public function loadPermissions()
+    {
+        if (!$this->relationLoaded('permissions')) {
+            $this->load('permissions');
+        }
+        return $this;
+    }
+
     public function fndUser()
     {
         return $this->belongsTo(FNDUser::class, 'fnd_user_id', 'user_id');
@@ -55,6 +63,11 @@ class User extends Authenticatable
     public function location()
     {
         return $this->hasOne(Location::class, 'location_id', 'location_id');
+    }
+
+    public function permissions()
+    {
+        return $this->hasMany(\Packages\expense\app\Models\PermissionUser::class, 'user_id', 'id');
     }
 
     public function scopeActive($q)

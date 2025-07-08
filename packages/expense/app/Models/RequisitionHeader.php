@@ -14,7 +14,7 @@ class RequisitionHeader extends Model
     protected $table = 'oagwxp_requisition_headers';
     protected $connection = 'oracle_oagwxp';
     protected $dates = ['req_date', 'clear_date'];
-    protected $appends = ['status_icon', 'status_text', 'req_date_format'];
+    protected $appends = ['status_icon', 'status_text', 'req_date_format', 'is_enter', 'is_reverse'];
     public $timestamps = true;
 
     public function user()
@@ -80,6 +80,24 @@ class RequisitionHeader extends Model
     {
         $user = \Auth::user();
         return $query->where('created_by', $user->id);
+    }
+
+    public function getIsEnterAttribute($userId = null)
+    {
+        if(!$userId)
+        $user = \Auth::user();
+        $perms = $user->permissions->pluck('perm_code')->toArray();
+
+        return in_array('requisition_enter', $perms);
+    }
+
+    public function getIsReverseAttribute($userId = null)
+    {
+        if(!$userId)
+        $user = \Auth::user();
+        $perms = $user->permissions->pluck('perm_code')->toArray();
+
+        return in_array('requisition_reverse', $perms);
     }
     
     public static function genDocumentNo($orgId, $prefix)
@@ -186,7 +204,7 @@ class RequisitionHeader extends Model
             $value = trim($value);
             if ($value) {
                 if (in_array($key, $cols)) {
-                    $q->where($key, 'like', "%$value%");
+                    $q->where($key, $value);
                 }else if ($key == 'supplier') {
                     $q->where('supplier_id', $value);
                 }else if ($key == 'invoice_number') {

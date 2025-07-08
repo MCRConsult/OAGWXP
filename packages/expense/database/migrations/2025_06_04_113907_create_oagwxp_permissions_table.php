@@ -9,6 +9,7 @@ return new class extends Migration
     protected $tableName;
     public function __construct() {
         $this->tableName = 'oagwxp_permissions';
+        $this->tableNamePermUser = 'oagwxp_permission_user';
     }
 
     public function up(): void
@@ -23,10 +24,20 @@ return new class extends Migration
             $table->integer('updated_by');
             $table->timestamps();
         });
+
+
+        Schema::connection('oracle_oagwxp')->create($this->tableNamePermUser, function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('user_id')->unsigned();
+            $table->integer('permission_id')->unsigned();
+            $table->timestamps();
+            $table->primary(['user_id', 'permission_id']);
+        });
     }
 
     public function down(): void
     {
         Schema::connection('oracle_oagwxp')->dropIfExists($this->tableName);
+        Schema::connection('oracle_oagwxp')->dropIfExists($this->tableNamePermUser);
     }
 };

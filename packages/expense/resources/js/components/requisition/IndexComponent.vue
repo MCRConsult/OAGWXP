@@ -194,7 +194,8 @@
                                                     && (requisition.clear_reference_id == null || requisition.clear_reference_id == '')
                                                     && requisition.invoice_reference_id != ''
                                                     && requisition.invoice_type.lookup_code == 'PREPAYMENT'
-                                                    && requisition.invoice_status.status == 'AVAILABLE'">
+                                                    && requisition.invoice_status.status == 'AVAILABLE'
+                                                    && requisition.is_enter">
                                                     <template v-if="requisition.invoice.voucher_number">
                                                         <a class="btn btn-sm btn-danger active mr-1"
                                                             :href="'/expense/requisition/'+requisition.id+'/clear'">
@@ -204,12 +205,13 @@
                                                 </template>
                                                 <template v-if="requisition.payment_type == 'NON-PAYMENT'
                                                     && requisition.status == 'INTERFACED'
-                                                    && (requisition.reverse_flag == '' || requisition.reverse_flag == null)">
+                                                    && (requisition.reverse_flag == '' || requisition.reverse_flag == null)
+                                                    && requisition.is_reverse">
                                                     <button type="button" class="btn btn-sm btn-primary mr-1" style="background-color: #129990; border-color: #129990;" @click.prevent="reverse(requisition.id)">
                                                         กลับรายการบัญชี
                                                     </button>
                                                 </template>
-                                                <template v-if="requisition.status == 'HOLD'">
+                                                <template v-if="requisition.status == 'HOLD' && requisition.is_enter">
                                                     <a class="btn btn-sm btn-check mr-1"
                                                         :href="'/expense/requisition/'+requisition.id+'/hold'">
                                                         ตรวจสอบ

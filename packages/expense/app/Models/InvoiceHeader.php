@@ -13,7 +13,7 @@ class InvoiceHeader extends Model
 {
     protected $table = 'oagwxp_invoice_headers';
     protected $connection = 'oracle_oagwxp';
-    protected $appends = ['status_text', 'status_icon', 'invoice_date_format', 'clear_date_format'];
+    protected $appends = ['status_text', 'status_icon', 'invoice_date_format', 'clear_date_format', 'is_enter'];
 
     public function user()
     {
@@ -76,6 +76,15 @@ class InvoiceHeader extends Model
         return $this->hasOne(FlexValueV::class, 'flex_value', 'final_judgment')
                 ->where('flex_value_set_name', 'OAG_VALUE_SET_Y_N')
                 ->select('description');
+    }
+
+    public function getIsEnterAttribute($userId = null)
+    {
+        if(!$userId)
+        $user = \Auth::user();
+        $perms = $user->permissions->pluck('perm_code')->toArray();
+
+        return in_array('invoice_enter', $perms);
     }
 
     public function getInvRef($invType)

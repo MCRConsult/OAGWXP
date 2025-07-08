@@ -18,10 +18,10 @@ class Permission extends Model
         "setting"       =>  'การตั้งค่า'
     ];
     protected $group_color = [
-        "requisition"   =>  "e55050",
-        "invoice"       =>  "ffa725",
+        "requisition"   =>  "4dbd74",
+        "invoice"       =>  "20a8d8",
         "history"       =>  "41644a",
-        "report"        =>  'efb036',
+        "report"        =>  'ffa725',
         "setting"       =>  '51829b'
     ];
 

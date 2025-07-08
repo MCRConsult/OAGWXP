@@ -170,7 +170,7 @@
                                                         ตรวจสอบ
                                                     </a>
                                                 </template>
-                                                <template v-else>
+                                                <template v-else-if="invoice.is_enter">
                                                     <a class="btn btn-sm btn-check mr-1"
                                                         :href="'/expense/invoice/'+invoice.id+'/edit'">
                                                         ตรวจสอบ

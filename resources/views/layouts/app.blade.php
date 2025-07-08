@@ -28,7 +28,7 @@
         @include('layouts._sidebar')
         <main class="main">
             @include('layouts._breadcrumb')
-            @if (session('db_name') != 'PROD')
+            {{-- @if (session('db_name') != 'PROD')
                 <div class="row">
                     <div class="col-12 p-2 p-xs b-r-sm" style="background-color: #e3302f;">
                         <h5 class="no-margins text-center mb-0" style="color: #fff;">
@@ -36,7 +36,7 @@
                         </h5>
                     </div>
                 </div>
-            @endif
+            @endif --}}
             <div class="container-fluid">
                 @include('shared._errors')
                 @include('shared._success')

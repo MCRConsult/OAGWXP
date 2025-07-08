@@ -9,9 +9,11 @@
             <a class="btn btn-white btn-sm mr-2" data-toggle="collapse" href="#search_form" role="button" aria-expanded="false" aria-controls="invoice_form">
                 <i class="fa fa-search"></i> ค้นหา
             </a>
-            <a href="{{ route('expense.invoice.create') }}" class="btn btn-primary btn-sm">
-                <i class="fa fa-plus"></i> สร้างเอกสารขอเบิก
-            </a>
+            @if(Gate::allows('invoice_enter'))
+                <a href="{{ route('expense.invoice.create') }}" class="btn btn-primary btn-sm">
+                    <i class="fa fa-plus"></i> สร้างเอกสารขอเบิก
+                </a>
+            @endif
         </div>
     </div>
 @endsection

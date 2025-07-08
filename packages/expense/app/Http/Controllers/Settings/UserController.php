@@ -7,12 +7,25 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Cache;
 
 use App\Models\User;
 use Packages\expense\app\Models\Permission;
+use Packages\expense\app\Models\PermissionUser;
 
 class UserController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (auth()->check()) {
+                auth()->user()->loadPermissions();
+            }
+            return $next($request);
+        });
+    }
+
     public function index()
     {
         $search = request();
@@ -40,26 +53,45 @@ class UserController extends Controller
         // PERMISSION
         $permissionGroups = Permission::selectRaw("distinct permission_group")->get()->groupBy('permission_group');
         $permissions = Permission::orderBy('id')->get()->groupBy('permission_group');
+        $permissionUsers = PermissionUser::with(['permission'])->where('user_id', $userId)->get();
 
-        return view('expense::settings.user.show', compact('user', 'permissionGroups', 'permissions'));
+        return view('expense::settings.user.show', compact('user', 'permissionGroups', 'permissions', 'permissionUsers'));
     }
 
     public function update(Request $request, $userId)
     {
         $user = auth()->user();
-        \DB::beginTransaction();
         try {
+            // ====== UPDATE STATUS USER
             $user = User::findOrFail($userId);
             $user->is_active = $request->status;
             $user->save();
 
-            \DB::commit();
+            // ====== UPDATE PERMISSION
+            // 1 DELETE PERMISSION NOT IN ARRAYS
+            $listPerms = $request->listPerms;
+            $permissions = Permission::whereIn('permission_code', $request->listPerms)->get()->pluck('id')->toArray();
+            PermissionUser::where('user_id', $userId)
+                            ->whereNotIn('permission_id', $permissions)
+                            ->delete();
+            // 2 INSERT PERMISSION WITH NOT IN PERM
+            foreach ($listPerms as $perm) {
+                $permission = Permission::where('permission_code', $perm)->first();
+                $chkPermUser = PermissionUser::where('user_id', $userId)
+                                            ->where('permission_id', $permission->id)
+                                            ->first();
+                if (!$chkPermUser) {
+                    $permUser                   = new PermissionUser;
+                    $permUser->user_id          = $userId;
+                    $permUser->permission_id    = $permission->id;
+                    $permUser->save();
+                }
+            }
             $data = [
                 'status' => 'SUCCESS',
                 'message' => ''
             ];
         } catch (\Exception $e) {
-            \DB::rollback();
             \Log::error($e);
             $data = [
                 'status' => 'ERROR',

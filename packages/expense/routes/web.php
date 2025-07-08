@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
+// , 'check.permission:manage-posts'
 Route::group(['middleware' => ['web', 'auth']], function () {
     Route::prefix('expense')->namespace('Expense')->name('expense.')->group(function() {
         Route::prefix('api')->namespace('Api')->name('api.')->group(function() {

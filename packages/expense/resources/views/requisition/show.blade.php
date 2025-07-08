@@ -213,10 +213,12 @@
                     </div>
                     <div class="row text-center">
                         <div class="col-md-12 ">
-                            @if ($requisition->status == 'ERROR' || $requisition->status == 'UNREVERSED')
-                                <requisition-reinterface-component
-                                    p-form-url = "{{ route('expense.requisition.journal-resubmit', $requisition->id) }}"
-                                ></requisition-reinterface-component>
+                            @if(Gate::allows('requisition_resubmit'))
+                                @if ($requisition->status == 'ERROR' || $requisition->status == 'UNREVERSED')
+                                    <requisition-reinterface-component
+                                        p-form-url = "{{ route('expense.requisition.journal-resubmit', $requisition->id) }}"
+                                    ></requisition-reinterface-component>
+                                @endif
                             @endif
                         </div>
                     </div>

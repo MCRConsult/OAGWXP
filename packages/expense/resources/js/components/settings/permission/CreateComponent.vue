@@ -117,6 +117,9 @@ export default {
             }, {
                 value: 'resubmit',
                 label: 'ส่งข้อมูลเข้าระบบ'
+            }, {
+                value: 'reverse',
+                label: 'ส่งกลับรายการบัญชี'
             }],
             errors: {
                 perm_group: false,

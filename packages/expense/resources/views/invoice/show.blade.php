@@ -198,7 +198,7 @@
                             <th class="text-center" width="10%"> จำนวนเงิน </th>
                             <th class="text-center" width="17%"> ชื่อสั่งจ่าย </th>
                             <th class="text-center" width="15%"> เลขที่บัญชีธนาคาร </th>
-                            <th class="text-center" width="3%"> </th>
+                            <th class="text-center" width="8%"> </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -213,7 +213,7 @@
                                 <td class="text-center" style="vertical-align: middle;">
                                     <button type="button" class="btn btn-light" data-toggle="modal"
                                         data-target=".detail_{{ $line->id }}">
-                                        <i class="fa fa-ellipsis-h "></i>
+                                        รายละเอียดเพิ่มเติม
                                     </button>
                                 </td>
                             </tr>
@@ -242,13 +242,15 @@
                 </div>
                 <div class="row text-center">
                     <div class="col-md-12 ">
-                        @if ($invoice->status == 'ERROR')
-                            {{-- <a href="{{ route('expense.invoice.edit', $invoice->id) }}" class="btn btn-warning btn-sm">
-                                แก้ไขรายการ
-                            </a> --}}
-                            <invoice-reinterface-component
-                                p-form-url = "{{ route('expense.invoice.re-submit', $invoice->id) }}"
-                            ></invoice-reinterface-component>
+                        @if(Gate::allows('invoice_resubmit'))
+                            @if ($invoice->status == 'ERROR')
+                                {{-- <a href="{{ route('expense.invoice.edit', $invoice->id) }}" class="btn btn-warning btn-sm">
+                                    แก้ไขรายการ
+                                </a> --}}
+                                <invoice-reinterface-component
+                                    p-form-url = "{{ route('expense.invoice.re-submit', $invoice->id) }}"
+                                ></invoice-reinterface-component>
+                            @endif
                         @endif
                     </div>
                 </div>
