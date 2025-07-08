@@ -46,15 +46,15 @@ class RequisitionController extends Controller
                                     ->orderBy('req_number', 'desc')
                                     ->paginate(25);
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
-        $statuses = ['COMPLETED'    => 'รอเบิกจ่าย'
-                    , 'PENDING'     => 'รอจัดสรร'
-                    , 'HOLD'        => 'รอตรวจสอบ'
-                    , 'WAITING_CLEAR' => 'รอเคลียร์เงินยืม'
-                    , 'INTERFACED'  => 'ตั้งเบิก'
-                    , 'ERROR'       => 'ตั้งเบิกไม่สำเร็จ'
-                    , 'REVERSED'    => 'กลับรายการบัญชีแล้ว'
-                    , 'UNREVERSED'  => 'กลับรายการบัญชีไม่สำเร็จ'
-                    , 'CANCELLED'   => 'ยกเลิก'];
+        $statuses = ['COMPLETED'        => 'รอเบิกจ่าย'
+                    , 'PENDING'         => 'รอจัดสรร'
+                    , 'HOLD'            => 'รอตรวจสอบ'
+                    , 'WAITING_CLEAR'   => 'ล้างบัญชี'
+                    , 'INTERFACED'      => 'ตั้งเบิก'
+                    , 'ERROR'           => 'ตั้งเบิกไม่สำเร็จ'
+                    , 'REVERSED'        => 'กลับรายการบัญชีแล้ว'
+                    , 'UNREVERSED'      => 'กลับรายการบัญชีไม่สำเร็จ'
+                    , 'CANCELLED'       => 'ยกเลิก'];
 
         return view('expense::requisition.index', compact('requisitions', 'invoiceTypes', 'statuses'));
     }
