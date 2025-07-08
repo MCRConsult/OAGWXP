@@ -11,6 +11,7 @@ use Packages\expense\app\Models\InvoiceHeader;
 use Packages\expense\app\Models\InvoiceLine;
 use Packages\expense\app\Models\InvoiceInterfaceHeader;
 use Packages\expense\app\Models\InvoiceInterfaceLine;
+use Packages\expense\app\Models\SupplierSite;
 
 use Carbon\Carbon;
 use DB;
@@ -77,6 +78,13 @@ class InvoiceInterfaceRepo {
 
             // INTERFACE LINES
             foreach ($invoice->lines as $key => $line) {
+                // GET SUPPLER ACCOUNT W/ SUPPLIER_ID LINE LEVEL
+                $expAccount = $line->expense_account;
+                if ($invoice->invoice_type == 'PREPAYMENT') {
+                    $supplier = SupplierSite::where('vendor_id', $line->supplier_id)->first();
+                    $expAccount = $supplier->prepayment_account;
+                }
+
                 $lineInf                            = new InvoiceInterfaceLine;
                 $lineInf->invoice_num               = $invoice->invoice_number;
                 $lineInf->line_number               = $line->seq_number;
@@ -86,7 +94,7 @@ class InvoiceInterfaceRepo {
                 $lineInf->wht_code                  = $line->wht_code;
                 $lineInf->vat_code                  = $line->tax_code;
                 $lineInf->description               = $line->description;
-                $lineInf->distributrion_account     = $line->expense_account;
+                $lineInf->distributrion_account     = $expAccount;  // $line->expense_account;
                 $lineInf->attribute1                = $line->supplier_name;
                 $lineInf->attribute2                = $line->bank_account_number;
                 $lineInf->attribute3                = $line->remaining_receipt_number;

@@ -44,20 +44,23 @@ return new class extends Migration
             $table->date('req_invoice_date')->nullable();
             $table->string('req_receipt_number')->nullable();
             $table->date('req_receipt_date')->nullable();
+            
             $table->boolean('remaining_receipt_flag')->nullable();
             $table->integer('remaining_receipt_id')->nullable();
             $table->string('remaining_receipt_number')->nullable();
+
+            $table->string('split_flag')->nullable();
+            $table->integer('ar_receipt_id')->nullable();
+            $table->string('ar_receipt_number')->nullable();
+            $table->string('contract_number')->nullable();
 
             $table->string('tax_code')->nullable();
             $table->string('tax_amount', 18,2)->nullable()->default(0);
             $table->string('wht_code')->nullable();
             $table->string('wht_amount', 18,2)->nullable()->default(0);
 
-            $table->integer('ar_receipt_id')->nullable();
-            $table->string('ar_receipt_number')->nullable();
             $table->string('reference_req_number')->nullable();
             $table->integer('origin_amount', 18,2);
-            $table->string('contract_number')->nullable();
             $table->timestamps();
         });
     }

@@ -34,7 +34,6 @@ return new class extends Migration
             $table->integer('amount', 18, 2);
             $table->integer('actual_amount', 18, 2)->nullable();
             $table->string('clear_flag')->nullable();
-            $table->string('deduct_flag')->nullable();
             $table->string('split_flag')->nullable();
             $table->string('description')->nullable();
             $table->string('vehicle_number')->nullable();

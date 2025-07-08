@@ -272,6 +272,7 @@ class InvoiceController extends Controller
                         $lineTemp->remaining_receipt_flag   = $line->remaining_receipt_flag;
                         $lineTemp->remaining_receipt_id     = $line->remaining_receipt_id;
                         $lineTemp->remaining_receipt_number = $line->remaining_receipt_number;
+                        $lineTemp->split_flag               = $line->split_flag;
                         $lineTemp->reference_req_number     = $requisition->req_number;
                         $lineTemp->origin_amount            = $header->clear_flag == 'Y'? $line->actual_amount: $line->amount;
                         $lineTemp->contract_number          = $line->contract_number;

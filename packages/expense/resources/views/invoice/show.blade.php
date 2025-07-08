@@ -206,8 +206,12 @@
                             <tr>
                                 <td class="text-center" style="vertical-align: middle;"> {{ $line->seq_number }} </td>
                                 <td class="text-left" style="vertical-align: middle;"> {{ $line->expense->description }} </td>
-                                <td class="text-left small wrap-text" style="vertical-align: middle;"> {{ $line->expense_account }} </td>
-                                <td class="text-center" style="vertical-align: middle;"> {{ number_format($line->amount, 2) }} </td>
+                                <td class="text-left small wrap-text" style="vertical-align: middle;">
+                                    {{ $line->expense_account }}
+                                </td>
+                                <td class="text-center" style="vertical-align: middle;">
+                                    {{ $invoice->clear_flag == 'Y'? number_format($line->actual_amount, 2): number_format($line->amount, 2) }}
+                                </td>
                                 <td class="text-center" style="vertical-align: middle;"> {{ $line->supplier_name }} </td>
                                 <td class="text-center" style="vertical-align: middle;"> {{ $line->bank_account_number }} </td>
                                 <td class="text-center" style="vertical-align: middle;">

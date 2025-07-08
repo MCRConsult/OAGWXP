@@ -199,7 +199,7 @@
                                                     <template v-if="requisition.invoice.voucher_number">
                                                         <a class="btn btn-sm btn-danger active mr-1"
                                                             :href="'/expense/requisition/'+requisition.id+'/clear'">
-                                                            เคลียร์เงินยืม
+                                                            ล้างบัญชี
                                                         </a>
                                                     </template>
                                                 </template>

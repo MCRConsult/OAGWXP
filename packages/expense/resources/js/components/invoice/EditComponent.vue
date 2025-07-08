@@ -577,6 +577,20 @@
                         type: 'warning'
                     });
                 }
+                // VALIDATE INVOICE LINE: SPLIT FLAG == Y
+                vm.linelists.forEach((item, index) => {
+                    if (item.split_flag == 'Y') {
+                        if (item.ar_receipt_number == '' || item.ar_receipt_number == null) {
+                            valid = false;
+                            vm.$notify({
+                                title: 'แจ้งเตือน',
+                                message: 'กรุณาตรวจสอบรายการคืนเงินยืม ต้องระบุเลขที่ใบเสร็จรับเงิน',
+                                type: 'warning'
+                            });
+                        }
+                    }
+                });
+
                 if (!valid) {
                     return;
                 }

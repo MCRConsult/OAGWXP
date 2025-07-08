@@ -110,6 +110,7 @@
                                         @blur="changeAmount()"
                                     ></vue-numeric>
                                     <div id="_el_explode_amount" class="text-danger text-left"></div>
+                                    
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -120,8 +121,10 @@
                                     <arReceipt
                                         :setData="temp.ar_receipt_id"
                                         :editFlag="true"
+                                        :error="errors.ar_receipt_number"
                                         @setArReceipt="setArReceipt"
                                     ></arReceipt>
+                                    <div id="_el_explode_ar_receipt_number" class="text-danger text-left"></div>
                                 </div>
                             </div>
                         </div>
@@ -518,6 +521,7 @@
                     expense_type: false,
                     amount: false,
                     remaining_receipt: false,
+                    ar_receipt_number: false,
                     segment2: false,
                     segment3: false,
                     segment6: false,
@@ -561,7 +565,8 @@
                 vm.errors.budget_type = false;
                 vm.errors.expense_type = false;
                 vm.errors.amount = false;
-                vm.errors.amount = false;
+                vm.errors.remaining_receipt = false;
+                vm.errors.ar_receipt_number = false;
                 vm.errors.segment2 = false;
                 vm.errors.segment3 = false;
                 vm.errors.segment6 = false;
@@ -575,6 +580,7 @@
                 $(form).find("div[id='_el_explode_expense_type']").html("");
                 $(form).find("div[id='_el_explode_amount']").html("");
                 $(form).find("div[id='_el_explode_remaining_receipt']").html("");
+                $(form).find("div[id='_el_explode_ar_receipt_number']").html("");
                 $(form).find("div[id='_el_explode_acc_2']").html("");
                 $(form).find("div[id='_el_explode_acc_3']").html("");
                 $(form).find("div[id='_el_explode_acc_6']").html("");
@@ -622,8 +628,16 @@
                 if (vm.temp.remaining_receipt_flag == 'Y' && vm.temp.remaining_receipt_id == '') {
                     vm.errors.remaining_receipt = true;
                     valid = false;
-                    errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ ระดับรายละเอียดเพิ่มเติม";
+                    errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ";
                     $(form).find("div[id='_el_explode_remaining_receipt']").html(errorMsg);
+                }
+                if (vm.temp.split_flag == 'Y') {
+                    if (vm.temp.ar_receipt_number == '' || vm.temp.ar_receipt_number == null) {
+                        vm.errors.ar_receipt_number = true;
+                        valid = false;
+                        errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงิน";
+                        $(form).find("div[id='_el_explode_ar_receipt_number']").html(errorMsg);
+                    }
                 }
 
                 if (vm.segment2 == '' || vm.segment2 == undefined) {

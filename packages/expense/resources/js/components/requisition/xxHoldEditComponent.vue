@@ -682,7 +682,7 @@
                 if (vm.reqLine.remaining_receipt_flag == 'Y' && vm.reqLine.remaining_receipt_id == '') {
                     vm.errors.remaining_receipt = true;
                     valid = false;
-                    errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ ระดับรายละเอียดเพิ่มเติม";
+                    errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ";
                     ElNotification({
                         title: 'ข้อผิดผลาด',
                         message: errorMsg,

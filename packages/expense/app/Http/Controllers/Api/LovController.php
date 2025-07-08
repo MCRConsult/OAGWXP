@@ -399,7 +399,7 @@ class LovController extends Controller
                             })
                             ->first();
                 if ($expeseType) {
-                    $expeseTypes = $expeseTypes->push($expeseType)->unique('meaning');
+                    $expeseTypes = $expeseTypes->push($expeseType)->unique('category_concat_segs');
                 }
             }else{
                 $expeseTypes = MTLCategoriesV::where('structure_name', 'OAG Item Category Set')

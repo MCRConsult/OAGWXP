@@ -23,7 +23,7 @@ use Packages\expense\app\Models\Currency;
 use Packages\expense\app\Models\FlaxValueV;
 use Packages\expense\app\Models\MTLCategoriesV;
 use Packages\expense\app\Models\POExpenseAccountRuleV;
-use Packages\expense\app\Models\ARBudgetReceiptV;
+use Packages\expense\app\Models\OAGARBudgetReceiptV;
 use Packages\expense\app\Models\GLPeriod;
 use Packages\expense\app\Models\COAListV;
 use Packages\expense\app\Models\MappingAutoInvoiceV;
@@ -348,7 +348,7 @@ class RequisitionController extends Controller
                         ->first();
                 // SET EXPENSE ACCOUNT
                 $expAccount = (new MappingAutoInvoiceV)->mappingClearingAccount($header, $expense_category);
-                // INSERT NEW LINE : คืนเงินทดรอง เมื่อยอดไม่เท่ากับยอดตั้งต้น
+                // INSERT NEW LINE : คืนเงิน เมื่อยอดไม่เท่ากับยอดตั้งต้น
                 $lineTemp                          = new RequisitionLine;
                 $lineTemp->req_header_id            = $reqId;
                 $lineTemp->seq_number               = $lastSeq+1;
@@ -643,7 +643,7 @@ class RequisitionController extends Controller
 
     private function getRemainingRceipt($receiptId)
     {
-        $receipt = ARBudgetReceiptV::where('cash_receipt_id', $receiptId)->first();
+        $receipt = OAGARBudgetReceiptV::where('cash_receipt_id', $receiptId)->first();
         return optional($receipt)->receipt_number;
     }
 
