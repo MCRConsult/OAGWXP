@@ -136,14 +136,14 @@ class RequisitionController extends Controller
                 $lineTemp->contract_number          = $line['contract_number'];
                 $lineTemp->save();
 
-                if ($line['remaining_receipt_flag'] == 'Y') {
-                    RequisitionReceiptTemp::where('reference_number', $headerTemp->reference_number)
-                                ->where('remaining_receipt_id', $line['remaining_receipt_id'])
-                                ->where('seq_number', $key+1)
-                                ->update([
-                                    'invoice_number' => $headerTemp->req_number
-                                ]);
-                }
+                // if ($line['remaining_receipt_flag'] == 'Y') {
+                //     RequisitionReceiptTemp::where('reference_number', $headerTemp->reference_number)
+                //                 ->where('remaining_receipt_id', $line['remaining_receipt_id'])
+                //                 ->where('seq_number', $key+1)
+                //                 ->update([
+                //                     'invoice_number' => $headerTemp->req_number
+                //                 ]);
+                // }
             }
             \DB::commit();
             // CALL GL INTERFACE + RESERVE BUDGET
