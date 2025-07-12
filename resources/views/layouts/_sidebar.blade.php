@@ -23,8 +23,8 @@
                         @endif
                         @if (Gate::allows('history_resubmit'))
                             <li class="nav-item">
-                                <a class="nav-title nav-link" href="{{ route('expense.invoice.interface-log') }}">
-                                    <i class="nav-icon fa fa-history fa-lg"></i> ประวัติการอินเตอร์เฟซ
+                                <a class="nav-title nav-link" href="{{ route('expense.interface-log') }}">
+                                    <i class="nav-icon fa fa-history fa-lg"></i> ประวัติการส่งเอกสารขอเบิก
                                 </a>
                             </li>
                         @endif

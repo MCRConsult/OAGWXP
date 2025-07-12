@@ -683,6 +683,12 @@
                                     confirmButtonColor: "#3085d6",
                                     confirmButtonText: "ตกลง",
                                     allowOutsideClick: false
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        setTimeout(function() {
+                                            location.reload();
+                                        }, 500);
+                                    }
                                 });
                             } else {
                                 Swal.fire({

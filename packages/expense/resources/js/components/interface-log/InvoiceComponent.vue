@@ -1,12 +1,13 @@
 <template>
     <div v-loading="loading">
-        <div class="card-body" style="border: 2px solid #ddd; border-radius: 5px;">
+        <div class="card-body"> <!-- style="border: 2px solid #ddd; border-radius: 5px;" -->
             <form :action="pFormUrl">
                 <div class="row">
-                    <div class="form-group col-md-3">
+                    <div class="form-group col-md-2">
                         <label class="control-label">
                             <strong> วันที่เอกสารขอเบิก ตั้งแต่ </strong>
                         </label>
+                        <input type="hidden" name="type" value="INVOICE">
                         <input type="hidden" name="invoice_date_from" :value="search.invoice_date_from">
                         <el-date-picker
                             v-model="invoice_date_from_input"
@@ -18,8 +19,7 @@
                             @change="changeDateFormatFrom"
                         />
                     </div>
-
-                    <div class="form-group col-md-3">
+                    <div class="form-group col-md-2">
                         <label class="control-label">
                             <strong> วันที่เอกสารขอเบิก ถึง </strong>
                         </label>
@@ -34,8 +34,21 @@
                             @change="changeDateFormatTo"
                         />
                     </div>
-
-                    <div class="form-group col-md-3">
+                    <div class="form-group col-md-2">
+                        <label class="control-label">
+                            <strong> เลขที่ใบสำคัญ </strong>
+                        </label>
+                        <div class="">
+                            <input type="hidden" name="voucher_number" :value="search.voucher_number">
+                            <lovVoucher
+                                :setData="search.voucher_number"
+                                :error="false"
+                                :editFlag="true"
+                                @setVoucher="setVoucher"
+                            />
+                        </div>
+                    </div>
+                    <div class="form-group col-md-2">
                         <label class="control-label">
                             <strong> เลขที่ใบกำกับ </strong>
                         </label>
@@ -49,14 +62,13 @@
                             />
                         </div>
                     </div>
-
-                    <div class="form-group col-md-3">
+                    <div class="form-group col-md-2">
                         <label class="control-label">
                             <strong> สถานะ </strong>
                         </label>
                         <div class="">
-                            <input type="hidden" name="status" :value="search.status">
-                            <el-select v-model="search.status" placeholder="" clearable>
+                            <input type="hidden" name="invoice_status" :value="search.invoice_status">
+                            <el-select v-model="search.invoice_status" placeholder="" clearable>
                                 <el-option
                                     v-for="(status, index) in pStatuses"
                                     :key="index"
@@ -66,10 +78,9 @@
                             </el-select>
                         </div>
                     </div>
-                </div>
-                <div class="row" style="padding-top: 5px;">
-                    <div class="col-lg-12" style="margin-top: 10px;">
-                        <div class="text-right">
+                    <div class="form-group col-md-2">
+                        <span> &nbsp; <br> </span>
+                        <div class="text-right mt-2">
                             <button type="submit" class="btn btn-primary btn-sm m-1">
                                 ค้นหา
                             </button>
@@ -87,9 +98,6 @@
                 <thead>
                     <tr>
                         <th class="text-center sticky-col">
-                            <div width="4%"> สถานะ </div>
-                        </th>
-                        <th class="text-center sticky-col">
                             <div width="10%"> วันที่อินเตอร์เฟซ </div>
                         </th>
                         <th class="text-center sticky-col">
@@ -99,6 +107,9 @@
                             <div width="13%"> เลขที่ใบกำกับ </div>
                         </th>
                         <th class="text-center sticky-col">
+                            <div width="4%"> สถานะ </div>
+                        </th>
+                        <th class="text-center sticky-col">
                             <div width="20%"> รายละเอียด </div>
                         </th>
                     </tr>
@@ -106,9 +117,6 @@
                 <tbody>
                     <template v-for="inf in interfaces">
                         <tr>
-                            <td class="text-center text-nowrap" style="vertical-align: middle;">
-                                <div v-html="inf.status_icon"></div>
-                            </td>
                             <td class="text-center text-nowrap" style="vertical-align: middle;">
                                 {{ inf.invoice_date_format }}
                             </td>
@@ -120,6 +128,9 @@
                                 <div style="color: #858585;">
                                     <small> Batch#: {{ inf.web_batch_no }} </small>
                                 </div>
+                            </td>
+                            <td class="text-center text-nowrap" style="vertical-align: middle;">
+                                <div v-html="inf.status_icon"></div>
                             </td>
                             <td class="text-center" style="vertical-align: middle;">
                                 {{ truncatedMessage(inf.interface_msg) }}
@@ -149,12 +160,13 @@
 
 <script>
 import moment from "moment";
-import lovInvoice from "../lov/Invoice.vue";
+import lovInvoice from "./lov/Invoice.vue";
+import lovVoucher from "./lov/Voucher.vue";
 
 export default {
     props: ['pFormUrl', 'pSearch', 'pStatuses', 'pInterfaces'],
     components: {
-        lovInvoice
+        lovInvoice, lovVoucher
     },
     data() {
         return {
@@ -165,7 +177,8 @@ export default {
                 invoice_date_from: '',
                 invoice_date_to: '',
                 invoice_number: '',
-                status: 'All',
+                voucher_number: '',
+                invoice_status: 'All',
             },
             interfaces: this.pInterfaces.data,
             currPage: 1,
@@ -186,7 +199,8 @@ export default {
         this.changeDateFormat();
         //req_number
         this.search.invoice_number = this.pSearch.length <= 0? '' : this.pSearch.invoice_number;
-        this.search.status = this.pSearch.length <= 0? 'All' : this.pSearch.status;
+        this.search.voucher_number = this.pSearch.length <= 0? '' : this.pSearch.voucher_number;
+        this.search.invoice_status = this.pSearch.length <= 0? 'All' : this.pSearch.invoice_status;
         this.paginate = {
             size: this.pInterfaces.per_page,
             total: this.pInterfaces.total,
@@ -201,6 +215,9 @@ export default {
         },
         setInvoice(res) {
             this.search.invoice_number = res.invoice;
+        },
+        setVoucher(res) {
+            this.search.voucher_number = res.voucher;
         },
         changeDateFormat() {
             this.search.invoice_date_from = '';
@@ -238,7 +255,7 @@ export default {
           await this.fetchData(page);
         },
         async fetchData(page = 1) {
-            const url = "/expense/api/invoice/fetch-interface-render-page";
+            const url = "/expense/api/interface/fetch-invoice-interface";
             this.loading = true;
             this.interfaces = [];
             await axios
@@ -247,7 +264,8 @@ export default {
                 invoice_date_from: this.search.invoice_date_from,
                 invoice_date_to: this.search.invoice_date_to,
                 invoice_number: this.search.invoice_number,
-                status: this.search.status
+                voucher_number: this.search.voucher_number,
+                invoice_status: this.search.invoice_status
             })
             .then((res) => res.data)
             .then((res) => {

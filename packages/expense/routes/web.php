@@ -43,11 +43,16 @@ Route::group(['middleware' => ['web', 'auth']], function () {
                 Route::get('/get-requisition', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@getRequisition');
                 Route::get('/get-invoice', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@getInvoice');
                 Route::get('/get-voucher', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@getVoucher');
-                // INTERFACE LOG
-                Route::post('/fetch-interface-render-page', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@fetchInterfaceRenderPage');
                 // GROUP REQUISITION
                 Route::get('/fetch-requisition', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@fetchRequisition');
                 Route::post('/index-render-page', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@fetchRequisitionRenderPage');
+            });
+
+            // INTERFACE LOG
+            Route::prefix('interface')->namespace('Interface')->name('interface.')->group(function() {
+                Route::post('/fetch-invoice-interface', '\Packages\expense\app\Http\Controllers\Api\InterfaceController@fetchInvoiceInterface');
+                Route::post('/fetch-journal-interface', '\Packages\expense\app\Http\Controllers\Api\InterfaceController@fetchJournalInterface');
+                Route::post('/fetch-encumbrance-interface', '\Packages\expense\app\Http\Controllers\Api\InterfaceController@fetchEncumbranceInterface');
             });
 
             Route::prefix('settings')->namespace('Settings')->name('settings.')->group(function() {
@@ -91,9 +96,11 @@ Route::group(['middleware' => ['web', 'auth']], function () {
             Route::post('/{invoice_id}/cancel', '\Packages\expense\app\Http\Controllers\Invoice\InvoiceController@cancel')->name('cancel');
             Route::post('/{invoice_id}/set-status', '\Packages\expense\app\Http\Controllers\Invoice\InvoiceController@setStatus')->name('set-status');
             Route::get('/{invoice_id}/re-submit', '\Packages\expense\app\Http\Controllers\Invoice\InvoiceController@reSubmit')->name('re-submit');
-            //interface
-            Route::get('/interface/logs', '\Packages\expense\app\Http\Controllers\Invoice\InterfaceLogController@index')->name('interface-log');
         });
+
+        //interface
+        Route::get('/interface/logs', '\Packages\expense\app\Http\Controllers\InterfaceLogController@index')->name('interface-log');
+        Route::get('/interface/{batch}/reserve', '\Packages\expense\app\Http\Controllers\InterfaceLogController@handleReserve');
 
         Route::prefix('report')->namespace('Report')->name('report.')->group(function() {
             Route::get('/', '\Packages\expense\app\Http\Controllers\Report\ReportController@index')->name('index');

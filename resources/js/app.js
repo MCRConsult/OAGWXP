@@ -35,7 +35,11 @@ import InvoiceComponent from '/packages/expense/resources/js/components/invoice/
 import CreateInvoiceComponent from '/packages/expense/resources/js/components/invoice/CreateComponent.vue';
 import EditInvoiceComponent from '/packages/expense/resources/js/components/invoice/EditComponent.vue';
 import ReInterfaceInvoiceComponent from '/packages/expense/resources/js/components/invoice/_ReInterfaceComponent.vue';
-import InterfaceInvoiceComponent from '/packages/expense/resources/js/components/invoice/interface-log/IndexComponent.vue';
+
+// INTERFACE LOG
+import InterfaceInvoiceComponent from '/packages/expense/resources/js/components/interface-log/InvoiceComponent.vue';
+import InterfaceJournalComponent from '/packages/expense/resources/js/components/interface-log/JournalComponent.vue';
+import InterfaceEncumbranceComponent from '/packages/expense/resources/js/components/interface-log/EncumbranceComponent.vue';
 
 // SETTING
 // USER
@@ -67,7 +71,10 @@ app.component('invoice-component', InvoiceComponent);
 app.component('invoice-create-component', CreateInvoiceComponent);
 app.component('invoice-edit-component', EditInvoiceComponent);
 app.component('invoice-reinterface-component', ReInterfaceInvoiceComponent);
+
 app.component('invoice-interface-log-component', InterfaceInvoiceComponent);
+app.component('journal-interface-log-component', InterfaceJournalComponent);
+app.component('encumbrance-interface-log-component', InterfaceEncumbranceComponent);
 
 app.component('report-component', ReportComponent);
 
