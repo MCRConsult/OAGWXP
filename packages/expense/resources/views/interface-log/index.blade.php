@@ -1,8 +1,8 @@
 @extends('layouts.app')
-@section('title', 'ประวัติการส่งเอกสารขอเบิก')
+@section('title', 'ประวัติการอินเตอร์เฟส')
 @section('breadcrumb')
     <li class="breadcrumb-item active">
-        <strong> ประวัติการส่งเอกสารขอเบิก </strong>
+        <strong> ประวัติการอินเตอร์เฟส </strong>
     </li>
 @endsection
 
@@ -12,7 +12,7 @@
             <div class="row col-12" style="padding-right: 0px;">
                 <div class="col-md-6">
                     <span class="d-inline">
-                        <h5> <strong> ประวัติการส่งเอกสารขอเบิก </strong> </h5>
+                        <h5> <strong> ประวัติการอินเตอร์เฟส </strong> </h5>
                     </span>
                 </div>
             </div>
@@ -22,27 +22,35 @@
                 <div class="col-md-12 mb-4">
                     <ul class="nav nav-tabs" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->all() == null? 'active': (request()->type == 'INVOICE'? 'active': '') }}"
+                            <a class="nav-link {{ request()->all() == null? 'active': (request()->type == 'ENCUMBRANCE'? 'active': '') }}"
+                                data-toggle="tab" href="#encumbranceInterface" role="tab" aria-controls="encumbranceInterface" aria-selected="false">
+                                <strong> ตรวจสอบงบประมาณ </strong>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->type == 'INVOICE'? 'active': ''}}"
                                 data-toggle="tab" href="#invoiceInterface" role="tab" aria-controls="invoiceInterface" aria-selected="true">
-                                <strong> AP Invoice </strong>
+                                <strong> ขอเบิก - ฎีกา </strong>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ request()->type == 'JOURNAL'? 'active': '' }}"
                                 data-toggle="tab" href="#journalInterface" role="tab" aria-controls="journalInterface" aria-selected="false">
-                                <strong> GL Journal </strong>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->type == 'ENCUMBRANCE'? 'active': '' }}"
-                                data-toggle="tab" href="#encumbranceInterface" role="tab" aria-controls="encumbranceInterface" aria-selected="false">
-                                <strong> Encunbrance </strong>
+                                <strong> ขอเบิก - ใบสำคัญ </strong>
                             </a>
                         </li>
                     </ul>
                     <div class="tab-content">
-                        <div class="tab-pane {{ request()->all() == null? 'active': (request()->type == 'INVOICE'? 'active': '') }}" 
-                            id="invoiceInterface" role="tabpanel">
+                        <div class="tab-pane {{  request()->all() == null? 'active': (request()->type == 'ENCUMBRANCE'? 'active': '') }}"
+                            id="encumbranceInterface" role="tabpanel">
+                            <encumbrance-interface-log-component
+                                p-form-url      = "{{ route('expense.interface-log') }}"
+                                :p-search       = "{{ json_encode(request()->all()) }}"
+                                :p-statuses     = "{{ json_encode($statusEncs) }}"
+                                :p-interfaces   = "{{ json_encode($interfaceEncumbrances) }}"
+                            ></encumbrance-interface-log-component>
+                        </div>
+                        <div class="tab-pane {{ (request()->type == 'INVOICE'? 'active': '') }}"  id="invoiceInterface" role="tabpanel">
                             <invoice-interface-log-component
                                 p-form-url      = "{{ route('expense.interface-log') }}"
                                 :p-search       = "{{ json_encode(request()->all()) }}"
@@ -57,14 +65,6 @@
                                 :p-statuses     = "{{ json_encode($statuses) }}"
                                 :p-interfaces   = "{{ json_encode($interfaceJournals) }}"
                             ></journal-interface-log-component>
-                        </div>
-                        <div class="tab-pane {{ request()->type == 'ENCUMBRANCE'? 'active': '' }}" id="encumbranceInterface" role="tabpanel">
-                            <encumbrance-interface-log-component
-                                p-form-url      = "{{ route('expense.interface-log') }}"
-                                :p-search       = "{{ json_encode(request()->all()) }}"
-                                :p-statuses     = "{{ json_encode($statusEncs) }}"
-                                :p-interfaces   = "{{ json_encode($interfaceEncumbrances) }}"
-                            ></encumbrance-interface-log-component>
                         </div>
                     </div>
                 </div>

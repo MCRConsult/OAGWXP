@@ -178,7 +178,9 @@
                                 <tr>
                                     <td class="text-center" style="vertical-align: middle;"> {{ $line->seq_number }} </td>
                                     <td class="text-center" style="vertical-align: middle;"> {{ $line->expense->description }} </td>
-                                    <td class="text-center" style="vertical-align: middle;"> {{ number_format($line->amount, 2) }} </td>
+                                    <td class="text-center" style="vertical-align: middle;">
+                                        {{ $requisition->clear_flag == 'Y'? number_format($line->actual_amount, 2): number_format($line->amount, 2) }}
+                                    </td>
                                     <td class="text-center" style="vertical-align: middle;"> {{ $line->supplier_name }} </td>
                                     <td class="text-center" style="vertical-align: middle;"> {{ $line->bank_account_number }} </td>
                                     <td class="text-center" style="vertical-align: middle;">
@@ -203,7 +205,10 @@
                                                 <strong> รวมทั้งสิ้น : </strong>
                                             </td>
                                             <td class="mb-0 tw-text-grey-darker tw-text-bold" style="width:60%; font-size:15px !important;" >
-                                                {{ number_format($requisition->lines->sum('amount'), 2) }}
+                                                {{ $requisition->clear_flag == 'Y'
+                                                    ? number_format($requisition->lines->sum('actual_amount'), 2)
+                                                    :number_format($requisition->lines->sum('amount'), 2) 
+                                                }}
                                             </td>
                                         </tr>
                                     </tbody>

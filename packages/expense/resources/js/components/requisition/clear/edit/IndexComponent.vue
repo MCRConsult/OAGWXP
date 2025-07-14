@@ -25,7 +25,7 @@
                             <paymentType
                                 :setData="header.payment_type"
                                 :error="errors.payment_type"
-                                :editFlag="true"
+                                :editFlag="false"
                                 @setPaymentType="setPaymentType"
                             ></paymentType>
                             <div id="el_explode_payment_type" class="text-danger text-left"></div>
@@ -52,7 +52,7 @@
                             <label class="control-label">
                                 <strong> ประเภท <span class="text-danger"> *</span></strong>
                             </label><br>
-                            <el-select v-model="header.invoice_type" placeholder="" style="width: 100%;" ref="invoice_type">
+                            <el-select v-model="header.invoice_type" placeholder="" style="width: 100%;" ref="invoice_type" disabled>
                                 <el-option
                                     v-for="type in invoiceTypes"
                                     :key="type.lookup_code"
@@ -71,7 +71,7 @@
                             <documentCategory
                                 :setData="header.document_category"
                                 :error="errors.document_category"
-                                :editFlag="true"
+                                :editFlag="false"
                                 @setDocumentCate="setDocumentCate"
                             ></documentCategory>
                             <div id="el_explode_document_category" class="text-danger text-left"></div>

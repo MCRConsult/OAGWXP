@@ -6,7 +6,7 @@
                 :remote-method="getDataRows"
                 :loading="loading"
                 remote-show-suffix
-                style="width: 100%"
+                style="width: 100%;"
                 ref="input"
                 :disabled="!editFlag"
                 @change="getDataRows"
@@ -72,11 +72,14 @@ export default {
                 this.loading = false;
                 this.dataRows = res.data.data;
                 let receipt_amount = '';
-                res.data.data.filter((value) => {
-                    if(value.account_code == this.value){
-                        receipt_amount = value.amount;
-                    }
-                });
+                if(this.parent){
+                    res.data.data.filter((value) => {
+                        if(value.account_code == this.value){
+                            receipt_amount = value.amount;
+                        }
+                    });
+                    this.value = res.data.data[0]?.account_code;
+                }
                 this.$emit('setReceiptAccount', {receipt_account: this.value, receipt_amount: receipt_amount});
             })
             .catch((error) => {

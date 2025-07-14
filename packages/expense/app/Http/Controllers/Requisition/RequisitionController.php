@@ -196,6 +196,7 @@ class RequisitionController extends Controller
             $clearReq->clear_flag           = 'Y';
             $clearReq->invoice_reference_id = null;
             $clearReq->invioce_number_ref   = null;
+            $clearReq->description          = '';
             $clearReq->created_by           = $user->id;
             $clearReq->updated_by           = $user->id;
             $clearReq->creation_by          = $user->person_id;

@@ -56,7 +56,7 @@
                                         <div id="_el_explode_remaining_receipt" class="text-danger text-left"></div>
                                     </div>
                                 </div>
-                                <div class="col-md-3 text-left">
+                                <!-- <div class="col-md-3 text-left">
                                     <div class="form-group" style="padding: 5px;">
                                         <label class="control-label">
                                             <strong> รายการบัญชีรับเงินคงเหลือ </strong>
@@ -70,7 +70,7 @@
                                         ></receiptAccount>
                                         <div id="_el_explode_receipt_account" class="text-danger text-left"></div>
                                     </div>
-                                </div>
+                                </div> -->
                             </template>
                         </div>
                         <div class="row">
@@ -384,7 +384,7 @@
                 $(form).find("div[id='_el_explode_expense_type']").html("");
                 $(form).find("div[id='_el_explode_amount']").html("");
                 $(form).find("div[id='_el_explode_remaining_receipt']").html("");
-                $(form).find("div[id='_el_explode_receipt_account']").html("");
+                // $(form).find("div[id='_el_explode_receipt_account']").html("");
                 
                 if ((vm.line.supplier_id == '' || vm.line.supplier_id == undefined) && vm.requisition.multiple_supplier == 'MORE') {
                     vm.errors.supplier_detail = true;
@@ -440,12 +440,12 @@
                         errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ";
                         $(form).find("div[id='_el_explode_remaining_receipt']").html(errorMsg);
                     }
-                    if (vm.temp.receipt_account == '') {
-                        vm.errors.receipt_account = true;
-                        valid = false;
-                        errorMsg = "กรุณาเลือกรายการบัญชีรับเงินคงเหลือ";
-                        $(form).find("div[id='_el_explode_receipt_account']").html(errorMsg);
-                    }
+                    // if (vm.temp.receipt_account == '') {
+                    //     vm.errors.receipt_account = true;
+                    //     valid = false;
+                    //     errorMsg = "กรุณาเลือกรายการบัญชีรับเงินคงเหลือ";
+                    //     $(form).find("div[id='_el_explode_receipt_account']").html(errorMsg);
+                    // }
                     if (vm.temp.amount > vm.temp.receipt_amount) {
                         vm.errors.amount = true;
                         valid = false;

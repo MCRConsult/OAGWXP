@@ -98,7 +98,7 @@
                 <thead>
                     <tr>
                         <th class="text-center sticky-col">
-                            <div width="10%"> วันที่อินเตอร์เฟซ </div>
+                            <div width="10%"> วันที่อินเตอร์เฟส </div>
                         </th>
                         <th class="text-center sticky-col">
                             <div width="13%"> เลขที่ใบสำคัญ </div>

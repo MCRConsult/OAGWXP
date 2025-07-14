@@ -75,7 +75,7 @@
                                 <label class="control-label">
                                     <strong> จำนวนเงิน </strong>
                                 </label><br>
-                                {{ number_format($line->amount, 2) }}
+                                {{ $requisition->clear_flag == 'Y'? number_format($line->actual_amount, 2): number_format($line->amount, 2) }}
                             </div>
                         </div>
                     </div>

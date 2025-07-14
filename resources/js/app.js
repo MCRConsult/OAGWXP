@@ -37,9 +37,9 @@ import EditInvoiceComponent from '/packages/expense/resources/js/components/invo
 import ReInterfaceInvoiceComponent from '/packages/expense/resources/js/components/invoice/_ReInterfaceComponent.vue';
 
 // INTERFACE LOG
+import InterfaceEncumbranceComponent from '/packages/expense/resources/js/components/interface-log/EncumbranceComponent.vue';
 import InterfaceInvoiceComponent from '/packages/expense/resources/js/components/interface-log/InvoiceComponent.vue';
 import InterfaceJournalComponent from '/packages/expense/resources/js/components/interface-log/JournalComponent.vue';
-import InterfaceEncumbranceComponent from '/packages/expense/resources/js/components/interface-log/EncumbranceComponent.vue';
 
 // SETTING
 // USER

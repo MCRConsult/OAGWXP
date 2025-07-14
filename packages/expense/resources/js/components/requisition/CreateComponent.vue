@@ -210,6 +210,22 @@
                             <div id="el_explode_supplier_bank" class="text-danger text-left"></div>
                         </div>
                     </div>
+                    <template v-if="reqLine.remaining_receipt_flag == 'Y'">
+                        <div class="col-md-3">
+                            <div class="form-group" style="padding: 5px;">
+                                <label class="control-label">
+                                    <strong> เลขที่ใบเสร็จรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
+                                </label><br>
+                                <remainingReceipt
+                                    :setData="reqLine.remaining_receipt_id"
+                                    :editFlag="true"
+                                    :error="errors.remaining_receipt"
+                                    @setRemainingReceipt="setRemainingReceipt"
+                                ></remainingReceipt>
+                                <div id="el_explode_remaining_receipt" class="text-danger text-left"></div>
+                            </div>
+                        </div>
+                    </template>
                     <div class="col-md-2">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label" style="margin: 3px;">
@@ -223,22 +239,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="row" v-if="reqLine.remaining_receipt_flag == 'Y'">
-                    <div class="col-md-3">
-                        <div class="form-group" style="padding: 5px;">
-                            <label class="control-label">
-                                <strong> เลขที่ใบเสร็จรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
-                            </label><br>
-                            <remainingReceipt
-                                :setData="reqLine.remaining_receipt_id"
-                                :editFlag="true"
-                                :error="errors.remaining_receipt"
-                                @setRemainingReceipt="setRemainingReceipt"
-                            ></remainingReceipt>
-                            <div id="el_explode_remaining_receipt" class="text-danger text-left"></div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
+                <!-- <div class="row" v-if="reqLine.remaining_receipt_flag == 'Y'"> -->
+                    <!-- <div class="col-md-3">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
                                 <strong> รายการบัญชีรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
@@ -252,8 +254,8 @@
                             ></receiptAccount>
                             <div id="el_explode_receipt_account" class="text-danger text-left"></div>
                         </div>
-                    </div>
-                </div>
+                    </div> -->
+                <!-- </div> -->
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group" style="padding: 5px;">
@@ -304,12 +306,26 @@
                         <label class="control-label">
                             <strong> รายการบัญชี <span class="text-danger"> * </span></strong>
                         </label><br>
-                        <el-input v-model="reqLine.expense_account" style="width: 85%;" ref="expense_account" readonly/>
-                        <modalAccountComp
-                            :reqLine="reqLine"
-                            :defaultSetName="defaultSetName"
-                            @updateAccount="updateAccount"
-                        />
+                        <template v-if="reqLine.remaining_receipt_flag == 'Y'">
+                            <receiptAccount
+                                :parent="reqLine.remaining_receipt_id"
+                                :setData="reqLine.receipt_account"
+                                :editFlag="true"
+                                :error="errors.expense_account"
+                                @setReceiptAccount="setReceiptAccount"
+                            ></receiptAccount>
+                        </template>
+                        <template v-else>
+                            <el-input v-model="reqLine.expense_account"
+                                :style="errors.expense_account? 'border: 1px solid red; border-radius: 5px; width: 85%;': 'width: 85%;'"
+                                readonly
+                            />
+                            <modalAccountComp
+                                :reqLine="reqLine"
+                                :defaultSetName="defaultSetName"
+                                @updateAccount="updateAccount"
+                            />
+                        </template>
                         <div id="el_explode_expense_account" class="text-danger text-left"></div>
                     </div>
                 </div>
@@ -527,7 +543,7 @@
             errors: {
                 handler(val){
                     val.invoice_type? this.setError('invoice_type') : this.resetError('invoice_type');
-                    val.expense_account? this.setError('expense_account') : this.resetError('expense_account');
+                    // val.expense_account? this.setError('expense_account') : this.resetError('expense_account');
                     val.amount? this.setError('amount') : this.resetError('amount');
                 },
                 deep: true,
@@ -543,6 +559,7 @@
                 this.requisition.req_date = formattedDate;
             },
             setError(ref_name){
+                console.log(this.$refs[ref_name]);
                 let ref =  this.$refs[ref_name].$refs.referenceRef
                         ? this.$refs[ref_name].$refs.referenceRef.$refs.wrapperRef
                         : (this.$refs[ref_name].$refs.textareaRef
@@ -745,12 +762,12 @@
                         errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ";
                         $(form).find("div[id='el_explode_remaining_receipt']").html(errorMsg);
                     }
-                    if (vm.reqLine.receipt_account == '') {
-                        vm.errors.receipt_account = true;
-                        valid = false;
-                        errorMsg = "กรุณาเลือกรายการบัญชีรับเงินคงเหลือ";
-                        $(form).find("div[id='el_explode_receipt_account']").html(errorMsg);
-                    }
+                    // if (vm.reqLine.receipt_account == '') {
+                    //     vm.errors.receipt_account = true;
+                    //     valid = false;
+                    //     errorMsg = "กรุณาเลือกรายการบัญชีรับเงินคงเหลือ";
+                    //     $(form).find("div[id='el_explode_receipt_account']").html(errorMsg);
+                    // }
                     if (vm.reqLine.amount > vm.reqLine.receipt_amount) {
                         vm.errors.amount = true;
                         valid = false;

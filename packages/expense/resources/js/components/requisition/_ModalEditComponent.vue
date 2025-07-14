@@ -55,7 +55,7 @@
                                         <div id="_el_explode_remaining_receipt" class="text-danger text-left"></div>
                                     </div>
                                 </div>
-                                <div class="col-md-3 text-left">
+                                <!-- <div class="col-md-3 text-left">
                                     <div class="form-group" style="padding: 5px;">
                                         <label class="control-label">
                                             <strong> รายการบัญชีรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
@@ -69,7 +69,7 @@
                                         ></receiptAccount>
                                         <div id="_el_explode_receipt_account" class="text-danger text-left"></div>
                                     </div>
-                                </div>
+                                </div> -->
                             </template>
                         </div>
                         <div class="row">
@@ -591,7 +591,7 @@
                     expense_type: false,
                     amount: false,
                     remaining_receipt: false,
-                    receipt_account: false,
+                    // receipt_account: false,
                     segment1: false,
                     segment2: false,
                     segment3: false,
@@ -672,7 +672,7 @@
                 $(form).find("div[id='_el_explode_expense_account']").html("");
                 $(form).find("div[id='_el_explode_amount']").html("");
                 $(form).find("div[id='_el_explode_remaining_receipt']").html("");
-                $(form).find("div[id='_el_explode_receipt_account']").html("");
+                // $(form).find("div[id='_el_explode_receipt_account']").html("");
                 $(form).find("div[id='_el_explode_acc_1']").html("");
                 $(form).find("div[id='_el_explode_acc_2']").html("");
                 $(form).find("div[id='_el_explode_acc_3']").html("");
@@ -741,12 +741,12 @@
                         errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ";
                         $(form).find("div[id='_el_explode_remaining_receipt']").html(errorMsg);
                     }
-                    if (vm.temp.receipt_account == '') {
-                        vm.errors.receipt_account = true;
-                        valid = false;
-                        errorMsg = "กรุณาเลือกรายการบัญชีรับเงินคงเหลือ";
-                        $(form).find("div[id='_el_explode_receipt_account']").html(errorMsg);
-                    }
+                    // if (vm.temp.receipt_account == '') {
+                    //     vm.errors.receipt_account = true;
+                    //     valid = false;
+                    //     errorMsg = "กรุณาเลือกรายการบัญชีรับเงินคงเหลือ";
+                    //     $(form).find("div[id='_el_explode_receipt_account']").html(errorMsg);
+                    // }
                     if (vm.temp.amount > vm.temp.receipt_amount) {
                         vm.errors.amount = true;
                         valid = false;
