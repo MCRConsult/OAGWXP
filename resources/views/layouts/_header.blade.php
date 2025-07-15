@@ -3,7 +3,7 @@
         <span class="navbar-toggler-icon">
         </span>
     </button>
-    <a class="navbar-brand" href="/" style="position: relative; padding: 20px; z-index: 10;">
+    <a class="navbar-brand" href="/">
         <img alt="OAG Logo" src="/images/oag-logo.png" style="width: 130px; padding: 5px;"></img>
     </a>
     <button class="navbar-toggler sidebar-toggler d-md-down-none" data-toggle="sidebar-lg-show" type="button">
