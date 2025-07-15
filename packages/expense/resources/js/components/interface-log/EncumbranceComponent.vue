@@ -257,6 +257,7 @@ export default {
             await axios
             .post(url, {
                 page: page,
+                type: 'ENCUMBRANCE',
                 reserve_date_from: this.search.reserve_date_from,
                 reserve_date_to: this.search.reserve_date_to,
                 reserve_type: this.search.reserve_type,

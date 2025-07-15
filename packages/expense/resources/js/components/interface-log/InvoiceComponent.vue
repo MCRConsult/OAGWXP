@@ -261,6 +261,7 @@ export default {
             await axios
             .post(url, {
                 page: page,
+                type: 'INVOICE',
                 invoice_date_from: this.search.invoice_date_from,
                 invoice_date_to: this.search.invoice_date_to,
                 invoice_number: this.search.invoice_number,

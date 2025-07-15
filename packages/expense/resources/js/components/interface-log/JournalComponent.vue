@@ -236,6 +236,7 @@ export default {
             await axios
             .post(url, {
                 page: page,
+                type: 'JOURNAL',
                 req_date_from: this.search.req_date_from,
                 req_date_to: this.search.req_date_to,
                 req_number: this.search.req_number,
