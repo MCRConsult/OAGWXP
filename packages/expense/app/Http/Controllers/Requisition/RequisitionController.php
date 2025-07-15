@@ -364,7 +364,7 @@ class RequisitionController extends Controller
                 $lineTemp->expense_account          = $expAccount;
                 $lineTemp->amount                   = $line['amount'];
                 $lineTemp->actual_amount            = $diff_amount;
-                $lineTemp->description              = $line['description'];
+                $lineTemp->description              = $expeseType->description;
                 $lineTemp->vehicle_number           = $line['vehicle_number'];
                 $lineTemp->policy_number            = $line['policy_number'];
                 $lineTemp->vehicle_oil_type         = $line['vehicle_oil_type'];
