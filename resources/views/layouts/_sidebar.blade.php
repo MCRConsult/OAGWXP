@@ -26,7 +26,7 @@
                         @if (Gate::allows('history_resubmit'))
                             <li class="nav-item">
                                 <a class="nav-title nav-link" href="{{ route('expense.interface-log') }}">
-                                    <i class="nav-icon fa fa-history fa-lg"></i> ประวัติการอินเตอร์เฟส
+                                    <i class="nav-icon fa fa-history fa-lg"></i> ประวัติการอินเทอร์เฟซ
                                 </a>
                             </li>
                         @endif

@@ -1,8 +1,8 @@
 @extends('layouts.app')
-@section('title', 'ประวัติการอินเตอร์เฟส')
+@section('title', 'ประวัติการอินเทอร์เฟซ')
 @section('breadcrumb')
     <li class="breadcrumb-item active">
-        <strong> ประวัติการอินเตอร์เฟส </strong>
+        <strong> ประวัติการอินเทอร์เฟซ </strong>
     </li>
 @endsection
 
@@ -12,7 +12,7 @@
             <div class="row col-12" style="padding-right: 0px;">
                 <div class="col-md-6">
                     <span class="d-inline">
-                        <h5> <strong> ประวัติการอินเตอร์เฟส </strong> </h5>
+                        <h5> <strong> ประวัติการอินเทอร์เฟซ </strong> </h5>
                     </span>
                 </div>
             </div>
