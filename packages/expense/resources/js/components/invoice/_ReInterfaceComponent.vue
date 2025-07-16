@@ -39,7 +39,10 @@
                             title: 'ระบบกำลังขอเบิกเอกสารใหม่อีกครั้ง',
                             type: "success",
                             showConfirmButton: false,
-                            allowOutsideClick: false
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
                         });
                         // POST METHOD
                         axios.get(vm.pFormUrl)

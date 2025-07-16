@@ -496,7 +496,10 @@
                             title: 'ระบบกำลังสร้างเอกสารขอเบิก',
                             type: "success",
                             showConfirmButton: false,
-                            allowOutsideClick: false
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
                         });
                         axios.post('/expense/invoice/group-invoice', {
                             requisitions: this.listReq,
@@ -567,7 +570,10 @@
                             title: 'ระบบกำลังส่งเบิกเอกสารใหม่อีกครั้ง',
                             type: "success",
                             showConfirmButton: false,
-                            allowOutsideClick: false
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
                         });
                         // POST METHOD
                         axios.get('/expense/requisition/'+reqId+'/req-resubmit')

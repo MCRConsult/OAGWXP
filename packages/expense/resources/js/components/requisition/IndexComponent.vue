@@ -378,7 +378,10 @@ export default {
                         title: 'ระบบกำลังกลับรายการบัญชี',
                         type: "success",
                         showConfirmButton: false,
-                        allowOutsideClick: false
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
                     });
                     // GET METHOD
                     axios.get('/expense/requisition/'+reqId+'/reverse-journal')

@@ -615,10 +615,13 @@
                     return;
                 }
                 Swal.fire({
-                    title: 'ระบบกำลังบันทึกเอกสารขอเบิก',
+                    title: "ระบบกำลังบันทึกเอกสารขอเบิก",
                     type: "success",
                     showConfirmButton: false,
-                    allowOutsideClick: false
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
                 });
                 axios.post('/expense/invoice/'+vm.header.id+'/update', {
                     header: vm.header,
@@ -682,10 +685,13 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         Swal.fire({
-                            title: 'ระบบกำลังส่งข้อมูลเอกสารขอเบิก',
+                            title: "ระบบกำลังส่งข้อมูลเอกสารขอเบิก",
                             type: "success",
                             showConfirmButton: false,
-                            allowOutsideClick: false
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
                         });
                         axios.post('/expense/invoice/'+vm.header.id+'/update', {
                             header: vm.header,
@@ -761,7 +767,10 @@
                             title: 'ระบบกำลังยกเลิกเอกสารขอเบิก',
                             type: "success",
                             showConfirmButton: false,
-                            allowOutsideClick: false
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
                         });
                         axios.post('/expense/invoice/'+vm.header.id+'/cancel', {
                             header: vm.header

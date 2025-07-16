@@ -685,7 +685,10 @@
                             title: 'ระบบกำลังบันทึกเอกสารเคลียร์เงินยืม',
                             type: "success",
                             showConfirmButton: false,
-                            allowOutsideClick: false
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
                         });
                         // POST METHOD
                         axios.post('/expense/requisition/'+vm.header.id+'/clear-update', {
