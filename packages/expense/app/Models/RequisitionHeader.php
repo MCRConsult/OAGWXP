@@ -80,8 +80,8 @@ class RequisitionHeader extends Model
     {
         $user = \Auth::user();
         $orgName = explode('_', $user->organizationV->name);
-        return $query->where('document_category', 'like', '%'.$orgName[0].'%')
-        // return $query->where('created_by', $user->id);
+
+        return $query->where('document_category', 'like', '%'.$orgName[0].'%');
     }
 
     public function getIsEnterAttribute($userId = null)

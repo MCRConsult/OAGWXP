@@ -82,7 +82,7 @@ class RequisitionController extends Controller
         $requisitions = collect($requisitions)->all();
         $respReq = new LengthAwarePaginator(
             array_slice($requisitions, ($currPage - 1) * $perPage, $perPage),
-            count($requisitions), 
+            count($requisitions),
             $perPage,
             $currPage,
             ['path' => request()->url(), 'query' => request()->query()]
