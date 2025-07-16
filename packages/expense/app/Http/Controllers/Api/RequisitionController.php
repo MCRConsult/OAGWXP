@@ -51,9 +51,11 @@ class RequisitionController extends Controller
 
     public function getDocumentCategory(Request $request)
     {
+        $user = auth()->user();
+        $orgName = explode('_', $user->organizationV->name);
         $budgetSource = $request->budget_source;
         $default = [];
-        if (auth()->user()->org_id == 82) {
+        if ($orgName[0] == '000') {
             $default = LookupV::selectRaw('distinct lookup_code, tag')
                             ->where('lookup_type', 'OAG_AP_SOURCE_CATEGORY')
                             ->where('lookup_code', $budgetSource)
@@ -61,8 +63,7 @@ class RequisitionController extends Controller
         }else{
             $default = DocumentCategory::selectRaw('distinct doc_category_code tag')
                             ->whereNotNull('attribute1')
-                            ->where('attribute1', auth()->user()->org_id)
-                            ->where('doc_category_code', 'like', '%ขบ.%')
+                            ->where('doc_category_code', 'like', '%'.$orgName[0].'%ขบ.%')
                             ->first();
         }
 

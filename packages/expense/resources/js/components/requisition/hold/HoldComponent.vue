@@ -615,10 +615,14 @@
                 }
                 if (vm.linelists.length == 0) {
                     valid = false;
-                    this.$notify({
-                        title: 'แจ้งเตือน',
-                        message: 'ไม่พบข้อมูลรายการ กรุณาตรวจสอบ',
-                        type: 'warning'
+                    Swal.fire({
+                        title: "แจ้งเตือน",
+                        text: 'ไม่พบข้อมูลรายการ กรุณาตรวจสอบ',
+                        icon: "warning",
+                        showCancelButton: false,
+                        confirmButtonColor: "#3085d6",
+                        confirmButtonText: "ตกลง",
+                        allowOutsideClick: false
                     });
                 }
                 if (!valid) {
@@ -706,22 +710,17 @@
                     }
                 })
                 .then(res => {
-                    // if(budgetSource != null && res.data.data == null){
-                    //     this.$notify({
-                    //         title: 'แจ้งเตือน',
-                    //         message: 'ไม่พบข้อมูล กรุณาตรวจสอบ',
-                    //         type: 'warning'
-                    //     });
-                    // }else if(budgetSource != null || budgetSource != ''){
-                        // console.log(res.data.data);
-                        this.requisition.document_category = res.data.data? res.data.data.tag: '';
-                    // }
+                     this.requisition.document_category = res.data.data? res.data.data.tag: '';
                 })
                 .catch((error) => {
-                    this.$notify({
-                        title: 'แจ้งเตือน',
-                        message: error,
-                        type: 'warning'
+                    Swal.fire({
+                        title: "แจ้งเตือน",
+                        text: error,
+                        icon: "warning",
+                        showCancelButton: false,
+                        confirmButtonColor: "#3085d6",
+                        confirmButtonText: "ตกลง",
+                        allowOutsideClick: false
                     });
                 })
             },

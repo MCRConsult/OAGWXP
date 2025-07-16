@@ -569,12 +569,28 @@
                     errorMsg = "กรุณากรอกคำอธิบาย";
                     $(form).find("div[id='el_explode_header_desc']").html(errorMsg);
                 }
+                // if (vm.header.total_amount != vm.totalApply) {
+                //     valid = false;
+                //     Swal.fire({
+                //         title: "มีข้อผิดพลาด",
+                //         text: 'ยอดจำนวนเงินไม่เท่ากับใบเสร็จรับเงิน กรุณาตรวจสอบ',
+                //         icon: "error",
+                //         showCancelButton: false,
+                //         confirmButtonColor: "#3085d6",
+                //         confirmButtonText: "ตกลง",
+                //         allowOutsideClick: false
+                //     });
+                // }
                 if (vm.linelists.length == 0) {
                     valid = false;
-                    this.$notify({
-                        title: 'แจ้งเตือน',
-                        message: 'ไม่พบข้อมูลรายการ กรุณาตรวจสอบ',
-                        type: 'warning'
+                    Swal.fire({
+                        title: "มีข้อผิดพลาด",
+                        text: 'ไม่พบข้อมูลรายการ กรุณาตรวจสอบ',
+                        icon: "error",
+                        showCancelButton: false,
+                        confirmButtonColor: "#3085d6",
+                        confirmButtonText: "ตกลง",
+                        allowOutsideClick: false
                     });
                 }
                 // VALIDATE INVOICE LINE: SPLIT FLAG == Y
@@ -582,10 +598,14 @@
                     if (item.split_flag == 'Y') {
                         if (item.ar_receipt_number == '' || item.ar_receipt_number == null) {
                             valid = false;
-                            vm.$notify({
-                                title: 'แจ้งเตือน',
-                                message: 'กรุณาตรวจสอบรายการคืนเงินยืม ต้องระบุเลขที่ใบเสร็จรับเงิน',
-                                type: 'warning'
+                            Swal.fire({
+                                title: "มีข้อผิดพลาด",
+                                text: 'กรุณาตรวจสอบรายการคืนเงินยืม ต้องระบุเลขที่ใบเสร็จรับเงิน',
+                                icon: "error",
+                                showCancelButton: false,
+                                confirmButtonColor: "#3085d6",
+                                confirmButtonText: "ตกลง",
+                                allowOutsideClick: false
                             });
                         }
                     }

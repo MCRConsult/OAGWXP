@@ -18,6 +18,13 @@
                                         <strong> ชื่อสั่งจ่าย </strong> &nbsp;
                                     </label><br>
                                     <el-input v-model="temp.supplier_name" style="width: 100%;" disabled/>
+                                    <!-- <supplier
+                                        :setData="temp.supplier_id"
+                                        :error="errors.supplier_detail"
+                                        :editFlag="temp.source_type == 'RECEIPT'? fasle: true"
+                                        @setSupplier="setSupplierLine"
+                                    ></supplier>
+                                    <div id="_el_explode_supplier_detail" class="text-danger text-left"></div> -->
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -515,6 +522,7 @@
                 loading: false,
                 accounrCollp: false,
                 errors: {
+                    supplier_detail: false,
                     supplier_bank: false,
                     budget_plan: false,
                     budget_type: false,
@@ -560,6 +568,7 @@
                 let errorMsg = '';
                 let valid = true;
                 var form = $('.edit-form'+index);
+                vm.errors.supplier_detail = false;
                 vm.errors.supplier_bank = false;
                 vm.errors.budget_plan = false;
                 vm.errors.budget_type = false;
@@ -574,6 +583,7 @@
                 vm.errors.segment9 = false;
                 vm.errors.segment10 = false;
                 vm.errors.segment11 = false;
+                $(form).find("div[id='_el_explode_supplier_detail']").html("");
                 $(form).find("div[id='_el_explode_supplier_bank']").html("");
                 $(form).find("div[id='_el_explode_budget_plan']").html("");
                 $(form).find("div[id='_el_explode_budget_type']").html("");
@@ -589,6 +599,12 @@
                 $(form).find("div[id='_el_explode_acc_10']").html("");
                 $(form).find("div[id='_el_explode_acc_11']").html("");
 
+                // if (vm.temp.supplier_id == '' || vm.temp.supplier_id == undefined) {
+                //     vm.errors.supplier_detail = true;
+                //     valid = false;
+                //     errorMsg = "กรุณาเลือกชื่อสั่งจ่าย";
+                //     $(form).find("div[id='_el_explode_supplier_detail']").html(errorMsg);
+                // }
                 if (vm.temp.bank_account_number == '' || vm.temp.bank_account_number == undefined) {
                     vm.errors.supplier_bank = true;
                     valid = false;
@@ -687,11 +703,8 @@
                 }
 
                 if(this.temp){
-                    // this.line = { ...this.temp };
-                    // this.line = JSON.parse(JSON.stringify(this.temp));
                     $('.modal-edit'+this.index).modal('hide');
                     this.$emit("updateRow", {index: this.index, line: this.temp});
-                    // this.temp = null;
                 }
             },
             cancel() {

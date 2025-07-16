@@ -19,7 +19,7 @@
             {{ line.bank_account_number }}
         </td>
         <td style="padding-top: 5px">
-            <div class="row text-center" style="border-collapse: collapse; width: 50px; display:inline-block; flex-direction: row;">
+            <div class="row text-center" style="border-collapse: collapse; width: 200px; display:inline-block; flex-direction: row;">
                 <modalEditComp
                     :index="index"
                     :invoiceLine="line"
@@ -98,9 +98,9 @@
         z-index: 9999 !important;
     }
     .wrap-text {
-      overflow-wrap: break-word; /* Modern equivalent of word-wrap */
-      word-wrap: break-word; /* For older browsers */
-      word-break: break-word; /* Optional for certain cases */
-      white-space: normal; /* Ensures text wraps */
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+      word-break: break-word;
+      white-space: normal;
     }
 </style>
