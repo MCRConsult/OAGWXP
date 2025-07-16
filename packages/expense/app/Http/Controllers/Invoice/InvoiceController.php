@@ -37,7 +37,7 @@ class InvoiceController extends Controller
         $invoices = InvoiceHeader::search(request()->all())
                                     ->with(['user.hrEmployee', 'supplier'])
                                     ->byRelatedUser()
-                                    ->orderByRaw('invoice_date desc, voucher_number desc')
+                                    ->orderByRaw('invoice_number desc, invoice_date desc, voucher_number desc')
                                     ->paginate(25);
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
         $statuses = ['NEW'          => 'ขอเบิก'

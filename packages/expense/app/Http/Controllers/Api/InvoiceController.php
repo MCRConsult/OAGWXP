@@ -81,7 +81,7 @@ class InvoiceController extends Controller
     {
        $invoices = InvoiceHeader::search(request()->all())
                             ->with(['user.hrEmployee', 'supplier'])
-                            ->orderByRaw('invoice_date desc, voucher_number desc')
+                            ->orderByRaw('invoice_number desc, invoice_date desc, voucher_number desc')
                             ->get();
         $perPage = 25;
         $currPage = (int)request()->page;
