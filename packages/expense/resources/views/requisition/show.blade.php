@@ -170,15 +170,15 @@
                                 <th class="text-center" width="10%"> จำนวนเงิน </th>
                                 <th class="text-center" width="15%"> ชื่อสั่งจ่าย </th>
                                 <th class="text-center" width="15%"> เลขที่บัญชีธนาคาร </th>
-                                <th class="text-center" width="8%"> </th>
+                                <th class="text-center" width="6%"> </th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($requisition->lines->sortBy('seq_number') as $line)
                                 <tr>
                                     <td class="text-center" style="vertical-align: middle;"> {{ $line->seq_number }} </td>
-                                    <td class="text-center" style="vertical-align: middle;"> {{ $line->expense->description }} </td>
-                                    <td class="text-center" style="vertical-align: middle;">
+                                    <td class="text-left" style="vertical-align: middle;"> {{ $line->expense->description }} </td>
+                                    <td class="text-right" style="vertical-align: middle;">
                                         {{ $requisition->clear_flag == 'Y'? number_format($line->actual_amount, 2): number_format($line->amount, 2) }}
                                     </td>
                                     <td class="text-center" style="vertical-align: middle;"> {{ $line->supplier_name }} </td>
@@ -186,7 +186,7 @@
                                     <td class="text-center" style="vertical-align: middle;">
                                         <button type="button" class="btn btn-light btn-sm" data-toggle="modal"
                                             data-target=".detail_{{ $line->id }}">
-                                            รายละเอียดเพิ่มเติม
+                                            รายละเอียด
                                         </button>
                                     </td>
                                 </tr>
@@ -204,7 +204,7 @@
                                             <td class="mb-0 tw-text-grey-darker tw-text-bold" style="width:40%; font-size:15px !important;">
                                                 <strong> รวมทั้งสิ้น : </strong>
                                             </td>
-                                            <td class="mb-0 tw-text-grey-darker tw-text-bold" style="width:60%; font-size:15px !important;" >
+                                            <td class="mb-0 tw-text-grey-darker tw-text-bold" style="width:60%; font-size:15px !important;">
                                                 {{ $requisition->clear_flag == 'Y'
                                                     ? number_format($requisition->lines->sum('actual_amount'), 2)
                                                     :number_format($requisition->lines->sum('amount'), 2) 

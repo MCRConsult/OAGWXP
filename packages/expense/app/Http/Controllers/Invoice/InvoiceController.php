@@ -461,10 +461,13 @@ class InvoiceController extends Controller
                     }else{
                         logger('===== status interface AP is E then delete data out temp =====');
                         // DELETE TEMP INTERFACE BY INVOICE NUM
-                        InvoiceInterfaceHeader::where('invoice_num', $invoice->invoice_number)
-                                                        ->whereNull('x_invoice_id')
-                                                        ->delete();
-                        InvoiceInterfaceLine::where('invoice_num', $invoice->invoice_number)->delete();
+                        // InvoiceInterfaceHeader::where('invoice_num', $invoice->invoice_number)
+                        //                                 ->whereNull('x_invoice_id')
+                        //                                 ->delete();
+                        // InvoiceInterfaceLine::where('invoice_num', $invoice->invoice_number)->delete();
+                        $invoice->status        = 'ERROR';
+                        $invoice->error_message = $resultInf['message'];
+                        $invoice->save();
                         \DB::commit();
                         $data = [
                             'status' => 'ERROR',

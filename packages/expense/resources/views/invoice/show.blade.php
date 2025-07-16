@@ -194,11 +194,11 @@
                         <tr>
                             <th class="text-center" width="7%"> รายการที่ </th>
                             <th class="text-left" width="15%"> ประเภทค่าใช้จ่าย </th>
-                            <th class="text-left" width="26%"> รายการบัญชี </th>
+                            <th class="text-left" width="25%"> รายการบัญชี </th>
                             <th class="text-center" width="10%"> จำนวนเงิน </th>
                             <th class="text-center" width="17%"> ชื่อสั่งจ่าย </th>
                             <th class="text-center" width="15%"> เลขที่บัญชีธนาคาร </th>
-                            <th class="text-center" width="8%"> </th>
+                            <th class="text-center" width="10%"> </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -209,15 +209,15 @@
                                 <td class="text-left small wrap-text" style="vertical-align: middle;">
                                     {{ $line->expense_account }}
                                 </td>
-                                <td class="text-center" style="vertical-align: middle;">
+                                <td class="text-right" style="vertical-align: middle;">
                                     {{ $invoice->clear_flag == 'Y'? number_format($line->actual_amount, 2): number_format($line->amount, 2) }}
                                 </td>
                                 <td class="text-center" style="vertical-align: middle;"> {{ $line->supplier_name }} </td>
                                 <td class="text-center" style="vertical-align: middle;"> {{ $line->bank_account_number }} </td>
                                 <td class="text-center" style="vertical-align: middle;">
-                                    <button type="button" class="btn btn-light" data-toggle="modal"
+                                    <button type="button" class="btn btn-light btn-sm" data-toggle="modal"
                                         data-target=".detail_{{ $line->id }}">
-                                        รายละเอียดเพิ่มเติม
+                                        รายละเอียด
                                     </button>
                                 </td>
                             </tr>
