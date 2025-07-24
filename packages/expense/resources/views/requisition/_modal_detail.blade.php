@@ -26,8 +26,6 @@
                                 {{ $line->bank_account_number }}
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-md-3">
                             <div class="form-group" style="padding: 5px;">
                                 <label class="control-label">
@@ -36,6 +34,16 @@
                                 {{ $line->remaining_receipt_number ?? '-' }}
                             </div>
                         </div>
+                        <div class="col-md-3">
+                            <div class="form-group" style="padding: 5px;">
+                                <label class="control-label">
+                                    <strong> เลขที่สัญญา </strong>
+                                </label><br>
+                                {{ $line->contract_number? $line->contract->attribute1.': '.$line->contract->meaning: '-' }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-3 text-left">
                             <div class="form-group" style="padding: 5px;">
                                 <label class="control-label">
@@ -74,8 +82,10 @@
                             <div class="form-group" style="padding: 5px;">
                                 <label class="control-label">
                                     <strong> จำนวนเงิน </strong>
-                                </label><br>
-                                {{ $requisition->clear_flag == 'Y'? number_format($line->actual_amount, 2): number_format($line->amount, 2) }}
+                                </label>
+                                <div class="text-left">  
+                                    {{ $requisition->clear_flag == 'Y'? number_format($line->actual_amount, 2): number_format($line->amount, 2) }}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -173,14 +183,6 @@
                                     <strong> เลขที่หนังสือ </strong>
                                 </label><br>
                                 {{ $line->receipt_number ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group" style="padding: 5px;">
-                                <label class="control-label">
-                                    <strong> เลขที่สัญญา </strong>
-                                </label><br>
-                                {{ $line->contract_number? $line->contract->attribute1.': '.$line->contract->meaning: '-' }}
                             </div>
                         </div>
                     </div>

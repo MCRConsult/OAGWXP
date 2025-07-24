@@ -123,18 +123,6 @@
                                         <el-input v-model="line.receipt_number" style="width: 100%;" placeholder=""/>
                                     </div>
                                 </div>
-                                <div class="col-md-3" v-if="contractSource.indexOf(requisition?.budget_source) !== -1">
-                                    <div class="form-group" style="padding: 5px;">
-                                        <label class="control-label">
-                                            <strong> เลขที่สัญญา</strong>
-                                        </label><br>
-                                        <contract
-                                            :setData="line.contract_number"
-                                            :editFlag="true"
-                                            @setContract= "setContract"
-                                        ></contract>
-                                    </div>
-                                </div>
                             </div>
                         </form>
                     </div>
@@ -156,17 +144,14 @@
     import vehicleOilType from "../lov/vehicleOilType.vue";
     import utilityType from "../lov/UtilityType.vue";
     import utilityDetail from "../lov/UtilityDetail.vue";
-    import remainingReceipt from "../lov/RemainingReceipt.vue";
-    import contract from "../lov/Contract.vue";
 
     export default {
         components: {
-            vehicleOilType, utilityType, utilityDetail, remainingReceipt, contract
+            vehicleOilType, utilityType, utilityDetail
         },
         props: ['requisition', 'reqLine', 'errors'],
         data() {
             return {
-                contractSource: ['540'],
                 line: this.reqLine,
                 loading: false,
                 error: this.errors,
@@ -211,12 +196,6 @@
             },
             setUtilityDetail(res){
                 this.line.utility_detail = res.utility_detail;
-            },
-            setRemainingReceipt(res){
-                this.line.remaining_receipt_id = res.remaining_receipt;
-            },
-            setContract(res){
-                this.line.contract_number = res.contract;
             },
         }
     };

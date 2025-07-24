@@ -41,7 +41,7 @@
                                 </div>
                             </div>
                             <template v-if="temp.remaining_receipt_flag == 'Y'">
-                                <div class="col-md-3 text-left">
+                                <div class="col-md-3 text-left" v-if="budgetSource.indexOf(requisition?.budget_source) !== -1">
                                     <div class="form-group" style="padding: 5px;">
                                         <label class="control-label">
                                             <strong> เลขที่ใบเสร็จรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
@@ -55,6 +55,37 @@
                                         <div id="_el_explode_remaining_receipt" class="text-danger text-left"></div>
                                     </div>
                                 </div>
+                                <!-- 540 -->
+                                <template v-if="contractSource.indexOf(requisition?.budget_source) !== -1">
+                                    <div class="col-md-3 text-left">
+                                        <div class="form-group" style="padding: 5px;">
+                                            <label class="control-label">
+                                                <strong> เลขที่ใบเสร็จรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
+                                            </label><br>
+                                            <guaranteeReceipt
+                                                :setData="temp.remaining_receipt_id"
+                                                :refContract="temp.contract_number"
+                                                :editFlag="true"
+                                                :error="errors.remaining_receipt"
+                                                @setGuaranteeReceipt="setGuaranteeReceipt"
+                                            ></guaranteeReceipt>
+                                            <div id="el_explode_remaining_receipt" class="text-danger text-left"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 text-left">
+                                        <div class="form-group" style="padding: 5px;">
+                                            <label class="control-label">
+                                                <strong> เลขที่สัญญา</strong>
+                                            </label><br>
+                                            <contract
+                                                :setData="temp.contract_number"
+                                                :editFlag="true"
+                                                @setContract= "setContract"
+                                            ></contract>
+                                        </div>
+                                    </div>
+                                </template>
+                                
                                 <!-- <div class="col-md-3 text-left">
                                     <div class="form-group" style="padding: 5px;">
                                         <label class="control-label">
@@ -277,18 +308,6 @@
                                         <strong> เลขที่หนังสือ </strong>
                                     </label><br>
                                     <el-input v-model="temp.receipt_number" style="width: 100%;" placeholder=""/>
-                                </div>
-                            </div>
-                            <div class="col-md-3 text-left" v-if="contractSource.indexOf(requisition?.budget_source) !== -1">
-                                <div class="form-group" style="padding: 5px;">
-                                    <label class="control-label">
-                                        <strong> เลขที่สัญญา</strong>
-                                    </label><br>
-                                    <contract
-                                        :setData="temp.contract_number"
-                                        :editFlag="true"
-                                        @setContract= "setContract"
-                                    ></contract>
                                 </div>
                             </div>
                         </div>
@@ -564,18 +583,20 @@
     import budgetType       from "../lov/BudgetType.vue";
     import expenseType      from "../lov/ExpenseType.vue";
     import remainingReceipt from "../lov/RemainingReceipt.vue";
+    import guaranteeReceipt from "../lov/guaranteeReceipt.vue";
     import receiptAccount   from "../lov/ReceiptAccount.vue";
     import contract         from "../lov/Contract.vue";
     import coaComponent     from './InputCOAComponent.vue';
 
     export default {
         components: {
-            supplier, supplierBank, vehicleOilType, utilityType, utilityDetail, budgetPlan, budgetType, expenseType, remainingReceipt, receiptAccount, contract, coaComponent
+            supplier, supplierBank, vehicleOilType, utilityType, utilityDetail, budgetPlan, budgetType, expenseType, remainingReceipt, receiptAccount, contract, coaComponent, guaranteeReceipt
         },
         props: ['index', 'requisition', 'reqLine', 'defaultSetName'],
         emits: ['updateRow'],
         data() {
             return {
+                budgetSource: ['510'],
                 contractSource: ['540'],
                 line: this.reqLine,
                 loading: false,
@@ -933,6 +954,13 @@
             },
             setRemainingReceipt(res){
                 this.temp.remaining_receipt_id = res.remaining_receipt;
+                this.temp.receipt_amount = res.receipt_amount;
+            },
+            setGuaranteeReceipt(res){
+                this.temp.remaining_receipt_id = res.guarantee_receipt;
+                this.temp.receipt_amount = res.receipt_amount;
+                this.temp.contract_number = res.contract_number;
+                this.extractAccount();
             },
             setReceiptAccount(res){
                 this.temp.receipt_account = res.receipt_account;

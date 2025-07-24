@@ -24,6 +24,7 @@ use Packages\expense\app\Models\FlaxValueV;
 use Packages\expense\app\Models\MTLCategoriesV;
 use Packages\expense\app\Models\POExpenseAccountRuleV;
 use Packages\expense\app\Models\OAGARBudgetReceiptV;
+use Packages\expense\app\Models\GuaranteeReceiptV;
 use Packages\expense\app\Models\GLPeriod;
 use Packages\expense\app\Models\COAListV;
 use Packages\expense\app\Models\MappingAutoInvoiceV;
@@ -131,7 +132,7 @@ class RequisitionController extends Controller
                 $lineTemp->receipt_date             = !is_null($line['receipt_date'])? date('Y-m-d', strtotime($line['receipt_date'])): '';
                 $lineTemp->remaining_receipt_flag   = $line['remaining_receipt_flag'];
                 $lineTemp->remaining_receipt_id     = $line['remaining_receipt_id'];
-                $lineTemp->remaining_receipt_number = $this->getRemainingRceipt($line['remaining_receipt_id']);
+                $lineTemp->remaining_receipt_number = $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source']);
                 $lineTemp->receipt_account          = $line['receipt_account'];
                 $lineTemp->contract_number          = $line['contract_number'];
                 $lineTemp->save();
@@ -302,7 +303,7 @@ class RequisitionController extends Controller
                     $lineTemp->receipt_date             = !is_null($line['receipt_date'])? date('Y-m-d', strtotime($line['receipt_date'])): '';
                     $lineTemp->remaining_receipt_flag   = $line['remaining_receipt_flag'];
                     $lineTemp->remaining_receipt_id     = $line['remaining_receipt_id'];
-                    $lineTemp->remaining_receipt_number = $this->getRemainingRceipt($line['remaining_receipt_id']);
+                    $lineTemp->remaining_receipt_number = $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source']);
                     $lineTemp->receipt_account          = $line['receipt_account'];
                     $lineTemp->contract_number          = $line['contract_number'];
                     $lineTemp->save();
@@ -439,7 +440,7 @@ class RequisitionController extends Controller
                 $lineTemp->receipt_date             = !is_null($line['receipt_date'])? date('Y-m-d', strtotime($line['receipt_date'])): '';
                 $lineTemp->remaining_receipt_flag   = $line['remaining_receipt_flag'];
                 $lineTemp->remaining_receipt_id     = $line['remaining_receipt_id'];
-                $lineTemp->remaining_receipt_number = $this->getRemainingRceipt($line['remaining_receipt_id']);
+                $lineTemp->remaining_receipt_number = $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source']);
                 $lineTemp->receipt_account          = $line['receipt_account'];
                 $lineTemp->contract_number          = $line['contract_number'];
                 $lineTemp->save();
@@ -642,9 +643,13 @@ class RequisitionController extends Controller
         return $result;
     }
 
-    private function getRemainingRceipt($receiptId)
+    private function getRemainingRceipt($receiptId, $budgetSource)
     {
-        $receipt = OAGARBudgetReceiptV::where('cash_receipt_id', $receiptId)->first();
+        if ($budgetSource == '510') {
+            $receipt = OAGARBudgetReceiptV::where('cash_receipt_id', $receiptId)->first();
+        }else{
+            $receipt = GuaranteeReceiptV::where('cash_receipt_id', $receiptId)->first();
+        }
         return optional($receipt)->receipt_number;
     }
 
@@ -812,7 +817,7 @@ class RequisitionController extends Controller
             $headerTemp->seq_number                 = $request->seq+1;
             $headerTemp->remaining_receipt_flag     = $line['remaining_receipt_flag']? 'Y': 'N';
             $headerTemp->remaining_receipt_id       = $line['remaining_receipt_id'];
-            $headerTemp->remaining_receipt_number   = $this->getRemainingRceipt($line['remaining_receipt_id']);
+            $headerTemp->remaining_receipt_number   = $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source']);
             $headerTemp->amount                     = $line['amount'];
             $headerTemp->expense_account            = $line['expense_account'];
             $headerTemp->created_by                 = $user->id;

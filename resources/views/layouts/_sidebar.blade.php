@@ -40,7 +40,12 @@
                     </a>
                     <ul class="nav-dropdown-items">
                         <li class="nav-item">
-                            <a class="nav-title nav-link" href="{{ route('expense.report.index') }}">
+                            <a class="nav-title nav-link" href="{{ route('expense.report.index', ['type'=>'REQUISITION']) }}">
+                                <i class="nav-icon cui-pie-chart"></i> หลักฐานเอกสารส่งเบิก
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-title nav-link" href="{{ route('expense.report.index', ['type'=>'INVOICE']) }}">
                                 <i class="nav-icon cui-calculator"></i> ทะเบียนคุมหลักฐานขอเบิก
                             </a>
                         </li>

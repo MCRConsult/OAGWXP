@@ -66,7 +66,13 @@ export default {
             .then(res => {
                 this.loading = false;
                 this.dataRows = res.data.data;
-                this.$emit('setRemainingReceipt', {remaining_receipt: this.value});
+                let receipt_amount = 0;
+                res.data.data.filter((value) => {
+                        if(value.cash_receipt_id == this.value){
+                            receipt_amount = value.remaining_amount;
+                        }
+                    });
+                this.$emit('setRemainingReceipt', {remaining_receipt: this.value, receipt_amount: receipt_amount});
             })
             .catch((error) => {
                 console.log('มีข้อผิดพลาด', error, 'error');

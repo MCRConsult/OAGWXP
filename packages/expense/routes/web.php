@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-// , 'check.permission:manage-posts'
 Route::group(['middleware' => ['web', 'auth']], function () {
     Route::prefix('expense')->namespace('Expense')->name('expense.')->group(function() {
         Route::prefix('api')->namespace('Api')->name('api.')->group(function() {
@@ -29,6 +28,7 @@ Route::group(['middleware' => ['web', 'auth']], function () {
             Route::get('/get-remaining-receipt', '\Packages\expense\app\Http\Controllers\Api\LovController@getRemainingReceipt');
             Route::get('/get-receipt-account', '\Packages\expense\app\Http\Controllers\Api\LovController@getReceiptAccount');
             Route::get('/get-contract', '\Packages\expense\app\Http\Controllers\Api\LovController@getContract');
+            Route::get('/get-guarantee-receipt', '\Packages\expense\app\Http\Controllers\Api\LovController@getGuaranteeReceipt');
             
             Route::prefix('requisition')->namespace('Requisition')->name('requisition.')->group(function() {
                 Route::post('/fetch-render-page', '\Packages\expense\app\Http\Controllers\Api\RequisitionController@fetchRequisitionRenderPage');
@@ -104,6 +104,7 @@ Route::group(['middleware' => ['web', 'auth']], function () {
 
         Route::prefix('report')->namespace('Report')->name('report.')->group(function() {
             Route::get('/', '\Packages\expense\app\Http\Controllers\Report\ReportController@index')->name('index');
+            Route::get('/requisition-export', '\Packages\expense\app\Http\Controllers\Report\ReportController@requisionExport')->name('requision_export');
             Route::get('/export', '\Packages\expense\app\Http\Controllers\Report\ReportController@export')->name('export');
         });
 

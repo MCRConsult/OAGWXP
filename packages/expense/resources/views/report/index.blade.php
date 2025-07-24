@@ -2,7 +2,7 @@
 @section('title', 'รายงาน')
 @section('breadcrumb')
     <li class="breadcrumb-item">
-        <a href="{{ route('expense.report.index') }}"><strong> รายงาน </strong></a>
+        <strong> รายงาน </strong>
     </li>
 @endsection
 
@@ -12,18 +12,27 @@
             <div class="row col-12" style="padding-right: 0px;">
                 <div class="col-md-6">
                     <span class="d-inline">
-                        <h5> <strong> รายงานทะเบียนคุมหลักฐานขอเบิก </strong> </h5>
+                        <h5> <strong> {{ $reportName }} </strong> </h5>
                     </span>
                 </div>
             </div>
         </div>
         <div class="card-body">
             <div class="ibox float-e-margins">
-                <report-component
-                    p-form-url          = "{{ route('expense.report.export') }}"
-                    p-token             = "{{ csrf_token() }}"
-                    :p-search           = "{{ json_encode(request()->all()) }}"
-                ></report-component>
+                @if ($type == 'REQUISITION')
+                    <report-component
+                        p-form-url          = "{{ route('expense.report.requision_export') }}"
+                        p-token             = "{{ csrf_token() }}"
+                        :p-search           = "{{ json_encode(request()->all()) }}"
+                    ></report-component>
+                @endif
+                @if ($type == 'INVOICE')
+                    <report-component
+                        p-form-url          = "{{ route('expense.report.export') }}"
+                        p-token             = "{{ csrf_token() }}"
+                        :p-search           = "{{ json_encode(request()->all()) }}"
+                    ></report-component>
+                @endif
             </div>
         </div>
     </div>

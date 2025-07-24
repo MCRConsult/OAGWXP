@@ -4,8 +4,8 @@ namespace Packages\expense\app\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ARBudgetReceiptV extends Model
+class GuaranteeReceiptV extends Model
 {
-    protected $table = 'oagwxp_ar_budget_receipts_view';
+    protected $table = 'oagar_540_receipt_numbers_v';
     protected $connection = 'oracle_oagwxp';
 }

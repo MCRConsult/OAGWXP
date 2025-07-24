@@ -32,6 +32,7 @@ use Packages\expense\app\Models\GLBudgetProductV;
 use Packages\expense\app\Models\GLBudgetActivityV;
 use Packages\expense\app\Models\GLSubAccountV;
 use Packages\expense\app\Models\ARPOATT1V;
+use Packages\expense\app\Models\GuaranteeReceiptV;
 
 class LovController extends Controller
 {
@@ -464,21 +465,70 @@ class LovController extends Controller
         return response()->json(['data' => $remainingReceipts]);
     }
 
+    public function getGuaranteeReceipt(Request $request)
+    {
+        $refContract = $request->refContract;
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $guaranteeReceipts = GuaranteeReceiptV::where('receipt_amount', '>', 0)
+                            // ->when($refContract, function ($query, $refContract) {
+                            //     return $query->where('doc_no', $refContract);
+                            // })
+                            ->when($keyword, function ($query, $keyword) {
+                                return $query->where(function($r) use ($keyword) {
+                                    $r->whereRaw('UPPER(receipt_number) like ?', [$keyword])
+                                        ->orWhereRaw('cash_receipt_id like ?', [$keyword]);
+                                });
+                            })
+                            ->orderBy('receipt_number')
+                            ->limit(50)
+                            ->get();
+
+        $guaranteeReceipt = GuaranteeReceiptV::where('receipt_amount', '>', 0)
+                            ->when($keyword, function ($query, $keyword) {
+                                return $query->where(function($r) use ($keyword) {
+                                    $r->whereRaw('UPPER(receipt_number) like ?', [$keyword])
+                                        ->orWhereRaw('cash_receipt_id like ?', [$keyword]);
+                                });
+                            })
+                            ->first();
+        if ($guaranteeReceipt) {
+            $guaranteeReceipts = $guaranteeReceipts->push($guaranteeReceipt)->unique('cash_receipt_id');
+        }
+
+        return response()->json(['data' => $guaranteeReceipts]);
+    }
+
     public function getReceiptAccount(Request $request)
     {
+        $budgetSource = $request->budgetSource;
         $receiptId = $request->parent;
         $keyword = isset($request->keyword)? $request->keyword: '';
-        $receiptAccounts = ARReceiptAccountV::where('amount', '>', 0)
-                        ->when($keyword, function ($query, $keyword) {
-                            return $query->where(function($r) use ($keyword) {
-                                $r->where('account_code', $keyword);
-                            });
-                        })
-                        ->when($receiptId, function ($query, $receiptId) {
-                            return $query->where('cash_receipt_id', $receiptId);
-                        })
-                        ->orderBy('code_combination_id')
-                        ->get();
+        if ($budgetSource == '510') {
+            $receiptAccounts = ARReceiptAccountV::where('amount', '>', 0)
+                            ->when($keyword, function ($query, $keyword) {
+                                return $query->where(function($r) use ($keyword) {
+                                    $r->where('account_code', $keyword);
+                                });
+                            })
+                            ->when($receiptId, function ($query, $receiptId) {
+                                return $query->where('cash_receipt_id', $receiptId);
+                            })
+                            ->orderBy('code_combination_id')
+                            ->get();
+        }else{
+            $receiptAccounts = GuaranteeReceiptV::selectRaw('cash_receipt_id, receipt_amount amount, concatenated_segments account_code')
+                            ->where('receipt_amount', '>', 0)
+                            ->when($keyword, function ($query, $keyword) {
+                                return $query->where(function($r) use ($keyword) {
+                                    $r->where('concatenated_segments', $keyword);
+                                });
+                            })
+                            ->when($receiptId, function ($query, $receiptId) {
+                                return $query->where('cash_receipt_id', $receiptId);
+                            })
+                            ->orderBy('code_combination_id')
+                            ->get();
+        }
 
         return response()->json(['data' => $receiptAccounts]);
     }

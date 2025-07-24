@@ -1,21 +1,24 @@
 <template>
     <div class="el_select">
         <el-select v-model="value"
-                name="receipt_account"
+                name="ar_540_receipt"
                 placeholder=""
                 :remote-method="getDataRows"
                 :loading="loading"
+                remote
+                clearable
+                filterable
                 remote-show-suffix
-                style="width: 100%;"
+                style="width: 100%"
                 ref="input"
                 :disabled="!editFlag"
                 @change="getDataRows"
             >
             <el-option
                 v-for="(row, index) in dataRows"
-                :key="row.code_combination_id+'_'+row.cash_receipt_id"
-                :label="'ยอดวงเงินคงเหลือ : '+decimal(row.amount)+' | '+row.account_code"
-                :value="row.account_code"
+                :key="row.cash_receipt_id"
+                :label="row.receipt_number+': '+row.activity_name"
+                :value="row.cash_receipt_id"
             >
             </el-option>
         </el-select>
@@ -25,7 +28,7 @@
 <script>
 export default {
     props: [
-       'budgetSource', 'parent', 'setData', 'error', 'editFlag'
+       'setData', 'refContract', 'error', 'editFlag'
     ],
     data () {
         return {
@@ -44,13 +47,17 @@ export default {
             this.value = this.setData;
             this.getDataRows(this.value);
         },
-        parent() {
-            this.value = '';
-            this.dataRows = [];
-            if(this.parent){
-                this.getDataRows(this.value);
-            }
-        },
+        // refContract() {
+        //     console.log(this.refContract);
+        //     if (this.value == '' || this.value == undefined){
+        //         console.log('1----'+this.refContract);
+        //         this.value = this.setData;
+        //         this.getDataRows(this.value);
+        //     }else{
+        //         console.log('2----'+this.refContract);
+        //         this.getDataRows(this.value);
+        //     }
+        // },
         error() {
             let ref = this.$refs['input'].$refs.wrapperRef;
             ref.style = "";
@@ -60,31 +67,29 @@ export default {
         },
     },
     methods: {
-        decimal(number) {
-            return Number(number).toLocaleString(undefined, { minimumFractionDigits: 2 });
-        },
         getDataRows (query) {
             this.loading = true;
-            axios.get(`/expense/api/get-receipt-account`, {
+            axios.get(`/expense/api/get-guarantee-receipt`, {
                 params: {
-                    budgetSource: this.budgetSource,
-                    parent: this.parent,
-                    keyword: query
+                    keyword: query,
+                    refContract: this.refContract,
                 }
             })
             .then(res => {
                 this.loading = false;
                 this.dataRows = res.data.data;
-                let receipt_amount = '';
-                if(this.parent){
-                    res.data.data.filter((value) => {
-                        if(value.account_code == this.value){
-                            receipt_amount = value.amount;
-                        }
-                    });
-                    this.value = res.data.data[0]?.account_code;
-                }
-                this.$emit('setReceiptAccount', {receipt_account: this.value, receipt_amount: receipt_amount});
+                let receipt_amount = 0;
+                let contract_number = '';
+                // if (this.refContract != ''){
+                //     this.value = res.data.data[0]?.cash_receipt_id;
+                // }
+                res.data.data.filter((value) => {
+                    if(value.cash_receipt_id == this.value){
+                        receipt_amount = value.receipt_amount;
+                        contract_number = value.doc_no;
+                    }
+                });
+                this.$emit('setGuaranteeReceipt', {guarantee_receipt: this.value, receipt_amount: receipt_amount, contract_number: contract_number});
             })
             .catch((error) => {
                 console.log('มีข้อผิดพลาด', error, 'error');

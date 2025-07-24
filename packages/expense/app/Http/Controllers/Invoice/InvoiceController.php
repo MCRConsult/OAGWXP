@@ -41,8 +41,8 @@ class InvoiceController extends Controller
                                     ->paginate(25);
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
         $statuses = ['NEW'          => 'ขอเบิก'
-                    , 'INTERFACED'  => 'เบิกจ่ายแล้ว'
-                    , 'ERROR'       => 'เบิกจ่ายไม่สำเร็จ'
+                    , 'INTERFACED'  => 'ตั้งเบิก'
+                    , 'ERROR'       => 'ตั้งเบิกไม่สำเร็จ'
                     , 'CANCELLED'   => 'ยกเลิก'];
 
         return view('expense::invoice.index', compact('invoices', 'invoiceTypes', 'statuses'));

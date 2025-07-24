@@ -210,22 +210,6 @@
                             <div id="el_explode_supplier_bank" class="text-danger text-left"></div>
                         </div>
                     </div>
-                    <template v-if="reqLine.remaining_receipt_flag == 'Y'">
-                        <div class="col-md-3">
-                            <div class="form-group" style="padding: 5px;">
-                                <label class="control-label">
-                                    <strong> เลขที่ใบเสร็จรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
-                                </label><br>
-                                <remainingReceipt
-                                    :setData="reqLine.remaining_receipt_id"
-                                    :editFlag="true"
-                                    :error="errors.remaining_receipt"
-                                    @setRemainingReceipt="setRemainingReceipt"
-                                ></remainingReceipt>
-                                <div id="el_explode_remaining_receipt" class="text-danger text-left"></div>
-                            </div>
-                        </div>
-                    </template>
                     <div class="col-md-2">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label" style="margin: 3px;">
@@ -239,23 +223,52 @@
                         </div>
                     </div>
                 </div>
-                <!-- <div class="row" v-if="reqLine.remaining_receipt_flag == 'Y'"> -->
-                    <!-- <div class="col-md-3">
+                <div class="row" v-if="reqLine.remaining_receipt_flag == 'Y'">
+                    <div class="col-md-3" v-if="budgetSource.indexOf(requisition?.budget_source) !== -1">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
-                                <strong> รายการบัญชีรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
+                                <strong> เลขที่ใบเสร็จรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
                             </label><br>
-                            <receiptAccount
-                                :parent="reqLine.remaining_receipt_id"
-                                :setData="reqLine.receipt_account"
+                            <remainingReceipt
+                                :setData="reqLine.remaining_receipt_id"
                                 :editFlag="true"
-                                :error="errors.receipt_account"
-                                @setReceiptAccount="setReceiptAccount"
-                            ></receiptAccount>
-                            <div id="el_explode_receipt_account" class="text-danger text-left"></div>
+                                :error="errors.remaining_receipt"
+                                @setRemainingReceipt="setRemainingReceipt"
+                            ></remainingReceipt>
+                            <div id="el_explode_remaining_receipt" class="text-danger text-left"></div>
                         </div>
-                    </div> -->
-                <!-- </div> -->
+                    </div>
+                    <!-- 540 -->
+                    <template v-if="contractSource.indexOf(requisition?.budget_source) !== -1">
+                        <div class="col-md-3">
+                            <div class="form-group" style="padding: 5px;">
+                                <label class="control-label">
+                                    <strong> เลขที่ใบเสร็จรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
+                                </label><br>
+                                <guaranteeReceipt
+                                    :setData="reqLine.remaining_receipt_id"
+                                    :refContract="reqLine.contract_number"
+                                    :editFlag="true"
+                                    :error="errors.remaining_receipt"
+                                    @setGuaranteeReceipt="setGuaranteeReceipt"
+                                ></guaranteeReceipt>
+                                <div id="el_explode_remaining_receipt" class="text-danger text-left"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group" style="padding: 5px;">
+                                <label class="control-label">
+                                    <strong> เลขที่สัญญา</strong>
+                                </label><br>
+                                <contract
+                                    :setData="reqLine.contract_number"
+                                    :editFlag="true"
+                                    @setContract= "setContract"
+                                ></contract>
+                            </div>
+                        </div>
+                    </template>
+                </div>
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group" style="padding: 5px;">
@@ -308,6 +321,7 @@
                         </label><br>
                         <template v-if="reqLine.remaining_receipt_flag == 'Y'">
                             <receiptAccount
+                                :budgetSource="requisition.budget_source"
                                 :parent="reqLine.remaining_receipt_id"
                                 :setData="reqLine.receipt_account"
                                 :editFlag="true"
@@ -444,19 +458,22 @@
     import expenseType      from "../lov/ExpenseType.vue";
     import bankAccount      from "../lov/BankAccount.vue";
     import remainingReceipt from "../lov/RemainingReceipt.vue";
+    import guaranteeReceipt from "../lov/guaranteeReceipt.vue";
     import receiptAccount   from "../lov/ReceiptAccount.vue";
+    import contract         from "../lov/Contract.vue";
     import detailComp       from "./DetailComponent.vue";
     import listComp         from "./ListComponent.vue";
     import modalAccountComp from "./_ModalAccountComponent.vue";
 
     export default {
         components: {
-            budgetSource, documentCategory, paymentType, supplier, supplierBank, budgetPlan, budgetType, expenseType, bankAccount, detailComp, listComp, modalAccountComp, remainingReceipt, receiptAccount
+            budgetSource, documentCategory, paymentType, supplier, supplierBank, budgetPlan, budgetType, expenseType, bankAccount, detailComp, listComp, modalAccountComp, remainingReceipt, receiptAccount, guaranteeReceipt, contract
         },
         props: ['user', 'referenceNo', 'invoiceTypes', 'defaultSetName', 'defaultSupplier'],
         data() {
             return {
                 budgetSource: ['510'],
+                contractSource: ['540'],
                 sourceDefault: ['500', '510', '520', '530', '540', '550'],
                 errors: {
                     budget_source: false,
@@ -594,6 +611,9 @@
                 }else{
                     this.reqLine.budget_plan = '';
                     this.reqLine.budget_type = '';
+                    this.reqLine.expense_type = '';
+                    this.reqLine.expense_description = '';
+                    this.reqLine.description = '';
                 }
             },
             setDocumentCate(res){
@@ -640,11 +660,20 @@
                 this.reqLine.remaining_receipt_id = res.remaining_receipt;
                 this.reqLine.receipt_amount = res.receipt_amount;
             },
+            setGuaranteeReceipt(res){
+                this.reqLine.remaining_receipt_id = res.guarantee_receipt;
+                this.reqLine.receipt_amount = res.receipt_amount;
+                this.reqLine.contract_number = res.contract_number;
+                this.extractAccount();
+            },
             setReceiptAccount(res){
                 this.reqLine.receipt_account = res.receipt_account;
                 this.reqLine.expense_account = res.receipt_account;
                 this.reqLine.receipt_amount = res.receipt_amount;
                 this.extractAccount();
+            },
+            setContract(res){
+                this.reqLine.contract_number = res.contract;
             },
             changeSupplierType(){
                 this.resetValues();
@@ -756,7 +785,7 @@
                     $(form).find("div[id='el_explode_amount']").html(errorMsg);
                 }
                 if (vm.reqLine.remaining_receipt_flag == 'Y' ) {
-                    if (vm.reqLine.remaining_receipt_id == '') {
+                    if (vm.reqLine.remaining_receipt_id == '' || vm.reqLine.remaining_receipt_id == undefined) {
                         vm.errors.remaining_receipt = true;
                         valid = false;
                         errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ";
@@ -839,7 +868,7 @@
                                 invoice_date: '',
                                 receipt_number: '',
                                 receipt_date: '',
-                                remaining_receipt_flag: this.budgetSource.indexOf(this.requisition.budget_source) !== -1? 'Y': 'N',
+                                remaining_receipt_flag: this.budgetSource.indexOf(this.requisition.budget_source) !== -1 || this.contractSource.indexOf(this.requisition.budget_source) !== -1? 'Y': 'N',
                                 remaining_receipt_id: '',
                                 receipt_account: '',
                                 contract_number: ''
@@ -884,7 +913,7 @@
                         invoice_date: '',
                         receipt_number: '',
                         receipt_date: '',
-                        remaining_receipt_flag: this.budgetSource.indexOf(this.requisition.budget_source) !== -1? 'Y': 'N',
+                        remaining_receipt_flag: this.budgetSource.indexOf(this.requisition.budget_source) !== -1 || this.contractSource.indexOf(this.requisition.budget_source) !== -1? 'Y': 'N',
                         remaining_receipt_id: '',
                         receipt_account: '',
                         contract_number: ''
@@ -1282,7 +1311,7 @@
                 });
             },
             isARReceipt(budgetSource) {
-                this.reqLine.remaining_receipt_flag = this.budgetSource.indexOf(budgetSource) !== -1? 'Y': 'N';
+                this.reqLine.remaining_receipt_flag = this.budgetSource.indexOf(budgetSource) !== -1 || this.contractSource.indexOf(budgetSource) !== -1? 'Y': 'N';
             },
             getDocumentCate(budgetSource){
                 axios.get(`/expense/api/requisition/get-document-category`, {
