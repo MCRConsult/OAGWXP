@@ -1,14 +1,10 @@
 import "./bootstrap";
 import { createApp } from "vue";
 
-
 import ElementPlus from "element-plus";
 import VueNumeric from '@handcrafted-market/vue3-numeric';
 import "element-plus/dist/index.css";
-// import '/node_modules/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css';
-// import '/node_modules/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js';
 import th from "element-plus/es/locale/lang/th";
-// import ExpensePackage from '../../packages/expense/resources/js/app.js'
 
 import $ from 'jquery';
 // import 'popper.js';
@@ -17,7 +13,6 @@ import 'pace-progress/pace.min.js';
 import 'perfect-scrollbar';
 import '@coreui/coreui/dist/js/coreui.min.js';
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-// import ElNotification from 'element-plus';
 
 // COMPONENT
 // REQUISITION
@@ -49,8 +44,9 @@ import ShowUserComponent from '/packages/expense/resources/js/components/setting
 import PermissionComponent from '/packages/expense/resources/js/components/settings/permission/IndexComponent.vue';
 import CreatePermissionComponent from '/packages/expense/resources/js/components/settings/permission/CreateComponent.vue';
 import ShowPermissionComponent from '/packages/expense/resources/js/components/settings/permission/ShowComponent.vue';
-
-import ReportComponent from '/packages/expense/resources/js/components/report/ReportComponent.vue';
+// REPORT
+import RequisitionReportComponent from '/packages/expense/resources/js/components/report/RequisitionComponent.vue';
+import InvoiceReportComponent from '/packages/expense/resources/js/components/report/InvoiceComponent.vue';
 
 
 const app = window.app = createApp({});
@@ -76,7 +72,8 @@ app.component('invoice-interface-log-component', InterfaceInvoiceComponent);
 app.component('journal-interface-log-component', InterfaceJournalComponent);
 app.component('encumbrance-interface-log-component', InterfaceEncumbranceComponent);
 
-app.component('report-component', ReportComponent);
+app.component('requisition-report-component', RequisitionReportComponent);
+app.component('invoice-report-component', InvoiceReportComponent);
 
 app.component('user-component', UserComponent);
 app.component('user-show-component', ShowUserComponent);

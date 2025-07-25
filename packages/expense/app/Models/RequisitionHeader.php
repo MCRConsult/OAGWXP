@@ -221,6 +221,33 @@ class RequisitionHeader extends Model
         return $q;
     }
 
+    public function scopeSearchReport($q, $search)
+    {
+        $reqDateFrom = $search->req_date_from ?? null;
+        $reqDateTo = $search->req_date_to ?? null;
+        // REQ NUMBER
+        if ($search->req_number_from && $search->req_number_to) {
+            $q->whereBetween('req_number', [$search->req_number_from, $search->req_number_to]);
+        }elseif ($search->req_number_from && !$search->req_number_to) {
+            $q->where('req_number', $search->req_number_from);
+        }
+        // SUPPLIER
+        if ($search->supplier_from && $search->supplier_to) {
+            $q->whereBetween('supplier_id', [$search->supplier_from, $search->supplier_to]);
+        }elseif ($search->supplier_from && !$search->supplier_to) {
+            $q->where('supplier_id', $search->supplier_from);
+        }
+        // INVOICE DATE
+        if ($search->req_date_from && $search->req_date_to) {
+            $q->whereRaw("trunc(req_date) >= TO_DATE('{$reqDateFrom}','YYYY-mm-dd')")
+                ->whereRaw("trunc(req_date) <= TO_DATE('{$reqDateTo}','YYYY-mm-dd')");
+        }elseif ($search->req_date_from && !$search->req_date_to) {
+            $q->whereRaw("trunc(req_date) >= TO_DATE('{$reqDateFrom}','YYYY-mm-dd')");
+        }
+               
+        return $q;
+    }
+
     public function checkBudget($headerTemp, $lineTemp, $user)
     {
         $date = date('d-m-Y', strtotime($headerTemp->req_date));

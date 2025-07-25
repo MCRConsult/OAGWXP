@@ -137,59 +137,122 @@
                                 </thead>
                                 <tbody>
                     @endif
-                    
-                    @foreach ($requisition->lines as $lineLoop => $line)
-                        <tr>
-                            <!-- แสดงข้อมูลพื้นฐานในทุกแถว แทนการใช้ rowspan -->
-                            <td style="font-size: 12px; border: 0.5px solid #000000; text-align: center; padding: 5px;">
-                                @if ($lineLoop == 0)
-                                    {{ $day.' '.$month.' '.$year }}
+                    @if ($requisition->clear_reference_id)
+                        </tbody>
+                        </table>
+                        </main>
+                        @php
+                            continue;
+                        @endphp
+                    @else
+                        @foreach ($requisition->lines as $index => $line)
+                            @if (is_null($requisition->clear_flag))
+                                <tr>
+                                    <td style="font-size: 12px; border: 0.5px solid #000000; text-align: center; padding: 5px;">
+                                        @if ($loop->first)
+                                            {{ $day.' '.$month.' '.$year }}
+                                        @endif
+                                    </td>
+                                    <td style="font-size: 12px; border: 0.5px solid #000000; text-align: center; padding: 5px;">
+                                        @if ($loop->first)
+                                            {{ $requisition->invoiceType->description }}
+                                        @endif
+                                    </td>
+                                    <td style="font-size: 12px; border: 0.5px solid #000000; text-align: center; padding: 5px;">
+                                        @if ($loop->first)
+                                            {{ $requisition->document_category }}
+                                        @endif
+                                    </td>
+                                    <td style="font-size: 12px; text-align: center; border: 0.5px solid #000000; padding: 5px;">
+                                        @if ($loop->first)
+                                            {{ $requisition->req_number }}
+                                        @endif
+                                    </td>
+                                    <td style="font-size: 12px; text-align: center; border: 0.5px solid #000000; padding: 5px;">
+                                        @if ($loop->first)
+                                            {{ $requisition->user->hrEmployee->full_name }}
+                                        @endif
+                                    </td>
+                                    <td style="font-size: 12px; border: 0.5px solid #000000; padding: 5px;">
+                                        <div style="word-wrap: break-word; width: 230px;"> 
+                                            {{ $line->expense_description }}
+                                        </div>
+                                    </td>
+                                    <td style="font-size: 12px; text-align: left; border: 0.5px solid #000000; padding: 5px;">
+                                        <div style="word-wrap: break-word; width: 250px;"> 
+                                            {{ $line->expense_account }}
+                                        </div>
+                                    </td>
+                                    <td style="font-size: 12px; text-align: right; border: 0.5px solid #000000; padding: 5px;">
+                                        {{ $requisition->invoice_type == 'STANDARD'? number_format($line->amount, 2): '' }}
+                                    </td>
+                                    <td style="font-size: 12px; text-align: right; border: 0.5px solid #000000; padding: 5px;">
+                                        {{ $requisition->invoice_type == 'PREPAYMENT'? number_format($line->amount, 2): '' }}
+                                    </td>
+                                    <td style="font-size: 12px; text-align: right; border: 0.5px solid #000000; padding: 5px;"> </td>
+                                </tr>
+                            @else
+                                @if ($requisition->clear)
+                                    <tr>
+                                        <td style="font-size: 12px; border: 0.5px solid #000000; text-align: center; padding: 5px;">
+                                            @if ($loop->first)
+                                                {{ $day.' '.$month.' '.$year }}
+                                            @endif
+                                        </td>
+                                        <td style="font-size: 12px; border: 0.5px solid #000000; text-align: center; padding: 5px;">
+                                            @if ($loop->first)
+                                                <div>
+                                                    {{ $requisition->clear->invoiceType->description }}
+                                                </div>
+                                                <div>
+                                                    {{ $requisition->invoiceType->description }}
+                                                </div>
+                                            @endif
+                                        </td>
+                                        <td style="font-size: 12px; border: 0.5px solid #000000; text-align: center; padding: 5px;">
+                                            @if ($loop->first)
+                                                {{ $requisition->document_category }}
+                                            @endif
+                                        </td>
+                                        <td style="font-size: 12px; text-align: center; border: 0.5px solid #000000; padding: 5px;">
+                                            @if ($loop->first)
+                                                <div>
+                                                    {{ $requisition->clear->req_number }}
+                                                </div>
+                                                <div>
+                                                    {{ $requisition->req_number }}
+                                                </div>
+                                            @endif
+                                        </td>
+                                        <td style="font-size: 12px; text-align: center; border: 0.5px solid #000000; padding: 5px;">
+                                            @if ($loop->first)
+                                                {{ $requisition->user->hrEmployee->full_name }}
+                                            @endif
+                                        </td>
+                                        <td style="font-size: 12px; border: 0.5px solid #000000; padding: 5px;">
+                                            <div style="word-wrap: break-word; width: 230px;"> 
+                                                {{ $line->expense_description }}
+                                            </div>
+                                        </td>
+                                        <td style="font-size: 12px; text-align: left; border: 0.5px solid #000000; padding: 5px;">
+                                            <div style="word-wrap: break-word; width: 250px;"> 
+                                                {{ $line->expense_account }}
+                                            </div>
+                                        </td>
+                                        <td style="font-size: 12px; text-align: right; border: 0.5px solid #000000; padding: 5px;"> </td>
+                                        <td style="font-size: 12px; text-align: right; border: 0.5px solid #000000; padding: 5px;">
+                                            {{ is_null($line->split_flag)? number_format(prepamentDeatil($requisition->clear, $line->seq_number), 2): '' }}
+                                        </td>
+                                        <td style="font-size: 12px; text-align: right; border: 0.5px solid #000000; padding: 5px;">
+                                            {{ $requisition->clear_flag == 'Y'? number_format($line->actual_amount, 2): '' }}
+                                        </td>
+                                    </tr>
                                 @endif
-                            </td>
-                            <td style="font-size: 12px; border: 0.5px solid #000000; text-align: center; padding: 5px;">
-                                @if ($lineLoop == 0)
-                                    {{ $requisition->invoiceType->description }}
-                                @endif
-                            </td>
-                            <td style="font-size: 12px; border: 0.5px solid #000000; text-align: center; padding: 5px;">
-                                @if ($lineLoop == 0)
-                                    {{ $requisition->document_category }}
-                                @endif
-                            </td>
-                            <td style="font-size: 12px; text-align: center; border: 0.5px solid #000000; padding: 5px;">
-                                @if ($lineLoop == 0)
-                                    {{ $requisition->req_number }}
-                                @endif
-                            </td>
-                            <td style="font-size: 12px; text-align: center; border: 0.5px solid #000000; padding: 5px;">
-                                @if ($lineLoop == 0)
-                                    {{ $requisition->user->hrEmployee->full_name }}
-                                @endif
-                            </td>
-                            <td style="font-size: 12px; border: 0.5px solid #000000; padding: 5px;">
-                                <div style="word-wrap: break-word; width: 230px;"> 
-                                    {{ $line->expense_description }}
-                                </div>
-                            </td>
-                            <td style="font-size: 12px; text-align: left; border: 0.5px solid #000000; padding: 5px;">
-                                <div style="word-wrap: break-word; width: 250px;"> 
-                                    {{ $line->expense_account }}
-                                </div>
-                            </td>
-                            <td style="font-size: 12px; text-align: right; border: 0.5px solid #000000; padding: 5px;">
-                                @if ($requisition->clear_flag != 'Y')
-                                    {{ $requisition->invoice_type == 'STANDARD'? number_format($line->amount, 2): '' }}
-                                @endif
-                            </td>
-                            <td style="font-size: 12px; text-align: right; border: 0.5px solid #000000; padding: 5px;">
-                                {{ $requisition->invoice_type == 'PREPAYMENT'? number_format($line->amount, 2): '' }}
-                            </td>
-                            <td style="font-size: 12px; text-align: right; border: 0.5px solid #000000; padding: 5px;">
-                                {{ $requisition->clear_flag == 'Y'? number_format($line->actual_amount, 2): '' }}
-                            </td>
-                        </tr>
-                        @php $rowCount++; @endphp
-                    @endforeach
+                            @endif
+                           
+                            @php $rowCount++; @endphp
+                        @endforeach
+                    @endif
                     
                     @php $needPageBreak = false; @endphp
                 @endforeach

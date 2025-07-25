@@ -30,7 +30,9 @@ class ReportController extends Controller
 
     public function requisionExport() 
     {
-        $requisitions = RequisitionHeader::all();
+        $requisitions = RequisitionHeader::searchReport(request())
+                            ->orderByRaw('req_date asc, req_number asc')
+                            ->get();
         $contentHtml = view('expense::report.requisition.pdf', compact('requisitions'))->render();
 
         return PDF::loadHTML($contentHtml)
@@ -38,7 +40,7 @@ class ReportController extends Controller
             ->stream('OAG - รายงานหลักฐานเอกสารส่งเบิก.pdf');
     }
 
-    public function export() 
+    public function invoiceExport() 
     {
         return Excel::download(new InvoiceExport, 'OAG - รายงานทะเบียนคุมหลักฐานขอเบิก (ทบ.อส.1).xlsx');
     }

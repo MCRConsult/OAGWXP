@@ -1,4 +1,9 @@
 <?php
+    function prepamentDeatil($clearHeader, $seq) {
+        $line = $clearHeader->lines->where('seq_number', $seq)->first();
+        return optional($line)->amount;
+    }
+
     function thaiMonth($value, $full = true) {
         $months = [
             '01' => 'มกราคม', '02' => 'กุมภาพันธ์', '03' => 'มีนาคม', '04' => 'เมษายน',

@@ -102,10 +102,11 @@ Route::group(['middleware' => ['web', 'auth']], function () {
         Route::get('/interface/logs', '\Packages\expense\app\Http\Controllers\InterfaceLogController@index')->name('interface-log');
         Route::get('/interface/{batch}/reserve', '\Packages\expense\app\Http\Controllers\InterfaceLogController@handleReserve');
 
+        // report
         Route::prefix('report')->namespace('Report')->name('report.')->group(function() {
             Route::get('/', '\Packages\expense\app\Http\Controllers\Report\ReportController@index')->name('index');
-            Route::get('/requisition-export', '\Packages\expense\app\Http\Controllers\Report\ReportController@requisionExport')->name('requision_export');
-            Route::get('/export', '\Packages\expense\app\Http\Controllers\Report\ReportController@export')->name('export');
+            Route::get('/requisition', '\Packages\expense\app\Http\Controllers\Report\ReportController@requisionExport')->name('requisition');
+            Route::get('/invoice', '\Packages\expense\app\Http\Controllers\Report\ReportController@invoiceExport')->name('invoice');
         });
 
         Route::prefix('settings')->namespace('Settings')->name('settings.')->group(function() {

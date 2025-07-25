@@ -20,18 +20,19 @@
         <div class="card-body">
             <div class="ibox float-e-margins">
                 @if ($type == 'REQUISITION')
-                    <report-component
-                        p-form-url          = "{{ route('expense.report.requision_export') }}"
-                        p-token             = "{{ csrf_token() }}"
-                        :p-search           = "{{ json_encode(request()->all()) }}"
-                    ></report-component>
+                    <requisition-report-component
+                        p-form-url  = "{{ route('expense.report.requisition') }}"
+                        p-token     = "{{ csrf_token() }}"
+                        :p-search   = "{{ json_encode(request()->all()) }}"
+                    ></requisition-report-component>
                 @endif
+                {{-- ========================================================================= --}}
                 @if ($type == 'INVOICE')
-                    <report-component
-                        p-form-url          = "{{ route('expense.report.export') }}"
-                        p-token             = "{{ csrf_token() }}"
-                        :p-search           = "{{ json_encode(request()->all()) }}"
-                    ></report-component>
+                    <invoice-report-component
+                        p-form-url  = "{{ route('expense.report.invoice') }}"
+                        p-token     = "{{ csrf_token() }}"
+                        :p-search   = "{{ json_encode(request()->all()) }}"
+                    ></invoice-report-component>
                 @endif
             </div>
         </div>

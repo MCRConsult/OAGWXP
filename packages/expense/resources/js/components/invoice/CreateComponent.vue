@@ -262,7 +262,7 @@
                     label: 'เอกสารส่งเบิก'
                 }, {
                     value: 'RECEIPT',
-                    label: 'นำส่งรายได้แผ่นดิน'
+                    label: 'นำส่งรายได้แผ่นดิน / จ่ายคืน'
                 }],
                 errors: {
                     invoice_type: false,

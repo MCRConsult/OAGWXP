@@ -25,7 +25,7 @@ class InvoiceExport implements FromView, ShouldAutoSize, WithColumnFormatting, W
                                 ->orderByRaw('invoice_date asc, req_number asc, invoice_number asc')
                                 ->get();
 
-        return view('expense::report._invoice_excel', compact('invoices', 'invDateTo'));
+        return view('expense::report.invoice.excel', compact('invoices', 'invDateTo'));
     }
 
     public function columnFormats(): array
