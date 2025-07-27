@@ -177,7 +177,7 @@
                             @foreach ($requisition->lines->sortBy('seq_number') as $line)
                                 <tr>
                                     <td class="text-center" style="vertical-align: middle;"> {{ $line->seq_number }} </td>
-                                    <td class="text-left" style="vertical-align: middle;"> {{ $line->expense->description }} </td>
+                                    <td class="text-left" style="vertical-align: middle;"> {{ optional($line->expense)->description }} </td>
                                     <td class="text-right" style="vertical-align: middle;">
                                         {{ $requisition->clear_flag == 'Y'? number_format($line->actual_amount, 2): number_format($line->amount, 2) }}
                                     </td>
