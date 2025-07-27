@@ -54,10 +54,11 @@ class MappingAutoInvoiceV extends Model
             if ($value) {
                 if (in_array($key, $cols)) {
                     $q->where($key, 'like', "%$value%");
-                } else if ($key == 'req_date') {
-                    $date = date('Y-m-d', strtotime($value));
-                    $q->whereDate('req_date', $date);
                 }
+                // else if ($key == 'req_date') {
+                //     $date = date('Y-m-d', strtotime($value));
+                //     $q->whereRaw("req_date = {$date}");
+                // }
             }
         }
         return $q;

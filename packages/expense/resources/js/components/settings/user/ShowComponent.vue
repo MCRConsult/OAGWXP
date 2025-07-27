@@ -27,7 +27,7 @@
                         <div class="col-md-10">
                             <div class="form-group" style="padding: 5px;">
                                 <label class="control-label">
-                                    <strong> องค์กร </strong>
+                                    <strong> หน่วยเบิกจ่าย </strong>
                                 </label><br>
                                 <el-input v-model="user.organization_v.name" style="width: 100%;" readonly/>
                             </div>
@@ -37,7 +37,7 @@
                         <div class="col-md-10">
                             <div class="form-group" style="padding: 5px;">
                                 <label class="control-label">
-                                    <strong> สถานที่ </strong>
+                                    <strong> สำนักงาน </strong>
                                 </label><br>
                                 <el-input v-model="user.location.location_code" style="width: 100%;" readonly/>
                             </div>

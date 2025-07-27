@@ -24,6 +24,7 @@
                         p-form-url  = "{{ route('expense.report.requisition') }}"
                         p-token     = "{{ csrf_token() }}"
                         :p-search   = "{{ json_encode(request()->all()) }}"
+                        :p-user     = "{{ json_encode($user) }}"
                     ></requisition-report-component>
                 @endif
                 {{-- ========================================================================= --}}

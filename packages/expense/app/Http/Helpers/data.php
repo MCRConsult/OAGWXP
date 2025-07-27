@@ -1,7 +1,32 @@
 <?php
-    function prepamentDeatil($clearHeader, $seq) {
+    function prepamentDetail($clearHeader, $seq) {
         $line = $clearHeader->lines->where('seq_number', $seq)->first();
         return optional($line)->amount;
+    }
+
+    function expenseDesc($expense) {
+        $coaModel = (new Packages\expense\app\Models\COAListV);
+        $setName = $coaModel->getDefaultSetName();
+        // dd($setName);
+        $coa = explode('.', $expense);
+        $concatCoa = '';
+
+        $segment1 = $coaModel->LOVDesc($setName->segment1, $coa[0]);
+        $segment2 = $coaModel->LOVDesc($setName->segment2, $coa[1]);
+        $segment3 = $coaModel->LOVDesc($setName->segment3, $coa[2]);
+        $segment4 = $coaModel->LOVDesc($setName->segment4, $coa[3]);
+        $segment5 = $coaModel->LOVDesc($setName->segment5, $coa[4]);
+        $segment6 = $coaModel->LOVDesc($setName->segment6, $coa[5]);
+        $segment7 = $coaModel->LOVDesc($setName->segment7, $coa[6]);
+        $segment8 = $coaModel->LOVDesc($setName->segment8, $coa[7]);
+        $segment9 = $coaModel->LOVDesc($setName->segment9, $coa[8]);
+        $segment10 = $coaModel->LOVDesc($setName->segment10, $coa[9]);
+        $segment11 = $coaModel->LOVDesc($setName->segment11, $coa[10]);
+        $segment12 = $coaModel->LOVDesc($setName->segment12, $coa[11]);
+        $segment13 = $coaModel->LOVDesc($setName->segment13, $coa[12]);
+
+        $concatCoa = $segment4->description.'.'.$segment5->description.'.'.$segment6->description.'.'.$segment7->description.'.'.$segment8->description.'.'.$segment9->description.'.'.$segment10->description.'.'.$segment11->description;
+        return $concatCoa;
     }
 
     function thaiMonth($value, $full = true) {

@@ -45,6 +45,12 @@ return new class extends Migration
             $table->integer('clear_reference_id')->nullable(); // CLEAR REF
             $table->date('clear_reference_date')->nullable(); // CLEAR DATE
             $table->date('reverse_flag')->nullable(); // REVERSE GL JOURNAL
+            // HRM VALUE
+            $table->string('hrm_reference')->nullable();
+            $table->string('hrm_submit_date')->nullable();
+            $table->string('hrm_entry_date')->nullable();
+            $table->string('hrm_requester')->nullable();
+
             $table->integer('created_by');
             $table->integer('updated_by')->nullable();
             $table->integer('creation_by')->nullable();

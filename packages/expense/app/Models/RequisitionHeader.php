@@ -237,7 +237,7 @@ class RequisitionHeader extends Model
         }elseif ($search->supplier_from && !$search->supplier_to) {
             $q->where('supplier_id', $search->supplier_from);
         }
-        // INVOICE DATE
+        // REQ DATE
         if ($search->req_date_from && $search->req_date_to) {
             $q->whereRaw("trunc(req_date) >= TO_DATE('{$reqDateFrom}','YYYY-mm-dd')")
                 ->whereRaw("trunc(req_date) <= TO_DATE('{$reqDateTo}','YYYY-mm-dd')");

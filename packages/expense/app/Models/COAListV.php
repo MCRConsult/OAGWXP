@@ -60,7 +60,7 @@ class COAListV extends Model
         return $flexValue;
     }
 
-    public function LOVDesc($setName, $setValue, $text)
+    public function LOVDesc($setName, $setValue)
     {
         $flexValue = null;
         if ($setValue) {

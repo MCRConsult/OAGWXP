@@ -63,7 +63,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-3">
+                    <div class="col-md-3" v-if="search.source_data == 'REQUISITION'">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
                                 <strong> วันที่เอกสาร </strong>
@@ -93,7 +93,7 @@
                             ></supplier>
                         </div>
                     </div>
-                    <div class="col-md-6" align="right">
+                    <div :class="search.source_data == 'REQUISITION'? 'col-md-6': 'col-md-9'" align="right">
                         <p><br></p>
                         <button type="button" class="btn btn-primary btn-sm m-1" @click.prevent="getRequisition()">
                             ค้นหา

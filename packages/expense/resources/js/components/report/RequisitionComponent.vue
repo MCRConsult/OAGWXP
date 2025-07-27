@@ -92,6 +92,14 @@
                                 />
                             </div>
                         </div>
+                        <div class="form-group col-md-3">
+                            <label class="control-label">
+                                <strong> ชื่อผู้รับชอบ </strong>
+                            </label>
+                            <div>
+                                <el-input v-model="username" :disabled="true"> </el-input>
+                            </div>
+                        </div>
                     </div>
                     <div class="row" style="padding-top: 5px;">
                         <div class="col-lg-6" style="margin-top: 10px;">
@@ -115,12 +123,13 @@ import lovRequisition from "./lov/Requisition.vue";
 import lovSupplier from "./lov/Supplier.vue";
 
 export default {
-    props: ['pFormUrl', 'pToken', 'pSearch'],
+    props: ['pFormUrl', 'pToken', 'pSearch', 'pUser'],
     components: {
         lovRequisition, lovSupplier
     },
     data() {
         return {
+            username: this.pUser.full_name,
             loading: false,
             req_date_from_input: '',
             req_date_to_input: '',

@@ -18,6 +18,7 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
+        $user = auth()->user()->hrEmployee;
         $type = $request->type;
         if ($type == 'REQUISITION') {
             $reportName = 'รายงานหลักฐานเอกสารส่งเบิก';
@@ -25,15 +26,17 @@ class ReportController extends Controller
             $reportName = 'รายงานทะเบียนคุมหลักฐานขอเบิก';
         }
         
-        return view('expense::report.index', compact('type', 'reportName'));
+        return view('expense::report.index', compact('user', 'type', 'reportName'));
     }
 
     public function requisionExport() 
     {
+        $param = request();
+        $user = auth()->user()->hrEmployee;
         $requisitions = RequisitionHeader::searchReport(request())
                             ->orderByRaw('req_date asc, req_number asc')
                             ->get();
-        $contentHtml = view('expense::report.requisition.pdf', compact('requisitions'))->render();
+        $contentHtml = view('expense::report.requisition.pdf', compact('requisitions', 'user', 'param'))->render();
 
         return PDF::loadHTML($contentHtml)
             ->setPaper('A3', 'landscape')

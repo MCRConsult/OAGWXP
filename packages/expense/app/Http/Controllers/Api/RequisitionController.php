@@ -18,8 +18,10 @@ class RequisitionController extends Controller
 {
     public function getRequisition(Request $request)
     {
+        $user = auth()->user();
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
         $reqNumber = RequisitionHeader::selectRaw('distinct req_number')
+                        ->where('requester', $user->id)
                         ->when($keyword, function ($query, $keyword) {
                             return $query->where(function($r) use ($keyword) {
                                 $r->whereRaw('UPPER(req_number) like ?', ['%'.strtoupper($keyword).'%']);

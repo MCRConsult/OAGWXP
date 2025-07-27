@@ -53,6 +53,9 @@ return new class extends Migration
             $table->integer('invl_reference_id')->nullable();
             $table->integer('cash_bank_account_id')->nullable(); // bank_account_id
             $table->string('contract_number')->nullable(); // bank_account_id
+
+            $table->string('hrm_reference')->nullable();
+            $table->string('hrm_transaction_date')->nullable();
             $table->timestamps();
         });
     }
