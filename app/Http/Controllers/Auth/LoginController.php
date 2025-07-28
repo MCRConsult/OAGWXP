@@ -83,7 +83,7 @@ class LoginController extends Controller
             //     Cookie::queue(Cookie::forget('remember_password'));
             // }
             $this->setSession();
-            return redirect('/');
+            return redirect('/OAGWXP');
         } else {
             return redirect()->route('login')->withErrors('ไม่สามารถเข้าสู่ระบบได้ เนื่องจากข้อมูลผู้ใช้งานไม่ถูกต้อง กรุณาติดต่อผู้ดูแลระบบ')->withInput();
             if (\Auth::attempt(['name' => $username, 'password' => $password])) {
@@ -115,7 +115,7 @@ class LoginController extends Controller
     public function logout(Request $request)
     {
         $user = auth()->user();
-        $route = '/login';
+        $route = '/OAGWXP/login';
         \Auth::guard()->logout();
         $request->session()->flush();
         $request->session()->invalidate();

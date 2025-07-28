@@ -139,7 +139,7 @@ export default {
         async update(){
             let vm = this;
             vm.loading = true;
-            axios.post('/expense/settings/user/'+vm.user.id+'/update', {
+            axios.post('/OAGWXP/settings/user/'+vm.user.id+'/update', {
                 status: vm.status,
                 listPerms: vm.listPerms,
             })

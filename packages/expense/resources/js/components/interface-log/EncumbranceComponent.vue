@@ -251,7 +251,7 @@ export default {
           await this.fetchData(page);
         },
         async fetchData(page = 1) {
-            const url = "/expense/api/interface/fetch-encumbrance-interface";
+            const url = "/OAGWXP/api/interface/fetch-encumbrance-interface";
             this.loading = true;
             this.interfaces = [];
             await axios
@@ -298,7 +298,7 @@ export default {
                         allowOutsideClick: false
                     });
                     axios
-                    .get('/expense/interface/'+batch+'/reserve')
+                    .get('/OAGWXP/interface/'+batch+'/reserve')
                     .then(function (res) {
                         if (res.data.message) {
                             Swal.fire({

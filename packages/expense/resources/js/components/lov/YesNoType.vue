@@ -58,7 +58,7 @@ export default {
     methods: {
         getDataRows (query) {
             this.loading = true;
-            axios.get(`/expense/api/get-yesno-type`, {
+            axios.get(`/OAGWXP/api/get-yesno-type`, {
                 params: {
                     keyword: query
                 }

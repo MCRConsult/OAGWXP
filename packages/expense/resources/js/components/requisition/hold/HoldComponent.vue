@@ -417,7 +417,7 @@
                 var vm = this;
                 let index = response.index;
                 if (vm.linelists[index].remaining_receipt_flag == 'Y') {
-                    axios.post('/expense/requisition/update-ar-receipt', {
+                    axios.post('/OAGWXP/requisition/update-ar-receipt', {
                         header: vm.requisition,
                         line: response.line,
                         seq: index,
@@ -656,7 +656,7 @@
                     }
                 });
                 // POST METHOD
-                axios.post('/expense/requisition/'+vm.header.id+'/update', {
+                axios.post('/OAGWXP/requisition/'+vm.header.id+'/update', {
                     header: this.header,
                     lines: this.linelists,
                     totalApply: this.totalApply,
@@ -707,7 +707,7 @@
                 this.reqLine.remaining_receipt_flag = this.budgetSource.indexOf(budgetSource) !== -1? 'Y': 'N';
             },
             getDocumentCate(budgetSource){
-                axios.get(`/expense/api/requisition/get-document-category`, {
+                axios.get(`/OAGWXP/api/requisition/get-document-category`, {
                     params: {
                         budget_source: budgetSource
                     }

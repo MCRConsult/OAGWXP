@@ -230,7 +230,7 @@
                     }
                 });
                 // POST METHOD
-                axios.post('/expense/requisition/'+vm.header.id+'/update', {
+                axios.post('/OAGWXP/requisition/'+vm.header.id+'/update', {
                     header: this.header,
                     lines: this.linelists,
                     totalApply: this.totalActualApply,

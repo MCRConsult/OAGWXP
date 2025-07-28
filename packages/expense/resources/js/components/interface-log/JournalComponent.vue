@@ -230,7 +230,7 @@ export default {
           await this.fetchData(page);
         },
         async fetchData(page = 1) {
-            const url = "/expense/api/interface/fetch-journal-interface";
+            const url = "/OAGWXP/api/interface/fetch-journal-interface";
             this.loading = true;
             this.interfaces = [];
             await axios

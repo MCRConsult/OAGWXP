@@ -145,7 +145,7 @@
                                                     <template v-if="header.source_type == 'REQUISITION'">
                                                         {{ header.req_number }} {{ header.description? ' : '+header.description: '' }}
                                                         <a class="btn btn-check btn-sm" style="font-size: 12px; padding: 3px;" 
-                                                            :href="'/expense/requisition/'+header.id" target="_blank">
+                                                            :href="'/OAGWXP/requisition/'+header.id" target="_blank">
                                                             ตรวจสอบ
                                                         </a>
                                                     </template>
@@ -358,7 +358,7 @@
                 let vm = this;
                 vm.loading = true;
                 vm.headers = [];
-                const url = "/expense/api/invoice/fetch-requisition";
+                const url = "/OAGWXP/api/invoice/fetch-requisition";
                 await axios.get(url, {
                     params: {
                         search: this.search
@@ -388,7 +388,7 @@
               await this.fetchData(page);
             },
             async fetchData(page = 1) {
-                const url = "/expense/api/invoice/index-render-page?page="+page;
+                const url = "/OAGWXP/api/invoice/index-render-page?page="+page;
                 this.loading = true;
                 this.headers = [];
                 await axios
@@ -501,7 +501,7 @@
                                 Swal.showLoading();
                             }
                         });
-                        axios.post('/expense/invoice/group-invoice', {
+                        axios.post('/OAGWXP/invoice/group-invoice', {
                             requisitions: this.listReq,
                         })
                         .then(function (res) {
@@ -576,7 +576,7 @@
                             }
                         });
                         // POST METHOD
-                        axios.get('/expense/requisition/'+reqId+'/req-resubmit')
+                        axios.get('/OAGWXP/requisition/'+reqId+'/req-resubmit')
                         .then(function (res) {
                             if (res.data.message) {
                                 Swal.fire({

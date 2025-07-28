@@ -65,7 +65,7 @@ export default {
     methods: {
         getDataRows (query) {
             this.loading = true;
-            axios.get(`/expense/api/get-bank-account`, {
+            axios.get(`/OAGWXP/api/get-bank-account`, {
                 params: {
                     parent: this.parent,
                     keyword: query

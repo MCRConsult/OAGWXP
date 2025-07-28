@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => ['web', 'auth']], function () {
-    Route::prefix('expense')->namespace('Expense')->name('expense.')->group(function() {
+    Route::prefix('OAGWXP')->namespace('Expense')->name('expense.')->group(function() {
         Route::prefix('api')->namespace('Api')->name('api.')->group(function() {
             Route::get('/get-document-category', '\Packages\expense\app\Http\Controllers\Api\LovController@getDocumentType');
             Route::get('/get-supplier', '\Packages\expense\app\Http\Controllers\Api\LovController@getSupplier');

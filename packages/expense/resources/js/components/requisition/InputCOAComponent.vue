@@ -61,7 +61,7 @@ export default {
     },
     methods: {
         async getValueSetList(query) {
-            await axios.get("/expense/api/get-expense-account", {
+            await axios.get("/OAGWXP/api/get-expense-account", {
                 params: {
                     flex_value_set_name: this.setName,
                     flex_value_set_parent: this.parent,

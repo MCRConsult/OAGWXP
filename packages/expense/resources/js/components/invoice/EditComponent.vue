@@ -418,7 +418,7 @@
                 var vm = this;
                 let index = response.index;
                 if (vm.linelists[index].remaining_receipt_flag == 'Y') {
-                    axios.post('/expense/requisition/update-ar-receipt', {
+                    axios.post('/OAGWXP/requisition/update-ar-receipt', {
                         header: vm.invoice,
                         line: response.line,
                         seq: index,
@@ -623,7 +623,7 @@
                         Swal.showLoading();
                     }
                 });
-                axios.post('/expense/invoice/'+vm.header.id+'/update', {
+                axios.post('/OAGWXP/invoice/'+vm.header.id+'/update', {
                     header: vm.header,
                     lines: vm.linelists,
                     totalApply: vm.totalApply,
@@ -693,7 +693,7 @@
                                 Swal.showLoading();
                             }
                         });
-                        axios.post('/expense/invoice/'+vm.header.id+'/update', {
+                        axios.post('/OAGWXP/invoice/'+vm.header.id+'/update', {
                             header: vm.header,
                             lines: vm.linelists,
                             totalApply: vm.totalApply,
@@ -712,7 +712,7 @@
                                 }).then((result) => {
                                     if (result.isConfirmed) {
                                         setTimeout(function() {
-                                            location.href = '/expense/invoice/'+vm.header.id;
+                                            location.href = '/OAGWXP/invoice/'+vm.header.id;
                                         }, 500);
                                     }
                                 });
@@ -728,7 +728,7 @@
                                 }).then((result) => {
                                     if (result.isConfirmed) {
                                         setTimeout(function() {
-                                            location.href = '/expense/invoice/'+vm.header.id;
+                                            location.href = '/OAGWXP/invoice/'+vm.header.id;
                                         }, 500);
                                     }
                                 });
@@ -772,7 +772,7 @@
                                 Swal.showLoading();
                             }
                         });
-                        axios.post('/expense/invoice/'+vm.header.id+'/cancel', {
+                        axios.post('/OAGWXP/invoice/'+vm.header.id+'/cancel', {
                             header: vm.header
                         })
                         .then(function (res) {

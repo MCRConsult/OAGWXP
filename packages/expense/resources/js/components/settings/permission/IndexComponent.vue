@@ -41,7 +41,7 @@
                             </td>
                             <td class="text-center text-nowrap" style="vertical-align: middle;">
                                 <a class="btn btn-sm btn-check"
-                                    :href="'/expense/settings/permission/'+permission.id">
+                                    :href="'/OAGWXP/settings/permission/'+permission.id">
                                     ตรวจสอบ
                                 </a>
                             </td>

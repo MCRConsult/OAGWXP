@@ -39,7 +39,7 @@
                                             <li>{!! Session::get('err_login') !!}</li>
                                     </ul>
                                 @endif
-                                <form class="form-horizontal" role="form" method="POST" action="{{ url('/login') }}">
+                                <form class="form-horizontal" role="form" method="POST" action="{{ url('/OAGWXP/login') }}">
                                     {{ csrf_field() }}
                                     <div class="form-group">
                                         <div class="col-md-12">

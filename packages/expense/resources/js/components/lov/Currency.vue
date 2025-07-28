@@ -58,7 +58,7 @@ export default {
     methods: {
         getDataRows (query) {
             this.loading = true;
-            axios.get(`/expense/api/get-currency`, {
+            axios.get(`/OAGWXP/api/get-currency`, {
                 params: {
                     keyword: query
                 }

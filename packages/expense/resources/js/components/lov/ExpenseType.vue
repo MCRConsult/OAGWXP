@@ -64,7 +64,7 @@ export default {
     methods: {
         getDataRows (query) {
             this.loading = true;
-            axios.get(`/expense/api/get-expense-type`, {
+            axios.get(`/OAGWXP/api/get-expense-type`, {
                 params: {
                     parent: this.parent,
                     budget_source: this.budgetSource,

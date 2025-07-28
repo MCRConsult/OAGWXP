@@ -92,7 +92,7 @@
                             </td>
                             <td class="text-center text-nowrap" style="vertical-align: middle;">
                                 <a class="btn btn-sm btn-check"
-                                    :href="'/expense/settings/user/'+user.id">
+                                    :href="'/OAGWXP/settings/user/'+user.id">
                                     ตรวจสอบ
                                 </a>
                             </td>
@@ -154,7 +154,7 @@ export default {
           await this.fetchData(page);
         },
         async fetchData(page = 1) {
-            const url = "/expense/api/settings/users/fetch-render-page";
+            const url = "/OAGWXP/api/settings/users/fetch-render-page";
             this.loading = true;
             this.users = [];
             await axios

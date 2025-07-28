@@ -427,7 +427,7 @@
                 // CHECK BUDGET FOR RESERVE
                 // let budget_account = '';
                 // let budget_avaliable = 0;
-                // axios.post('/expense/api/get-fund', {
+                // axios.post('/OAGWXP/api/get-fund', {
                 //     expense_account: vm.temp
                 // })
                 // .then(function (res) {

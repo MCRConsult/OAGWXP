@@ -205,7 +205,7 @@ export default {
                 showConfirmButton: false,
                 allowOutsideClick: false
             });
-            axios.post('/expense/settings/permission/'+this.pPermission.id+'/update', {
+            axios.post('/OAGWXP/settings/permission/'+this.pPermission.id+'/update', {
                 permission: vm.permission,
             })
             .then(function (res) {

@@ -431,7 +431,7 @@
                 var vm = this;
                 let index = response.index;
                 if (vm.linelists[index].remaining_receipt_flag == 'Y') {
-                    axios.post('/expense/requisition/update-ar-receipt', {
+                    axios.post('/OAGWXP/requisition/update-ar-receipt', {
                         header: vm.requisition,
                         line: response.line,
                         seq: index,
@@ -691,7 +691,7 @@
                             }
                         });
                         // POST METHOD
-                        axios.post('/expense/requisition/'+vm.header.id+'/clear-update', {
+                        axios.post('/OAGWXP/requisition/'+vm.header.id+'/clear-update', {
                             header: this.header,
                             lines: this.linelists,
                             totalApply: this.totalApply
@@ -847,7 +847,7 @@
                             allowOutsideClick: false
                         });
                         // POST METHOD
-                        axios.get('/expense/requisition/'+vm.header.id+'/clear-submit')
+                        axios.get('/OAGWXP/requisition/'+vm.header.id+'/clear-submit')
                         .then(function (res) {
                             if (res.data.message) {
                                 Swal.fire({
@@ -894,7 +894,7 @@
             },
             async removeRow(index) {
                 var vm = this;
-                axios.post('/expense/requisition/'+vm.header.id+'/clear-remove', {
+                axios.post('/OAGWXP/requisition/'+vm.header.id+'/clear-remove', {
                     line: vm.linelists[index],
                     seq: index,
                 })

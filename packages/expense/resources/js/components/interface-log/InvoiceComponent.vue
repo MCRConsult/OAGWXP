@@ -255,7 +255,7 @@ export default {
           await this.fetchData(page);
         },
         async fetchData(page = 1) {
-            const url = "/expense/api/interface/fetch-invoice-interface";
+            const url = "/OAGWXP/api/interface/fetch-invoice-interface";
             this.loading = true;
             this.interfaces = [];
             await axios

@@ -57,7 +57,7 @@ export default {
     methods: {
         getDataRows (query) {
             this.loading = true;
-            axios.get(`/expense/api/invoice/get-voucher`, {
+            axios.get(`/OAGWXP/api/invoice/get-voucher`, {
                 params: {
                     keyword: query
                 }

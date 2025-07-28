@@ -198,7 +198,7 @@
                                                     && requisition.is_enter">
                                                     <template v-if="requisition.invoice.voucher_number">
                                                         <a class="btn btn-sm btn-danger active mr-1"
-                                                            :href="'/expense/requisition/'+requisition.id+'/clear'">
+                                                            :href="'/OAGWXP/requisition/'+requisition.id+'/clear'">
                                                             ล้างบัญชี
                                                         </a>
                                                     </template>
@@ -213,19 +213,19 @@
                                                 </template>
                                                 <template v-if="requisition.status == 'HOLD' && requisition.is_enter">
                                                     <a class="btn btn-sm btn-check mr-1"
-                                                        :href="'/expense/requisition/'+requisition.id+'/hold'">
+                                                        :href="'/OAGWXP/requisition/'+requisition.id+'/hold'">
                                                         ตรวจสอบ
                                                     </a>
                                                 </template>
                                                 <template v-else-if="requisition.status == 'WAITING_CLEAR'">
                                                     <a class="btn btn-sm btn-check mr-1"
-                                                        :href="'/expense/requisition/'+requisition.id+'/clear-edit'">
+                                                        :href="'/OAGWXP/requisition/'+requisition.id+'/clear-edit'">
                                                         ตรวจสอบ
                                                     </a>
                                                 </template>
                                                 <template v-else>
                                                     <a class="btn btn-sm btn-check"
-                                                        :href="'/expense/requisition/'+requisition.id">
+                                                        :href="'/OAGWXP/requisition/'+requisition.id">
                                                         ตรวจสอบ
                                                     </a>
                                                 </template>
@@ -334,7 +334,7 @@ export default {
           await this.fetchData(page);
         },
         async fetchData(page = 1) {
-            const url = "/expense/api/requisition/fetch-render-page";
+            const url = "/OAGWXP/api/requisition/fetch-render-page";
             this.loading = true;
             this.requisitions = [];
             await axios
@@ -384,7 +384,7 @@ export default {
                         }
                     });
                     // GET METHOD
-                    axios.get('/expense/requisition/'+reqId+'/reverse-journal')
+                    axios.get('/OAGWXP/requisition/'+reqId+'/reverse-journal')
                     .then(function (res) {
                         if (res.data.message) {
                             Swal.fire({

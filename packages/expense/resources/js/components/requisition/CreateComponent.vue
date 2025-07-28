@@ -694,7 +694,7 @@
             async getExpenseAccount(){
                 var vm = this;
                 if(vm.reqLine.remaining_receipt_flag == 'N' && (vm.reqLine.expense_type != '' || vm.reqLine.expense_type != undefined)){
-                    axios.post('/expense/api/requisition/get-expense-account', {
+                    axios.post('/OAGWXP/api/requisition/get-expense-account', {
                         header: vm.requisition,
                         line: vm.reqLine,
                     })
@@ -826,7 +826,7 @@
                 }
                 // INSERT RECEIPT TEMP WHEN IN_ARRAY
                 if (vm.reqLine.remaining_receipt_flag == 'Y') {
-                    axios.post('/expense/requisition/use-ar-receipt', {
+                    axios.post('/OAGWXP/requisition/use-ar-receipt', {
                         header: this.requisition,
                         line: this.reqLine,
                         seq: this.linelists.length
@@ -926,7 +926,7 @@
                 var vm = this;
                 let index = response.index;
                 if (vm.linelists[index].remaining_receipt_flag == 'Y') {
-                    axios.post('/expense/requisition/update-ar-receipt', {
+                    axios.post('/OAGWXP/requisition/update-ar-receipt', {
                         header: vm.requisition,
                         line: response.line,
                         seq: index,
@@ -1048,7 +1048,7 @@
                 var vm = this;
                 let copyLine = JSON.parse(JSON.stringify(vm.linelists[index]));
                 if (copyLine.remaining_receipt_flag == 'Y') {
-                    axios.post('/expense/requisition/use-ar-receipt', {
+                    axios.post('/OAGWXP/requisition/use-ar-receipt', {
                         header: vm.requisition,
                         line: copyLine,
                         seq: vm.linelists.length
@@ -1088,7 +1088,7 @@
             removeRow(index) {
                 var vm = this;
                 if (vm.linelists[index].remaining_receipt_flag == 'Y') {
-                    axios.post('/expense/requisition/remove-ar-receipt', {
+                    axios.post('/OAGWXP/requisition/remove-ar-receipt', {
                         header: vm.requisition,
                         line: vm.linelists[index],
                         seq: index,
@@ -1262,7 +1262,7 @@
                     }
                 });
                 // POST METHOD
-                axios.post('/expense/requisition/', {
+                axios.post('/OAGWXP/requisition/', {
                     header: this.requisition,
                     lines: this.linelists,
                     totalApply: this.totalApply,
@@ -1314,7 +1314,7 @@
                 this.reqLine.remaining_receipt_flag = this.budgetSource.indexOf(budgetSource) !== -1 || this.contractSource.indexOf(budgetSource) !== -1? 'Y': 'N';
             },
             getDocumentCate(budgetSource){
-                axios.get(`/expense/api/requisition/get-document-category`, {
+                axios.get(`/OAGWXP/api/requisition/get-document-category`, {
                     params: {
                         budget_source: budgetSource
                     }

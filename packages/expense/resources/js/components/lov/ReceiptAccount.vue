@@ -65,7 +65,7 @@ export default {
         },
         getDataRows (query) {
             this.loading = true;
-            axios.get(`/expense/api/get-receipt-account`, {
+            axios.get(`/OAGWXP/api/get-receipt-account`, {
                 params: {
                     budgetSource: this.budgetSource,
                     parent: this.parent,

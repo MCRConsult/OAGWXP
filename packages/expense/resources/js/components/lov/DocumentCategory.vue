@@ -58,7 +58,7 @@ export default {
     methods: {
         getDataRows (query) {
             this.loading = true;
-            axios.get(`/expense/api/get-document-category`, {
+            axios.get(`/OAGWXP/api/get-document-category`, {
                 params: {
                     keyword: query
                 }

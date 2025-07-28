@@ -849,10 +849,10 @@ class RequisitionController extends Controller
         try {
             RequisitionReceiptTemp::where('reference_number', $header['reference_number'])
                                 ->where('remaining_receipt_id', $line['remaining_receipt_id'])
-                                ->where('remaining_receipt_number', $this->getRemainingRceipt($line['remaining_receipt_id']))
+                                ->where('remaining_receipt_number', $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source']))
                                 ->where('seq_number', $request->index+1)
                                 ->update([
-                                    'remaining_receipt_number'  => $this->getRemainingRceipt($line['remaining_receipt_id'])
+                                    'remaining_receipt_number'  => $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source'])
                                     , 'amount'                  => $line['amount']
                                 ]);
             \DB::commit();
@@ -878,10 +878,10 @@ class RequisitionController extends Controller
         \DB::beginTransaction();
         try {
             $receiptTemp = RequisitionReceiptTemp::where('reference_number', $header['reference_number'])
-                                            ->where('remaining_receipt_id', $line['remaining_receipt_id'])
-                                            ->where('remaining_receipt_number', $this->getRemainingRceipt($line['remaining_receipt_id']))
-                                            ->where('seq_number', $request->index+1)
-                                            ->delete();
+                                ->where('remaining_receipt_id', $line['remaining_receipt_id'])
+                                ->where('remaining_receipt_number', $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source']))
+                                ->where('seq_number', $request->index+1)
+                                ->delete();
             \DB::commit();
             $data = [
                 'status' => 'SUCCESS',

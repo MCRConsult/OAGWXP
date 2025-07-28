@@ -166,13 +166,13 @@
                                                     || invoice.status == 'INTERFACED'
                                                     || invoice.status == 'ERROR'">
                                                     <a class="btn btn-sm btn-check mr-1"
-                                                        :href="'/expense/invoice/'+invoice.id">
+                                                        :href="'/OAGWXP/invoice/'+invoice.id">
                                                         ตรวจสอบ
                                                     </a>
                                                 </template>
                                                 <template v-else-if="invoice.is_enter">
                                                     <a class="btn btn-sm btn-check mr-1"
-                                                        :href="'/expense/invoice/'+invoice.id+'/edit'">
+                                                        :href="'/OAGWXP/invoice/'+invoice.id+'/edit'">
                                                         ตรวจสอบ
                                                     </a>
                                                 </template>
@@ -269,7 +269,7 @@ export default {
           await this.fetchData(page);
         },
         async fetchData(page = 1) {
-            const url = "/expense/api/invoice/fetch-render-page";
+            const url = "/OAGWXP/api/invoice/fetch-render-page";
             this.loading = true;
             this.invoices = [];
             await axios

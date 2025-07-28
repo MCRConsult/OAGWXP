@@ -209,7 +209,7 @@ export default {
                 showConfirmButton: false,
                 allowOutsideClick: false
             });
-            axios.post('/expense/settings/permission/', {
+            axios.post('/OAGWXP/settings/permission/', {
                 permission: vm.permission,
             })
             .then(function (res) {

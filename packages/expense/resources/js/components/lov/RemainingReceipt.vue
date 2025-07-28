@@ -58,7 +58,7 @@ export default {
     methods: {
         getDataRows (query) {
             this.loading = true;
-            axios.get(`/expense/api/get-remaining-receipt`, {
+            axios.get(`/OAGWXP/api/get-remaining-receipt`, {
                 params: {
                     keyword: query
                 }

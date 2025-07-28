@@ -102,7 +102,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         vm.loading = true;
-                        axios.post('/expense/invoice/'+this.header.id+'/set-status', {
+                        axios.post('/OAGWXP/invoice/'+this.header.id+'/set-status', {
                             activity: 'HOLD_REQUISITION',
                             reason: vm.reason,
                         })
