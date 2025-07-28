@@ -5,7 +5,9 @@ use App\Http\Controllers\Auth\LoginController;
 
 // Auth::routes();
 // Route::view('app', 'home');
-
+Route::get('/', function () {
+    return redirect('/OAGWXP');
+});
 
 Route::middleware(['guest'])->group(function () {;
     Route::prefix('OAGWXP')->group(function() {

@@ -24,7 +24,7 @@ class LoginController extends Controller
     |
     */
     use AuthenticatesUsers;
-    protected $redirectTo = '/';
+    protected $redirectTo = '/OAGWXP';
 
     public function __construct()
     {

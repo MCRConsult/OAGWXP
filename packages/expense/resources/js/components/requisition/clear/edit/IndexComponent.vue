@@ -406,7 +406,7 @@
                 this.reqLine.remaining_receipt_flag = this.budgetSource.indexOf(budgetSource) !== -1? 'Y': 'N';
             },
             getDocumentCate(budgetSource){
-                axios.get(`/expense/api/requisition/get-document-category`, {
+                axios.get(`/OAGWXP/api/requisition/get-document-category`, {
                     params: {
                         budget_source: budgetSource
                     }
