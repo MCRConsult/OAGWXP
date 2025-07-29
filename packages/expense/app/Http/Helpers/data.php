@@ -25,7 +25,7 @@
         $segment12 = $coaModel->LOVDesc($setName->segment12, $coa[11]);
         $segment13 = $coaModel->LOVDesc($setName->segment13, $coa[12]);
 
-        $concatCoa = $segment4->description.'.'.$segment5->description.'.'.$segment6->description.'.'.$segment7->description.'.'.$segment8->description.'.'.$segment9->description.'.'.$segment10->description.'.'.$segment11->description;
+        $concatCoa = optional($segment4)->description.'.'.optional($segment5)->description.'.'.optional($segment6)->description.'.'.optional($segment7)->description.'.'.optional($segment8)->description.'.'.optional($segment9)->description.'.'.optional($segment10)->description.'.'.optional($segment11)->description;
         return $concatCoa;
     }
 
