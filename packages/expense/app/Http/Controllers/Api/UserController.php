@@ -9,7 +9,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 use App\Models\User;
 
-class SettingsController extends Controller
+class UserController extends Controller
 {
     public function fetchUserRenderPage()
     {
