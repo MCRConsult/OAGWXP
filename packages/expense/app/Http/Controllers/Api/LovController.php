@@ -42,6 +42,7 @@ class LovController extends Controller
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
         $docCategories = DocumentCategory::selectRaw('distinct doc_category_code')
                         ->whereNotNull('attribute1')
+                        ->where('doc_category_code', 'like', '%ขบ.%')
                         ->when($keyword, function ($query, $keyword) {
                             return $query->where(function($r) use ($keyword) {
                                 $r->whereRaw('UPPER(doc_category_code) like ?', ['%'.strtoupper($keyword).'%']);
@@ -53,6 +54,7 @@ class LovController extends Controller
 
         $docCategory = DocumentCategory::selectRaw('distinct doc_category_code')
                         ->whereNotNull('attribute1')
+                        ->where('doc_category_code', 'like', '%ขบ.%')
                         ->when($keyword, function ($query, $keyword) {
                             return $query->where(function($r) use ($keyword) {
                                 $r->whereRaw('UPPER(doc_category_code) like ?', ['%'.strtoupper($keyword).'%']);

@@ -4,7 +4,20 @@
             <div class="card-body tw-bg-yellow-200" style="border: 2px solid #ddd; border-radius: 5px;">
                 <form :action="pFormUrl">
                     <div class="row">
-                        <div class="form-group col-md-3">
+                        <div class="form-group col-md-2">
+                            <label class="control-label">
+                                <strong> เลขที่ใบกำกับ </strong>
+                            </label>
+                            <input type="hidden" name="invoice_number" :value="search.invoice_number">
+                            <lovInvoice
+                                :setData="search.invoice_number"
+                                :error="false"
+                                :editFlag="true"
+                                @setInvoice="setInvoice"
+                            />
+                        </div>
+
+                        <div class="form-group col-md-2">
                             <label class="control-label">
                                 <strong> เลขที่ใบสำคัญ </strong>
                             </label>
@@ -17,7 +30,7 @@
                             />
                         </div>
 
-                        <div class="form-group col-md-3">
+                        <div class="form-group col-md-2">
                             <label class="control-label">
                                 <strong> ประเภทการขอเบิก </strong>
                             </label>
@@ -32,7 +45,7 @@
                             </el-select>
                         </div>
 
-                        <div class="form-group col-md-3">
+                        <div class="form-group col-md-2">
                             <label class="control-label">
                                 <strong> วันที่เอกสารขอเบิก </strong>
                             </label>
@@ -50,7 +63,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group col-md-3">
+                        <div class="form-group col-md-2">
                             <label class="control-label">
                                 <strong> สถานะ </strong>
                             </label>
@@ -207,12 +220,13 @@
 <script>
 import moment from "moment";
 import numeral  from "numeral";
+import lovInvoice from "./lov/Invoice.vue";
 import lovVoucher from "./lov/Voucher.vue";
 
 export default {
     props: ['pFormUrl', 'pSearch', 'pInvoiceTypes', 'pStatuses', 'pInvoices'],
     components: {
-        lovVoucher
+        lovInvoice, lovVoucher
     },
     data() {
         return {
@@ -220,6 +234,7 @@ export default {
             showSearch: false,
             invoice_date_input: '',
             search: {
+                invoice_number: '',
                 voucher_number: '',
                 invoice_type: '',
                 invoice_date: '',
@@ -234,6 +249,7 @@ export default {
         };
     },
     mounted() {
+        this.search.invoice_number = this.pSearch.length <= 0? '' : this.pSearch.invoice_number;
         this.search.voucher_number = this.pSearch.length <= 0? '' : this.pSearch.voucher_number;
         this.search.invoice_type = this.pSearch.length <= 0? '' : this.pSearch.invoice_type;
         this.invoice_date_input = this.invoice_date_input = this.pSearch && this.pSearch.invoice_date
@@ -251,6 +267,9 @@ export default {
     watch: {
     },
     methods: {
+        setInvoice(res) {
+            this.search.invoice_number = res.invoice;
+        },
         setVoucher(res) {
             this.search.voucher_number = res.voucher;
         },
@@ -275,6 +294,7 @@ export default {
             await axios
             .post(url, {
                 page: page,
+                invoice_number: this.search.invoice_number,
                 voucher_number: this.search.voucher_number,
                 invoice_type: this.search.invoice_type,
                 invoice_date: this.search.invoice_date,

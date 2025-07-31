@@ -27,8 +27,11 @@ return new class extends Migration
             $table->number('remaining_receipt_id')->nullable();
             $table->string('remaining_receipt_number')->nullable();
             $table->number('amount', 18, 2)->nullable();
-            $table->string('invoice_number')->nullable(); // ใช้เลขส่งเบิก
-            $table->string('expense_account')->nullable(); // ใช้เลขส่งเบิก
+            $table->string('expense_account')->nullable();
+            $table->string('invoice_number')->nullable();
+            $table->string('invoice_type')->nullable();
+            $table->string('remittance_flag')->nullable();
+            $table->string('requisition_header_id')->nullable();
             $table->integer('created_by');
             $table->integer('updated_by')->nullable();
             $table->integer('creation_by')->nullable();

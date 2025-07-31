@@ -4,6 +4,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => ['web', 'auth']], function () {
     Route::prefix('OAGWXP')->namespace('Expense')->name('expense.')->group(function() {
+        Route::get('sync', function () {
+            (new \App\Repositories\UserRepo)->sync();
+            dd('C');
+        });
+
         Route::prefix('api')->namespace('Api')->name('api.')->group(function() {
             Route::get('/get-document-category', '\Packages\expense\app\Http\Controllers\Api\LovController@getDocumentType');
             Route::get('/get-supplier', '\Packages\expense\app\Http\Controllers\Api\LovController@getSupplier');

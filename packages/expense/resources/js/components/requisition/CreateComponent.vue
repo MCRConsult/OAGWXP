@@ -11,7 +11,7 @@
                             <budgetSource 
                                 :setData="requisition.budget_source"
                                 :error="errors.budget_source"
-                                :editFlag="true"
+                                :editFlag="linelists.length == 0? true: false"
                                 @setBudgetSource="setBudgetSource"
                             ></budgetSource>
                             <div id="el_explode_budget_source" class="text-danger text-left"></div>
@@ -25,7 +25,7 @@
                             <paymentType
                                 :setData="requisition.payment_type"
                                 :error="errors.payment_type"
-                                :editFlag="true"
+                                :editFlag="sourceDefault.indexOf(requisition.budget_source) !== -1? false: true"
                                 @setPaymentType="setPaymentType"
                             ></paymentType>
                             <div id="el_explode_payment_type" class="text-danger text-left"></div>
@@ -606,6 +606,7 @@
                 this.getDocumentCate(res.budget_source);
                 // DEFAULT VALUE LINE
                 if(this.sourceDefault.indexOf(this.requisition.budget_source) !== -1){
+                    this.requisition.payment_type = 'PAYMENT';
                     this.reqLine.budget_plan = 'EXP.400.000000.0000000000';
                     this.reqLine.budget_type = 'EXP.400.400000.0000000000';
                 }else{

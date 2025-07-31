@@ -61,6 +61,7 @@ class RequisitionController extends Controller
             $default = LookupV::selectRaw('distinct lookup_code, tag')
                             ->where('lookup_type', 'OAG_AP_SOURCE_CATEGORY')
                             ->where('lookup_code', $budgetSource)
+                            ->where('tag', 'like', '%'.$orgName[0].'%ขบ.%')
                             ->first();
         }else{
             $default = DocumentCategory::selectRaw('distinct doc_category_code tag')

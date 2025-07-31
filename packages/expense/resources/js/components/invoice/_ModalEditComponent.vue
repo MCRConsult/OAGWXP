@@ -123,7 +123,7 @@
                             <div class="col-md-3">
                                 <div class="form-group text-left" style="padding: 5px;">
                                     <label class="control-label">
-                                        <strong> เลขที่ใบเสร็จรับเงิน </strong>
+                                        <strong> เลขที่ใบเสร็จรับเงิน <span v-if="temp.split_flag == 'Y'" class="text-danger"> * </span> </strong>
                                     </label><br>
                                     <arReceipt
                                         :setData="temp.ar_receipt_id"

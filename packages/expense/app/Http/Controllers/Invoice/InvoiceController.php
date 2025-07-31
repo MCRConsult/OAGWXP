@@ -296,6 +296,13 @@ class InvoiceController extends Controller
                                                 , 'updated_by'          => $user->id
                                                 , 'updation_by'         => $user->person_id
                                             ]);
+                    // UPDATE INVOICE_NUMBER w/ RECEIPT
+                    RequisitionReceiptTemp::where('requisition_header_id', $requisition->id)
+                                        ->update([
+                                            'invoice_number'    => $invoiceNum
+                                            , 'updated_by'      => $user->id
+                                            , 'updation_by'     => $user->person_id
+                                        ]);
                 }
             }
             \DB::commit();

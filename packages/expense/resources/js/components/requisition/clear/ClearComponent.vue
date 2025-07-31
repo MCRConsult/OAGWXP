@@ -221,7 +221,7 @@
             async importData(){
                 var vm = this;
                 Swal.fire({
-                    title: 'ระบบกำลังบันทึกเอกสารเคลียร์เงินยืม',
+                    title: '<span style="font-size: 28px;">ระบบกำลังบันทึกเอกสารเคลียร์เงินยืม</span>',
                     type: "success",
                     showConfirmButton: false,
                     allowOutsideClick: false,

@@ -15,12 +15,16 @@ class UserRepo {
         $fndUsers = FNDUser::when($fndUserId != -999, function ($query) use ($fndUserId) {
                         return $query->where('user_id', $fndUserId);
                     })
+                    ->whereIn('created_by', [1130, -1])
+                    ->whereNotIn('user_id', [1170,1190])
+                    ->whereRaw("nvl(end_date, sysdate) >= sysdate")
                     ->select(['user_id', 'user_name', 'start_date', 'end_date', 'employee_id', 'email_address'])
                     ->with(['users'])
                     ->get();
 
         foreach ($fndUsers as $key => $fndUser) {
             $users = $fndUser->users;
+            logger($fndUser->user_name);
             $active = $fndUser->isActive();
             // GET ORG ID FROM LOCATION
             $orgId = '';

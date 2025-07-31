@@ -137,14 +137,12 @@ class RequisitionController extends Controller
                 $lineTemp->contract_number          = $line['contract_number'];
                 $lineTemp->save();
 
-                // if ($line['remaining_receipt_flag'] == 'Y') {
-                //     RequisitionReceiptTemp::where('reference_number', $headerTemp->reference_number)
-                //                 ->where('remaining_receipt_id', $line['remaining_receipt_id'])
-                //                 ->where('seq_number', $key+1)
-                //                 ->update([
-                //                     'invoice_number' => $headerTemp->req_number
-                //                 ]);
-                // }
+                if ($line['remaining_receipt_flag'] == 'Y') {
+                    RequisitionReceiptTemp::where('reference_number', $headerTemp->reference_number)
+                                ->update([
+                                    'requisition_header_id' => $headerTemp->id
+                                ]);
+                }
             }
             \DB::commit();
             // CALL GL INTERFACE + RESERVE BUDGET
@@ -185,11 +183,13 @@ class RequisitionController extends Controller
     public function clear($reqId)
     {
         $user = auth()->user();
+        $referenceNo = date('YmdHis').'-'.Str::random(5);
         \DB::beginTransaction();
         try {
             $requisition = RequisitionHeader::findOrFail($reqId);
             // CLAER HEADER
             $clearReq                       = $requisition->replicate();
+            $clearReq->reference_number     = $referenceNo;
             $clearReq->invoice_type         = 'STANDARD';
             $clearReq->req_number           = '';
             $clearReq->req_date             = date('Y-m-d');
@@ -307,6 +307,47 @@ class RequisitionController extends Controller
                     $lineTemp->receipt_account          = $line['receipt_account'];
                     $lineTemp->contract_number          = $line['contract_number'];
                     $lineTemp->save();
+
+                    if ($line['remaining_receipt_flag'] == 'Y' && $header['clear_flag'] == 'Y') {
+                        $receiptTemp                             = new RequisitionReceiptTemp;
+                        $receiptTemp->org_id                     = $user->org_id;
+                        $receiptTemp->reference_number           = $header['reference_number'];
+                        $receiptTemp->seq_number                 =  $key+1;
+                        $receiptTemp->remaining_receipt_flag     = $line['remaining_receipt_flag'];
+                        $receiptTemp->remaining_receipt_id       = $line['remaining_receipt_id'];
+                        $receiptTemp->remaining_receipt_number   = $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source']);
+                        $receiptTemp->amount                     = $line['actual_amount'];
+                        $receiptTemp->expense_account            = $line['expense_account'];
+                        $receiptTemp->invoice_type               = $header['invoice_type'];
+                        $receiptTemp->remittance_flag            = 'N';
+                        $receiptTemp->budget_source              = $header['budget_source'];
+                        $receiptTemp->requisition_header_id      = $requisition->id;
+                        $receiptTemp->created_by                 = $user->id;
+                        $receiptTemp->updated_by                 = $user->id;
+                        $receiptTemp->creation_by                = $user->person_id;
+                        $receiptTemp->updation_by                = $user->person_id;
+                        $receiptTemp->save();
+
+                        // RETURN AMOUNT PREPAYMENT
+                        $receiptOri                             = new RequisitionReceiptTemp;
+                        $receiptOri->org_id                     = $user->org_id;
+                        $receiptOri->reference_number           = $header['reference_number'];
+                        $receiptOri->seq_number                 =  $key+1;
+                        $receiptOri->remaining_receipt_flag     = $line['remaining_receipt_flag'];
+                        $receiptOri->remaining_receipt_id       = $line['remaining_receipt_id'];
+                        $receiptOri->remaining_receipt_number   = $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source']);
+                        $receiptOri->amount                     = $line['amount']*-1;
+                        $receiptOri->expense_account            = $line['expense_account'];
+                        $receiptOri->invoice_type               = $header['invoice_type'];
+                        $receiptOri->remittance_flag            = 'N';
+                        $receiptOri->budget_source              = $header['budget_source'];
+                        $receiptOri->requisition_header_id      = $requisition->id;
+                        $receiptOri->created_by                 = $user->id;
+                        $receiptOri->updated_by                 = $user->id;
+                        $receiptOri->creation_by                = $user->person_id;
+                        $receiptOri->updation_by                = $user->person_id;
+                        $receiptOri->save();
+                    }
                 }
             }
             // UPDATE CLEAR FIRST TIME ONLY
@@ -361,11 +402,11 @@ class RequisitionController extends Controller
                 $lineTemp->budget_plan              = $budgetPlan->category_concat_segs;
                 $lineTemp->budget_type              = $budgetType->category_concat_segs;
                 $lineTemp->expense_type             = $expeseType->category_concat_segs;
-                $lineTemp->expense_description      = $expeseType->description;
+                $lineTemp->expense_description      = $expeseType->description.' '.$line['expense_description'];
                 $lineTemp->expense_account          = $expAccount;
                 $lineTemp->amount                   = $line['amount'];
                 $lineTemp->actual_amount            = $diff_amount;
-                $lineTemp->description              = $expeseType->description;
+                $lineTemp->description              = $expeseType->description.' '.$line['expense_description'];
                 $lineTemp->vehicle_number           = $line['vehicle_number'];
                 $lineTemp->policy_number            = $line['policy_number'];
                 $lineTemp->vehicle_oil_type         = $line['vehicle_oil_type'];
@@ -380,6 +421,7 @@ class RequisitionController extends Controller
                 $lineTemp->remaining_receipt_id     = '';
                 $lineTemp->remaining_receipt_number = '';
                 $lineTemp->split_flag               = 'Y';
+                $lineTemp->clear_reference_line_id  = $line['id'];
                 $lineTemp->save();
             }
         }
@@ -444,6 +486,16 @@ class RequisitionController extends Controller
                 $lineTemp->receipt_account          = $line['receipt_account'];
                 $lineTemp->contract_number          = $line['contract_number'];
                 $lineTemp->save();
+
+                RequisitionReceiptTemp::where('reference_number', $header['reference_number'])
+                                ->where('remaining_receipt_id', $line['remaining_receipt_id'])
+                                ->where('remaining_receipt_number', $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source']))
+                                ->where('seq_number', $key+1)
+                                ->where('requisition_header_id', $reqId)
+                                ->update([
+                                    'remaining_receipt_number'  => $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source'])
+                                    , 'amount'                  => $line['actual_amount']
+                                ]);
             }
             \DB::commit();
             $data = [
@@ -820,6 +872,9 @@ class RequisitionController extends Controller
             $headerTemp->remaining_receipt_number   = $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source']);
             $headerTemp->amount                     = $line['amount'];
             $headerTemp->expense_account            = $line['expense_account'];
+            $headerTemp->invoice_type               = $header['invoice_type'];
+            $headerTemp->remittance_flag            = 'N';
+            $headerTemp->budget_source              = $header['budget_source'];
             $headerTemp->created_by                 = $user->id;
             $headerTemp->updated_by                 = $user->id;
             $headerTemp->creation_by                = $user->person_id;
@@ -854,6 +909,7 @@ class RequisitionController extends Controller
                                 ->update([
                                     'remaining_receipt_number'  => $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source'])
                                     , 'amount'                  => $line['amount']
+                                    , 'invoice_type'            => $header['invoice_type']
                                 ]);
             \DB::commit();
             $data = [

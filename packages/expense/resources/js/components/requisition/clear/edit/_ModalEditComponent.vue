@@ -901,8 +901,8 @@
             },
             setExpenseType(res){
                 this.temp.expense_type = res.expense_type;
-                this.temp.expense_description = res.expense_description;
-                this.temp.description = res.expense_description;
+                // this.temp.description = res.expense_description;
+                // this.temp.expense_description = res.expense_description;
                 // GET EXPENSE ACCOUNT WHEN CHOOSE EXPENSE_TYPE
                 if(this.temp.expense_type != this.line.expense_type){
                     this.getExpenseAccount();

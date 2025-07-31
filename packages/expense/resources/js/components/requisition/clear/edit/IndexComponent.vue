@@ -632,7 +632,7 @@
                     errorMsg = "กรุณาเลือกผู้สั่งจ่าย";
                     $(form).find("div[id='el_explode_supplier']").html(errorMsg);
                 }
-                if (vm.requisition.description == '') {
+                if (vm.requisition.description == '' || vm.requisition.description == null) {
                     vm.errors.header_desc = true;
                     valid = false;
                     errorMsg = "กรุณากรอกคำอธิบาย";
@@ -682,7 +682,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         Swal.fire({
-                            title: 'ระบบกำลังบันทึกเอกสารเคลียร์เงินยืม',
+                            title: '<span style="font-size: 28px;">ระบบกำลังบันทึกเอกสารเคลียร์เงินยืม</span>',
                             type: "success",
                             showConfirmButton: false,
                             allowOutsideClick: false,
@@ -844,7 +844,10 @@
                             title: 'ระบบกำลังส่งข้อมูลเอกสารส่งเบิก',
                             type: "success",
                             showConfirmButton: false,
-                            allowOutsideClick: false
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
                         });
                         // POST METHOD
                         axios.get('/OAGWXP/requisition/'+vm.header.id+'/clear-submit')

@@ -97,8 +97,8 @@ class InvoiceInterfaceRepo {
                 $lineInf->distributrion_account     = $expAccount;  // $line->expense_account;
                 $lineInf->attribute1                = $line->supplier_name;
                 $lineInf->attribute2                = $line->bank_account_number;
-                $lineInf->attribute3                = $line->remaining_receipt_number;
-                $lineInf->attribute4                = $line->ar_receipt_number;
+                $lineInf->attribute3                = $invoice->budget_source == '510'? $line->remaining_receipt_number: '';
+                $lineInf->attribute4                = $invoice->budget_source == '540'? $line->remaining_receipt_number: $line->ar_receipt_number;
                 $lineInf->attribute7                = $line->utility_type;
                 $lineInf->attribute8                = $line->utility_detail;
                 $lineInf->attribute9                = $line->req_invoice_number;

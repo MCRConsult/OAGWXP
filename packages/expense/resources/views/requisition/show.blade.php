@@ -48,7 +48,7 @@
                             </div>
                         </div>
                         @if ($requisition->cash_bank_account_id)
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="form-group" style="padding: 5px;">
                                     <label class="control-label">
                                         <strong> ธนาคาร </strong>

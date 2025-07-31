@@ -184,7 +184,7 @@ class InvoiceHeader extends Model
 
     public function scopeSearch($q, $search)
     {
-        $cols = ['voucher_number', 'invoice_type', 'status'];
+        $cols = ['invoice_number', 'voucher_number', 'invoice_type', 'status'];
         foreach ($search as $key => $value) {
             $value = trim($value);
             if ($value) {

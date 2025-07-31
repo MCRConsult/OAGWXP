@@ -9,6 +9,7 @@ class RequisitionLine extends Model
 {
     protected $table = 'oagwxp_requisition_lines';
     protected $connection = 'oracle_oagwxp';
+    protected $appends = ['remaining_rceipt_detail'];
 
     public function header()
     {
@@ -53,5 +54,15 @@ class RequisitionLine extends Model
     public function contract()
     {
         return $this->hasOne(ARPOATT1V::class, 'attribute1', 'contract_number');
+    }
+
+    public function getRemainingRceiptDetailAttribute()
+    {
+        if ($this->header->budget_source == '510') {
+            $receipt = OAGARBudgetReceiptV::where('cash_receipt_id', $this->remaining_receipt_id)->first();
+        }else{
+            $receipt = GuaranteeReceiptV::selectRaw('receipt_number, activity_name description')->where('cash_receipt_id', $this->remaining_receipt_id)->first();
+        }
+        return optional($receipt)->receipt_number.' : '.optional($receipt)->description;
     }
 }

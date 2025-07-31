@@ -13,7 +13,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <span class="d-inline">
-                    <h5> <strong> เอกสารส่งเบิก </strong> </h5>
+                    <h5> <strong> เอกสารส่งเบิก : {{ $requisition->req_number }}</strong> </h5>
                 </div>
             </div>
         </div>
