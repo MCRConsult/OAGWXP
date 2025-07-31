@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    {{-- <link href="{{ public_path('css/pdf.css') }}" rel="stylesheet"> --}}
+     {{-- <link href="{{ public_path('css/pdf.css') }}" rel="stylesheet"> --}}
     <title> หลักฐานเอกสารส่งเบิก </title>
     <style type="text/css">
         @font-face {
