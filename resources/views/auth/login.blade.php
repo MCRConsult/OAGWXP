@@ -135,5 +135,15 @@
             // toggle the icon
             // togglePassword.classList.add('fa-eye');
         });
+
+        // Convert username to uppercase as user types
+        username.addEventListener("input", function () {
+            this.value = this.value.toUpperCase();
+        });
+
+        // Also convert on form submission to ensure it's uppercase
+        document.querySelector("form").addEventListener("submit", function() {
+            username.value = username.value.toUpperCase();
+        });
     </script>
 @stop
