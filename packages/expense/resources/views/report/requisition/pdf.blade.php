@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <link href="{{ asset('css/pdf.css') }}" rel="stylesheet">
+    <link href="{{ base_path() }}/public/css/pdf.css" rel="stylesheet">
     <title> หลักฐานเอกสารส่งเบิก </title>
     <style type="text/css">
         .page-break {
