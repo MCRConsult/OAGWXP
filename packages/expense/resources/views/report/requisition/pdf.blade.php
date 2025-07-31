@@ -4,6 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     {{-- <link href="{{ asset('/public/css/pdf.css') }}" rel="stylesheet"> --}}
     <title> หลักฐานเอกสารส่งเบิก </title>
+    {{-- Style PDF --}}
     @include('expense::report.requisition._css')
 </head>
 <body>
