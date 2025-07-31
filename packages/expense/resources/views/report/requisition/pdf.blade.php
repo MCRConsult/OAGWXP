@@ -2,9 +2,42 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <link href="{{ public_path('css/pdf.css') }}" rel="stylesheet">
+    {{-- <link href="{{ public_path('css/pdf.css') }}" rel="stylesheet"> --}}
     <title> หลักฐานเอกสารส่งเบิก </title>
     <style type="text/css">
+        @font-face {
+            font-family: 'TH Sarabun';
+            font-style: normal;
+            font-weight: normal;
+            src: url("{{ public_path('fonts/Sarabun-Regular.ttf') }}") format('truetype');
+        }
+        @font-face {
+            font-family: 'TH Sarabun';
+            font-style: italic;
+            font-weight: normal;
+            src: url("{{ public_path('fonts/Sarabun-Italic.ttf') }}") format('truetype');
+        }
+        @font-face {
+            font-family: 'TH Sarabun';
+            font-style: normal;
+            font-weight: bold;
+            src: url("{{ public_path('fonts/Sarabun-Bold.ttf') }}") format('truetype');
+        }
+        @font-face {
+            font-family: 'TH Sarabun';
+            font-style: italic;
+            font-weight: bold;
+            src: url("{{ public_path('fonts/Sarabun-BoldItalic.ttf') }}") format('truetype');
+        }
+
+        body {
+            font-family: 'TH Sarabun';
+            font-size: 16px;
+            line-height: 1.4;
+            margin: 0;
+            padding: 0;
+        }
+
         .page-break {
             page-break-before: always;
         }
