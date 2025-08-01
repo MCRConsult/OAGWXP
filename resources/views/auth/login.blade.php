@@ -50,16 +50,21 @@
                                     </div>
                                     <div class="form-group{{ $errors->has('username') ? ' has-error' : '' }}">
                                         <div class="col-md-12">
-                                            <input id="username" placeholder="ชื่อผู้ใช้งาน" type="text" class="form-control" name="username"
+                                            {{-- <input id="username" placeholder="ชื่อผู้ใช้งาน" type="text" class="form-control" name="username"
                                                 value="{{ old('username', \Cookie::get('remember_username')) }}" required autofocus
-                                                style="height: 40px !important;">
+                                                style="height: 40px !important;"> --}}
 
-                                            {{-- <div class="input-group">
-                                                <span class="input-group-text"><i class="fa fa-user"></i></span>
-                                                <input id="username" placeholder="ชื่อผู้ใช้งาน" type="text" class="form-control" 
-                                                       name="username" value="{{ old('username', \Cookie::get('remember_username')) }}" 
-                                                       required autofocus>
-                                            </div> --}}
+                                            <div class="input-group">
+                                                 <div class="input-group-prepend">
+                                                    <span class="input-group-text" style="background-color: #f8f8f8;">
+                                                      <i class="icons d-block cui-user"></i>
+                                                    </span>
+                                                 </div>
+                                                <input id="username" placeholder="ชื่อผู้ใช้งาน" type="text" class="form-control" name="username"
+                                                    value="{{ old('username', \Cookie::get('remember_username')) }}" required autofocus
+                                                    style="height: 40px !important;"
+                                                >
+                                            </div>
 
                                             @if ($errors->has('username'))
                                                 <span class="help-block">
@@ -70,19 +75,27 @@
                                     </div>
                                     <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
                                         <div class="col-md-12">
-                                            <input id="password" placeholder="รหัสผ่านผู้ใช้งาน" type="password" class="form-control" name="password" autocomplete="off" required value="{{ old('password', Cookie::get('remember_password') ? decrypt(Cookie::get('remember_password')) : '') }}" style="height: 40px !important;">
 
-                                            <i class="fa fa-eye-slash"
-                                                id="togglePassword"
-                                                style="
-                                                    float: right;
-                                                    padding-top: 7px;
-                                                    margin-right: 15px;
-                                                    margin-top: -30px;
-                                                    position: relative;
-                                                    z-index: 2;
-                                                    color: #b2b6c1;"
-                                                ></i>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text" style="background-color: #f8f8f8;">
+                                                        <i class="icons d-block cui-lock-locked"></i>
+                                                    </span>
+                                                </div>
+                                                <input id="password" placeholder="รหัสผ่านผู้ใช้งาน" type="password" class="form-control" name="password" autocomplete="off" required value="{{ old('password', Cookie::get('remember_password') ? decrypt(Cookie::get('remember_password')) : '') }}" style="height: 40px !important;">
+
+                                            </div>
+                                                <i class="fa fa-eye-slash"
+                                                    id="togglePassword"
+                                                    style="
+                                                        float: right;
+                                                        padding-top: 7px;
+                                                        margin-right: 15px;
+                                                        margin-top: -30px;
+                                                        position: relative;
+                                                        z-index: 2;
+                                                        color: #b2b6c1;"
+                                                    ></i>
 
                                             @if ($errors->has('password'))
                                                 <span class="help-block">
