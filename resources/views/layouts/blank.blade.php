@@ -12,7 +12,7 @@
     <title> สำนักงานอัยการสูงสุด </title>
     @include('layouts._tag_head')
     
-    <link rel="shortcut icon" href="/images/title.png" type="image/png" />
+    {{-- <link rel="shortcut icon" href="/images/title.png" type="image/png" /> --}}
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
     @yield('custom-css')
 

@@ -5,9 +5,12 @@
 @section('custom-css')
 <style >
     .loginColumns {
-        max-width: 800px;
+        max-width: 900px;
         margin: 0 auto;
-        padding: 150px 20px 20px 20px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
     }
 
     body {
@@ -21,11 +24,11 @@
         <div class="loginColumns animated fadeInDown">
             @include('shared._success')
             @include('shared._errors')
-            <div class="card">
+            <div class="card" style="width: 900px; border-radius: 12px; padding: 3rem; margin-bottom: 0px !important;">
                 <div class="card-body">
                     <div class="row co-12">
-                        <div class="col-md-6 b-r">
-                            <div class="clearfix" style="text-align: center;">
+                        <div class="col-md-6">
+                            <div class="clearfix" style="display: flex; justify-content: center; align-items: center;">
                                 <p class="logo-name-mini hidden-xs">
                                     <img src="{{ asset('images/oag-login.png') }}" style="height: 180px; margin-top: 18px;">
                                 </p>
@@ -48,7 +51,8 @@
                                     <div class="form-group{{ $errors->has('username') ? ' has-error' : '' }}">
                                         <div class="col-md-12">
                                             <input id="username" placeholder="ชื่อผู้ใช้งาน" type="text" class="form-control" name="username"
-                                                value="{{ old('username', \Cookie::get('remember_username')) }}" required autofocus>
+                                                value="{{ old('username', \Cookie::get('remember_username')) }}" required autofocus
+                                                style="height: 40px !important;">
 
                                             {{-- <div class="input-group">
                                                 <span class="input-group-text"><i class="fa fa-user"></i></span>
@@ -66,12 +70,11 @@
                                     </div>
                                     <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
                                         <div class="col-md-12">
-                                            <input id="password" placeholder="รหัสผ่านผู้ใช้งาน" type="password" class="form-control" name="password" autocomplete="off" required value="{{ old('password', Cookie::get('remember_password') ? decrypt(Cookie::get('remember_password')) : '') }}">
+                                            <input id="password" placeholder="รหัสผ่านผู้ใช้งาน" type="password" class="form-control" name="password" autocomplete="off" required value="{{ old('password', Cookie::get('remember_password') ? decrypt(Cookie::get('remember_password')) : '') }}" style="height: 40px !important;">
 
                                             <i class="fa fa-eye-slash"
                                                 id="togglePassword"
                                                 style="
-                                                    /*font-size: 1.8rem;*/
                                                     float: right;
                                                     padding-top: 7px;
                                                     margin-right: 15px;
@@ -97,7 +100,7 @@
 
                                     <div class="form-group" style="margin-bottom: 0px;">
                                         <div class="col-md-12">
-                                            <button type="submit" class="btn btn-primary btn-block full-width m-b">
+                                            <button type="submit" class="btn btn-primary btn-md btn-block full-width m-b">
                                                 เข้าสู่ระบบ
                                             </button>
                                         </div>
