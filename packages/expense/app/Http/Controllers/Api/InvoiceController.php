@@ -9,6 +9,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 use Packages\expense\app\Models\RequisitionHeader;
 use Packages\expense\app\Models\InvoiceHeader;
+use Packages\expense\app\Models\InvoiceLine;
 use Packages\expense\app\Models\MappingAutoInvoiceV;
 use Packages\expense\app\Models\InvoiceInterfaceHeader;
 
@@ -77,10 +78,31 @@ class InvoiceController extends Controller
         return response()->json(['data' => $vouchers]);
     }
 
+    public function getArReceipt(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $vouchers = InvoiceLine::selectRaw('distinct remaining_receipt_number')
+                    ->when($keyword, function ($query, $keyword) {
+                        return $query->where(function($r) use ($keyword) {
+                            $r->whereRaw('UPPER(remaining_receipt_number) like ?', ['%'.strtoupper($keyword).'%']);
+                        });
+                    })
+                    ->orderBy('remaining_receipt_number')
+                    ->limit(25)
+                    ->get();
+
+        return response()->json(['data' => $vouchers]);
+    }
+
     public function fetchInvoiceRenderPage()
     {
        $invoices = InvoiceHeader::search(request()->all())
                             ->with(['user.hrEmployee', 'supplier'])
+                            ->when(request()->remaining_receipt_number, function ($query) {
+                                $query->whereHas('lines', function ($q) {
+                                    $q->where('remaining_receipt_number', 'like', request()->remaining_receipt_number.'%');
+                                });
+                            })
                             ->orderByRaw('invoice_number desc, invoice_date desc, voucher_number desc')
                             ->get();
         $perPage = 25;
@@ -202,5 +224,21 @@ class InvoiceController extends Controller
             'headers' => $header
         ];
         return response()->json($data);
+    }
+
+    public function checkFinalJudgment($cashReceiptId)
+    {
+        $finalJudgment = collect(\DB::select("
+                select count(*) as count_final
+                from apps.ap_invoices_all ai       
+                where nvl(ai.attribute3, 'No') = 'Yes'
+                and exists( select  'Y'
+                            from apps.ap_invoice_lines_all ail
+                            where ail.invoice_id = ai.invoice_id
+                            and to_number(ail.attribute3) = {$cashReceiptId}
+                        )
+            "));
+
+        return $finalJudgment->first()->count_final;
     }
 }

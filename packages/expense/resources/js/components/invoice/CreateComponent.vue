@@ -295,6 +295,7 @@
                 selectedReq: {},
                 reqAmount: {},
                 listReq: [],
+                listType: {},
             };
         },
         mounted(){
@@ -428,6 +429,7 @@
                                 this.selectedReq[header.req_number] = true;
                                 this.reqAmount[header.req_number] = header.total_amount;
                                 this.listReq.push(header.req_number);
+                                this.listType[header.req_number] = header.invoice_type.lookup_code;
                             }
                         });
                     }else{
@@ -435,6 +437,7 @@
                             this.selectedReq[header.req_number] = true;
                             this.reqAmount[header.req_number] = header.total_amount;
                             this.listReq.push(header.req_number);
+                            this.listType[header.req_number] = header.invoice_type.lookup_code;
                         });
                     }
                 }else{
@@ -445,6 +448,7 @@
                         this.listReq = this.listReq.filter(function(value) {
                             return value != header.req_number
                         });
+                        this.selectedReq[header.req_number] = '';
                     });                    
                 }                
             },
@@ -456,11 +460,15 @@
                     vm.selectedReq[reqNumber] = true;
                     vm.reqAmount[header.req_number] = header.total_amount;
                     vm.listReq.push(reqNumber);
+                    vm.listType[header.req_number] = header.invoice_type.lookup_code;
                 }else{
                     vm.selectedReq[reqNumber] = false;
                     vm.reqAmount[header.req_number] = 0;
                     vm.listReq = vm.listReq.filter(function(value) {
                         return value != reqNumber
+                    });
+                    vm.listType = vm.listType.filter(function(value, index) {
+                        return index != reqNumber
                     });
                 }
             },
@@ -478,6 +486,24 @@
             },
             async groupInvoice(){
                 var vm = this;
+                let valid = true;
+                // Validate PREPAYMENT
+                if(Object.values(this.listType).includes('PREPAYMENT')){
+                    valid = false;
+                }
+                if(!valid && this.listReq.length > 1){
+                    Swal.fire({
+                        title: "แจ้งเตือน",
+                        html: '<div style="line-height: 2;"> กรณีเลือกประเภทการขอเบิก : <b>เงินยืม</b> <br> สามารถเลือกรายการได้ 1 รายการเท่านั้น </div>',
+                        icon: "warning",
+                        showCancelButton: false,
+                        confirmButtonColor: "#3085d6",
+                        confirmButtonText: "ตกลง",
+                        allowOutsideClick: false
+                    });
+                    return;
+                }
+
                 Swal.fire({
                     title: "",
                     html: '<div style="font-size: 16px; text-align: left;"> <b>เลขที่เอกสารส่งเบิก : </b>'+this.listsAsComma()

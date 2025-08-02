@@ -30,6 +30,20 @@
                             />
                         </div>
 
+                        <!-- RECEIPT 510/540 -->
+                        <div class="form-group col-md-2">
+                            <label class="control-label">
+                                <strong> เลขที่ใบเสร็จ </strong>
+                            </label>
+                            <input type="hidden" name="remaining_receipt_number" :value="search.remaining_receipt_number">
+                            <lovArReceipt
+                                :setData="search.remaining_receipt_number"
+                                :error="false"
+                                :editFlag="true"
+                                @setArReceipt="setArReceipt"
+                            />
+                        </div>
+
                         <div class="form-group col-md-2">
                             <label class="control-label">
                                 <strong> ประเภทการขอเบิก </strong>
@@ -109,7 +123,7 @@
             <div class="card-body">
                 <div class="ibox float-e-margins">
                     <div class="table-responsive" style="max-height: 600px;">
-                        <table class="table text-nowrap table-hover" style="position: sticky; font-size: 13px;">
+                        <table class="table text-nowrap table-hover table-striped" style="position: sticky; font-size: 13px;">
                             <thead>
                                 <tr>
                                     <th class="text-center sticky-col">
@@ -222,11 +236,12 @@ import moment from "moment";
 import numeral  from "numeral";
 import lovInvoice from "./lov/Invoice.vue";
 import lovVoucher from "./lov/Voucher.vue";
+import lovArReceipt from "./lov/ArReceipt.vue";
 
 export default {
     props: ['pFormUrl', 'pSearch', 'pInvoiceTypes', 'pStatuses', 'pInvoices'],
     components: {
-        lovInvoice, lovVoucher
+        lovInvoice, lovVoucher, lovArReceipt
     },
     data() {
         return {
@@ -236,6 +251,7 @@ export default {
             search: {
                 invoice_number: '',
                 voucher_number: '',
+                remaining_receipt_number: '',
                 invoice_type: '',
                 invoice_date: '',
                 status: '',
@@ -251,6 +267,7 @@ export default {
     mounted() {
         this.search.invoice_number = this.pSearch.length <= 0? '' : this.pSearch.invoice_number;
         this.search.voucher_number = this.pSearch.length <= 0? '' : this.pSearch.voucher_number;
+        this.search.remaining_receipt_number = this.pSearch.length <= 0? '' : this.pSearch.remaining_receipt_number;
         this.search.invoice_type = this.pSearch.length <= 0? '' : this.pSearch.invoice_type;
         this.invoice_date_input = this.invoice_date_input = this.pSearch && this.pSearch.invoice_date
                                 ? moment(this.pSearch.invoice_date, 'YYYY-MM-DD') : '';
@@ -272,6 +289,9 @@ export default {
         },
         setVoucher(res) {
             this.search.voucher_number = res.voucher;
+        },
+        setArReceipt(res) {
+            this.search.remaining_receipt_number = res.arReceipt;
         },
         changeDateFormat() {
             this.search.invoice_date = '';
@@ -296,6 +316,7 @@ export default {
                 page: page,
                 invoice_number: this.search.invoice_number,
                 voucher_number: this.search.voucher_number,
+                remaining_receipt_number: this.search.remaining_receipt_number,
                 invoice_type: this.search.invoice_type,
                 invoice_date: this.search.invoice_date,
                 status: this.search.status

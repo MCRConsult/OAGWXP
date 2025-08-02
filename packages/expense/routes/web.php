@@ -48,6 +48,8 @@ Route::group(['middleware' => ['web', 'auth']], function () {
                 Route::get('/get-requisition', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@getRequisition');
                 Route::get('/get-invoice', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@getInvoice');
                 Route::get('/get-voucher', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@getVoucher');
+                Route::get('/get-ar-receipt', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@getArReceipt');
+                Route::get('/check-final-judgment/{cash_receipt_id}', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@checkFinalJudgment');
                 // GROUP REQUISITION
                 Route::get('/fetch-requisition', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@fetchRequisition');
                 Route::post('/index-render-page', '\Packages\expense\app\Http\Controllers\Api\InvoiceController@fetchRequisitionRenderPage');

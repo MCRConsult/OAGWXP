@@ -1,21 +1,21 @@
 <template>
     <tr v-loading="loading">
-        <td class="text-center text-nowrap">
+        <td class="text-center text-nowrap" :style="errorIndex? 'color: red;': ''">
             {{ index + 1 }}
         </td>
-        <td class="text-left text-nowrap">
+        <td class="text-left text-nowrap" :style="errorIndex? 'color: red;': ''">
             {{ line.expense.description }}
         </td>
-        <td class="text-left wrap-text">
+        <td class="text-left wrap-text" :style="errorIndex? 'color: red;': ''">
             {{ line.expense_account }}
         </td>
-        <td class="text-center text-nowrap">
+        <td class="text-center text-nowrap" :style="errorIndex? 'color: red;': ''">
             {{ numberFormat(line.amount) }}
         </td>
-        <td class="text-center text-nowrap">
+        <td class="text-center text-nowrap" :style="errorIndex? 'color: red;': ''">
             {{ line.supplier_name }}
         </td>
-        <td class="text-center text-nowrap">
+        <td class="text-center text-nowrap" :style="errorIndex? 'color: red;': ''">
             {{ line.bank_account_number }}
         </td>
         <td style="padding-top: 5px">
@@ -46,7 +46,7 @@
         components: {
             modalEditComp
         },
-        props: ['index', 'attribute', 'defaultSetName', 'header'],
+        props: ['index', 'attribute', 'defaultSetName', 'header', 'errorIndex'],
         emits: ['updateRow', 'copyRow', 'removeRow'],
         data() {
             return {

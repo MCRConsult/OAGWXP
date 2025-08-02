@@ -44,7 +44,7 @@
         </div>
 
         <div class="table-responsive mt-4" style="max-height: 600px;">
-            <table class="table text-nowrap table-hover text-center" style="position: sticky; font-size: 13px;">
+            <table class="table text-nowrap table-hover text-center table-striped" style="position: sticky; font-size: 13px;">
                 <thead>
                     <tr>
                         <th class="text-center sticky-col">

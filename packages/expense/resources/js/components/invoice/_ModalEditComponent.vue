@@ -199,7 +199,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-3" v-if="budgetSource.indexOf(header.budget_source) !== -1">
+                            <div class="col-md-3" v-if="budgetSource.indexOf(header.budget_source) !== -1 && temp.split_flag != 'Y'">
                                 <div class="form-group text-left" style="padding: 5px;">
                                     <label class="control-label">
                                         <strong> เลขที่ใบเสร็จรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
@@ -709,6 +709,37 @@
             },
             cancel() {
                 $('.modal-edit'+this.index).modal('hide');
+                var form = $('.edit-form'+this.index);
+                this.errors.supplier_detail = false;
+                this.errors.supplier_bank = false;
+                this.errors.budget_plan = false;
+                this.errors.budget_type = false;
+                this.errors.expense_type = false;
+                this.errors.amount = false;
+                this.errors.remaining_receipt = false;
+                this.errors.ar_receipt_number = false;
+                this.errors.segment2 = false;
+                this.errors.segment3 = false;
+                this.errors.segment6 = false;
+                this.errors.segment7 = false;
+                this.errors.segment9 = false;
+                this.errors.segment10 = false;
+                this.errors.segment11 = false;
+                $(form).find("div[id='_el_explode_supplier_detail']").html("");
+                $(form).find("div[id='_el_explode_supplier_bank']").html("");
+                $(form).find("div[id='_el_explode_budget_plan']").html("");
+                $(form).find("div[id='_el_explode_budget_type']").html("");
+                $(form).find("div[id='_el_explode_expense_type']").html("");
+                $(form).find("div[id='_el_explode_amount']").html("");
+                $(form).find("div[id='_el_explode_remaining_receipt']").html("");
+                $(form).find("div[id='_el_explode_ar_receipt_number']").html("");
+                $(form).find("div[id='_el_explode_acc_2']").html("");
+                $(form).find("div[id='_el_explode_acc_3']").html("");
+                $(form).find("div[id='_el_explode_acc_6']").html("");
+                $(form).find("div[id='_el_explode_acc_7']").html("");
+                $(form).find("div[id='_el_explode_acc_9']").html("");
+                $(form).find("div[id='_el_explode_acc_10']").html("");
+                $(form).find("div[id='_el_explode_acc_11']").html("");
             },
             setError(ref_name){
                 let ref =  this.$refs[ref_name].$refs.referenceRef

@@ -37,6 +37,11 @@ class InvoiceController extends Controller
         $invoices = InvoiceHeader::search(request()->all())
                                     ->with(['user.hrEmployee', 'supplier'])
                                     ->byRelatedUser()
+                                    ->when(request()->remaining_receipt_number, function ($query) {
+                                        $query->whereHas('lines', function ($q) {
+                                            $q->where('remaining_receipt_number', 'like', request()->remaining_receipt_number.'%');
+                                        });
+                                    })
                                     ->orderByRaw('invoice_number desc, invoice_date desc, voucher_number desc')
                                     ->paginate(25);
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();

@@ -171,7 +171,7 @@
                             />
                         </div>
                     </div>
-                    <div class="col-md-3" v-if="budgetSource.indexOf(header.budget_source) !== -1">
+                    <div class="col-md-3" v-if="budgetSource.indexOf(header.budget_source) !== -1 && header.invoice_type == 'STANDARD'">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
                                 <strong> ใบโอนล้างถึงที่สุด (บอ.) </strong>
@@ -179,9 +179,10 @@
                             <yesnoType
                                 :setData="header.final_judgment"
                                 :error="errors.final_judgment"
-                                :editFlag="true"
+                                :editFlag="header.invoice_type == 'STANDARD'? true: false"
                                 @setFinalJudgment="setFinalJudgment"
                             ></yesnoType>
+                            <div id="el_explode_final_judgment" class="text-danger text-left"></div>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -226,6 +227,12 @@
                         <strong> ข้อมูลรายการขอเบิก </strong>
                     </div>
                 </div>
+                <template v-if="error_index.length">
+                    <el-alert
+                        title="กรุณาตรวจสอบรายการคืนเงินยืม ต้องระบุเลขที่ใบเสร็จรับเงิน" type="error" show-icon>
+                    </el-alert>
+                    <br>
+                </template>
                 <!-- TABLE LINE LISTS-->
                 <div class="table-responsive" style="max-height: 600px;">
                     <table class="table text-nowrap table-hover">
@@ -262,6 +269,7 @@
                                 :attribute="row"
                                 :header="header"
                                 :defaultSetName="defaultSetName"
+                                :errorIndex="error_index.includes(index)"
                                 @updateRow="updateRow"
                                 @copyRow="copyRow"
                                 @removeRow="removeRow"
@@ -333,11 +341,14 @@
                     payment_method: false,
                     payment_term: false,
                     header_desc: false,
+                    final_judgment: false,
                 },
                 loading: false,
                 header: this.invoice,
                 linelists: this.invoice.lines,
                 confirm_flag: false,
+                error_index: [],
+                isFinal: '',
             };
         },
         mounted(){
@@ -412,7 +423,28 @@
                 this.header.currency = res.currency;
             },
             setFinalJudgment(res){
-                this.header.final_judgment = res.final_judgment;
+                let vm = this;
+                vm.header.final_judgment = res.final_judgment;
+                if(vm.header.final_judgment){
+                    axios.get('/OAGWXP/api/invoice/check-final-judgment/'+vm.linelists[0].remaining_receipt_id)
+                    .then(function (res) {
+                        vm.isFinal = res.data;
+                        if(vm.isFinal != 0){
+                            vm.header.final_judgment = '';
+                            if (vm.header.budget_source == 510 && vm.header.invoice_type == 'STANDARD'){
+                                Swal.fire({
+                                    title: "แจ้งเตือน",
+                                    html: "ระบบอนุญาตให้เลือก <b>ใช่</b> ได้เพียงหนึ่งครั้ง กรุณาตรวจสอบข้อมูล",
+                                    icon: "warning",
+                                    showCancelButton: false,
+                                    confirmButtonColor: "#3085d6",
+                                    confirmButtonText: "ตกลง",
+                                    allowOutsideClick: false
+                                });
+                            }
+                        }
+                    }.bind(vm));
+                }
             },
             updateRow(response){
                 var vm = this;
@@ -535,16 +567,19 @@
                 var form = $('#edit-form');
                 let errorMsg = '';
                 let valid = true;
+                vm.error_index = [];
                 vm.errors.invoice_date = false;
                 vm.errors.currency = false;
                 vm.errors.invoice_date = false;
                 vm.errors.payment_term = false;
                 vm.errors.header_desc = false;
+                vm.errors.final_judgment = false;
                 $(form).find("div[id='el_explode_invoice_date']").html(errorMsg);
                 $(form).find("div[id='el_explode_currency']").html(errorMsg);
                 $(form).find("div[id='el_explode_payment_method']").html(errorMsg);
                 $(form).find("div[id='el_explode_payment_term']").html(errorMsg);
                 $(form).find("div[id='el_explode_header_desc']").html(errorMsg);
+                $(form).find("div[id='el_explode_final_judgment']").html(errorMsg);
                 if (vm.header.currency == '' || vm.header.currency == null) {
                     vm.errors.currency = true;
                     valid = false;
@@ -568,6 +603,14 @@
                     valid = false;
                     errorMsg = "กรุณากรอกคำอธิบาย";
                     $(form).find("div[id='el_explode_header_desc']").html(errorMsg);
+                }
+                if (vm.header.budget_source == 510 && vm.header.invoice_type == 'STANDARD' && vm.isFinal == 0){
+                    if (vm.header.final_judgment == '' || vm.header.final_judgment == null){ 
+                        vm.errors.final_judgment = true;
+                        valid = false;
+                        errorMsg = "กรุณาระบุใบโอนล้างถึงที่สุด (บอ.)";
+                        $(form).find("div[id='el_explode_final_judgment']").html(errorMsg);
+                    }
                 }
                 // if (vm.header.total_amount != vm.totalApply) {
                 //     valid = false;
@@ -598,15 +641,7 @@
                     if (item.split_flag == 'Y') {
                         if (item.ar_receipt_number == '' || item.ar_receipt_number == null) {
                             valid = false;
-                            Swal.fire({
-                                title: "มีข้อผิดพลาด",
-                                text: 'กรุณาตรวจสอบรายการคืนเงินยืม ต้องระบุเลขที่ใบเสร็จรับเงิน',
-                                icon: "error",
-                                showCancelButton: false,
-                                confirmButtonColor: "#3085d6",
-                                confirmButtonText: "ตกลง",
-                                allowOutsideClick: false
-                            });
+                            this.error_index.push(index);
                         }
                     }
                 });
