@@ -38,7 +38,8 @@ class InterfaceController extends Controller
     public function fetchJournalInterface()
     {
         $interfaces = GLJournalInterface::search(request())
-                        ->selectRaw('distinct reference2, web_batch_no, creation_date, interface_status, interface_msg, default_effective_date')
+                        ->selectRaw('distinct reference2, web_batch_no, default_effective_date, interface_status, interface_msg')
+                        ->where('user_je_category_name', 'เงินเดือน')
                         ->orderByRaw('default_effective_date desc, reference2 desc')
                         ->get();
         $perPage = 25;
@@ -61,8 +62,8 @@ class InterfaceController extends Controller
     public function fetchEncumbranceInterface()
     {
         $interfaces = GLBudgetReservations::search(request())
-                        ->selectRaw('distinct reserve_date, reserve_type, description, batch_no, reserve_status, error_msg')
-                        ->orderByRaw('reserve_date desc')
+                        ->selectRaw('distinct trunc(reserve_date) as reserve_date, reserve_type, batch_no, reserve_status, error_msg')
+                        ->orderByRaw('reserve_date desc, reserve_type desc')
                         ->get();
         $perPage = 25;
         $currPage = (int)request()->page;

@@ -14,7 +14,7 @@
             {{ line.bank_account_number }}
         </td>
         <td style="padding-top: 5px">
-            <div class="row text-center" style="border-collapse: collapse; width: 100px; display:inline-block; flex-direction: row;">
+            <div class="row text-center" style="border-collapse: collapse; width: 60px; display:inline-block; flex-direction: row;">
                 <modalEditComp :key="index"
                     :index="index"
                     :requisition="requisition"
@@ -25,9 +25,9 @@
                 <!-- <button type="button" @click.prevent="copy(index)" class="btn btn-sm btn-primary m-1" style="">
                     คัดลอก
                 </button> -->
-                <button v-if="line.split_flag == 'Y'" type="button" @click.prevent="remove(index)" class="btn btn-sm btn-danger m-1" style="">
+                <!-- <button v-if="line.split_flag == 'Y'" type="button" @click.prevent="remove(index)" class="btn btn-sm btn-danger m-1" style="">
                     ลบรายการ
-                </button>
+                </button> -->
             </div>
         </td>
     </tr>

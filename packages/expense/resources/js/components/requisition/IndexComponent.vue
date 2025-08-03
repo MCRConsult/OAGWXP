@@ -144,7 +144,7 @@
                                         <div style="width: 120px;"> จำนวนเงิน </div>
                                     </th>
                                     <th class="text-center sticky-col">
-                                        <div style="width: 100px;"> สถานะ </div>
+                                        <div style="width: 70px;"> สถานะ </div>
                                     </th>
                                     <th class="text-center sticky-col">
                                         <div style="width: 60px;"> </div>
@@ -184,11 +184,11 @@
                                         <td class="text-center text-nowrap" style="vertical-align: middle;">
                                             {{ numberFormat(requisition.total_amount) }}
                                         </td>
-                                        <td class="text-center text-nowrap" style="vertical-align: middle;">
+                                        <td class="text-center p-0" style="vertical-align: middle; width: 60px;">
                                             <div v-html="requisition.status_icon"></div>
                                         </td>
-                                        <td class="text-center text-nowrap" style="vertical-align: middle;">
-                                            <div style="border-collapse: collapse; width: 150px; display:inline-block; flex-direction: row;">
+                                        <td class="text-center text-nowrap p-0" style="vertical-align: middle;">
+                                            <div style="border-collapse: collapse; width: 180px; display:inline-block; flex-direction: row;">
                                                 <template v-if="requisition.invoice
                                                     && requisition.status == 'INTERFACED'
                                                     && (requisition.clear_reference_id == null || requisition.clear_reference_id == '')

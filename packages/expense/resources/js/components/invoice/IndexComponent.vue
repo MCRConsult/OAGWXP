@@ -188,7 +188,7 @@
                                             <div v-html="invoice.status_icon"></div>
                                         </td>
                                         <td class="text-center text-nowrap" style="vertical-align: middle;">
-                                            <div style="border-collapse: collapse; width: 50px; display:inline-block; flex-direction: row;">
+                                            <div style="border-collapse: collapse; width: 60px; display:inline-block; flex-direction: row;">
                                                 <template v-if="invoice.status == 'CANCELLED'
                                                     || invoice.status == 'INTERFACED'
                                                     || invoice.status == 'ERROR'">

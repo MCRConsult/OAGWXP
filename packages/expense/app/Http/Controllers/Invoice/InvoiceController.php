@@ -42,7 +42,7 @@ class InvoiceController extends Controller
                                             $q->where('remaining_receipt_number', 'like', request()->remaining_receipt_number.'%');
                                         });
                                     })
-                                    ->orderByRaw('invoice_number desc, invoice_date desc, voucher_number desc')
+                                    ->orderByRaw('invoice_date desc, invoice_number desc, voucher_number desc')
                                     ->paginate(25);
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
         $statuses = ['NEW'          => 'ขอเบิก'

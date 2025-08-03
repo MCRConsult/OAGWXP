@@ -5,6 +5,7 @@ namespace Packages\expense\app\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 use Packages\expense\app\Models\InvoiceInterfaceHeader;
 use Packages\expense\app\Models\GLJournalInterface;
@@ -17,14 +18,28 @@ class InterfaceLogController extends Controller
         $interfaceInvoices = InvoiceInterfaceHeader::search(request())
                         ->orderByRaw('creation_date desc, invoice_num desc')
                         ->paginate(25);
-        $interfaceJournals = GLJournalInterface::search(request())
-                        ->selectRaw('distinct reference2, web_batch_no, creation_date, interface_status, interface_msg, default_effective_date')
+
+        $interfaceJournals = GLJournalInterface::selectRaw('distinct reference2, web_batch_no, default_effective_date, interface_status, interface_msg')
+                        ->search(request())
+                        ->where('user_je_category_name', 'เงินเดือน')
                         ->orderByRaw('default_effective_date desc, reference2 desc')
-                        ->paginate(25);
+                        ->get();
+        $perPage = 25;
+        $currPage = (int)request()->page;
+        $interfaceJournals = collect($interfaceJournals)->all();
+        $interfaceJournals = new LengthAwarePaginator(
+            array_slice($interfaceJournals, ($currPage - 1) * $perPage, $perPage),
+            count($interfaceJournals), 
+            $perPage,
+            $currPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
         $interfaceEncumbrances = GLBudgetReservations::search(request())
-                        ->selectRaw('distinct reserve_date, reserve_type, description, batch_no, reserve_status, error_msg')
-                        ->orderByRaw('reserve_date desc')
+                        ->selectRaw('distinct trunc(reserve_date) reserve_date, reserve_type, batch_no, reserve_status, error_msg')
+                        ->orderByRaw('reserve_date desc, reserve_type desc')
                         ->paginate(25);
+
         $statuses = ['All'   => 'ทั้งหมด'
                     , 'S'    => 'ตั้งเบิก'
                     , 'E'    => 'ตั้งเบิกไม่สำเร็จ'];
