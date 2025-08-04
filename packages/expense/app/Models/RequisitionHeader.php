@@ -78,13 +78,13 @@ class RequisitionHeader extends Model
 
     public function scopeByRelatedUser($query)
     {
-        // $user = \Auth::user();
-        // $orgName = explode('_', $user->organizationV->name);
-
-        // return $query->where('document_category', 'like', '%'.$orgName[0].'%');
-
         $user = \Auth::user();
-        return $query->where('created_by', $user->id);
+        $orgName = explode('_', $user->organizationV->name);
+
+        return $query->where('document_category', 'like', '%'.$orgName[0].'%');
+
+        // $user = \Auth::user();
+        // return $query->where('created_by', $user->id);
     }
 
     public function getIsEnterAttribute($userId = null)
