@@ -120,8 +120,12 @@ class InvoiceHeader extends Model
     
     public function scopeByRelatedUser($query)
     {
+        // $user = \Auth::user();
+        // return $query->where('created_by', $user->id);
         $user = \Auth::user();
-        return $query->where('created_by', $user->id);
+        $orgName = explode('_', $user->organizationV->name);
+
+        return $query->where('document_category', 'like', '%'.$orgName[0].'%');
     }
 
     public function getStatusIconAttribute()
