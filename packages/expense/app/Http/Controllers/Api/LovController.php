@@ -600,6 +600,7 @@ class LovController extends Controller
     public function getReceipt(Request $request)
     {
         $user = auth()->user();
+        $supplier = $request->supplier;
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
         $receipts = ARReceiptNumberAllV::where('org_id', $user->org_id)
                         ->when($keyword, function ($query, $keyword) {
@@ -608,7 +609,12 @@ class LovController extends Controller
                                 ->orWhereRaw('UPPER(cash_receipt_id) like ?', [strtoupper($keyword).'%']);
                             });
                         })
-                        ->orderBy('receipt_number')
+                        ->when($supplier, function ($query, $supplier) {
+                            return $query->where(function($r) use ($supplier) {
+                                $r->whereRaw('UPPER(customer_name) like ?', ['%'.strtoupper($supplier).'%']);
+                            });
+                        })
+                        ->orderByRaw('receipt_date desc')
                         ->limit(50)
                         ->get();
 
@@ -658,8 +664,10 @@ class LovController extends Controller
 
     public function getWht(Request $request)
     {
+        $user = auth()->user();
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
         $whts = WHT::selectRaw('tax_id, name, description, tax_rates')
+                ->where('org_id', $user->org_id)
                 ->when($keyword, function ($query, $keyword) {
                     return $query->where(function($r) use ($keyword) {
                         $r->WhereRaw('UPPER(name) like ?', [strtoupper($keyword).'%'])
@@ -671,6 +679,7 @@ class LovController extends Controller
                 ->get();
 
         $wht = WHT::selectRaw('tax_id, name, description, tax_rates')
+                ->where('org_id', $user->org_id)
                 ->when($keyword, function ($query, $keyword) {
                     return $query->where(function($r) use ($keyword) {
                         $r->WhereRaw('UPPER(name) like ?', [strtoupper($keyword).'%'])

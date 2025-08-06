@@ -43,7 +43,7 @@ class InvoiceController extends Controller
                                         });
                                     })
                                     ->orderByRaw('invoice_date desc, invoice_number desc, voucher_number desc')
-                                    ->paginate(25);
+                                    ->paginate(50);
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
         $statuses = ['NEW'          => 'ขอเบิก'
                     , 'INTERFACED'  => 'ตั้งเบิก'
@@ -276,7 +276,7 @@ class InvoiceController extends Controller
                         $lineTemp->req_receipt_date         = $line->receipt_date? date('Y-m-d', strtotime($line->receipt_date)): '';
                         $lineTemp->remaining_receipt_flag   = $line->remaining_receipt_flag;
                         $lineTemp->remaining_receipt_id     = $line->remaining_receipt_id;
-                        $lineTemp->remaining_receipt_number = $line->remaining_receipt_number;
+                        $lineTemp->remaining_receipt_number = $line->split_flag == 'Y'? optional($line->clearLine)->remaining_receipt_number: $line->remaining_receipt_number;
                         $lineTemp->split_flag               = $line->split_flag;
                         $lineTemp->reference_req_number     = $requisition->req_number;
                         $lineTemp->origin_amount            = $header->clear_flag == 'Y'? $line->actual_amount: $line->amount;

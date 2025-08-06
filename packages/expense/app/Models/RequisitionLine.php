@@ -16,6 +16,11 @@ class RequisitionLine extends Model
         return $this->hasOne(RequisitionHeader::class, 'id', 'req_header_id');
     }
 
+    public function clearLine()
+    {
+        return $this->hasOne(self::class, 'id', 'clear_reference_line_id');
+    }
+
     public function supplier()
     {
         return $this->hasOne(Supplier::class, 'vendor_id', 'supplier_id');

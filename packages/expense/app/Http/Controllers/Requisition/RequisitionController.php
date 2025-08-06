@@ -44,8 +44,8 @@ class RequisitionController extends Controller
                                     ->with(['user.hrEmployee', 'invoiceType', 'invoice', 'clear', 'invoiceStatus'])
                                     ->byRelatedUser()
                                     ->whereNotNull('req_number')
-                                    ->orderBy('req_number', 'desc')
-                                    ->paginate(25);
+                                    ->orderByRaw('req_date desc, req_number desc')
+                                    ->paginate(50);
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
         $statuses = ['COMPLETED'        => 'รอเบิกจ่าย'
                     , 'PENDING'         => 'รอจัดสรร'
@@ -272,6 +272,7 @@ class RequisitionController extends Controller
                 }
             }
             $requisition->save();
+            \DB::commit();
 
             foreach ($lines as $key => $line) {
                 if (is_null($line['split_flag']) || $requisition->status != 'WAITING_CLEAR') {

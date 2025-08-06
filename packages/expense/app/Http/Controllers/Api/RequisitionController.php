@@ -18,10 +18,9 @@ class RequisitionController extends Controller
 {
     public function getRequisition(Request $request)
     {
-        $user = auth()->user();
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
         $reqNumber = RequisitionHeader::selectRaw('distinct req_number')
-                        ->where('requester', $user->id)
+                        ->byRelatedUser()
                         ->when($keyword, function ($query, $keyword) {
                             return $query->where(function($r) use ($keyword) {
                                 $r->whereRaw('UPPER(req_number) like ?', ['%'.strtoupper($keyword).'%']);
@@ -38,7 +37,9 @@ class RequisitionController extends Controller
     {
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
         $invNumber = InvoiceHeader::selectRaw('distinct invoice_number')
-                        ->whereHas('requisition')
+                        ->whereHas('requisition', function ($query) {
+                            $query->byRelatedUser();
+                        })
                         ->when($keyword, function ($query, $keyword) {
                             return $query->where(function($r) use ($keyword) {
                                 $r->whereRaw('UPPER(invoice_number) like ?', ['%'.strtoupper($keyword).'%']);
@@ -79,7 +80,7 @@ class RequisitionController extends Controller
                                     ->with(['user.hrEmployee', 'invoiceType', 'invoice', 'clear', 'invoiceStatus'])
                                     ->byRelatedUser()
                                     ->whereNotNull('req_number')
-                                    ->orderBy('req_number', 'desc')
+                                    ->orderByRaw('req_date desc, req_number desc')
                                     ->get();
         $perPage = 25;
         $currPage = (int)request()->page;

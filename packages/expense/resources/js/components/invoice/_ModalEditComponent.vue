@@ -127,6 +127,7 @@
                                     </label><br>
                                     <arReceipt
                                         :setData="temp.ar_receipt_id"
+                                        :supplier="temp.supplier_name"
                                         :editFlag="true"
                                         :error="errors.ar_receipt_number"
                                         @setArReceipt="setArReceipt"
