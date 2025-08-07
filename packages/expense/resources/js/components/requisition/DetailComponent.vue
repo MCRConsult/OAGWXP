@@ -1,6 +1,6 @@
 <template>
     <div>
-        <button class="btn btn-outline-secondary" type="button" data-toggle="collapse" @click.prevent="openModal()">
+        <button class="btn btn-detail" type="button" data-toggle="collapse" @click.prevent="openModal()">
             [รายละเอียดเพิ่มเติม]
         </button>
         <div id="modal-detail" class="modal fade" aria-labelledby="myModalLabel" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">

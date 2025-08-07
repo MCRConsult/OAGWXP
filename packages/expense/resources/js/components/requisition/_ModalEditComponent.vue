@@ -918,9 +918,18 @@
             },
             setBudgetPlan(res){
                 this.temp.budget_plan = res.budget_plan;
+                if (res.budget_plan == '' || res.budget_plan == null) {
+                    this.temp.budget_type = '';
+                    this.temp.expense_type = '';
+                }
             },
             setBudgetType(res){
                 this.temp.budget_type = res.budget_type;
+                if (res.budget_type == '' || res.budget_type == null) {
+                    this.temp.expense_type = '';
+                    this.temp.expense_account = '';
+                    this.temp.description = '';
+                }
             },
             setContract(res){
                 this.temp.contract_number = res.contract;
@@ -931,6 +940,7 @@
                 // GET EXPENSE ACCOUNT WHEN CHOOSE EXPENSE_TYPE
                 if(this.temp.expense_type == null || this.temp.expense_type == ''){
                     this.temp.expense_account = '';
+                    this.temp.description = '';
                 }else if(this.temp.expense_type != this.line.expense_type){
                     this.getExpenseAccount();
                     this.temp.description = res.expense_description;

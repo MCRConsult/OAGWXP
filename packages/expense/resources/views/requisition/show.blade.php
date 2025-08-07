@@ -184,7 +184,7 @@
                                     <td class="text-center" style="vertical-align: middle;"> {{ $line->supplier_name }} </td>
                                     <td class="text-center" style="vertical-align: middle;"> {{ $line->bank_account_number }} </td>
                                     <td class="text-center" style="vertical-align: middle;">
-                                        <button type="button" class="btn btn-light btn-sm" data-toggle="modal"
+                                        <button type="button" class="btn btn-detail btn-sm" data-toggle="modal"
                                             data-target=".detail_{{ $line->id }}">
                                             รายละเอียด
                                         </button>

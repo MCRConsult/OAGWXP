@@ -1208,6 +1208,25 @@
                     errorMsg = "กรุณากรอกคำอธิบาย";
                     $(form).find("div[id='el_explode_header_desc']").html(errorMsg);
                 }
+                if (vm.requisition.multiple_supplier == 'ONE') {
+                    let uniqueSupplier = vm.linelists.filter((req, index, self) =>
+                        index === self.findIndex(u => u.supplier_id === req.supplier_id)
+                    )
+                    if (uniqueSupplier.length > 1) {
+                      valid = false;
+                        Swal.fire({
+                            title: "แจ้งเตือน",
+                            html: "<span style='line-height: 35px;'> กรณีเลือกผู้สั่งจ่ายเป็นรายเดียว ไม่สามารถระบุข้อมูลรายการที่มีผู้สั่งจ่ายมากกว่า 1 ได้ กรุณาตรวจสอบ </span>",
+                            text: '',
+                            icon: "warning",
+                            showCancelButton: false,
+                            confirmButtonColor: "#3085d6",
+                            confirmButtonText: "ตกลง",
+                            allowOutsideClick: false
+                        });
+                    }
+                }
+
                 if (vm.totalApply < 0) {
                     valid = false;
                     Swal.fire({

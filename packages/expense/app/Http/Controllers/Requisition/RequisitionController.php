@@ -261,8 +261,12 @@ class RequisitionController extends Controller
             $requisition->description               = $header['description'];
             $requisition->updated_by                = $user->id;
             $requisition->updation_by               = $user->person_id;
+            $requisition->save();
+            \DB::commit();
+            // UPDATE REFERNCE HEADER ID
             if ($header['clear_flag'] == 'Y' && is_null($requisition->req_number)) {
                 $requisition->req_number            = (new RequisitionHeader)->genDocumentNo($user->org_id, $prefixReq[0]);
+                $requisition->save();
                 // UPDATE REF CLEAR REQUISITION
                 if (isset($request->refRequisition)) {
                     $refRequisition = RequisitionHeader::findOrFail($request->refRequisition);
@@ -271,8 +275,6 @@ class RequisitionController extends Controller
                     $refRequisition->save();
                 }
             }
-            $requisition->save();
-            \DB::commit();
 
             foreach ($lines as $key => $line) {
                 if (is_null($line['split_flag']) || $requisition->status != 'WAITING_CLEAR') {

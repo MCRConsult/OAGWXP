@@ -112,3 +112,16 @@ body {
   background-color: #7b954d;
   border-color: #7b954d;
 }
+
+.btn-detail {
+  color: #fff;
+  background-color: #ff7d29;
+  border-color: #ff7d29;
+}
+
+.btn-detail:hover {
+  color: #fff;
+  background-color: #eb5c00;
+  border-color: #eb5c00;
+}
+
