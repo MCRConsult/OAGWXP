@@ -51,8 +51,8 @@
                     <th width="4%" style="font-size: 15px; text-align: center; border: 0.5px solid #000000; vertical-align: middle; padding: 1px;">
                         เงินยืม
                     </th>
-                    <th width="4.5%" style="font-size: 15px; text-align: center; border: 0.5px solid #000000; vertical-align: middle; padding: 1px;">
-                        เงินยืม
+                    <th width="4%" style="font-size: 15px; text-align: center; border: 0.5px solid #000000; vertical-align: middle; padding: 1px;">
+                        ล้างบัญชี
                     </th>
                 </tr>
             </thead>
