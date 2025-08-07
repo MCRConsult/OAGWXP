@@ -1,5 +1,5 @@
 <div class="modal fade detail_{{ $line->id }}" id="detail" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title"> รายละเอียดเพิ่มเติม </h4>
@@ -7,94 +7,131 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="padding: 1.5rem;">
                 <form id='detail-form'>
                     <div class="row">
                         <div class="col-md-3">
-                            <div class="form-group" style="padding: 5px;">
-                                <label class="control-label">
-                                    <strong> ทะเบียนรถยนต์ </strong>
+                            <div class="form-group text-left" style="padding: 5px;">
+                                <label class="control-label" style="margin-bottom: 0.4rem;">
+                                    <strong> ชื่อสั่งจ่าย </strong> &nbsp;
                                 </label><br>
-                                {{ $line->vehicle_number }}
+                                {{ optional($line->supplier)->vendor_name }}
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="form-group" style="padding: 5px;">
+                            <div class="form-group text-left" style="padding: 5px;">
                                 <label class="control-label">
-                                    <strong> เลขที่กรมธรรม์ </strong>
+                                    <strong> เลขที่บัญชีธนาคาร <span class="text-danger"> *</span></strong>
                                 </label><br>
-                                {{ $line->policy_number }}
+                                {{ $line->bank_account_number }}
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="form-group" style="padding: 5px;">
+                            <div class="form-group text-left" style="padding: 5px;">
                                 <label class="control-label">
-                                    <strong> ประเภทน้ำมัน </strong>
+                                    <strong> แผนงาน </strong>
                                 </label><br>
-                                {{ $line->vehicle_oil_type }}
+                                {{ optional($line->budgetPlan)->description }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group text-left" style="padding: 5px;">
+                                <label class="control-label">
+                                    <strong> ประเภทรายจ่าย </strong>
+                                </label><br>
+                                {{ optional($line->budgetType)->description }}
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-3">
-                            <div class="form-group" style="padding: 5px;">
+                            <div class="form-group text-left" style="padding: 5px;">
                                 <label class="control-label">
-                                    <strong> ประเภทค่าสาธารณูปโภค </strong>
+                                    <strong> ประเภทค่าใช้จ่าย </strong>
                                 </label><br>
-                                {{ $line->utility_type }}
+                                {{ optional($line->expense)->description }}
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="form-group" style="padding: 5px;">
+                        <div class="col-md-9">
+                            <div class="form-group text-left" style="padding: 5px;">
                                 <label class="control-label">
-                                    <strong> อาคาร/รหัสลูกค้า/ธพส. </strong>
+                                    <strong> รายการบัญชี </strong>
                                 </label><br>
-                                {{ $line->utility_detail }}
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group" style="padding: 5px;">
-                                <label class="control-label">
-                                    <strong> เลขที่ใบแจ้งหนี้ </strong>
-                                </label><br>
-                                {{ $line->invoice_number }}
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group" style="padding: 5px;">
-                                <label class="control-label">
-                                    <strong> วันที่ใบแจ้งหนี้ </strong>
-                                </label><br>
-                                {{ date('d-m-Y', strtotime($line->invoice_date)) }}
+                                {{ $line->expense_account }}
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-3">
-                            <div class="form-group" style="padding: 5px;">
+                            <div class="form-group text-left" style="padding: 5px;">
                                 <label class="control-label">
-                                    <strong> จำนวนหน่วยที่ใช้ </strong>
+                                    <strong> จำนวนเงิน <span class="text-danger"> * </span></strong>
                                 </label><br>
-                                {{ $line->unit_quantity }}
+                                {{ number_format($line->amount, 2) }}
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="form-group" style="padding: 5px;">
+                            <div class="form-group text-left" style="padding: 5px;">
                                 <label class="control-label">
-                                    <strong> วันที่รับ </strong>
+                                    <strong> เลขที่ใบเสร็จรับเงิน </strong>
                                 </label><br>
-                                {{ date('d-m-Y', strtotime($line->receipt_date)) }}
+                                {{ optional($line->arReceipt)->receipt_number ?? '-' }}
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="form-group" style="padding: 5px;">
+                            <div class="form-group text-left" style="padding: 5px;">
                                 <label class="control-label">
-                                    <strong> เลขที่หนังลือ </strong>
+                                    <strong> ภาษีมูลค่าเพิ่ม </strong>
                                 </label><br>
-                                {{ $line->receipt_number }}
+                                {{ optional($line->tax)->tax ?? '-' }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group text-left" style="padding: 5px;">
+                                <label class="control-label">
+                                    <strong> จำนวนเงินภาษีมูลค่าเพิ่ม </strong>
+                                </label><br>
+                                {{ number_format($line->tax_amount, 2) }}
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group text-left" style="padding: 5px;">
+                                <label class="control-label">
+                                    <strong> ภาษีหัก ณ ที่จ่าย </strong>
+                                </label><br>
+                                {{ optional($line->wht)->description ?? '-' }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group text-left" style="padding: 5px;">
+                                <label class="control-label">
+                                    <strong> จำนวนเงินภาษีหัก ณ ที่จ่าย </strong>
+                                </label><br>
+                                {{ number_format($line->wht_amount, 2) }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group text-left" style="padding: 5px;">
+                                <label class="control-label">
+                                    <strong> เลขที่ใบเสร็จรับเงินคงเหลือ </strong>
+                                </label><br>
+                                {{ $line->remaining_receipt_number ?? '-' }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group text-left" style="padding: 5px;">
+                                <label class="control-label">
+                                    <strong> คำอธิบายรายการ </strong>
+                                </label><br>
+                                {{ $line->description }}
+                            </div>
+                        </div>
+                    </div>
+
                 </form>
             </div>
         </div>

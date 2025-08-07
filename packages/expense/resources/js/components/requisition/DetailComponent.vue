@@ -118,23 +118,9 @@
                                 <div class="col-md-3">
                                     <div class="form-group" style="padding: 5px;">
                                         <label class="control-label">
-                                            <strong> เลขที่หนังลือ </strong>
+                                            <strong> เลขที่หนังสือ </strong>
                                         </label><br>
                                         <el-input v-model="line.receipt_number" style="width: 100%;" placeholder=""/>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group" style="padding: 5px;">
-                                        <label class="control-label">
-                                            <strong> เลขที่ใบเสร็จรับเงินคงเหลือ <span class="text-danger" v-if="line.remaining_receipt_flag"> * </span> </strong>
-                                        </label><br>
-                                        <remainingReceipt
-                                            :setData="line.remaining_receipt"
-                                            :editFlag="true"
-                                            :error="error.remaining_receipt"
-                                            @setRemainingReceipt="setRemainingReceipt"
-                                        ></remainingReceipt>
-                                        <div v-if="error.remaining_receipt" class="text-danger text-left"> กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ </div>
                                     </div>
                                 </div>
                             </div>
@@ -158,11 +144,10 @@
     import vehicleOilType from "../lov/vehicleOilType.vue";
     import utilityType from "../lov/UtilityType.vue";
     import utilityDetail from "../lov/UtilityDetail.vue";
-    import remainingReceipt from "../lov/RemainingReceipt.vue";
 
     export default {
         components: {
-            vehicleOilType, utilityType, utilityDetail, remainingReceipt
+            vehicleOilType, utilityType, utilityDetail
         },
         props: ['requisition', 'reqLine', 'errors'],
         data() {
@@ -175,7 +160,6 @@
         mounted() {
         },
         watch: {
-            //
         },
         methods: {
             setError(ref_name){
@@ -212,9 +196,6 @@
             },
             setUtilityDetail(res){
                 this.line.utility_detail = res.utility_detail;
-            },
-            setRemainingReceipt(res){
-                this.line.remaining_receipt = res.remaining_receipt;
             },
         }
     };

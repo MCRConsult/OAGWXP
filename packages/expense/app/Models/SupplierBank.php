@@ -8,5 +8,4 @@ class SupplierBank extends Model
 {
     protected $table = 'oagap_supplier_bank_v';
     protected $connection = 'oracle';
-    // protected $connection = 'oracle_oagwxp';
 }

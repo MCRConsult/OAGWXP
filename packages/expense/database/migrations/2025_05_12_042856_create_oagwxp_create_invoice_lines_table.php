@@ -21,10 +21,12 @@ return new class extends Migration
         Schema::connection('oracle_oagwxp')->create($this->tableName, function (Blueprint $table) {
             $table->increments('id');
             $table->integer('invoice_header_id');
-            $table->integer('seq_no');
+            $table->string('source_type')->nullable();
+            $table->integer('seq_number');
             $table->integer('supplier_id');
             $table->string('supplier_name')->nullable();
-            $table->string('bank_account_number');
+            $table->integer('supplier_site')->nullable();
+            $table->string('bank_account_number')->nullable();
             $table->string('budget_plan');
             $table->string('budget_type');
             $table->string('expense_type');
@@ -42,16 +44,23 @@ return new class extends Migration
             $table->date('req_invoice_date')->nullable();
             $table->string('req_receipt_number')->nullable();
             $table->date('req_receipt_date')->nullable();
+            
             $table->boolean('remaining_receipt_flag')->nullable();
+            $table->integer('remaining_receipt_id')->nullable();
             $table->string('remaining_receipt_number')->nullable();
 
-            $table->string('tax_code')->nullable();
-            $table->string('tax_amount', 18,2)->nullable();
-            $table->string('wht_code')->nullable();
-            $table->string('wht_amount', 18,2)->nullable();
-
+            $table->string('split_flag')->nullable();
             $table->integer('ar_receipt_id')->nullable();
             $table->string('ar_receipt_number')->nullable();
+            $table->string('contract_number')->nullable();
+
+            $table->string('tax_code')->nullable();
+            $table->string('tax_amount', 18,2)->nullable()->default(0);
+            $table->string('wht_code')->nullable();
+            $table->string('wht_amount', 18,2)->nullable()->default(0);
+
+            $table->string('reference_req_number')->nullable();
+            $table->integer('origin_amount', 18,2);
             $table->timestamps();
         });
     }

@@ -11,14 +11,15 @@
             {{ line.supplier_name }}
         </td>
         <td class="text-center">
-            {{ line.supplier_bank }}
+            {{ line.bank_account_number }}
         </td>
         <td style="padding-top: 5px">
-            <div class="row text-center" style="border-collapse: collapse; width: 250px; display:inline-block; flex-direction: row;">
+            <div class="row text-center" style="border-collapse: collapse; width: 150px; display:inline-block; flex-direction: row;">
                 <modalEditComp :key="index"
                     :index="index"
                     :requisition="requisition"
                     :reqLine="line"
+                    :defaultSetName="defaultSetName"
                     @updateRow="updateRow"
                 />
                 <button type="button" @click.prevent="copy(index)" class="btn btn-sm btn-primary m-1" style="">
@@ -40,7 +41,7 @@
         components: {
             modalEditComp
         },
-        props: ['index', 'requisition', 'attribute'],
+        props: ['index', 'requisition', 'attribute', 'defaultSetName'],
         emits: ['updateRow', 'copyRow', 'removeRow'],
         data() {
             return {
@@ -56,6 +57,10 @@
             },
         },    
         methods: {
+            openModal(index){
+                // this.copyDataForEdit();
+                $('.modal-edit'+index).modal('show');
+            },
             numberFormat(value) {
                 if (!value) return "0.00";
                 return numeral(value).format("0,0.00");

@@ -31,14 +31,16 @@ class COAListV extends Model
 
     public function LOVResult($setName, $setValue, $text)
     {
-        $flexValue = self::selectRaw('flex_value, description')
+        $flexValue = self::selectRaw('distinct flex_value, description')
             ->where('flex_value_set_name', $setName)
             ->when($text, function ($query, $text) {
                 return $query->where(function($r) use ($text) {
-                    $r->where('flex_value', 'like', "${text}%")
+                    $r->where('flex_value', 'like', "%${text}%")
                         ->orWhere('description', 'like', "%${text}%");
                 });
             })
+            ->where('summary_flag', 'N')
+            ->where('enabled_flag', 'Y')
             ->orderBy('flex_value')
             ->limit(50)
             ->get();
@@ -58,11 +60,11 @@ class COAListV extends Model
         return $flexValue;
     }
 
-    public function LOVDesc($setName, $setValue, $text)
+    public function LOVDesc($setName, $setValue)
     {
         $flexValue = null;
         if ($setValue) {
-            $flexValue = self::selectRaw('flex_value, description')
+            $flexValue = self::selectRaw('distinct flex_value, description')
                 ->where('flex_value_set_name', $setName)
                 ->where('flex_value', $setValue)
                 ->orderBy('flex_value')

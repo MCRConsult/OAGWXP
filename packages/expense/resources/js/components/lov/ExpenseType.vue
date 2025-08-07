@@ -28,7 +28,7 @@
 <script>
 export default {
     props: [
-        'parent', 'setData', 'error', 'editFlag'
+        'parent', 'setData', 'budgetSource', 'error', 'editFlag'
     ],
     data () {
         return {
@@ -40,7 +40,7 @@ export default {
     mounted() {
         this.loading = true;
         this.value = this.setData;
-        // this.getDataRows(this.value);
+        this.getDataRows(this.value);
     },
     watch: {
         parent() {
@@ -64,9 +64,10 @@ export default {
     methods: {
         getDataRows (query) {
             this.loading = true;
-            axios.get(`/expense/api/get-expense-type`, {
+            axios.get(`/OAGWXP/api/get-expense-type`, {
                 params: {
                     parent: this.parent,
+                    budget_source: this.budgetSource,
                     keyword: query
                 }
             })

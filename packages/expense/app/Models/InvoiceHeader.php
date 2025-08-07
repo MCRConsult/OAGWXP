@@ -7,16 +7,22 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 use App\Models\User;
+use App\Models\OrganizationV;
 
 class InvoiceHeader extends Model
 {
     protected $table = 'oagwxp_invoice_headers';
     protected $connection = 'oracle_oagwxp';
-    protected $appends = ['status_text', 'status_icon', 'invoice_date_format', 'clear_date_format'];
+    protected $appends = ['status_text', 'status_icon', 'invoice_date_format', 'clear_date_format', 'is_enter'];
 
     public function user()
     {
         return $this->hasOne(User::class, 'id', 'created_by');
+    }
+
+    public function organizationV()
+    {
+        return $this->hasOne(OrganizationV::class, 'organization_id', 'org_id');
     }
 
     public function lines()
@@ -24,9 +30,61 @@ class InvoiceHeader extends Model
         return $this->hasMany(InvoiceLine::class, 'invoice_header_id');
     }
 
+    public function requisition()
+    {
+        return $this->hasOne(RequisitionHeader::class, 'invoice_reference_id', 'id');
+    }
+
+    // FOR INTERFACE
+    public function requisitions()
+    {
+        return $this->hasMany(RequisitionHeader::class, 'invoice_reference_id', 'id');
+    }
+
     public function invoiceType()
     {
         return $this->hasOne(InvoiceType::class, 'lookup_code', 'invoice_type');
+    }
+
+    public function supplier()
+    {
+        return $this->hasOne(Supplier::class, 'vendor_id', 'supplier_id');
+    }
+
+    public function supplierSite()
+    {
+        return $this->hasOne(SupplierSite::class, 'vendor_id', 'supplier_id');
+    }
+
+    public function paymentMethod()
+    {
+        return $this->hasOne(PaymentMethod::class, 'payment_method_code', 'payment_method')->select('description');
+    }
+
+    public function paymentTerm()
+    {
+        return $this->hasOne(PaymentTerm::class, 'term_id', 'payment_term')->select('description');
+    }
+
+    public function receipt()
+    {
+        return $this->hasOne(MappingAutoInvoiceV::class, 'req_number', 'invoice_number');
+    }
+
+    public function finalJudgment()
+    {
+        return $this->hasOne(FlexValueV::class, 'flex_value', 'final_judgment')
+                ->where('flex_value_set_name', 'OAG_VALUE_SET_Y_N')
+                ->select('description');
+    }
+
+    public function getIsEnterAttribute($userId = null)
+    {
+        if(!$userId)
+        $user = \Auth::user();
+        $perms = $user->permissions->pluck('perm_code')->toArray();
+
+        return in_array('invoice_enter', $perms);
     }
 
     public function getInvRef($invType)
@@ -59,6 +117,16 @@ class InvoiceHeader extends Model
     {
         return false;
     }
+    
+    public function scopeByRelatedUser($query)
+    {
+        // $user = \Auth::user();
+        // return $query->where('created_by', $user->id);
+        $user = \Auth::user();
+        $orgName = explode('_', $user->organizationV->name);
+
+        return $query->where('document_category', 'like', '%'.$orgName[0].'%');
+    }
 
     public function getStatusIconAttribute()
     {
@@ -75,18 +143,11 @@ class InvoiceHeader extends Model
         $status = $this->status;
         $result = "";
         switch ($status) {
-            case "DISBURSEMENT":
-                $result = 'รอเบิกจ่าย';
-                break;
-            case "ALLOCATE":
-                $result = 'รอจัดสรร';
-                break;
-            case "CANCELLED":
-                $result = 'ยกเลิก';
-                break;
-            default:
-                $result = 'รายการใหม่';
-                break;
+            case "NEW": $result = 'ขอเบิก'; break;
+            case "INTERFACED": $result = 'ตั้งเบิก'; break;
+            case "ERROR": $result = 'ตั้งเบิกไม่สำเร็จ'; break;
+            case "CANCELLED": $result = 'ยกเลิก'; break;
+            default: $result = 'รายการใหม่'; break;
         }
         return $result;
     }
@@ -96,17 +157,20 @@ class InvoiceHeader extends Model
         $status = $this->status;
         $result = "";
         switch ($status) {
-            case "DISBURSEMENT":
-                $result = "<span class='badge badge-success' style='padding: 5px;'> รอเบิกจ่าย </span>";
+            case "NEW":
+                $result = "<span class='badge badge-primary' style='padding: 5px; background-color: #38ca8c; color: fff;'> ขอเบิก </span>";
                 break;
-            case "ALLOCATE":
-                $result = "<span class='badge badge-warning' style='padding: 5px;'> รอจัดสรร </span>";
+            case "INTERFACED":
+                $result = "<span class='badge badge-primary' style='padding: 5px; color: fff;'> ตั้งเบิก </span>";
+                break;
+            case "ERROR":
+                $result = "<span class='badge badge-danger' style='padding: 5px; background-color: #e3302f; color: fff;'> ตั้งเบิกไม่สำเร็จ </span>";
                 break;
             case "CANCELLED":
-                $result = "<span class='badge badge-danger' style='padding: 5px;'> ยกเลิก </span>";
+                $result = "<span class='badge badge-danger' style='padding: 5px; color: fff;'> ยกเลิก </span>";
                 break;
             default:
-                $result = "<span class='badge badge-secondary' style='padding: 5px;'> รายการใหม่ </span>";
+                $result = "<span class='badge badge-secondary' style='padding: 5px; color: fff;'> รายการใหม่ </span>";
                 break;
         }
         return $result;
@@ -124,19 +188,45 @@ class InvoiceHeader extends Model
 
     public function scopeSearch($q, $search)
     {
-        $cols = ['invoice_number', 'invoice_type', 'status'];
+        $cols = ['invoice_number', 'voucher_number', 'invoice_type', 'status'];
         foreach ($search as $key => $value) {
             $value = trim($value);
             if ($value) {
                 if (in_array($key, $cols)) {
                     $q->where($key, 'like', "%$value%");
                 } else if ($key == 'invoice_date') {
-                    // $date = \DateTime::createFromFormat(trans('date.format'), $value);
                     $date = date('Y-m-d', strtotime($value));
                     $q->whereDate('invoice_date', $date);
                 }
             }
         }
         return $q;
+    }
+
+    public function callInterfaceAPInvoice($batch)
+    {
+        $db = \DB::connection('oracle')->getPdo();
+        $sql = "
+            declare
+                l_status    varchar2(10);
+                l_msg       varchar2(1000);
+            begin
+                OAGAP_INVOICE_INF_PKG.MAIN( P_WEB_BATCH_NO  => '{$batch}'
+                                            , X_STATUS      => :l_status
+                                            , X_MESSAGE     => :l_msg
+                                        );
+                dbms_output.put_line('l_status : ' || :l_status); 
+                dbms_output.put_line('l_msg : ' || :l_msg); 
+            end;
+        ";
+
+        logger($sql);
+        $stmt = $db->prepare($sql);
+        $result = [];
+        $stmt->bindParam(':l_status', $result['status'], \PDO::PARAM_STR, 20);
+        $stmt->bindParam(':l_msg', $result['error_msg'], \PDO::PARAM_STR, 2000);
+        $stmt->execute();
+
+        return $result;
     }
 }

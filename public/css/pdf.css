@@ -1,78 +1,35 @@
 @charset "UTF-8";
 
-/* @font-face {
-    font-family: "CANDARA";
+@font-face {
+    font-family: 'TH Sarabun';
     font-style: normal;
     font-weight: normal;
-    src: url("{{ base_path() }}/public/fonts/CANDARA.ttf") format("truetype");
+    src: url("{{ public_path('fonts/Sarabun-Regular.ttf') }}") format('truetype');
 }
 @font-face {
-    font-family: "CANDARA";
-    font-style: normal;
-    font-weight: bold;
-    src: url("{{ base_path() }}/public/fonts/CANDARAB.ttf") format("truetype");
-}
-@font-face {
-    font-family: "CANDARA";
+    font-family: 'TH Sarabun';
     font-style: italic;
     font-weight: normal;
-    src: url("{{ base_path() }}/public/fonts/CANDARAI.ttf") format("truetype");
-}
-
-@font-face {
-    font-family: "angsa";
-    font-style: normal;
-    font-weight: normal;
-    src: url("{{ base_path() }}/public/fonts/AngsanaNew-01.ttf")
-        format("truetype");
+    src: url("{{ public_path('fonts/Sarabun-Italic.ttf') }}") format('truetype');
 }
 @font-face {
-    font-family: "angsa";
+    font-family: 'TH Sarabun';
     font-style: normal;
     font-weight: bold;
-    src: url("{{ base_path() }}/public/fonts/AngsanaNew-Bold-02.ttf")
-        format("truetype");
+    src: url("{{ public_path('fonts/Sarabun-Bold.ttf') }}") format('truetype');
 }
 @font-face {
-    font-family: "angsa";
-    font-style: italic;
-    font-weight: normal;
-    src: url("{{ base_path() }}/public/fonts/AngsanaNew-BoldItalic-03.ttf")
-        format("truetype");
-} */
-
-
-@font-face {
-    font-family: 'CmPrasanmit';
-    font-style: normal;
-    font-weight: normal;
-    src: url("{{ base_path() }}/public/fonts/CmPrasanmit.ttf") format("truetype");
-}
-@font-face {
-    font-family: 'CmPrasanmit';
-    font-style: normal;
-    font-weight: bold;
-    src: url("{{ base_path() }}/public/fonts/CmPrasanmitBold.ttf") format("truetype");
-}
-@font-face {
-    font-family: 'CmPrasanmit';
-    font-style: italic;
-    font-weight: normal;
-    src: url("{{ base_path() }}/public/fonts/CmPrasanmitItalic.ttf") format("truetype");
-}
-@font-face {
-    font-family: 'CmPrasanmit';
+    font-family: 'TH Sarabun';
     font-style: italic;
     font-weight: bold;
-    src: url("{{ base_path() }}/public/fonts/CmPrasanmitBoldItalic.ttf") format("truetype");
+    src: url("{{ public_path('fonts/Sarabun-BoldItalic.ttf') }}") format('truetype');
 }
-
 
 body {
+    font-family: 'TH Sarabun';
+    font-size: 16px;
+    line-height: 1.4;
     margin: 0;
-    font-family: "CmPrasanmit";
-    font-size: 18px;
-    line-height: 1;
     padding: 0;
 }
 

@@ -1,7 +1,10 @@
 @extends('layouts.app')
 @section('breadcrumb')
     <li class="breadcrumb-item">
-        <a href="{{ route('expense.invoice.index') }}"><strong> รายการเอกสารส่งเบิก </strong></a>
+        <a href="{{ route('expense.invoice.index') }}"><strong> เอกสารขอเบิก </strong></a>
+    </li>
+    <li class="breadcrumb-item active">
+        <strong> รายการเอกสารขอเบิก </strong>
     </li>
 @endsection
 @section('content')
@@ -10,7 +13,7 @@
         <div class="row">
             <div class="col-md-6">
                 <span class="d-inline">
-                <h5> <strong> เอกสารขอเบิก </strong> </h5>
+                <h5> <strong> เอกสารขอเบิก : {{ $invoice->invoice_number }} </strong> </h5>
             </div>
         </div>
     </div>

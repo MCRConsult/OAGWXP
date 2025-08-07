@@ -27,7 +27,7 @@
 </template>
 <script>
 export default {
-    props: ['setName', 'setData', 'error', 'defaultSetName'],
+    props: ['setName', 'parent', 'setData', 'error', 'defaultSetName'],
     emits: ['coa'],
     data() {
         return {
@@ -38,17 +38,16 @@ export default {
     },
     mounted() {
         this.value = this.setData;
-        // this.getValueSetList(this.value);
+        this.getValueSetList(this.value);
         this.changeCoa();
     },
     watch: {
         setData() {
             this.value = this.setData;
-            // this.getValueSetList(this.value);
-            // this.options = this.setOptions;
+            this.getValueSetList(this.value);
         },
         error() {
-            let ref = this.$refs['input'].$refs.reference.$refs.input;
+            let ref = this.$refs['input'].$refs.wrapperRef;
             ref.style = "";
             if(this.error && (this.value === '' || this.value === null)){
                 ref.style = "border: 1px solid red;";
@@ -57,9 +56,10 @@ export default {
     },
     methods: {
         async getValueSetList(query) {
-            await axios.get("/expense/api/get-expense-account", {
+            await axios.get("/OAGWXP/api/get-expense-account", {
                 params: {
                     flex_value_set_name: this.setName,
+                    flex_value_set_parent: this.parent,
                     flex_value_set_data: this.value,
                     query: query,
                 }

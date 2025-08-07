@@ -10,8 +10,7 @@ class AppExpenseProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // require_once __DIR__ . '/../Http/Helpers/InvMail.php';
-        // require_once __DIR__ . '/../Http/Helpers/InvMaster.php';
+        require_once __DIR__ . '/../Http/Helpers/data.php';
     }
 
     /**
@@ -27,8 +26,5 @@ class AppExpenseProvider extends ServiceProvider
 
         // Load routes
         $this->loadRoutesFrom(__DIR__.'/../../routes/web.php', 'expense');
-        // Load routes
-        $this->loadRoutesFrom(__DIR__.'/../../routes/api.php', 'expense-api');
-
     }
 }

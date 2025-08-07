@@ -24,26 +24,39 @@ return new class extends Migration
             $table->integer('seq_number');
             $table->integer('supplier_id');
             $table->string('supplier_name')->nullable();
+            $table->integer('supplier_site')->nullable();
             $table->string('bank_account_number')->nullable();
             $table->string('budget_plan');
             $table->string('budget_type');
             $table->string('expense_type');
             $table->string('expense_description');
             $table->string('expense_account')->nullable();
-            $table->integer('amount', 18,2);
+            $table->integer('amount', 18, 2);
+            $table->integer('actual_amount', 18, 2)->nullable();
+            $table->string('clear_flag')->nullable();
+            $table->integer('clear_reference_line_id')->nullable();
+            $table->string('split_flag')->nullable();
             $table->string('description')->nullable();
             $table->string('vehicle_number')->nullable();
             $table->string('policy_number')->nullable();
             $table->string('vehicle_oil_type')->nullable();
             $table->string('utility_type')->nullable();
             $table->string('utility_detail')->nullable();
-            $table->integer('unit_quantity')->nullable();
+            $table->integer('unit_quantity', 18, 2)->nullable();
             $table->string('invoice_number')->nullable();
             $table->date('invoice_date')->nullable();
             $table->string('receipt_number')->nullable();
             $table->date('receipt_date')->nullable();
-            $table->boolean('remaining_receipt_flag')->nullable();
+            $table->string('remaining_receipt_flag')->nullable();
+            $table->integer('remaining_receipt_id')->nullable();
             $table->string('remaining_receipt_number')->nullable();
+            $table->string('receipt_account')->nullable();
+            $table->integer('invl_reference_id')->nullable();
+            $table->integer('cash_bank_account_id')->nullable(); // bank_account_id
+            $table->string('contract_number')->nullable(); // bank_account_id
+
+            $table->string('hrm_reference')->nullable();
+            $table->string('hrm_transaction_date')->nullable();
             $table->timestamps();
         });
     }

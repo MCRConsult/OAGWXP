@@ -40,7 +40,7 @@ export default {
     mounted() {
         this.loading = true;
         this.value = this.setData;
-        // this.getDataRows(this.value);
+        this.getDataRows(this.value);
     },
     watch: {
         setData() {
@@ -58,7 +58,7 @@ export default {
     methods: {
         getDataRows (query) {
             this.loading = true;
-            axios.get(`/expense/api/get-supplier`, {
+            axios.get(`/OAGWXP/api/get-supplier`, {
                 params: {
                     keyword: query
                 }
@@ -75,7 +75,7 @@ export default {
                 this.$emit('setSupplier', {supplier: this.value, vendor_name: vendor_name});
             })
             .catch((error) => {
-                 this.$message({
+                this.$message({
                     showClose: true,
                     message: error,
                     type: 'error',

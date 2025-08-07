@@ -6,6 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class WHT extends Model
 {
-    protected $table = 'AP_TAX_CODES_ALL';
+    protected $table = 'OAGAP_TAX_CODE_V';
     protected $connection = 'oracle';
 }

@@ -21,28 +21,53 @@ use Packages\expense\app\Models\SupplierBank;
 use Packages\expense\app\Models\PaymentMethod;
 use Packages\expense\app\Models\Currency;
 use Packages\expense\app\Models\FlaxValueV;
+use Packages\expense\app\Models\MTLCategoriesV;
 use Packages\expense\app\Models\POExpenseAccountRuleV;
+use Packages\expense\app\Models\OAGARBudgetReceiptV;
+use Packages\expense\app\Models\GuaranteeReceiptV;
+use Packages\expense\app\Models\GLPeriod;
+use Packages\expense\app\Models\COAListV;
+use Packages\expense\app\Models\MappingAutoInvoiceV;
+use Packages\expense\app\Models\GLBudgetReservations;
+use Packages\expense\app\Models\GLAccountHierarchyV;
+use Packages\expense\app\Models\GLJournalInterface;
+
+use Packages\expense\app\Repositories\BudgetInterfaceRepo;
+use Packages\expense\app\Repositories\JournalInterfaceRepo;
 
 class RequisitionController extends Controller
 {
     public function index()
     {
+        $search = request()->all();
         $requisitions = RequisitionHeader::search(request()->all())
-                                    ->orderBy('req_number', 'desc')
-                                    ->paginate(15);
+                                    ->with(['user.hrEmployee', 'invoiceType', 'invoice', 'clear', 'invoiceStatus'])
+                                    ->byRelatedUser()
+                                    ->whereNotNull('req_number')
+                                    ->orderByRaw('req_date desc, req_number desc')
+                                    ->paginate(50);
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
-        $statuses = ['DISBURSEMENT' => 'รอเบิกจ่าย'
-                    , 'ALLOCATE'    => 'รอจัดสรร'
-                    , 'CANCELLED'   => 'ยกเลิก'];
+        $statuses = ['COMPLETED'        => 'รอเบิกจ่าย'
+                    , 'PENDING'         => 'รอจัดสรร'
+                    , 'HOLD'            => 'รอตรวจสอบ'
+                    , 'WAITING_CLEAR'   => 'รอเคลียร์เงินยืม'
+                    , 'INTERFACED'      => 'ตั้งเบิก'
+                    , 'ERROR'           => 'ตั้งเบิกไม่สำเร็จ'
+                    , 'REVERSED'        => 'กลับรายการบัญชีแล้ว'
+                    , 'UNREVERSED'      => 'กลับรายการบัญชีไม่สำเร็จ'
+                    , 'CANCELLED'       => 'ยกเลิก'];
 
         return view('expense::requisition.index', compact('requisitions', 'invoiceTypes', 'statuses'));
     }
 
     public function create()
     {
+        $user = auth()->user()->hrEmployee;
         $referenceNo = date('YmdHis').'-'.Str::random(5);
         $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
-        return view('expense::requisition.create', compact('invoiceTypes', 'referenceNo'));
+        $defaultSetName = (new COAListV)->getDefaultSetName();
+        $defaultSupplier = Supplier::where('vendor_name', 'สำนักงานอัยการสูงสุด')->first();
+        return view('expense::requisition.create', compact('user', 'invoiceTypes', 'referenceNo', 'defaultSetName', 'defaultSupplier'));
     }
 
     public function store(Request $request)
@@ -62,14 +87,15 @@ class RequisitionController extends Controller
             $headerTemp->budget_source              = $header['budget_source'];
             $headerTemp->invoice_type               = $header['invoice_type'];
             $headerTemp->document_category          = $header['document_category'];
-            $headerTemp->req_number                 = (new RequisitionHeader)->genDocumentNo('101', $prefixReq[0]);
+            $headerTemp->req_number                 = (new RequisitionHeader)->genDocumentNo($user->org_id, $prefixReq[0]);
             $headerTemp->req_date                   = date('Y-m-d', strtotime($header['req_date']));
             $headerTemp->payment_type               = $header['payment_type'];
-            $headerTemp->supplier_id                = $header['supplier'];
+            $headerTemp->supplier_id                = $header['supplier_id'];
             $headerTemp->supplier_name              = $header['supplier_name'];
             $headerTemp->multiple_supplier          = $header['multiple_supplier'];
+            $headerTemp->cash_bank_account_id       = $header['cash_bank_account_id'];
             $headerTemp->total_amount               = $request->totalApply;
-            $headerTemp->status                     = 'DISBURSEMENT';
+            // $headerTemp->status                     = 'COMPLETED';
             $headerTemp->description                = $header['description'];
             $headerTemp->requester                  = $user->id;
             $headerTemp->created_by                 = $user->id;
@@ -80,18 +106,18 @@ class RequisitionController extends Controller
 
             foreach ($lines as $key => $line) {
                 // GET CONCATE SEGMENT
-                $accountConcate = $this->concateAccount($line['expense_type'], $user, $header['budget_source'], $line['budget_plan'], $line['budget_type'], $header['document_category']);
                 $lineTemp                           = new RequisitionLine;
                 $lineTemp->req_header_id            = $headerTemp->id;
                 $lineTemp->seq_number               = $key+1;
-                $lineTemp->supplier_id              = $line['supplier'];
+                $lineTemp->supplier_id              = $line['supplier_id'];
                 $lineTemp->supplier_name            = $line['supplier_name'];
-                $lineTemp->bank_account_number      = $line['supplier_bank'];
+                $lineTemp->supplier_site            = $line['supplier_site'];
+                $lineTemp->bank_account_number      = $line['bank_account_number'];
                 $lineTemp->budget_plan              = $line['budget_plan'];
                 $lineTemp->budget_type              = $line['budget_type'];
                 $lineTemp->expense_type             = $line['expense_type'];
                 $lineTemp->expense_description      = $line['expense_description'];
-                $lineTemp->expense_account          = $accountConcate;
+                $lineTemp->expense_account          = $line['expense_account'];
                 $lineTemp->amount                   = $line['amount'];
                 $lineTemp->description              = $line['description'];
                 $lineTemp->vehicle_number           = $line['vehicle_number'];
@@ -101,17 +127,26 @@ class RequisitionController extends Controller
                 $lineTemp->utility_detail           = $line['utility_detail'];
                 $lineTemp->unit_quantity            = $line['unit_quantity'];
                 $lineTemp->invoice_number           = $line['invoice_number'];
-                $lineTemp->invoice_date             = $line['invoice_date']? date('Y-m-d', strtotime($line['invoice_date'])): '';
+                $lineTemp->invoice_date             = !is_null($line['invoice_date'])? date('Y-m-d', strtotime($line['invoice_date'])): '';
                 $lineTemp->receipt_number           = $line['receipt_number'];
-                $lineTemp->receipt_date             = $line['receipt_date']? date('Y-m-d', strtotime($line['receipt_date'])): '';
-                $lineTemp->remaining_receipt_flag   = $line['remaining_receipt_flag'] == true? 'Y': 'N';
-                $lineTemp->remaining_receipt_number = $line['remaining_receipt'];
+                $lineTemp->receipt_date             = !is_null($line['receipt_date'])? date('Y-m-d', strtotime($line['receipt_date'])): '';
+                $lineTemp->remaining_receipt_flag   = $line['remaining_receipt_flag'];
+                $lineTemp->remaining_receipt_id     = $line['remaining_receipt_id'];
+                $lineTemp->remaining_receipt_number = $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source']);
+                $lineTemp->receipt_account          = $line['receipt_account'];
+                $lineTemp->contract_number          = $line['contract_number'];
                 $lineTemp->save();
+
+                if ($line['remaining_receipt_flag'] == 'Y') {
+                    RequisitionReceiptTemp::where('reference_number', $headerTemp->reference_number)
+                                ->update([
+                                    'requisition_header_id' => $headerTemp->id
+                                ]);
+                }
             }
-            // IF INTERFACE ERROR UPDATE HEADER STATUS TO ALLOCATE
-
-
             \DB::commit();
+            // CALL GL INTERFACE + RESERVE BUDGET
+            $result = $this->handleRequistionReserv($headerTemp, $user);
             $data = [
                 'status' => 'SUCCESS',
                 'message' => '',
@@ -128,78 +163,700 @@ class RequisitionController extends Controller
         return response()->json($data);
     }
 
-    public function show($id)
+    public function show($reqId)
     {
-        $requisition = RequisitionHeader::findOrFail($id);
+        $requisition = RequisitionHeader::findOrFail($reqId);
         return view('expense::requisition.show', compact('requisition'));
     }
 
-    private function concateAccount($itemCate, $user, $budgetSource, $budgetPlan, $budgetType, $documentCategory)
+    public function hold($reqId)
     {
-        $docCate = explode('_', $documentCategory);
-        $employee = $user->hrEmployee;
-        $accountRules = POExpenseAccountRuleV::where('item_category', $itemCate)
-                                            ->orderBy('segment_num')
-                                            ->get()
-                                            ->pluck('segment_value', 'segment_num');
+        $requisition = RequisitionHeader::where('id', $reqId)
+                            ->with(['lines', 'lines.expense', 'user', 'user.hrEmployee'])
+                            ->first();
+        $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
+        $defaultSetName = (new COAListV)->getDefaultSetName();
 
-        $concatenatedSegments = '';
-        $segments = [];
-        // SEGMENT1
-        $segments[1] = $employee->segment1;
-        // SEGMENT2
-        $segments[2] = $employee->segment2;
-        // SEGMENT3
-        $segments[3] = date('Y');
-        // SEGMENT4
-        $segments[4] = $budgetSource;
-        // SEGMENT5-8
-        $segments[5] = null;
-        $segments[6] = null;
-        $segments[7] = null;
-        $segments[8] = null;
-        if ($budgetSource == 510) {
-            $segments[5] = $budgetSource;
-            $segments[6] = $budgetSource;
-            $segments[7] = $budgetSource;
-            $segments[8] = $budgetSource;
-        }elseif(in_array($budgetSource, [520, 530, 550])){
-            $segments[5] = '00000';
-            $segments[6] = isset($accountRules[6])? $accountRules[6]: '00000';
-            $segments[7] = '00000';
-            $segments[8] = $budgetType;
-        }elseif($budgetSource == 540){
-            $segments[5] = '00000';
-            $segments[6] = '00000';
-            $segments[7] = '00000';
-            $segments[8] = $budgetType;
-        }elseif($docCate[1] == 'สบพ.'){
-            $segments[5] = $budgetSource;
-            $segments[6] = $budgetSource;
-            $segments[7] = $budgetSource;
-            $segments[8] = $budgetType;
-        }else{
-            $segments[5] = $budgetPlan;
-            $segments[6] = '00000';
-            $segments[7] = '00000';
-            $segments[8] = $budgetType;
-        }
-        // SEGMENT9
-        $segments[9] = '00000000000000000000';
-        // SEGMENT10
-        $segments[10] = isset($accountRules[10])? $accountRules[10]: '0000000000';
-        // SEGMENT11
-        $segments[11] = isset($accountRules[11])? $accountRules[11]: '0000000000';
-        // SEGMENT12
-        $segments[12] = '00';
-        // SEGMENT13
-        $segments[13] = '000';
-
-        $concatenatedSegments = $segments[1].'.'.$segments[2].'.'.$segments[3].'.'.$segments[4].'.'.$segments[5].'.'.$segments[6].'.'.$segments[7].'.'.$segments[8].'.'.$segments[9].'.'.$segments[10].'.'.$segments[11].'.'.$segments[12].'.'.$segments[13];
-
-        return $concatenatedSegments;
+        return view('expense::requisition.hold.index', compact('requisition', 'invoiceTypes', 'defaultSetName'));
     }
 
+    public function clear($reqId)
+    {
+        $user = auth()->user();
+        $referenceNo = date('YmdHis').'-'.Str::random(5);
+        \DB::beginTransaction();
+        try {
+            $requisition = RequisitionHeader::findOrFail($reqId);
+            // CLAER HEADER
+            $clearReq                       = $requisition->replicate();
+            $clearReq->reference_number     = $referenceNo;
+            $clearReq->invoice_type         = 'STANDARD';
+            $clearReq->req_number           = '';
+            $clearReq->req_date             = date('Y-m-d');
+            $clearReq->status               = 'WAITING_CLEAR';
+            $clearReq->clear_flag           = 'Y';
+            $clearReq->invoice_reference_id = null;
+            $clearReq->invioce_number_ref   = null;
+            $clearReq->description          = '';
+            $clearReq->created_by           = $user->id;
+            $clearReq->updated_by           = $user->id;
+            $clearReq->creation_by          = $user->person_id;
+            $clearReq->updation_by          = $user->person_id;
+            $clearReq->save();
+            // CLAER LINES
+            foreach ($requisition->lines as $line) {
+                $clearLines                 = $line->replicate();
+                $clearLines->req_header_id  = $clearReq->id;
+                $clearLines->actual_amount  = $line->amount;
+                $clearLines->save();
+            }
+            \DB::commit();
+            // GET DATA CLEAR REQUISITION
+            $requisition = RequisitionHeader::where('id', $reqId)
+                                        ->with(['invoice'])
+                                        ->first();
+            $clearReq = RequisitionHeader::where('id', $clearReq->id)
+                                        ->with(['lines'])
+                                        ->first();
+        } catch (\Exception $e) {
+            \DB::rollback();
+            throw new \Exception($e->getMessage(), 1);
+        }
+
+        return view('expense::requisition.clear.index', compact('requisition', 'clearReq'));
+    }
+
+    public function clearEdit($reqId)
+    {
+        $requisition = RequisitionHeader::where('id', $reqId)
+                            ->with(['lines', 'lines.expense', 'user', 'user.hrEmployee'])
+                            ->first();
+        $invoiceTypes = InvoiceType::whereIn('lookup_code', ['STANDARD', 'PREPAYMENT'])->get();
+        $defaultSetName = (new COAListV)->getDefaultSetName();
+
+        return view('expense::requisition.clear.edit', compact('requisition', 'invoiceTypes', 'defaultSetName'));
+    }
+
+    // THIS FUNCTION USE HOLD AND CLEAR(SAVE CLEARING)
+    public function update(Request $request, $reqId)
+    {
+        $user = auth()->user();
+        $header = $request->header;
+        $lines = $request->lines;
+        \DB::beginTransaction();
+        try {
+            $requisition = RequisitionHeader::findOrFail($reqId);
+            $prefixReq = explode('_', $requisition->document_category);
+            $requisition->budget_source             = $header['budget_source'];
+            $requisition->invoice_type              = $header['invoice_type'];
+            $requisition->document_category         = $header['document_category'];
+            $requisition->req_date                  = date('Y-m-d', strtotime($header['req_date']));
+            $requisition->payment_type              = $header['payment_type'];
+            $requisition->supplier_id               = $header['supplier_id'];
+            $requisition->supplier_name             = $header['supplier_name'];
+            $requisition->multiple_supplier         = $header['multiple_supplier'];
+            $requisition->cash_bank_account_id      = $header['cash_bank_account_id'];
+            $requisition->total_amount              = $header['clear_flag'] == 'Y'? $requisition->total_amount: $request->totalApply;
+            $requisition->status                    = $header['clear_flag'] == 'Y'? 'WAITING_CLEAR': 'COMPLETED';
+            $requisition->description               = $header['description'];
+            $requisition->updated_by                = $user->id;
+            $requisition->updation_by               = $user->person_id;
+            if ($header['clear_flag'] == 'Y' && is_null($requisition->req_number)) {
+                $requisition->req_number            = (new RequisitionHeader)->genDocumentNo($user->org_id, $prefixReq[0]);
+                // UPDATE REF CLEAR REQUISITION
+                if (isset($request->refRequisition)) {
+                    $refRequisition = RequisitionHeader::findOrFail($request->refRequisition);
+                    $refRequisition->clear_reference_id    = $requisition->id;
+                    $refRequisition->clear_reference_date  = date('Y-m-d');
+                    $refRequisition->save();
+                }
+            }
+            $requisition->save();
+            \DB::commit();
+
+            foreach ($lines as $key => $line) {
+                if (is_null($line['split_flag']) || $requisition->status != 'WAITING_CLEAR') {
+                    $lineTemp = RequisitionLine::FindOrfail($line['id']);
+                    $lineTemp->seq_number               = $key+1;
+                    $lineTemp->supplier_id              = $line['supplier_id'];
+                    $lineTemp->supplier_name            = $line['supplier_name'];
+                    $lineTemp->supplier_site            = $line['supplier_site'];
+                    $lineTemp->bank_account_number      = $line['bank_account_number'];
+                    $lineTemp->budget_plan              = $line['budget_plan'];
+                    $lineTemp->budget_type              = $line['budget_type'];
+                    $lineTemp->expense_type             = $line['expense_type'];
+                    $lineTemp->expense_description      = $line['expense_description'];
+                    $lineTemp->expense_account          = $line['expense_account'];
+                    $lineTemp->amount                   = $line['amount'];
+                    if ($header['clear_flag'] == 'Y') {
+                        $lineTemp->actual_amount        = $line['actual_amount'];
+                    }
+                    $lineTemp->description              = $line['description'];
+                    $lineTemp->vehicle_number           = $line['vehicle_number'];
+                    $lineTemp->policy_number            = $line['policy_number'];
+                    $lineTemp->vehicle_oil_type         = $line['vehicle_oil_type'];
+                    $lineTemp->utility_type             = $line['utility_type'];
+                    $lineTemp->utility_detail           = $line['utility_detail'];
+                    $lineTemp->unit_quantity            = $line['unit_quantity'];
+                    $lineTemp->invoice_number           = $line['invoice_number'];
+                    $lineTemp->invoice_date             = !is_null($line['invoice_date'])? date('Y-m-d', strtotime($line['invoice_date'])): '';
+                    $lineTemp->receipt_number           = $line['receipt_number'];
+                    $lineTemp->receipt_date             = !is_null($line['receipt_date'])? date('Y-m-d', strtotime($line['receipt_date'])): '';
+                    $lineTemp->remaining_receipt_flag   = $line['remaining_receipt_flag'];
+                    $lineTemp->remaining_receipt_id     = $line['remaining_receipt_id'];
+                    $lineTemp->remaining_receipt_number = $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source']);
+                    $lineTemp->receipt_account          = $line['receipt_account'];
+                    $lineTemp->contract_number          = $line['contract_number'];
+                    $lineTemp->save();
+
+                    if ($line['remaining_receipt_flag'] == 'Y' && $header['clear_flag'] == 'Y') {
+                        $receiptTemp                             = new RequisitionReceiptTemp;
+                        $receiptTemp->org_id                     = $user->org_id;
+                        $receiptTemp->reference_number           = $header['reference_number'];
+                        $receiptTemp->seq_number                 =  $key+1;
+                        $receiptTemp->remaining_receipt_flag     = $line['remaining_receipt_flag'];
+                        $receiptTemp->remaining_receipt_id       = $line['remaining_receipt_id'];
+                        $receiptTemp->remaining_receipt_number   = $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source']);
+                        $receiptTemp->amount                     = $line['actual_amount'];
+                        $receiptTemp->expense_account            = $line['expense_account'];
+                        $receiptTemp->invoice_type               = $header['invoice_type'];
+                        $receiptTemp->remittance_flag            = 'N';
+                        $receiptTemp->budget_source              = $header['budget_source'];
+                        $receiptTemp->requisition_header_id      = $requisition->id;
+                        $receiptTemp->created_by                 = $user->id;
+                        $receiptTemp->updated_by                 = $user->id;
+                        $receiptTemp->creation_by                = $user->person_id;
+                        $receiptTemp->updation_by                = $user->person_id;
+                        $receiptTemp->save();
+
+                        // RETURN AMOUNT PREPAYMENT
+                        $receiptOri                             = new RequisitionReceiptTemp;
+                        $receiptOri->org_id                     = $user->org_id;
+                        $receiptOri->reference_number           = $header['reference_number'];
+                        $receiptOri->seq_number                 =  $key+1;
+                        $receiptOri->remaining_receipt_flag     = $line['remaining_receipt_flag'];
+                        $receiptOri->remaining_receipt_id       = $line['remaining_receipt_id'];
+                        $receiptOri->remaining_receipt_number   = $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source']);
+                        $receiptOri->amount                     = $line['amount']*-1;
+                        $receiptOri->expense_account            = $line['expense_account'];
+                        $receiptOri->invoice_type               = $header['invoice_type'];
+                        $receiptOri->remittance_flag            = 'N';
+                        $receiptOri->budget_source              = $header['budget_source'];
+                        $receiptOri->requisition_header_id      = $requisition->id;
+                        $receiptOri->created_by                 = $user->id;
+                        $receiptOri->updated_by                 = $user->id;
+                        $receiptOri->creation_by                = $user->person_id;
+                        $receiptOri->updation_by                = $user->person_id;
+                        $receiptOri->save();
+                    }
+                }
+            }
+            // UPDATE CLEAR FIRST TIME ONLY
+            if ($header['clear_flag'] == 'Y' && $requisition->status == 'WAITING_CLEAR') {
+                $this->handleClearingBalance($reqId, $requisition, $lines);
+            }
+            \DB::commit();
+            $data = [
+                'status' => 'SUCCESS',
+                'message' => '',
+                'redirect_show_page' => $header['clear_flag'] == 'Y'
+                                        ? route('expense.requisition.clear-edit', $reqId)
+                                        : route('expense.requisition.show', $reqId)
+            ];
+        } catch (\Exception $e) {
+            \DB::rollback();
+            \Log::error($e);
+            $data = [
+                'status' => 'ERROR',
+                'message' => $e->getMessage(),
+            ];
+        }
+        return response()->json($data);
+    }
+
+    public function handleClearingBalance($reqId, $header, $lines)
+    {
+        foreach ($lines as $key => $line) {
+            $lastSeq = RequisitionLine::where('req_header_id', $reqId)->count();
+            if ($line['amount'] != $line['actual_amount'] && is_null($line['split_flag'])) {
+                $diff_amount = $line['amount'] - $line['actual_amount'];
+                $expense_category = 'EXP.200.299999.0000000001';
+                $expeseType = MTLCategoriesV::where('segment1', 'EXP')
+                            ->where('category_concat_segs', $expense_category)
+                            ->first();
+                $budgetType = MTLCategoriesV::where('segment1', 'EXP')
+                        ->where('category_concat_segs', $expeseType->attribute4)
+                        ->first();
+                $budgetPlan = MTLCategoriesV::where('segment1', 'EXP')
+                        ->where('category_concat_segs', $budgetType->attribute3)
+                        ->first();
+                // SET EXPENSE ACCOUNT
+                $expAccount = (new MappingAutoInvoiceV)->mappingClearingAccount($header, $expense_category);
+                // INSERT NEW LINE : คืนเงิน เมื่อยอดไม่เท่ากับยอดตั้งต้น
+                $lineTemp                          = new RequisitionLine;
+                $lineTemp->req_header_id            = $reqId;
+                $lineTemp->seq_number               = $lastSeq+1;
+                $lineTemp->supplier_id              = $line['supplier_id'];
+                $lineTemp->supplier_name            = $line['supplier_name'];
+                $lineTemp->supplier_site            = $line['supplier_site'];
+                $lineTemp->bank_account_number      = $line['bank_account_number'];
+                $lineTemp->budget_plan              = $budgetPlan->category_concat_segs;
+                $lineTemp->budget_type              = $budgetType->category_concat_segs;
+                $lineTemp->expense_type             = $expeseType->category_concat_segs;
+                $lineTemp->expense_description      = $expeseType->description.' '.$line['expense_description'];
+                $lineTemp->expense_account          = $expAccount;
+                $lineTemp->amount                   = $line['amount'];
+                $lineTemp->actual_amount            = $diff_amount;
+                $lineTemp->description              = $expeseType->description.' '.$line['expense_description'];
+                $lineTemp->vehicle_number           = $line['vehicle_number'];
+                $lineTemp->policy_number            = $line['policy_number'];
+                $lineTemp->vehicle_oil_type         = $line['vehicle_oil_type'];
+                $lineTemp->utility_type             = $line['utility_type'];
+                $lineTemp->utility_detail           = $line['utility_detail'];
+                $lineTemp->unit_quantity            = $line['unit_quantity'];
+                $lineTemp->invoice_number           = $line['invoice_number'];
+                $lineTemp->invoice_date             = !is_null($line['invoice_date'])? date('Y-m-d', strtotime($line['invoice_date'])): '';
+                $lineTemp->receipt_number           = $line['receipt_number'];
+                $lineTemp->receipt_date             = !is_null($line['receipt_date'])? date('Y-m-d', strtotime($line['receipt_date'])): '';
+                $lineTemp->remaining_receipt_flag   = 'N';
+                $lineTemp->remaining_receipt_id     = '';
+                $lineTemp->remaining_receipt_number = '';
+                $lineTemp->split_flag               = 'Y';
+                $lineTemp->clear_reference_line_id  = $line['id'];
+                $lineTemp->save();
+            }
+        }
+        return;
+    }
+
+    public function clearUpdate(Request $request, $reqId)
+    {
+        $user = auth()->user();
+        $header = $request->header;
+        $lines = $request->lines;
+        \DB::beginTransaction();
+        try {
+            $requisition = RequisitionHeader::findOrFail($reqId);
+            $prefixReq = explode('_', $requisition->document_category);
+            $requisition->budget_source             = $header['budget_source'];
+            $requisition->invoice_type              = $header['invoice_type'];
+            $requisition->document_category         = $header['document_category'];
+            $requisition->req_date                  = date('Y-m-d', strtotime($header['req_date']));
+            $requisition->payment_type              = $header['payment_type'];
+            $requisition->supplier_id               = $header['supplier_id'];
+            $requisition->supplier_name             = $header['supplier_name'];
+            $requisition->multiple_supplier         = $header['multiple_supplier'];
+            $requisition->cash_bank_account_id      = $header['cash_bank_account_id'];
+            $requisition->total_amount              = $header['clear_flag'] == 'Y'? $requisition->total_amount: $request->totalApply;
+            $requisition->status                    = 'WAITING_CLEAR';
+            $requisition->description               = $header['description'];
+            $requisition->updated_by                = $user->id;
+            $requisition->updation_by               = $user->person_id;
+            $requisition->save();
+
+            foreach ($lines as $key => $line) {
+                $lineTemp = RequisitionLine::FindOrfail($line['id']);
+                $lineTemp->seq_number               = $key+1;
+                $lineTemp->supplier_id              = $line['supplier_id'];
+                $lineTemp->supplier_name            = $line['supplier_name'];
+                $lineTemp->supplier_site            = $line['supplier_site'];
+                $lineTemp->bank_account_number      = $line['bank_account_number'];
+                $lineTemp->budget_plan              = $line['budget_plan'];
+                $lineTemp->budget_type              = $line['budget_type'];
+                $lineTemp->expense_type             = $line['expense_type'];
+                $lineTemp->expense_description      = $line['expense_description'];
+                $lineTemp->expense_account          = $line['expense_account'];
+                $lineTemp->amount                   = $line['amount'];
+                if ($header['clear_flag'] == 'Y') {
+                    $lineTemp->actual_amount        = $line['actual_amount'];
+                }
+                $lineTemp->description              = $line['description'];
+                $lineTemp->vehicle_number           = $line['vehicle_number'];
+                $lineTemp->policy_number            = $line['policy_number'];
+                $lineTemp->vehicle_oil_type         = $line['vehicle_oil_type'];
+                $lineTemp->utility_type             = $line['utility_type'];
+                $lineTemp->utility_detail           = $line['utility_detail'];
+                $lineTemp->unit_quantity            = $line['unit_quantity'];
+                $lineTemp->invoice_number           = $line['invoice_number'];
+                $lineTemp->invoice_date             = !is_null($line['invoice_date'])? date('Y-m-d', strtotime($line['invoice_date'])): '';
+                $lineTemp->receipt_number           = $line['receipt_number'];
+                $lineTemp->receipt_date             = !is_null($line['receipt_date'])? date('Y-m-d', strtotime($line['receipt_date'])): '';
+                $lineTemp->remaining_receipt_flag   = $line['remaining_receipt_flag'];
+                $lineTemp->remaining_receipt_id     = $line['remaining_receipt_id'];
+                $lineTemp->remaining_receipt_number = $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source']);
+                $lineTemp->receipt_account          = $line['receipt_account'];
+                $lineTemp->contract_number          = $line['contract_number'];
+                $lineTemp->save();
+
+                RequisitionReceiptTemp::where('reference_number', $header['reference_number'])
+                                ->where('remaining_receipt_id', $line['remaining_receipt_id'])
+                                ->where('remaining_receipt_number', $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source']))
+                                ->where('seq_number', $key+1)
+                                ->where('requisition_header_id', $reqId)
+                                ->update([
+                                    'remaining_receipt_number'  => $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source'])
+                                    , 'amount'                  => $line['actual_amount']
+                                ]);
+            }
+            \DB::commit();
+            $data = [
+                'status' => 'SUCCESS',
+                'message' => '',
+                'redirect_show_page' => $header['clear_flag'] == 'Y'
+                                        ? route('expense.requisition.clear-edit', $reqId)
+                                        : route('expense.requisition.show', $reqId)
+            ];
+        } catch (\Exception $e) {
+            \DB::rollback();
+            \Log::error($e);
+            $data = [
+                'status' => 'ERROR',
+                'message' => $e->getMessage(),
+            ];
+        }
+        return response()->json($data);
+    }
+
+    public function clearRemove(Request $request, $reqId)
+    {
+        \DB::beginTransaction();
+        try {
+            $line = $request->line;
+            $lineTemp = RequisitionLine::where('id', $line['id'])->delete();
+            \DB::commit();
+            $data = [
+                'status' => 'SUCCESS',
+                'message' => '',
+            ];
+        } catch (Exception $e) {
+            \DB::rollback();
+            \Log::error($e);
+            $data = [
+                'status' => 'ERROR',
+                'message' => $e->getMessage(),
+            ];
+        }
+        return response()->json($data);
+    }
+
+    public function clearSubmit($reqId)
+    {
+        $user = auth()->user();
+        \DB::beginTransaction();
+        try {
+            $requisition = RequisitionHeader::findOrFail($reqId);
+            $refRequisition = RequisitionHeader::findOrFail($requisition->clear->id);
+            // CHECK LINE BUDGET FOR UNRESERV/RESERV -- PROCESS CLEAR
+            $result = $this->handleClearingReserv($refRequisition, $requisition, $user);
+            if ($result['status'] == 'E') {
+                $data = [
+                    'status' => $result['status'],
+                    'message' => $result['message']
+                ];
+                return response()->json($data);
+            }
+            // UPDATE STATUS
+            $requisition->status = 'COMPLETED';
+            $requisition->save();
+            \DB::commit();
+            $data = [
+                'status' => 'SUCCESS',
+                'message' => '',
+                'redirect_show_page' => route('expense.requisition.show', $requisition->id)
+            ];
+        } catch (Exception $e) {
+            \DB::rollback();
+            \Log::error($e);
+            $data = [
+                'status' => 'ERROR',
+                'message' => $e->getMessage(),
+            ];
+        }
+        return response()->json($data);
+    }
+
+    public function handleRequistionReserv($headerTemp, $user)
+    {
+        $requisition = RequisitionHeader::findOrFail($headerTemp->id);
+        // IF PAYMENT_TYPE == NON-PAYMENT HAVE TO CALL GL INTERFACE
+        if ($requisition->payment_type == 'NON-PAYMENT') {
+            $result = (new JournalInterfaceRepo)->insertInterfaceJournal($requisition);
+            if ($result['status'] == 'S') {
+                $requisition->status        = 'INTERFACED';
+                $requisition->save();
+            }else{
+                $requisition->status        = 'ERROR';
+                $requisition->error_message = $result['message'];
+                $requisition->save();
+            }
+        }else{
+            // 1 FIND FUND CHECK BUDGET
+            $findFunds = [];
+            $overBudgets = [];
+            foreach ($requisition->lines as $key => $line) {
+                // FIND FUND AVALIABLE
+                $budgetAvaliable = (new GLAccountHierarchyV)->findFund($user->org_id, $line->expense_account);
+                // GET SUMMARY ACCOUNT
+                $account = GLAccountHierarchyV::where('account_code', $line->expense_account)->first();
+                $budgetAccount = optional($account)->summary_code_combination_id;
+                if ($budgetAvaliable != null) {
+                    if (isset($findFunds[$budgetAccount])) {
+                        if ($findFunds[$budgetAccount] <= 0) {
+                            array_push($overBudgets, $line->expense_account);
+                        }elseif($findFunds[$budgetAccount] - $line->amount <= 0){
+                            array_push($overBudgets, $line->expense_account);
+                        }else{
+                            $findFunds[$budgetAccount] = $findFunds[$budgetAccount] - $line->amount;
+                        }
+                    }else{
+                        if ($budgetAvaliable <= 0) {
+                            array_push($overBudgets, $line->expense_account);
+                        }elseif($budgetAvaliable - $line->amount <= 0){
+                            array_push($overBudgets, $line->expense_account);
+                        }else{
+                            $findFunds[$budgetAccount] = $budgetAvaliable - $line->amount;
+                        }
+                    }
+                }
+            }
+            $result = [];
+            if (count($overBudgets) <= 0) {
+                $result = (new BudgetInterfaceRepo)->reserveBudget($requisition, $user);
+                if ($result['status'] == 'S') {
+                    $requisition->status            = 'COMPLETED';
+                    $requisition->save();
+                }else{
+                    $requisition->status        = 'PENDING';
+                    $requisition->error_message = $result['message'];
+                    $requisition->save();
+                }
+            }else{
+                $requisition->status = 'PENDING';
+                $requisition->error_message = implode(',', $overBudgets);
+                $requisition->save();
+            }
+        }
+
+        return $result;
+    }
+
+    public function handleClearingReserv($refRequisition, $requisition, $user)
+    {
+        // CHECK LINE AMOUNT
+        $result = [];
+        $resUnreserv = (new BudgetInterfaceRepo)->unreserveBudget($refRequisition, $user);
+        if ($resUnreserv['status'] == 'S') {
+            // 1 FIND FUND CHECK BUDGET
+            $findFunds = [];
+            $overBudgets = [];
+            foreach ($requisition->lines as $key => $line) {
+                // FIND FUND AVALIABLE
+                $budgetAvaliable = (new GLAccountHierarchyV)->findFund($user->org_id, $line->expense_account);
+                // GET SUMMARY ACCOUNT
+                $account = GLAccountHierarchyV::where('account_code', $line->expense_account)->first();
+                $budgetAccount = optional($account)->summary_code_combination_id;
+                if ($budgetAvaliable != null) {
+                    if (isset($findFunds[$budgetAccount])) {
+                        if ($findFunds[$budgetAccount] <= 0) {
+                            array_push($overBudgets, $line->expense_account);
+                        }elseif($findFunds[$budgetAccount] - $line->amount <= 0){
+                            array_push($overBudgets, $line->expense_account);
+                        }else{
+                            $findFunds[$budgetAccount] = $findFunds[$budgetAccount] - $line->amount;
+                        }
+                    }else{
+                        if ($budgetAvaliable <= 0) {
+                            array_push($overBudgets, $line->expense_account);
+                        }elseif($budgetAvaliable - $line->amount <= 0){
+                            array_push($overBudgets, $line->expense_account);
+                        }else{
+                            $findFunds[$budgetAccount] = $budgetAvaliable - $line->amount;
+                        }
+                    }
+                }
+            }
+            if (count($overBudgets) <= 0) {
+                $result = (new BudgetInterfaceRepo)->reserveBudget($requisition, $user);
+                if ($result['status'] == 'S') {
+                    $requisition->status            = 'COMPLETED';
+                    $requisition->save();
+                }else{
+                    $requisition->status        = 'PENDING';
+                    $requisition->error_message = $result['message'];
+                    $requisition->save();
+                }
+            }else{
+                $requisition->status = 'PENDING';
+                $requisition->error_message = implode(',', $overBudgets);
+                $requisition->save();
+            }
+        }else{
+            return $resUnreserv;
+        }
+        return $result;
+    }
+
+    private function getRemainingRceipt($receiptId, $budgetSource)
+    {
+        if ($budgetSource == '510') {
+            $receipt = OAGARBudgetReceiptV::where('cash_receipt_id', $receiptId)->first();
+        }else{
+            $receipt = GuaranteeReceiptV::where('cash_receipt_id', $receiptId)->first();
+        }
+        return optional($receipt)->receipt_number;
+    }
+
+    // PROCESS RE-INTERFACE FROM INVOICE
+    public function reSubmitRequisition($reqId)
+    {
+        try {
+            $user = auth()->user();
+            $requisition = RequisitionHeader::findOrFail($reqId);
+            // 1 FIND FUND CHECK BUDGET
+            $findFunds = [];
+            $overBudgets = [];
+            foreach ($requisition->lines as $key => $line) {
+                // FIND FUND AVALIABLE
+                $budgetAvaliable = (new GLAccountHierarchyV)->findFund($user->org_id, $line->expense_account);
+                // GET SUMMARY ACCOUNT
+                $account = GLAccountHierarchyV::where('account_code', $line->expense_account)->first();
+                $budgetAccount = optional($account)->summary_code_combination_id;
+                if ($budgetAvaliable != null) {
+                    if (isset($findFunds[$budgetAccount])) {
+                        if ($findFunds[$budgetAccount] <= 0) {
+                            array_push($overBudgets, $line->expense_account);
+                        }elseif($findFunds[$budgetAccount] - $line->amount <= 0){
+                            array_push($overBudgets, $line->expense_account);
+                        }else{
+                            $findFunds[$budgetAccount] = $findFunds[$budgetAccount] - $line->amount;
+                        }
+                    }else{
+                        if ($budgetAvaliable <= 0) {
+                            array_push($overBudgets, $line->expense_account);
+                        }elseif($budgetAvaliable - $line->amount <= 0){
+                            array_push($overBudgets, $line->expense_account);
+                        }else{
+                            $findFunds[$budgetAccount] = $budgetAvaliable - $line->amount;
+                        }
+                    }
+                }
+            }
+            if (count($overBudgets) <= 0) {
+                $result = (new BudgetInterfaceRepo)->reserveBudget($requisition, $user);
+                if ($result['status'] == 'S') {
+                    $requisition->status            = 'COMPLETED';
+                    $requisition->save();
+                }else{
+                    $requisition->status        = 'PENDING';
+                    $requisition->error_message = $result['message'];
+                    $requisition->save();
+                }
+            }else{
+                $requisition->status = 'PENDING';
+                $requisition->error_message = implode(',', $overBudgets);
+                $requisition->save();
+            }
+            $data = [
+                'status' => 'SUCCESS',
+                'message' => '',
+            ];
+        } catch (\Exception $e) {
+            \DB::rollback();
+            \Log::error($e);
+            $data = [
+                'status' => 'ERROR',
+                'message' => $e->getMessage(),
+            ];
+        }
+        return response()->json($data);
+    }
+
+    // RESUBMIT GL INTERFACE
+    public function reSubmitJournal($reqId)
+    {
+        try {
+            $requisition = RequisitionHeader::findOrFail($reqId);
+            // CALL PACKAGE
+            $infGLJournal =  GLJournalInterface::where('reference2', $requisition->req_number)
+                                            ->where('interface_status', 'E')
+                                            ->first();
+            $resultInf = (new RequisitionHeader)->callInterfaceJournal($infGLJournal->reference1);
+            if ($resultInf['status'] == 'S') {
+                $requisition->status  = 'INTERFACED';
+                $requisition->save();
+                $data = [
+                    'status' => 'SUCCESS',
+                    'message' => '',
+                    'redirect_show_page' => route('expense.requisition.show', $reqId)
+                ];
+            }else{
+                $requisition->status        = 'ERROR';
+                $requisition->error_message = $resultInf['error_msg'];
+                $requisition->save();
+                $data = [
+                    'status' => 'ERROR',
+                    'message' => $resultInf['error_msg']
+                ];
+            }
+        } catch (\Exception $e) {
+            \DB::rollback();
+            \Log::error($e);
+            $data = [
+                'status' => 'ERROR',
+                'message' => $e->getMessage(),
+            ];
+        }
+        return response()->json($data);
+    }
+
+    // REVERSE GL INTERFACE
+    public function reverseJournal($reqId)
+    {
+        try {
+            $requisition = RequisitionHeader::findOrFail($reqId);
+            // UPDATE DATA FOR REVERSE
+            $infGLJournal =  GLJournalInterface::where('reference2', $requisition->req_number)
+                                            ->where('interface_status', 'S')
+                                            ->update([
+                                                'process_flag'         => 'NEW'
+                                               , 'interface_msg'       => ''
+                                               , 'interface_status'    => ''
+                                               , 'reverse_flag'         => 'Y'
+                                            ]);
+            \DB::commit();
+            // INTERFACE GL REVERSE
+            $reverseJournal =  GLJournalInterface::where('reference2', $requisition->req_number)->first();
+            $resultInf = (new RequisitionHeader)->callInterfaceJournal($reverseJournal->reference1);
+            if ($resultInf['status'] == 'S') {
+                $requisition->status        = 'REVERSED';
+                $requisition->reverse_flag  = 'Y';
+                $requisition->save();
+                $data = [
+                    'status' => 'SUCCESS',
+                    'message' => '',
+                    'redirect_show_page' => route('expense.requisition.show', $reqId)
+                ];
+            }else{
+                $requisition->status        = 'UNREVERSED';
+                $requisition->error_message = $resultInf['error_msg'];
+                $requisition->save();
+                $data = [
+                    'status' => 'ERROR',
+                    'message' => $resultInf['error_msg']
+                ];
+            }
+        } catch (\Exception $e) {
+            \DB::rollback();
+            \Log::error($e);
+            $data = [
+                'status' => 'ERROR',
+                'message' => $e->getMessage(),
+            ];
+        }
+        return response()->json($data);
+    }
+
+    //======================= AR RECEIPT =======================
     public function useARReceipt(Request $request)
     {
         $header = $request->header;
@@ -208,18 +865,22 @@ class RequisitionController extends Controller
         \DB::beginTransaction();
         try {
             $headerTemp                             = new RequisitionReceiptTemp;
-            $headerTemp->org_id                     = 101;
-            $headerTemp->reference_number               = $header['reference_number'];
-            $headerTemp->seq_number                     = $request->seq+1;
+            $headerTemp->org_id                     = $user->org_id;
+            $headerTemp->reference_number           = $header['reference_number'];
+            $headerTemp->seq_number                 = $request->seq+1;
             $headerTemp->remaining_receipt_flag     = $line['remaining_receipt_flag']? 'Y': 'N';
-            $headerTemp->remaining_receipt_number       = $line['remaining_receipt'];
+            $headerTemp->remaining_receipt_id       = $line['remaining_receipt_id'];
+            $headerTemp->remaining_receipt_number   = $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source']);
             $headerTemp->amount                     = $line['amount'];
+            $headerTemp->expense_account            = $line['expense_account'];
+            $headerTemp->invoice_type               = $header['invoice_type'];
+            $headerTemp->remittance_flag            = 'N';
+            $headerTemp->budget_source              = $header['budget_source'];
             $headerTemp->created_by                 = $user->id;
             $headerTemp->updated_by                 = $user->id;
             $headerTemp->creation_by                = $user->person_id;
             $headerTemp->updation_by                = $user->person_id;
             $headerTemp->save();
-
             \DB::commit();
             $data = [
                 'status' => 'SUCCESS',
@@ -243,11 +904,13 @@ class RequisitionController extends Controller
         \DB::beginTransaction();
         try {
             RequisitionReceiptTemp::where('reference_number', $header['reference_number'])
-                                ->where('remaining_receipt_number', $line['remaining_receipt'])
+                                ->where('remaining_receipt_id', $line['remaining_receipt_id'])
+                                ->where('remaining_receipt_number', $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source']))
                                 ->where('seq_number', $request->index+1)
                                 ->update([
-                                    'remaining_receipt_number' => $line['remaining_receipt']
+                                    'remaining_receipt_number'  => $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source'])
                                     , 'amount'                  => $line['amount']
+                                    , 'invoice_type'            => $header['invoice_type']
                                 ]);
             \DB::commit();
             $data = [
@@ -272,9 +935,10 @@ class RequisitionController extends Controller
         \DB::beginTransaction();
         try {
             $receiptTemp = RequisitionReceiptTemp::where('reference_number', $header['reference_number'])
-                                            ->where('remaining_receipt_number', $line['remaining_receipt'])
-                                            ->where('seq_number', $request->index+1)
-                                            ->delete();
+                                ->where('remaining_receipt_id', $line['remaining_receipt_id'])
+                                ->where('remaining_receipt_number', $this->getRemainingRceipt($line['remaining_receipt_id'], $header['budget_source']))
+                                ->where('seq_number', $request->index+1)
+                                ->delete();
             \DB::commit();
             $data = [
                 'status' => 'SUCCESS',
@@ -290,6 +954,4 @@ class RequisitionController extends Controller
         }
         return response()->json($data);
     }
-
-
 }

@@ -8,5 +8,12 @@ class FlexValueV extends Model
 {
     protected $table = 'OAGFND_FLEX_VALUE_V';
     protected $connection = 'oracle';
-    // protected $connection = 'oracle_oagwxp';
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('checkEnabled', function ($q) {
+            $q->where('enabled_flag', 'Y')
+                ->where('parent_flag', 'N');
+        });
+    }
 }

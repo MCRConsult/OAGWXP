@@ -17,8 +17,8 @@
             <el-option
                 v-for="(row, index) in dataRows"
                 :key="index"
-                :label="row.category_code"
-                :value="row.category_code"
+                :label="row.doc_category_code"
+                :value="row.doc_category_code"
             >
             </el-option>
         </el-select>
@@ -40,7 +40,7 @@ export default {
     mounted() {
         this.loading = true;
         this.value = this.setData;
-        // this.getDataRows(this.value);
+        this.getDataRows(this.value);
     },
     watch: {
         setData() {
@@ -58,7 +58,7 @@ export default {
     methods: {
         getDataRows (query) {
             this.loading = true;
-            axios.get(`/expense/api/get-document-category`, {
+            axios.get(`/OAGWXP/api/get-document-category`, {
                 params: {
                     keyword: query
                 }

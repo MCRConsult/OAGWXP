@@ -10,8 +10,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
+    <link rel="icon" type="image/png" href="{{ asset('favicon-32x32.png') }}" sizes="32x32" />
+    <link rel="icon" type="image/png" href="{{ asset('favicon-16x16.png') }}" sizes="16x16" />
 
-    {{-- @include('layouts._tag_head') --}}
+    @include('layouts._tag_head')
     @vite('resources/sass/app.css')
 </head>
 
@@ -26,7 +28,7 @@
         @include('layouts._sidebar')
         <main class="main">
             @include('layouts._breadcrumb')
-            @if (session('db_name') != 'PROD')
+            {{-- @if (session('db_name') != 'PROD')
                 <div class="row">
                     <div class="col-12 p-2 p-xs b-r-sm" style="background-color: #e3302f;">
                         <h5 class="no-margins text-center mb-0" style="color: #fff;">
@@ -34,8 +36,10 @@
                         </h5>
                     </div>
                 </div>
-            @endif
+            @endif --}}
             <div class="container-fluid">
+                @include('shared._errors')
+                @include('shared._success')
                 <div class="animated fadeIn">
                     @yield('content')
                 </div>
@@ -64,7 +68,6 @@
         //         parentLi.classList.toggle('open');
         //     });
         // });
-
     </script>
     @yield('footer-js')
 </body>

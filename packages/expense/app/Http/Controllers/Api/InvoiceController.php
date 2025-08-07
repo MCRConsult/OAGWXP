@@ -5,32 +5,23 @@ namespace Packages\expense\app\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 use Packages\expense\app\Models\RequisitionHeader;
 use Packages\expense\app\Models\InvoiceHeader;
+use Packages\expense\app\Models\InvoiceLine;
 use Packages\expense\app\Models\MappingAutoInvoiceV;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Packages\expense\app\Models\InvoiceInterfaceHeader;
 
 class InvoiceController extends Controller
 {
     public function getRequisition(Request $request)
     {
-        // REQUISITION + INVOICE MAPPING
         $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
-        if ($request->keyword == null) {
+        if ($request->sourceType == 'REQUISITION') {
             $requistion = RequisitionHeader::selectRaw('distinct req_number trans_number')
-                        ->whereIn('status', ['ALLOCATE', 'DISBURSEMENT'])
-                        ->when($keyword, function ($query, $keyword) {
-                            return $query->where(function($r) use ($keyword) {
-                                $r->whereRaw('UPPER(req_number) like ?', ['%'.strtoupper($keyword).'%']);
-                            });
-                        })
-                        ->orderBy('req_number')
-                        ->limit(25)
-                        ->get();
-        }else{
-            $requistion = RequisitionHeader::selectRaw('distinct req_number trans_number')
-                            ->whereIn('status', ['ALLOCATE', 'DISBURSEMENT'])
+                            ->whereIn('status', ['PENDING', 'COMPLETED'])
+                            ->whereNull('invoice_reference_id')
                             ->when($keyword, function ($query, $keyword) {
                                 return $query->where(function($r) use ($keyword) {
                                     $r->whereRaw('UPPER(req_number) like ?', ['%'.strtoupper($keyword).'%']);
@@ -39,20 +30,36 @@ class InvoiceController extends Controller
                             ->orderBy('req_number')
                             ->limit(25)
                             ->get();
-            // if (count($requistion) <= 0) {
-            //     $requistion = MappingAutoInvoiceV::selectRaw('distinct invoice_num trans_number')
-            //                 ->when($keyword, function ($query, $keyword) {
-            //                     return $query->where(function($r) use ($keyword) {
-            //                         $r->whereRaw('UPPER(invoice_num) like ?', ['%'.strtoupper($keyword).'%']);
-            //                     });
-            //                 })
-            //                 ->orderBy('invoice_num')
-            //                 ->limit(25)
-            //                 ->get();
-            // }
+        }else{
+            $requistion = MappingAutoInvoiceV::selectRaw('distinct req_number trans_number')
+                            ->doesntHave('invoiceLine')
+                            ->when($keyword, function ($query, $keyword) {
+                                return $query->where(function($r) use ($keyword) {
+                                    $r->whereRaw('UPPER(req_number) like ?', ['%'.strtoupper($keyword).'%']);
+                                });
+                            })
+                            ->orderBy('req_number')
+                            ->limit(25)
+                            ->get();
         }
 
         return response()->json(['data' => $requistion]);
+    }
+
+    public function getInvoice(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $vouchers = InvoiceHeader::selectRaw('distinct invoice_number')
+                    ->when($keyword, function ($query, $keyword) {
+                        return $query->where(function($r) use ($keyword) {
+                            $r->whereRaw('UPPER(invoice_number) like ?', ['%'.strtoupper($keyword).'%']);
+                        });
+                    })
+                    ->orderBy('invoice_number')
+                    ->limit(25)
+                    ->get();
+
+        return response()->json(['data' => $vouchers]);
     }
 
     public function getVoucher(Request $request)
@@ -71,23 +78,99 @@ class InvoiceController extends Controller
         return response()->json(['data' => $vouchers]);
     }
 
+    public function getArReceipt(Request $request)
+    {
+        $keyword = isset($request->keyword) ? '%'.strtoupper($request->keyword).'%' : '%';
+        $vouchers = InvoiceLine::selectRaw('distinct remaining_receipt_number')
+                    ->when($keyword, function ($query, $keyword) {
+                        return $query->where(function($r) use ($keyword) {
+                            $r->whereRaw('UPPER(remaining_receipt_number) like ?', ['%'.strtoupper($keyword).'%']);
+                        });
+                    })
+                    ->orderBy('remaining_receipt_number')
+                    ->limit(25)
+                    ->get();
+
+        return response()->json(['data' => $vouchers]);
+    }
+
+    public function fetchInvoiceRenderPage()
+    {
+       $invoices = InvoiceHeader::search(request()->all())
+                            ->with(['user.hrEmployee', 'supplier'])
+                            ->when(request()->remaining_receipt_number, function ($query) {
+                                $query->whereHas('lines', function ($q) {
+                                    $q->where('remaining_receipt_number', 'like', request()->remaining_receipt_number.'%');
+                                });
+                            })
+                            ->orderByRaw('invoice_date desc, invoice_number desc, voucher_number desc')
+                            ->get();
+        $perPage = 25;
+        $currPage = (int)request()->page;
+        $invoices = collect($invoices)->all();
+        $respInvoices = new LengthAwarePaginator(
+            array_slice($invoices, ($currPage - 1) * $perPage, $perPage),
+            count($invoices), 
+            $perPage,
+            $currPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        $data = [
+            'invoices' => $respInvoices
+        ];
+        return response()->json($data);
+    }
+
+    public function fetchInterfaceRenderPage()
+    {
+        $interfaces = InvoiceInterfaceHeader::search(request())
+                        ->orderByRaw('creation_date desc, invoice_num desc')
+                        ->get();
+        $perPage = 25;
+        $currPage = (int)request()->page;
+        $interfaces = collect($interfaces)->all();
+        $respInterfaces = new LengthAwarePaginator(
+            array_slice($interfaces, ($currPage - 1) * $perPage, $perPage),
+            count($interfaces), 
+            $perPage,
+            $currPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        $data = [
+            'interfaces' => $respInterfaces
+        ];
+        return response()->json($data);
+    }
+
+    // GROUP REQUISITION ============================================
     public function fetchRequisition(Request $request)
     {
+        $user = auth()->user();
+        $requistion = [];
         $invMapping = [];
-        $requistion = RequisitionHeader::search($request->search)
-                            ->with(['user', 'invoiceType', 'supplier'])
-                            ->whereIn('status', ['ALLOCATE', 'DISBURSEMENT'])
-                            ->orderBy('req_number')
-                            ->get();
-        // $invMapping = MappingAutoInvoiceV::selectRaw('distinct invoice_type_lookup_code, invoice_num, sum(remaining_amount) remaining_amount')
-        //                     ->with(['invoiceType'])
-        //                     ->orderBy('invoice_num')
-        //                     ->groupBy('invoice_type_lookup_code', 'invoice_num')
-        //                     ->get();
-
+        if ($request->search['source_data'] == 'REQUISITION') {
+            $requistion = RequisitionHeader::search($request->search)
+                                ->with(['user', 'user.hrEmployee', 'invoiceType', 'supplier'])
+                                ->where('org_id', $user->org_id)
+                                ->where('payment_type', 'PAYMENT')
+                                ->whereIn('status', ['PENDING', 'COMPLETED'])
+                                ->whereNull('invoice_reference_id')
+                                ->orderBy('req_number')
+                                ->get();
+        }else{
+            $invMapping = MappingAutoInvoiceV::selectRaw('distinct supplier_id, invoice_type, req_number, sum(amount) total_amount')
+                                ->search($request->search)
+                                ->where('org_id', $user->org_id)
+                                ->doesntHave('invoiceLine')
+                                ->with(['invoiceType', 'supplier'])
+                                ->groupBy('invoice_type', 'req_number', 'supplier_id')
+                                ->orderBy('req_number')
+                                ->get();
+        }
         $mergeReqs = collect($requistion)->merge($invMapping)->all();
-        $perPage = 15;
-        // Create a LengthAwarePaginator instance
+        $perPage = 25;
         $header = new LengthAwarePaginator(
             array_slice($mergeReqs, (1 - 1) * $perPage, $perPage), // Items for the current page
             count($mergeReqs), // Total items
@@ -95,7 +178,7 @@ class InvoiceController extends Controller
             1, // Current page
             ['path' => request()->url(), 'query' => request()->query()] // Path and query string
         );
-        // dd($header);
+
         $data = [
             'headers' => $header
         ];
@@ -104,22 +187,31 @@ class InvoiceController extends Controller
 
     public function fetchRequisitionRenderPage(Request $request)
     {
-        $invMapping =[];
-        $requistion = RequisitionHeader::search($request->search)
-                            ->with(['user', 'invoiceType'])
-                            ->whereIn('status', ['ALLOCATE', 'DISBURSEMENT'])
-                            ->orderBy('req_number')
-                            ->get();
-        // $invMapping = MappingAutoInvoiceV::selectRaw('distinct invoice_type_lookup_code, invoice_num, sum(remaining_amount) remaining_amount')
-        //                     ->with(['invoiceType'])
-        //                     ->orderBy('invoice_num')
-        //                     ->groupBy('invoice_type_lookup_code', 'invoice_num')
-        //                     ->get();
+        $user = auth()->user();
+        $requistion = [];
+        $invMapping = [];
+        if ($request->search['source_data'] == 'REQUISITION') {
+            $requistion = RequisitionHeader::search($request->search)
+                                ->with(['user', 'user.hrEmployee', 'invoiceType', 'supplier'])
+                                ->where('org_id', $user->org_id)
+                                ->where('payment_type', 'PAYMENT')
+                                ->whereIn('status', ['PENDING', 'COMPLETED'])
+                                ->whereNull('invoice_reference_id')
+                                ->orderBy('req_number')
+                                ->get();
+        }else{
+           $invMapping = MappingAutoInvoiceV::selectRaw('distinct supplier_id, invoice_type, req_number, sum(amount) total_amount')
+                                ->where('org_id', $user->org_id)
+                                ->doesntHave('invoiceLine')
+                                ->with(['invoiceType', 'supplier'])
+                                ->groupBy('invoice_type', 'req_number', 'supplier_id')
+                                ->orderBy('req_number')
+                                ->get();
+        }
 
         $mergeReqs = collect($requistion)->merge($invMapping)->all();
-        $perPage = 15;
+        $perPage = 25;
         $currPage = $request->page;
-        // Create a LengthAwarePaginator instance
         $header = new LengthAwarePaginator(
             array_slice($mergeReqs, ($currPage - 1) * $perPage, $perPage),
             count($mergeReqs), 
@@ -132,5 +224,21 @@ class InvoiceController extends Controller
             'headers' => $header
         ];
         return response()->json($data);
+    }
+
+    public function checkFinalJudgment($cashReceiptId)
+    {
+        $finalJudgment = collect(\DB::select("
+                select count(*) as count_final
+                from apps.ap_invoices_all ai       
+                where nvl(ai.attribute3, 'No') = 'Yes'
+                and exists( select  'Y'
+                            from apps.ap_invoice_lines_all ail
+                            where ail.invoice_id = ai.invoice_id
+                            and to_number(ail.attribute3) = {$cashReceiptId}
+                        )
+            "));
+
+        return $finalJudgment->first()->count_final;
     }
 }

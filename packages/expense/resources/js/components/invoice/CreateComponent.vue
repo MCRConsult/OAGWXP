@@ -6,9 +6,26 @@
                     <div class="col-md-3">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
+                                <strong> ข้อมูลต้นทาง </strong>
+                            </label><br>
+                            <el-select v-model="search.source_data" placeholder="" name="source_data" @change="changeSourchDT">
+                                <el-option
+                                    v-for="source in sourceDatas"
+                                    :key="source.value"
+                                    :label="source.label"
+                                    :value="source.value"
+                                >
+                                </el-option>
+                            </el-select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
                                 <strong> เลขที่เอกสารส่งเบิก </strong>
                             </label><br>
                             <lovRequisition
+                                :sourceType="search.source_data"
                                 :setData="search.req_number"
                                 :error="false"
                                 :editFlag="true"
@@ -19,7 +36,7 @@
                     <div class="col-md-3">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
-                                <strong> ประเภท </strong>
+                                <strong> ประเภทการขอเบิก </strong>
                             </label><br>
                             <el-select v-model="search.invoice_type" placeholder="" style="width: 100%;" ref="invoice_type">
                                 <el-option
@@ -32,6 +49,21 @@
                         </div>
                     </div>
                     <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> สำนักงานผู้เบิกจ่าย </strong>
+                            </label><br>
+                            <lovDocumentCategory
+                                :setData="search.document_category"
+                                :error="false"
+                                :editFlag="true"
+                                @setDocumentCate="setDocumentCate"
+                            ></lovDocumentCategory>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3" v-if="search.source_data == 'REQUISITION'">
                         <div class="form-group" style="padding: 5px;">
                             <label class="control-label">
                                 <strong> วันที่เอกสาร </strong>
@@ -48,7 +80,20 @@
                             <div id="el_explode_req_date" class="text-danger text-left"></div>
                         </div>
                     </div>
-                    <div class="col-md-3" align="right">
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding: 5px;">
+                            <label class="control-label">
+                                <strong> ชื่อผู้สั่งจ่าย </strong>
+                            </label><br>
+                            <supplier
+                                :setData="search.supplier_id"
+                                :error="false"
+                                :editFlag="true"
+                                @setSupplier="setSupplier"
+                            ></supplier>
+                        </div>
+                    </div>
+                    <div :class="search.source_data == 'REQUISITION'? 'col-md-6': 'col-md-9'" align="right">
                         <p><br></p>
                         <button type="button" class="btn btn-primary btn-sm m-1" @click.prevent="getRequisition()">
                             ค้นหา
@@ -64,6 +109,23 @@
                 </template>
                 <template v-else>
                     <div class="row">
+                        <div class="row col-12 pr-0">
+                            <div class="col-md-9">
+                                <el-checkbox v-model="isAllSelected"
+                                    label="เลือกทั้งหมด"
+                                    name="selectAll"
+                                    @change="toggleSelectAll"
+                                    border
+                                    size="default"
+                                    style="margin: 1rem;" 
+                                > </el-checkbox>
+                            </div>
+                            <div class="col-md-3 mt-3 pr-0" align="right">
+                                <button v-if="listReq.length" type="button" class="btn btn-primary" @click.prevent="groupInvoice()">
+                                    ถัดไป 
+                                </button>
+                            </div>
+                        </div>
                         <template :key="header.id" v-for="(header, index) in headers">
                             <div class="col-12">
                                 <div class="card" style="padding: 0px;">  
@@ -72,30 +134,32 @@
                                             <div class="col-md-8">
                                                 <el-checkbox
                                                     class="small mb-0 m-0 mr-2"
-                                                    :key="header.id"
-                                                    v-model="selectedReq[header.source_type == 'REQUISITION'? header.req_number: header.invoice_num]" 
-                                                    :name="'check-req_'+ (header.source_type == 'REQUISITION'? header.req_number: header.invoice_num)"
+                                                    :key="header.req_number"
+                                                    v-model="selectedReq[header.req_number]" 
+                                                    :name="'check-req_'+header.req_number"
                                                     size="default"
                                                     @change="chooseReq(header)"
-                                                    :disabled="header.status == 'ALLOCATE'"
+                                                    :disabled="header.status == 'PENDING'"
                                                 />
-                                                <a :href="'/expense/requisition/'+header.id" target="_blank" style="color: black;">
-                                                    <h5 class="mb-1 d-inline">
-                                                        <template v-if="header.source_type == 'REQUISITION'">
-                                                            {{ header.req_number }} {{ header.description? ' : '+header.description: '' }}
-                                                        </template>
-                                                        <template v-else>
-                                                            {{ header.invoice_num }} {{ header.description? ' : '+header.description: '' }}
-                                                        </template>
-                                                    </h5>
-                                                </a>
+                                                <h5 class="mb-1 d-inline">
+                                                    <template v-if="header.source_type == 'REQUISITION'">
+                                                        {{ header.req_number }} {{ header.description? ' : '+header.description: '' }}
+                                                        <a class="btn btn-check btn-sm" style="font-size: 12px; padding: 3px;" 
+                                                            :href="'/OAGWXP/requisition/'+header.id" target="_blank">
+                                                            ตรวจสอบ
+                                                        </a>
+                                                    </template>
+                                                    <template v-else>
+                                                        {{ header.req_number }}
+                                                    </template>
+                                                </h5>
                                                 <hr style="margin: 10px;">
                                                 <div class="row" v-if="header.source_type == 'REQUISITION'">
                                                     <span class="col-md-3 text-right text-sm text-grey-dark"> ผู้รับผิดชอบ :</span>
-                                                    {{ header.user.name }}
+                                                    {{ header.user.hr_employee.full_name }}
                                                 </div>
                                                 <div class="row">
-                                                    <span class="col-md-3 text-right text-sm text-grey-dark"> ประเภท :</span>
+                                                    <span class="col-md-3 text-right text-sm text-grey-dark"> ประเภทการขอเบิก :</span>
                                                     {{ header.invoice_type.description }}
                                                 </div>
                                                 <div class="row" v-if="header.source_type == 'REQUISITION'">
@@ -104,48 +168,49 @@
                                                 </div>
                                                 <div class="row">
                                                     <span class="col-md-3 text-right text-sm text-grey-dark"> วันที่เอกสาร :</span>
-                                                    <template v-if="header.source_type == 'REQUISITION'">
                                                        {{ header.req_date_format }}
-                                                    </template>
-                                                    <template v-else>
-                                                        {{ header.inv_date_format }}
-                                                    </template>
                                                 </div>
                                                 <div class="row">
-                                                    <span class="col-md-3 text-right text-sm text-grey-dark"> สถานะรอเบิกจ่าย :</span>
+                                                    <span class="col-md-3 text-right text-sm text-grey-dark"> สถานะ :</span>
                                                     <strong v-html="header? header.status_icon : ''"></strong>
                                                 </div>
                                                 <div class="row">
-                                                    <span class="col-md-3 text-right text-sm text-grey-dark"> สั่งจ่าย :</span>
+                                                    <span class="col-md-3 text-right text-sm text-grey-dark"> ชื่อสั่งจ่าย :</span>
                                                     {{ header.supplier.vendor_name }} 
                                                 </div>
                                             </div>
                                             <div class="col-md-2">
                                                 <div class="mr-3 text-right">
-                                                    <div class="font-bold text-grey">Total Amount</div>
+                                                    <div class="font-bold text-grey"> จำนวนเงิน </div>
                                                     <div class="text-2xl">
-                                                        <template v-if="header.source_type == 'REQUISITION'">
-                                                            {{ numberFormat(header.total_amount) }}
-                                                        </template>
-                                                        <template v-else>
-                                                            {{ numberFormat(header.remaining_amount) }}
-                                                        </template>
+                                                        {{ numberFormat(header.total_amount) }}
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-2 text-center mt-4">
-                                                <div>
-                                                    <button class="btn btn-block btn-sm btn-warning m-1"> รอตรวจสอบ </button>
-                                                </div>
-                                                <div>
-                                                    <button class="btn btn-block btn-sm btn-danger m-1"> ยกเลิก </button>
-                                                </div>
-                                                <div>
-                                                    <!-- RE-INTERFACE -->
-                                                    <button v-if="header.status == 'ALLOCATE'"
-                                                        class="btn btn-block btn-sm btn-primary m-1"
-                                                    > ส่งเบิก </button>
-                                                </div>
+                                                <template v-if="header.source_type == 'REQUISITION'">
+                                                    <div>
+                                                        <modalHoldComp
+                                                            :header="header"
+                                                            :index="index"
+                                                            @updateActionReq="updateActionReq"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <modalCancelComp
+                                                            :header="header"
+                                                            :index="index"
+                                                            @updateActionReq="updateActionReq"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <!-- RE-INTERFACE -->
+                                                        <button v-if="header.status == 'PENDING'" class="btn btn-block btn-sm btn-primary m-1"
+                                                            @click.prevent="reInterface(header.id)">
+                                                            ส่งเบิก
+                                                        </button>
+                                                    </div>
+                                                </template>
                                             </div>
                                         </div>
                                     </div>
@@ -168,7 +233,7 @@
                 </template>
                 <br>
                 <div align="right">
-                    <button type="button" class="btn btn-primary" @click.prevent="groupInvoice()"> ถัดไป </button>
+                    <button v-if="listReq.length" type="button" class="btn btn-primary" @click.prevent="groupInvoice()"> ถัดไป </button>
                 </div>
             </div>
         </form>
@@ -176,18 +241,29 @@
 </template>
 
 <script>
-    import moment from "moment";
-    import numeral from "numeral";
-    import Swal from 'sweetalert2';
-    import lovRequisition from "./lov/Requisition.vue";
+    import moment   from "moment";
+    import numeral  from "numeral";
+    import Swal     from 'sweetalert2';
+    import lovRequisition       from "./lov/Requisition.vue";
+    import lovDocumentCategory  from "../lov/DocumentCategory.vue";
+    import modalHoldComp        from "./_ModalHoldComponent.vue";
+    import modalCancelComp      from "./_ModalCancelComponent.vue";
+    import supplier             from "../lov/Supplier.vue";
 
     export default {
         components: {
-            lovRequisition
+            lovRequisition, lovDocumentCategory, modalHoldComp, modalCancelComp, supplier
         },
         props: ['invoiceTypes'],
         data() {
             return {
+                sourceDatas: [{
+                    value: 'REQUISITION',
+                    label: 'เอกสารส่งเบิก'
+                }, {
+                    value: 'RECEIPT',
+                    label: 'นำส่งรายได้แผ่นดิน / จ่ายคืน'
+                }],
                 errors: {
                     invoice_type: false,
                     document_category: false,
@@ -202,19 +278,24 @@
                 headers: [],
                 req_date_input: '',
                 search: {
+                    source_data: 'REQUISITION',
                     req_number: '',
                     invoice_type: '',
                     req_date: '',
+                    document_category: '',
+                    supplier: '',
                 },
-                loading: '',
                 loading: false,
                 currPage: 1,
                 paginate: {
                     size: 0,
                     total: 0,
                 },
+                isAllSelected: false,
                 selectedReq: {},
+                reqAmount: {},
                 listReq: [],
+                listType: {},
             };
         },
         mounted(){
@@ -235,8 +316,11 @@
                 return numeral(value).format("0,0.00");
             },
             changeDateFormat() {
-                const formattedDate = moment(this.req_date_input, "DD-MM-YYYY").format("YYYY-MM-DD");
+                const formattedDate = moment(this.req_date_input, "YYYY-MM-DD").format("YYYY-MM-DD");
                 this.search.req_date = formattedDate;
+            },
+            setSupplier(res){
+                this.search.supplier = res.supplier;
             },
             setError(ref_name){
                 let ref =  this.$refs[ref_name].$refs.referenceRef
@@ -262,14 +346,20 @@
                                     : this.$refs[ref_name].$refs.wrapperRef )));
                 ref.style = "";
             },
+            changeSourchDT(){
+                this.search.req_number = '';
+            },
             setRequisition(res) {
                 this.search.req_number = res.requisition;
+            },
+            setDocumentCate(res){
+                this.search.document_category = res.document_category;
             },
             async getRequisition(){
                 let vm = this;
                 vm.loading = true;
                 vm.headers = [];
-                const url = "/expense/api/invoice/fetch-requisition";
+                const url = "/OAGWXP/api/invoice/fetch-requisition";
                 await axios.get(url, {
                     params: {
                         search: this.search
@@ -299,8 +389,9 @@
               await this.fetchData(page);
             },
             async fetchData(page = 1) {
-                const url = "/expense/api/invoice/index-render-page?page="+page;
+                const url = "/OAGWXP/api/invoice/index-render-page?page="+page;
                 this.loading = true;
+                this.headers = [];
                 await axios
                     .post(url, {
                         search: this.search
@@ -321,46 +412,126 @@
             },
             clear(){
                 this.search = {
+                    source_data: 'REQUISITION',
                     req_number: '',
                     invoice_type: '',
-                    req_date: ''
+                    req_date: '',
+                    supplier: ''
                 }
                 this.getRequisition();
             },
+            toggleSelectAll(event) {
+                let checked = $('input[name="selectAll"]').prop('checked');
+                if(checked){
+                    if(this.listReq.length){
+                        this.headers.forEach(header => {
+                            if (!this.listReq.includes(header.req_number)) {
+                                this.selectedReq[header.req_number] = true;
+                                this.reqAmount[header.req_number] = header.total_amount;
+                                this.listReq.push(header.req_number);
+                                this.listType[header.req_number] = header.invoice_type.lookup_code;
+                            }
+                        });
+                    }else{
+                        this.headers.forEach(header => {
+                            this.selectedReq[header.req_number] = true;
+                            this.reqAmount[header.req_number] = header.total_amount;
+                            this.listReq.push(header.req_number);
+                            this.listType[header.req_number] = header.invoice_type.lookup_code;
+                        });
+                    }
+                }else{
+                    this.headers.forEach(header => {
+                        this.selectedReq[header.req_number] = false;
+                        this.reqAmount[header.req_number] = 0;
+                        this.listReq.push(header.req_number);
+                        this.listReq = this.listReq.filter(function(value) {
+                            return value != header.req_number
+                        });
+                        this.selectedReq[header.req_number] = '';
+                    });                    
+                }                
+            },
             chooseReq(header){
                 let vm = this;
-                let reqNumber = header.source_type == 'REQUISITION'? header.req_number: header.invoice_num;
+                let reqNumber = header.req_number;
                 let checked = $('input[name="check-req_'+reqNumber+'"]').prop('checked');
                 if(checked){
                     vm.selectedReq[reqNumber] = true;
+                    vm.reqAmount[header.req_number] = header.total_amount;
                     vm.listReq.push(reqNumber);
+                    vm.listType[header.req_number] = header.invoice_type.lookup_code;
                 }else{
                     vm.selectedReq[reqNumber] = false;
+                    vm.reqAmount[header.req_number] = 0;
                     vm.listReq = vm.listReq.filter(function(value) {
                         return value != reqNumber
                     });
+                    vm.listType = vm.listType.filter(function(value, index) {
+                        return index != reqNumber
+                    });
                 }
+            },
+            listsAsComma() {
+                return this.listReq.join(", ");
+            },
+            totalAmount() {
+                let total = 0;
+                this.listReq.filter(req => {
+                    if(this.reqAmount[req]){
+                        total += Number(this.reqAmount[req]);
+                    }
+                });
+                return this.numberFormat(total);
             },
             async groupInvoice(){
                 var vm = this;
+                let valid = true;
+                // Validate PREPAYMENT
+                if(Object.values(this.listType).includes('PREPAYMENT')){
+                    valid = false;
+                }
+                if(!valid && this.listReq.length > 1){
+                    Swal.fire({
+                        title: "แจ้งเตือน",
+                        html: '<div style="line-height: 2;"> กรณีเลือกประเภทการขอเบิก : <b>เงินยืม</b> <br> สามารถเลือกรายการได้ 1 รายการเท่านั้น </div>',
+                        icon: "warning",
+                        showCancelButton: false,
+                        confirmButtonColor: "#3085d6",
+                        confirmButtonText: "ตกลง",
+                        allowOutsideClick: false
+                    });
+                    return;
+                }
+
                 Swal.fire({
-                    title: "ยืนยันสร้างเอกสารขอเบิก",
-                    html: "ต้องการ <b>ยืนยัน</b> สร้างเอกสารขอเบิกใช่หรือไม่?",
-                    icon: "warning",
+                    title: "",
+                    html: '<div style="font-size: 16px; text-align: left;"> <b>เลขที่เอกสารส่งเบิก : </b>'+this.listsAsComma()
+                        +'<br><br> <b>จำนวนเงิน : </b>'+this.totalAmount()+'</div>',
+                    icon: "",
                     showCancelButton: true,
                     confirmButtonColor: "#3085d6",
                     cancelButtonColor: "#d33",
-                    confirmButtonText: "ใช่",
-                    cancelButtonText: "ไม่",
-                    allowOutsideClick: false // ป้องกันการปิด alert เมื่อคลิกนอกกรอบ
+                    confirmButtonText: "ยืนยัน",
+                    cancelButtonText: "ยกเลิก",
+                    allowOutsideClick: false
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        vm.loading = true;
-                        axios.post('/expense/invoice/group-invoice', {
+                        // vm.loading = true;
+                        Swal.fire({
+                            title: 'ระบบกำลังสร้างเอกสารขอเบิก',
+                            type: "success",
+                            showConfirmButton: false,
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                        axios.post('/OAGWXP/invoice/group-invoice', {
                             requisitions: this.listReq,
                         })
                         .then(function (res) {
-                            vm.loading = false;
+                            // vm.loading = false;
                             if (res.data.message) {
                                 Swal.fire({
                                     title: "มีข้อผิดพลาด",
@@ -373,7 +544,7 @@
                                 });
                             } else {
                                 Swal.fire({
-                                    title: "ยืนยันสร้างเอกสารขอเบิก",
+                                    title: "สร้างเอกสารขอเบิก",
                                     html: "สร้างเอกสารขอเบิกเรียบร้อยแล้ว",
                                     icon: "success",
                                     showCancelButton: false,
@@ -400,9 +571,78 @@
                                 confirmButtonText: "ตกลง",
                                 allowOutsideClick: false
                             });
-                        })
-                        .then(() => {
-                            vm.loading = false;
+                        });
+                    }
+                });
+            },
+            updateActionReq(){
+                this.getRequisition();
+            },
+            async reInterface(reqId){
+                var vm = this;
+                Swal.fire({
+                    title: "ส่งเบิกเอกสาร",
+                    html: "ต้องการ <b>ยืนยัน</b> ส่งเบิกเอกสารใหม่อีกครั้งใช่หรือไม่?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "ใช่",
+                    cancelButtonText: "ไม่",
+                    allowOutsideClick: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'ระบบกำลังส่งเบิกเอกสารใหม่อีกครั้ง',
+                            type: "success",
+                            showConfirmButton: false,
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                        // POST METHOD
+                        axios.get('/OAGWXP/requisition/'+reqId+'/req-resubmit')
+                        .then(function (res) {
+                            if (res.data.message) {
+                                Swal.fire({
+                                    title: "มีข้อผิดพลาด",
+                                    text: res.data.message,
+                                    icon: "error",
+                                    showCancelButton: false,
+                                    confirmButtonColor: "#3085d6",
+                                    confirmButtonText: "ตกลง",
+                                    allowOutsideClick: false
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: "ส่งเบิกเอกสาร",
+                                    html: "ส่งเบิกเอกสารเรียบร้อยแล้ว",
+                                    icon: "success",
+                                    showCancelButton: false,
+                                    confirmButtonColor: "#3085d6",
+                                    confirmButtonText: "ตกลง",
+                                    allowOutsideClick: false
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        setTimeout(function() {
+                                            location.reload();
+                                        }, 500);
+                                    }
+                                });
+                            }
+                        }.bind(vm))
+                        .catch(err => {
+                            let msg = err.response;
+                            Swal.fire({
+                                title: "มีข้อผิดพลาด",
+                                text: msg.message,
+                                icon: "error",
+                                showCancelButton: false,
+                                confirmButtonColor: "#3085d6",
+                                confirmButtonText: "ตกลง",
+                                allowOutsideClick: false
+                            });
                         });
                     }
                 });

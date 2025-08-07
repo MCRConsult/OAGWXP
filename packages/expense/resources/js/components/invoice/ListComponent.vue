@@ -1,35 +1,38 @@
 <template>
     <tr v-loading="loading">
-        <td class="text-center"> {{ index + 1 }} </td>
-        <td class="text-left">
+        <td class="text-center text-nowrap" :style="errorIndex? 'color: red;': ''">
+            {{ index + 1 }}
+        </td>
+        <td class="text-left text-nowrap" :style="errorIndex? 'color: red;': ''">
             {{ line.expense.description }}
         </td>
-        <td class="text-left small wrap-text">
+        <td class="text-left wrap-text" :style="errorIndex? 'color: red;': ''">
             {{ line.expense_account }}
         </td>
-        <td class="text-center">
+        <td class="text-center text-nowrap" :style="errorIndex? 'color: red;': ''">
             {{ numberFormat(line.amount) }}
         </td>
-        <td class="text-center">
+        <td class="text-center text-nowrap" :style="errorIndex? 'color: red;': ''">
             {{ line.supplier_name }}
         </td>
-        <td class="text-center">
-            {{ line.supplier_bank }}
+        <td class="text-center text-nowrap" :style="errorIndex? 'color: red;': ''">
+            {{ line.bank_account_number }}
         </td>
         <td style="padding-top: 5px">
-            <div class="row text-center" style="border-collapse: collapse; width: 250px; display:inline-block; flex-direction: row;">
+            <div class="row text-center" style="border-collapse: collapse; width: 60px; display:inline-block; flex-direction: row;">
                 <modalEditComp
                     :index="index"
                     :invoiceLine="line"
                     :defaultSetName="defaultSetName"
+                    :header="header"
+                    @updateRow="updateRow"
                 />
-                    <!-- @updateRow="updateRow" -->
-                <button type="button" @click.prevent="copy(index)" class="btn btn-sm btn-primary m-1" style="">
+                <!-- <button type="button" @click.prevent="copy(index)" class="btn btn-sm btn-primary m-1" style="">
                     คัดลอก
                 </button>
                 <button type="button" @click.prevent="remove(index)" class="btn btn-sm btn-danger m-1" style="">
                     ลบรายการ
-                </button>
+                </button> -->
             </div>
         </td>
     </tr>
@@ -43,7 +46,7 @@
         components: {
             modalEditComp
         },
-        props: ['index', 'attribute', 'defaultSetName'],
+        props: ['index', 'attribute', 'defaultSetName', 'header', 'errorIndex'],
         emits: ['updateRow', 'copyRow', 'removeRow'],
         data() {
             return {
@@ -62,6 +65,9 @@
             numberFormat(value) {
                 if (!value) return "0.00";
                 return numeral(value).format("0,0.00");
+            },
+            updateRow(res){
+                this.$emit("updateRow", res);
             },
             copy(){
                 this.$emit("copyRow", this.index);
@@ -83,51 +89,6 @@
                     }
                 });
             },
-
-
-
-
-
-
-
-
-
-
-            
-            // openModal(index){
-            //     this.temp = { ...this.line };
-            //     $('.modal-edit'+index).modal('show');
-            // },
-            // confirm() {
-            //     if (this.temp) {
-            //         this.line = {...this.temp};
-            //         this.temp = null;
-            //         console.log(this.line);
-            //         $('.modal-edit'+this.index).modal('hide');
-            //         this.$emit("updateRow", {index: this.index, line: this.line});
-            //     }
-            // },
-            // cancel() {
-            //     this.temp = null;
-            //     $('.modal-edit'+this.index).modal('hide');
-            // },
-            // setSupplierLine(res){
-            //     this.line.supplier = res.supplier;
-            //     this.line.supplier_name = res.vendor_name;
-            // },
-            // setSupplierBank(res){
-            //     this.line.supplier_bank = res.supplier_bank;
-            // },
-            // setBudgetPlan(res){
-            //     this.line.budget_plan = res.budget_plan;
-            // },
-            // setBudgetType(res){
-            //     this.line.budget_type = res.budget_type;
-            // },
-            // setExpenseType(res){
-            //     this.line.expense_type = res.expense_type;
-            //     this.line.expense_description = res.expense_description;
-            // },
         }
     };
 </script>
@@ -137,9 +98,9 @@
         z-index: 9999 !important;
     }
     .wrap-text {
-      overflow-wrap: break-word; /* Modern equivalent of word-wrap */
-      word-wrap: break-word; /* For older browsers */
-      word-break: break-word; /* Optional for certain cases */
-      white-space: normal; /* Ensures text wraps */
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+      word-break: break-word;
+      white-space: normal;
     }
 </style>

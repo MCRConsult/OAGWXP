@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Crypt;
 
 use App\Models\User;
 use App\Models\FNDUser;
@@ -22,7 +24,7 @@ class LoginController extends Controller
     |
     */
     use AuthenticatesUsers;
-    protected $redirectTo = '/';
+    protected $redirectTo = '/OAGWXP';
 
     public function __construct()
     {
@@ -32,21 +34,21 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        $userName = request()->input('username');
+        $username = request()->input('username');
         $password = request()->input('password');
         $syncProcess = false;
 
-        $user = User::where('name', $userName)->first();
-        $searchFndUser = FNDUser::where('user_name', $userName)->first();
+        $user = User::where('name', $username)->first();
+        $searchFndUser = FNDUser::where('user_name', $username)->first();
 
         if (is_null($user) && !is_null($searchFndUser)) {
             $syncProcess = true;
             (new \App\Repositories\UserRepo)->sync($searchFndUser->user_id);
-            $user = User::where('name', $userName)->first();
+            $user = User::where('name', $username)->first();
         }
 
         if (is_null($user)) {
-            return redirect()->route('login')->withErrors('login failed, these credentials do not match')->withInput();
+            return redirect()->route('login')->withErrors('ไม่สามารถเข้าสู่ระบบได้ เนื่องจากข้อมูลผู้ใช้งานไม่ถูกต้อง กรุณาติดต่อผู้ดูแลระบบ')->withInput();
         }
 
         if (!$syncProcess) {
@@ -56,11 +58,11 @@ class LoginController extends Controller
         $user->refresh();
 
         if (!$user->is_active || is_null($user->is_active)) {
-            return redirect()->route('login')->withErrors("{$user->name} : status inactive")->withInput();
+            return redirect()->route('login')->withErrors("{$user->name} : สถานะผู้ใช้งาน ไม่พร้อมใช้งาน กรุณาติดต่อผู้ดูแลระบบ")->withInput();
         }
 
         if (is_null($fndUser = $user->fndUser)) {
-            return redirect()->route('login')->withErrors('User Oracle : these credentials do not match')->withInput();
+            return redirect()->route('login')->withErrors('ไม่สามารถเข้าสู่ระบบได้ เนื่องจากข้อมูลผู้ใช้งานไม่ถูกต้อง กรุณาติดต่อผู้ดูแลระบบ')->withInput();
         }
 
         $login  = \DB::connection('oracle')->table('DUAL')
@@ -69,11 +71,22 @@ class LoginController extends Controller
 
         if ($login->auth == 'Y') {
             \Auth::login($user, $request->remember);
+            // If "Remember Me" is checked, save credentials in cookies
+            if ($request->remember) {
+                // 30 Days
+                Cookie::queue('remember_username', $username, 43200);
+                Cookie::queue('remember_password', Crypt::encrypt($password), 43200); // Encrypt the password
+            }
+            // else {
+            //     // Clear cookies if "Remember Me" is unchecked
+            //     Cookie::queue(Cookie::forget('remember_username'));
+            //     Cookie::queue(Cookie::forget('remember_password'));
+            // }
             $this->setSession();
-            return redirect('/');
+            return redirect('/OAGWXP');
         } else {
-            return redirect()->route('login')->withErrors('login failed Oracle : these credentials do not match')->withInput();
-            if (\Auth::attempt(['name' => $userName, 'password' => $password])) {
+            return redirect()->route('login')->withErrors('ไม่สามารถเข้าสู่ระบบได้ เนื่องจากข้อมูลผู้ใช้งานไม่ถูกต้อง กรุณาติดต่อผู้ดูแลระบบ')->withInput();
+            if (\Auth::attempt(['name' => $username, 'password' => $password])) {
                 return redirect('/');
             }
         }
@@ -102,7 +115,7 @@ class LoginController extends Controller
     public function logout(Request $request)
     {
         $user = auth()->user();
-        $route = '/login';
+        $route = '/OAGWXP/login';
         \Auth::guard()->logout();
         $request->session()->flush();
         $request->session()->invalidate();

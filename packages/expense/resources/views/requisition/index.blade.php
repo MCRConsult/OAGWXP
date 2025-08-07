@@ -1,117 +1,41 @@
 @extends('layouts.app')
 @section('title', 'เอกสารส่งเบิก')
 @section('breadcrumb')
-    <li class="breadcrumb-item">
-        <a href="{{ route('expense.requisition.index') }}"><strong> เอกสารส่งเบิก </strong></a>
+    <li class="breadcrumb-item active">
+        <strong> เอกสารส่งเบิก </strong>
     </li>
     <div class="col-md-10" style="padding-right: 0px;">
         <div class="text-right m-t-lg" style="padding-right: 0px;">
-            <a class="btn btn-white btn-md mr-2" data-toggle="collapse" href="#search_form" role="button" aria-expanded="false" aria-controls="requirement_form">
+            <a class="btn btn-white btn-sm mr-2" data-toggle="collapse" href="#search_form" role="button" aria-expanded="false" aria-controls="requirement_form">
                 <i class="fa fa-search"></i> ค้นหา
             </a>
-            <a href="{{ route('expense.requisition.create') }}" class="btn btn-primary btn-sm">
-                <i class="fa fa-plus"></i> สร้างเอกสารส่งเบิก
-            </a>
+            @if(Gate::allows('requisition_enter'))
+                <a href="{{ route('expense.requisition.create') }}" class="btn btn-primary btn-sm">
+                    <i class="fa fa-plus"></i> สร้างเอกสารส่งเบิก
+                </a>
+            @endif
         </div>
     </div>
 @endsection
 
 @section('content')
-    <requisition-search-component
+    <requisition-component
         p-form-url          = "{{ route('expense.requisition.index') }}"
-        p-token             = "{{ csrf_token() }}"
         :p-search           = "{{ json_encode(request()->all()) }}"
         :p-invoice-types    = "{{ json_encode($invoiceTypes) }}"
         :p-statuses         = "{{ json_encode($statuses) }}"
-        p-date-js-format    = "{{ trans('date.js-format') }}"
-    ></requisition-search-component>
-
-<div class="card">
-    <div class="card-header">
-        <div class="row col-12" style="padding-right: 0px;">
-            <div class="col-md-6">
-                <span class="d-inline">
-                    <h5> <strong> เอกสารส่งเบิก </strong> </h5>
-                </span>
-            </div>
-        </div>
-    </div>
-    <div class="card-body">
-        <div class="ibox float-e-margins">
-            <div class="table-responsive">
-                <table class="table" style="margin-bottom:0px;" id="table_group_line">
-                    <thead>
-                        <tr>
-                            <th class="text-center" width="12%">
-                                <div> เลขที่เอกสารส่งเบิก </div>
-                            </th>
-                            <th class="text-center" width="12%">
-                                <div> วันที่เอกสาร </div>
-                            </th>
-                            <th class="text-center" width="15%">
-                                <div> ผู้รับผิดชอบ </div>
-                            </th>
-                            <th class="text-center" width="12%">
-                                <div> ประเภทการขอเบิก </div>
-                            </th>
-                            <th class="text-center" width="10%">
-                                <div> คำอธิบาย </div>
-                            </th>
-                            <th class="text-center" width="10%">
-                                <div> จำนวนเงิน </div>
-                            </th>
-                            <th class="text-center" width="10%">
-                                <div> สถานะ </div>
-                            </th>
-                            <th width="3%"> </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($requisitions as $requisition)
-                            <tr>
-                                <td class="text-center" style="vertical-align: middle;"> {{ $requisition->req_number }} </td>
-                                <td class="text-center" style="vertical-align: middle;"> {{ $requisition->req_date_format }} </td>
-                                <td class="text-center" style="vertical-align: middle;"> {{ $requisition->user->name }} </td>
-                                <td class="text-center" style="vertical-align: middle;"> {{ $requisition->invoice_type }} </td>
-                                <td class="text-center" style="vertical-align: middle;"> {{ $requisition->description }} </td>
-                                <td class="text-center" style="vertical-align: middle;">
-                                    {{ number_format($requisition->lines->sum('amount'), 2) }}
-                                </td>
-                                <td class="text-center" style="vertical-align: middle;"> {!! $requisition->getStatusIcon() !!} </td>
-                                <td class="text-center" style="vertical-align: middle;">
-                                    <div style="border-collapse: collapse; width: 160px; display:inline-block; flex-direction: row;">
-                                        <a class="btn btn-sm btn-light active mr-1"
-                                            href="{{ route('expense.requisition.show', $requisition->id) }}">
-                                            ตรวจสอบ
-                                        </a>
-                                        @if ($requisition->invoice_type == 'PREPAYMENT')
-                                            <a class="btn btn-sm btn-danger active"
-                                                href="{{ route('expense.requisition.show', $requisition->id) }}">
-                                                เคลียร์เงินยืม
-                                            </a>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="row">
-                <div class="col-12">
-                    <div class="pull-right">
-                        @if (count($requisitions) > 0)
-                            {{ $requisitions->links() }}
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
+        :p-requisitions     = "{{ json_encode($requisitions) }}"
+    ></requisition-component>
 @stop
+
+<style type="text/css">
+    .sticky-col {
+        position: sticky !important;
+        background-color: #FFF;
+        z-index: 9999;
+        top:0px;
+    }
+</style>
 
 @section('scripts')
 @stop

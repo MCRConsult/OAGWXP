@@ -40,12 +40,12 @@ export default {
     mounted() {
         this.loading = true;
         this.value = this.setData;
-        // this.getDataRows(this.value);
+        this.getDataRows(this.value);
     },
     watch: {
         setData() {
             this.value = this.setData;
-            this.getDataRows(this.value);
+            // this.getDataRows(this.value);
         },
         error() {
             let ref = this.$refs['input'].$refs.wrapperRef;
@@ -58,7 +58,7 @@ export default {
     methods: {
         getDataRows (query) {
             this.loading = true;
-            axios.get(`/expense/api/get-payment-term`, {
+            axios.get(`/OAGWXP/api/get-payment-term`, {
                 params: {
                     keyword: query
                 }

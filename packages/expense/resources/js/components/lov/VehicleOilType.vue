@@ -40,7 +40,7 @@ export default {
     mounted() {
         this.loading = true;
         this.value = this.setData;
-        // this.getDataRows(this.value);
+        this.getDataRows(this.value);
     },
     watch: {
         setData() {
@@ -58,7 +58,7 @@ export default {
     methods: {
         getDataRows (query) {
             this.loading = true;
-            axios.get(`/expense/api/get-vehicle-oil-type`, {
+            axios.get(`/OAGWXP/api/get-vehicle-oil-type`, {
                 params: {
                     keyword: query
                 }

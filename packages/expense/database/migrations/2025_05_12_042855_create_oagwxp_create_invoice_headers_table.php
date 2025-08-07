@@ -21,7 +21,8 @@ return new class extends Migration
         Schema::connection('oracle_oagwxp')->create($this->tableName, function (Blueprint $table) {
             $table->increments('id');
             $table->integer('org_id')->nullable();
-            $table->string('source_type')->nullable();
+            $table->string('reference_number')->nullable();
+            $table->string('budget_source')->nullable();
             $table->string('voucher_number')->nullable();
             $table->string('invoice_number');
             $table->date('invoice_date');
@@ -35,12 +36,17 @@ return new class extends Migration
             $table->string('currency')->nullable();
             $table->date('contact_date')->nullable();
             $table->string('final_judgment')->nullable();
+            $table->string('final_judgment_number')->nullable(); // CASE RECEIPT ONLY: AP_INVOICE_NO
             $table->string('gfmis_document_number')->nullable();
+            $table->string('revenue_delivery_code')->nullable(); // CASE RECEIPT ONLY
+            $table->string('receipt_number')->nullable(); // CASE RECEIPT ONLY
             $table->integer('total_amount', 18, 2)->nullable();
             $table->string('description')->nullable();
             $table->string('note')->nullable();
+            $table->string('encumbrance_flag')->nullable();
             $table->string('requester');
             $table->string('status');
+            $table->string('error_message', 4000)->nullable();
             $table->integer('created_by');
             $table->integer('updated_by')->nullable();
             $table->integer('creation_by')->nullable();

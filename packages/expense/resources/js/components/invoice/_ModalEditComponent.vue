@@ -7,22 +7,24 @@
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title"> แก้ไขรายละเอียด </h4>
+                    <h4 class="modal-title"> แก้ไขรายการ </h4>
                 </div>
                 <div class="modal-body m-2">
-                    <form id='edit-form'>
+                    <form :class="'edit-form'+index">
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="form-group text-left" style="padding: 5px;">
                                     <label class="control-label" style="margin-bottom: 0.4rem;">
                                         <strong> ชื่อสั่งจ่าย </strong> &nbsp;
                                     </label><br>
-                                    <supplier
-                                        :setData="temp.supplier"
+                                    <el-input v-model="temp.supplier_name" style="width: 100%;" disabled/>
+                                    <!-- <supplier
+                                        :setData="temp.supplier_id"
                                         :error="errors.supplier_detail"
+                                        :editFlag="temp.source_type == 'RECEIPT'? fasle: true"
                                         @setSupplier="setSupplierLine"
                                     ></supplier>
-                                    <div id="el_explode_supplier_detail" class="text-danger text-left"></div>
+                                    <div id="_el_explode_supplier_detail" class="text-danger text-left"></div> -->
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -31,42 +33,42 @@
                                         <strong> เลขที่บัญชีธนาคาร <span class="text-danger"> *</span></strong>
                                     </label><br>
                                     <supplierBank
-                                        :parent="temp.supplier"
-                                        :setData="temp.supplier_bank"
+                                        :parent="temp.supplier_id"
+                                        :setData="temp.bank_account_number"
                                         :error="errors.supplier_bank"
                                         :editFlag="true"
                                         @setSupplierBank="setSupplierBank"
                                     ></supplierBank>
-                                    <div id="el_explode_supplier_bank" class="text-danger text-left"></div>
+                                    <div id="_el_explode_supplier_bank" class="text-danger text-left"></div>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group text-left" style="padding: 5px;">
                                     <label class="control-label">
-                                        <strong> แผนงาน <span class="text-danger"> * </span></strong>
+                                        <strong> แผนงาน </strong>
                                     </label><br>
                                     <budgetPlan 
                                         :setData="temp.budget_plan"
                                         :error="errors.budget_plan"
-                                        :editFlag="true"
+                                        :editFlag="false"
                                         @setBudgetPlan="setBudgetPlan"
                                     ></budgetPlan>
-                                    <div id="el_explode_budget_plan" class="text-danger text-left"></div>
+                                    <div id="_el_explode_budget_plan" class="text-danger text-left"></div>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group text-left" style="padding: 5px;">
                                     <label class="control-label">
-                                        <strong> ประเภทรายจ่าย <span class="text-danger"> * </span></strong>
+                                        <strong> ประเภทรายจ่าย </strong>
                                     </label><br>
                                     <budgetType
                                         :parent="temp.budget_plan"
                                         :setData="temp.budget_type"
                                         :error="errors.budget_type"
-                                        :editFlag="true"
+                                        :editFlag="false"
                                         @setBudgetType="setBudgetType"
                                     ></budgetType>
-                                    <div id="el_explode_budget_type" class="text-danger text-left"></div>
+                                    <div id="_el_explode_budget_type" class="text-danger text-left"></div>
                                 </div>
                             </div>
                         </div>
@@ -74,16 +76,17 @@
                             <div class="col-md-3">
                                 <div class="form-group text-left" style="padding: 5px;">
                                     <label class="control-label">
-                                        <strong> ประเภทค่าใช้จ่าย <span class="text-danger"> * </span></strong>
+                                        <strong> ประเภทค่าใช้จ่าย </strong>
                                     </label><br>
                                     <expenseType
                                         :parent="temp.budget_type"
                                         :setData="temp.expense_type"
+                                        :budgetSource="segment4"
                                         :error="errors.expense_type"
-                                        :editFlag="true"
+                                        :editFlag="false"
                                         @setExpenseType="setExpenseType"
                                     ></expenseType>
-                                    <div id="el_explode_expense_type" class="text-danger text-left"></div>
+                                    <div id="_el_explode_expense_type" class="text-danger text-left"></div>
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -96,7 +99,6 @@
                                     > </el-input>
                                 </div>
                             </div>
-
                             <div class="col-md-3">
                                 <div class="form-group text-left" style="padding: 5px;">
                                     <label class="control-label">
@@ -104,29 +106,33 @@
                                     </label><br>
                                     <vue-numeric style="width: 100%;"
                                         name="amount"
-                                        v-bind:minus="false"
+                                        v-bind:minus="true"
                                         v-bind:precision="2"
-                                        :min="0"
+                                        :min="-999999999"
                                         :max="999999999"
                                         class="form-control text-right"
                                         v-model="temp.amount"
                                         ref="amount"
                                         autocomplete="off"
+                                        @blur="changeAmount()"
                                     ></vue-numeric>
-                                    <div id="el_explode_amount" class="text-danger text-left"></div>
+                                    <div id="_el_explode_amount" class="text-danger text-left"></div>
+                                    
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group text-left" style="padding: 5px;">
                                     <label class="control-label">
-                                        <strong> เลขที่ใบเสร็จรับเงิน </strong>
+                                        <strong> เลขที่ใบเสร็จรับเงิน <span v-if="temp.split_flag == 'Y'" class="text-danger"> * </span> </strong>
                                     </label><br>
-                                    <!-- <receipt
-                                        :setData="temp.rece"
-                                        :error="errors.rece"
+                                    <arReceipt
+                                        :setData="temp.ar_receipt_id"
+                                        :supplier="temp.supplier_name"
                                         :editFlag="true"
-                                        @setExpenseType="setExpenseType"
-                                    ></receipt> -->
+                                        :error="errors.ar_receipt_number"
+                                        @setArReceipt="setArReceipt"
+                                    ></arReceipt>
+                                    <div id="_el_explode_ar_receipt_number" class="text-danger text-left"></div>
                                 </div>
                             </div>
                         </div>
@@ -136,7 +142,11 @@
                                     <label class="control-label">
                                         <strong> ภาษีมูลค่าเพิ่ม </strong>
                                     </label><br>
-
+                                    <tax
+                                        :setData="temp.tax_code"
+                                        :editFlag="true"
+                                        @setTax="setTax"
+                                    ></tax>
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -148,11 +158,11 @@
                                         name="tax_amount"
                                         v-bind:minus="false"
                                         v-bind:precision="2"
-                                        :min="0"
+                                        :min="-999999999"
                                         :max="999999999"
                                         class="form-control text-right"
-                                        v-model="line.tax_amount"
-                                        ref="amount"
+                                        v-model="temp.tax_amount"
+                                        ref="tax_amount"
                                         autocomplete="off"
                                     ></vue-numeric>
                                 </div>
@@ -163,7 +173,11 @@
                                     <label class="control-label">
                                         <strong> ภาษีหัก ณ ที่จ่าย </strong>
                                     </label><br>
-
+                                    <wht
+                                        :setData="temp.wht_code"
+                                        :editFlag="true"
+                                        @setWht="setWht"
+                                    ></wht>
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -175,17 +189,43 @@
                                         name="wht_amount"
                                         v-bind:minus="false"
                                         v-bind:precision="2"
-                                        :min="0"
+                                        :min="-999999999"
                                         :max="999999999"
                                         class="form-control text-right"
-                                        v-model="line.wht_amount"
-                                        ref="amount"
+                                        v-model="temp.wht_amount"
+                                        ref="wht_amount"
                                         autocomplete="off"
                                     ></vue-numeric>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
+                            <div class="col-md-3" v-if="budgetSource.indexOf(header.budget_source) !== -1 && temp.split_flag != 'Y'">
+                                <div class="form-group text-left" style="padding: 5px;">
+                                    <label class="control-label">
+                                        <strong> เลขที่ใบเสร็จรับเงินคงเหลือ <span class="text-danger"> * </span> </strong>
+                                    </label><br>
+                                    <remainingReceipt
+                                        :setData="temp.remaining_receipt_id"
+                                        :editFlag="true"
+                                        :error="errors.remaining_receipt"
+                                        @setRemainingReceipt="setRemainingReceipt"
+                                    ></remainingReceipt>
+                                    <div id="_el_explode_remaining_receipt" class="text-danger text-left"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-3" v-if="contractSource.indexOf(header?.budget_source) !== -1">
+                                <div class="form-group" style="padding: 5px;">
+                                    <label class="control-label">
+                                        <strong> เลขที่สัญญา</strong>
+                                    </label><br>
+                                    <contract
+                                        :setData="temp.contract_number"
+                                        :editFlag="true"
+                                        @setContract= "setContract"
+                                    ></contract>
+                                </div>
+                            </div>
                             <div class="col-md-6">
                                 <div class="form-group text-left" style="padding: 5px;">
                                     <label class="control-label">
@@ -205,7 +245,7 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-sm-4 text-left">
+                                <div class="col-sm-3 text-left">
                                     <label class="control-label" style="margin-bottom: 0.4em;">
                                         <strong> หน่วยเบิกจ่าย </strong>
                                     </label><br>
@@ -216,28 +256,31 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment1"
                                         placeholder=""
+                                        :editFlag="false"
                                         ref="segment1"
                                     >
                                     </coaComponent>
-                                    <div id="el_explode_acc_1" class="error_msg text-left"></div>
+                                    <div id="_el_explode_acc_1" class="text-danger text-left"></div>
                                 </div>
-                               <div class="col-sm-4 text-left">
+                               <div class="col-sm-3 text-left">
                                     <label class="control-label" style="margin-bottom: 0.4em;">
                                         <strong> ศูนย์ต้นทุน </strong>
                                     </label><br>
                                     <coaComponent
                                         @coa="updateCoa"
                                         :set-name="defaultSetName.segment2"
+                                        :parent="segment1"
                                         :set-data="segment2"
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment2"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment2"
                                     >
                                     </coaComponent>
-                                    <div id="el_explode_acc_2" class="error_msg text-left"></div>
+                                    <div id="_el_explode_acc_2" class="text-danger text-left"></div>
                                 </div>
-                                <div class="col-sm-4 text-left">
+                                <div class="col-sm-3 text-left">
                                     <label class="control-label" style="margin-bottom: 0.4em;">
                                         <strong> ปีงบประมาณ </strong>
                                     </label><br>
@@ -248,15 +291,13 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment3"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment3"
                                     >
                                     </coaComponent>
-                                    <div id="el_explode_acc_3" class="error_msg text-left"></div>
+                                    <div id="_el_explode_acc_3" class="text-danger text-left"></div>
                                 </div>
-                            </div>
-                            <br>
-                            <div class="row">
-                                <div class="col-sm-4 text-left">
+                                <div class="col-sm-3 text-left">
                                     <label class="control-label" style="margin-bottom: 0.4em;">
                                         <strong> แหล่งเงิน </strong>
                                     </label><br>
@@ -267,12 +308,16 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment4"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment4"
                                     >
                                     </coaComponent>
-                                    <div id="el_explode_acc_4" class="error_msg text-left"></div>
+                                    <div id="_el_explode_acc_4" class="text-danger text-left"></div>
                                 </div>
-                                <div class="col-sm-4 text-left">
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-sm-3 text-left">
                                     <label class="control-label" style="margin-bottom: 0.4em;">
                                         <strong> แผนงาน </strong>
                                     </label><br>
@@ -283,12 +328,13 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment5"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment5"
                                     >
                                     </coaComponent>
-                                    <div id="el_explode_acc_5" class="error_msg text-left"></div>
+                                    <div id="_el_explode_acc_5" class="text-danger text-left"></div>
                                 </div>
-                                <div class="col-sm-4 text-left">
+                                <div class="col-sm-3 text-left">
                                     <label class="control-label" style="margin-bottom: 0.4em;">
                                         <strong> ผลผลิต/แผนงานรอง/โครงการ </strong> 
                                     </label><br>
@@ -299,15 +345,13 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment6"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment6"
                                     >
                                     </coaComponent>
-                                    <div id="el_explode_acc_6" class="error_msg text-left"></div>
+                                    <div id="_el_explode_acc_6" class="text-danger text-left"></div>
                                 </div>
-                            </div>
-                            <br>
-                            <div class="row">
-                                <div class="col-sm-4 text-left">
+                                <div class="col-sm-3 text-left">
                                     <label class="control-label" style="margin-bottom: 0.4em;">
                                         <strong> กิจกรรม </strong>
                                     </label><br>
@@ -318,12 +362,13 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment7"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment7"
                                     >
                                     </coaComponent>
-                                    <div id="el_explode_acc_7" class="error_msg text-left"></div>
+                                    <div id="_el_explode_acc_7" class="text-danger text-left"></div>
                                 </div>
-                                <div class="col-sm-4 text-left">
+                                <div class="col-sm-3 text-left">
                                     <label class="control-label" style="margin-bottom: 0.4em;">
                                         <strong> ประเภทรายจ่าย </strong>
                                     </label><br>
@@ -334,12 +379,16 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment8"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment8"
                                     >
                                     </coaComponent>
-                                    <div id="el_explode_acc_8" class="error_msg text-left"></div>
+                                    <div id="_el_explode_acc_8" class="text-danger text-left"></div>
                                 </div>
-                                <div class="col-sm-4 text-left">
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-sm-3 text-left">
                                     <label class="control-label" style="margin-bottom: 0.4em;">
                                         <strong> รหัสงบประมาณ </strong>
                                     </label><br>
@@ -350,15 +399,13 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment9"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment9"
                                     >
                                     </coaComponent>
-                                    <div id="el_explode_acc_9" class="error_msg text-left"></div>
+                                    <div id="_el_explode_acc_9" class="text-danger text-left"></div>
                                 </div>
-                            </div>
-                            <br>
-                            <div class="row">
-                                <div class="col-sm-4 text-left">
+                                <div class="col-sm-3 text-left">
                                     <label class="control-label" style="margin-bottom: 0.4em;">
                                         <strong> รหัสบัญชีหลัก </strong>
                                     </label><br>
@@ -369,28 +416,31 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment10"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment10"
                                     >
                                     </coaComponent>
-                                    <div id="el_explode_acc_10" class="error_msg text-left"></div>
+                                    <div id="_el_explode_acc_10" class="text-danger text-left"></div>
                                 </div>
-                                <div class="col-sm-4 text-left">
+                                <div class="col-sm-3 text-left">
                                     <label class="control-label" style="margin-bottom: 0.4em;">
                                         <strong> รหัสบัญชีย่อย/รายจ่ายย่อย </strong>
                                     </label><br>
                                     <coaComponent
                                         @coa="updateCoa"
                                         :set-name="defaultSetName.segment11"
+                                        :parent="segment10"
                                         :set-data="segment11"
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment11"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment11"
                                     >
                                     </coaComponent>
-                                    <div id="el_explode_acc_11" class="error_msg text-left"></div>
+                                    <div id="_el_explode_acc_11" class="text-danger text-left"></div>
                                 </div>
-                                <div class="col-sm-4 text-left">
+                                <div class="col-sm-3 text-left">
                                     <label class="control-label" style="margin-bottom: 0.4em;">
                                         <strong> สำรอง 1 </strong>
                                     </label><br>
@@ -401,15 +451,16 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment12"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment12"
                                     >
                                     </coaComponent>
-                                    <div id="el_explode_acc_12" class="error_msg text-left"></div>
+                                    <div id="_el_explode_acc_12" class="text-danger text-left"></div>
                                 </div>
                             </div>
                             <br>
                             <div class="row">
-                                <div class="col-sm-4 text-left">
+                                <div class="col-sm-3 text-left">
                                     <label class="control-label" style="margin-bottom: 0.4em;">
                                         <strong> สำรอง 2 </strong>
                                     </label><br>
@@ -420,22 +471,22 @@
                                         :default-set-name="defaultSetName"
                                         :error="errors.segment13"
                                         placeholder=""
+                                        :editFlag="true"
                                         ref="segment13"
                                     >
                                     </coaComponent>
-                                    <div id="el_explode_acc_13" class="error_msg text-left"></div>
+                                    <div id="_el_explode_acc_13" class="text-danger text-left"></div>
                                 </div>
                             </div>
                         </div>
-
                     </form>
                 </div>
                 <div class="modal-footer pt-2">
-                    <button type="button" class="btn btn-primary btn-sm" @click.private="confirm"
+                    <button type="button" class="btn btn-primary btn-sm" @click.private="confirm(index)"
                         style="color: #fff; background-color: #01b471; border-color: #01b471;">
                         ตกลง
                     </button>
-                    <button type="button" class="btn btn-warning btn-sm" @click.private="cancel">
+                    <button type="button" class="btn btn-danger btn-sm" @click.private="cancel">
                         ยกเลิก
                     </button>
                 </div>
@@ -451,25 +502,35 @@
     import budgetPlan       from "../lov/BudgetPlan.vue";
     import budgetType       from "../lov/BudgetType.vue";
     import expenseType      from "../lov/ExpenseType.vue";
-    import receipt          from "../lov/receipt.vue";
+    import arReceipt        from "../lov/ARReceipt.vue";
+    import tax              from "../lov/Tax.vue";
+    import wht              from "../lov/Wht.vue";
+    import contract         from "../lov/Contract.vue";
+    import remainingReceipt from "../lov/RemainingReceipt.vue";
 
     export default {
         components: {
-            coaComponent, supplier, supplierBank, budgetPlan, budgetType, expenseType, receipt
+            coaComponent, supplier, supplierBank, budgetPlan, budgetType, expenseType, arReceipt, tax, wht, contract, remainingReceipt
         },
-        props: ['index', 'invoiceLine', 'defaultSetName'],
+        props: ['index', 'invoiceLine', 'defaultSetName', 'header'],
         emits: ['updateRow'],
         data() {
             return {
+                budgetSource: ['510'],
+                contractSource: ['540'],
                 line: this.invoiceLine,
                 temp: {},
                 loading: false,
                 accounrCollp: false,
                 errors: {
+                    supplier_detail: false,
+                    supplier_bank: false,
                     budget_plan: false,
                     budget_type: false,
                     expense_type: false,
                     amount: false,
+                    remaining_receipt: false,
+                    ar_receipt_number: false,
                     segment2: false,
                     segment3: false,
                     segment6: false,
@@ -481,6 +542,9 @@
                 // Segment
                 segment1: '', segment2: '', segment3: '', segment4: '', segment5: '', segment6: '',
                 segment7: '', segment8: '', segment9: '', segment10: '', segment11: '', segment12: '', segment13: '',
+                // Rate Percentage
+                tax_percent: 0,
+                wht_percent: 0,
             };
         },
         mounted() {
@@ -500,11 +564,11 @@
                 this.temp = JSON.parse(JSON.stringify(this.line));
                 $('.modal-edit'+index).modal('show');
             },
-            confirm() {
+            confirm(index) {
                 let vm = this;
                 let errorMsg = '';
                 let valid = true;
-                var form = $('#edit-form');
+                var form = $('.edit-form'+index);
                 vm.errors.supplier_detail = false;
                 vm.errors.supplier_bank = false;
                 vm.errors.budget_plan = false;
@@ -512,6 +576,14 @@
                 vm.errors.expense_type = false;
                 vm.errors.amount = false;
                 vm.errors.remaining_receipt = false;
+                vm.errors.ar_receipt_number = false;
+                vm.errors.segment2 = false;
+                vm.errors.segment3 = false;
+                vm.errors.segment6 = false;
+                vm.errors.segment7 = false;
+                vm.errors.segment9 = false;
+                vm.errors.segment10 = false;
+                vm.errors.segment11 = false;
                 $(form).find("div[id='_el_explode_supplier_detail']").html("");
                 $(form).find("div[id='_el_explode_supplier_bank']").html("");
                 $(form).find("div[id='_el_explode_budget_plan']").html("");
@@ -519,64 +591,156 @@
                 $(form).find("div[id='_el_explode_expense_type']").html("");
                 $(form).find("div[id='_el_explode_amount']").html("");
                 $(form).find("div[id='_el_explode_remaining_receipt']").html("");
+                $(form).find("div[id='_el_explode_ar_receipt_number']").html("");
+                $(form).find("div[id='_el_explode_acc_2']").html("");
+                $(form).find("div[id='_el_explode_acc_3']").html("");
+                $(form).find("div[id='_el_explode_acc_6']").html("");
+                $(form).find("div[id='_el_explode_acc_7']").html("");
+                $(form).find("div[id='_el_explode_acc_9']").html("");
+                $(form).find("div[id='_el_explode_acc_10']").html("");
+                $(form).find("div[id='_el_explode_acc_11']").html("");
 
-                if ((vm.line.supplier == '' || vm.line.supplier == undefined) && vm.requisition.multiple_supplier == 'MORE') {
-                    vm.errors.supplier_detail = true;
-                    valid = false;
-                    errorMsg = "กรุณาเลือกผู้สั่งจ่าย";
-                    $(form).find("div[id='_el_explode_supplier_detail']").html(errorMsg);
-                }
-                if ((vm.line.supplier_bank == '' || vm.line.supplier_bank == undefined) && vm.requisition.multiple_supplier == 'MORE') {
+                // if (vm.temp.supplier_id == '' || vm.temp.supplier_id == undefined) {
+                //     vm.errors.supplier_detail = true;
+                //     valid = false;
+                //     errorMsg = "กรุณาเลือกชื่อสั่งจ่าย";
+                //     $(form).find("div[id='_el_explode_supplier_detail']").html(errorMsg);
+                // }
+                if (vm.temp.bank_account_number == '' || vm.temp.bank_account_number == undefined) {
                     vm.errors.supplier_bank = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกเลขที่บัญชีธนาคาร";
                     $(form).find("div[id='_el_explode_supplier_bank']").html(errorMsg);
                 }
-                if (vm.line.budget_plan == '' || vm.line.budget_plan == undefined) {
+                if (vm.temp.budget_plan == '' || vm.temp.budget_plan == undefined) {
                     vm.errors.budget_plan = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกแผนงาน";
                     $(form).find("div[id='_el_explode_budget_plan']").html(errorMsg);
                 }
-                if (vm.line.budget_type == '' || vm.line.budget_type == undefined) {
+                if (vm.temp.budget_type == '' || vm.temp.budget_type == undefined) {
                     vm.errors.budget_type = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกประเภทรายจ่าย";
                     $(form).find("div[id='_el_explode_budget_type']").html(errorMsg);
                 }
-                if (vm.line.expense_type == '' || vm.line.expense_type == undefined) {
+                if (vm.temp.expense_type == '' || vm.temp.expense_type == undefined) {
                     vm.errors.expense_type = true;
                     valid = false;
                     errorMsg = "กรุณาเลือกประเภทค่าใช้จ่าย";
                     $(form).find("div[id='_el_explode_expense_type']").html(errorMsg);
                 }
-                if (vm.line.amount == '' || vm.line.amount == undefined) {
+                if (vm.temp.amount == '' || vm.temp.amount == undefined) {
                     vm.errors.amount = true;
                     valid = false;
                     errorMsg = "กรุณากรอกจำนวนเงิน";
                     $(form).find("div[id='_el_explode_amount']").html(errorMsg);
                 }
-                if (vm.line.remaining_receipt_flag && (vm.line.remaining_receipt == '' || vm.line.remaining_receipt == undefined)) {
+                if (vm.temp.amount > vm.line.origin_amount) {
+                    vm.errors.amount = true;
+                    valid = false;
+                    errorMsg = "กรุณากรอกจำนวนเงินไม่เกินยอดขอเบิก";
+                    $(form).find("div[id='_el_explode_amount']").html(errorMsg);
+                }
+                if (vm.temp.remaining_receipt_flag == 'Y' && vm.temp.remaining_receipt_id == '') {
                     vm.errors.remaining_receipt = true;
                     valid = false;
                     errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงินคงเหลือ";
                     $(form).find("div[id='_el_explode_remaining_receipt']").html(errorMsg);
+                }
+                if (vm.temp.split_flag == 'Y') {
+                    if (vm.temp.ar_receipt_number == '' || vm.temp.ar_receipt_number == null) {
+                        vm.errors.ar_receipt_number = true;
+                        valid = false;
+                        errorMsg = "กรุณาระบุเลขที่ใบเสร็จรับเงิน";
+                        $(form).find("div[id='_el_explode_ar_receipt_number']").html(errorMsg);
+                    }
+                }
+
+                if (vm.segment2 == '' || vm.segment2 == undefined) {
+                    vm.errors.segment2 = true;
+                    valid = false;
+                    errorMsg = "กรุณาระบุศูนย์ต้นทุน";
+                    $(form).find("div[id='_el_explode_acc_2']").html(errorMsg);
+                }
+                if (vm.segment3 == '' || vm.segment3 == undefined) {
+                    vm.errors.segment3 = true;
+                    valid = false;
+                    errorMsg = "กรุณาระบุปีงบประมาณ";
+                    $(form).find("div[id='_el_explode_acc_3']").html(errorMsg);
+                }
+                if (vm.segment6 == '' || vm.segment6 == undefined) {
+                    vm.errors.segment6 = true;
+                    valid = false;
+                    errorMsg = "กรุณาระบุผลผลิต/แผนงานรอง/โครงการ";
+                    $(form).find("div[id='_el_explode_acc_6']").html(errorMsg);
+                }
+                if (vm.segment7 == '' || vm.segment7 == undefined) {
+                    vm.errors.segment7 = true;
+                    valid = false;
+                    errorMsg = "กรุณาระบุกิจกรรม";
+                    $(form).find("div[id='_el_explode_acc_7']").html(errorMsg);
+                }
+                if (vm.segment9 == '' || vm.segment9 == undefined) {
+                    vm.errors.segment9 = true;
+                    valid = false;
+                    errorMsg = "กรุณาระบุรหัสงบประมาณ";
+                    $(form).find("div[id='_el_explode_acc_9']").html(errorMsg);
+                }
+                if (vm.segment10 == '' || vm.segment10 == undefined) {
+                    vm.errors.segment10 = true;
+                    valid = false;
+                    errorMsg = "กรุณาระบุรหัสบัญชีหลัก";
+                    $(form).find("div[id='_el_explode_acc_10']").html(errorMsg);
+                }
+                if (vm.segment11 == '' || vm.segment11 == undefined) {
+                    vm.errors.segment11 = true;
+                    valid = false;
+                    errorMsg = "กรุณาระบุรหัสบัญชีย่อย/รายจ่ายย่อย";
+                    $(form).find("div[id='_el_explode_acc_11']").html(errorMsg);
                 }
                 if (!valid) {
                     return;
                 }
 
                 if(this.temp){
-                    // this.line = { ...this.temp };
-                    // this.line = JSON.parse(JSON.stringify(this.temp));
                     $('.modal-edit'+this.index).modal('hide');
                     this.$emit("updateRow", {index: this.index, line: this.temp});
-                    this.temp = null;
                 }
             },
             cancel() {
                 $('.modal-edit'+this.index).modal('hide');
-                this.temp = null;
+                var form = $('.edit-form'+this.index);
+                this.errors.supplier_detail = false;
+                this.errors.supplier_bank = false;
+                this.errors.budget_plan = false;
+                this.errors.budget_type = false;
+                this.errors.expense_type = false;
+                this.errors.amount = false;
+                this.errors.remaining_receipt = false;
+                this.errors.ar_receipt_number = false;
+                this.errors.segment2 = false;
+                this.errors.segment3 = false;
+                this.errors.segment6 = false;
+                this.errors.segment7 = false;
+                this.errors.segment9 = false;
+                this.errors.segment10 = false;
+                this.errors.segment11 = false;
+                $(form).find("div[id='_el_explode_supplier_detail']").html("");
+                $(form).find("div[id='_el_explode_supplier_bank']").html("");
+                $(form).find("div[id='_el_explode_budget_plan']").html("");
+                $(form).find("div[id='_el_explode_budget_type']").html("");
+                $(form).find("div[id='_el_explode_expense_type']").html("");
+                $(form).find("div[id='_el_explode_amount']").html("");
+                $(form).find("div[id='_el_explode_remaining_receipt']").html("");
+                $(form).find("div[id='_el_explode_ar_receipt_number']").html("");
+                $(form).find("div[id='_el_explode_acc_2']").html("");
+                $(form).find("div[id='_el_explode_acc_3']").html("");
+                $(form).find("div[id='_el_explode_acc_6']").html("");
+                $(form).find("div[id='_el_explode_acc_7']").html("");
+                $(form).find("div[id='_el_explode_acc_9']").html("");
+                $(form).find("div[id='_el_explode_acc_10']").html("");
+                $(form).find("div[id='_el_explode_acc_11']").html("");
             },
             setError(ref_name){
                 let ref =  this.$refs[ref_name].$refs.referenceRef
@@ -603,20 +767,12 @@
                 ref.style = "";
             },
             setSupplierLine(res){
-                this.temp.supplier = res.supplier;
+                this.temp.supplier_id = res.supplier;
                 this.temp.supplier_name = res.vendor_name;
             },
             setSupplierBank(res){
-                this.temp.supplier_bank = res.supplier_bank;
-            },
-            setVehicleOilType(res){
-                this.temp.vehicle_oil_type = res.vehicle_oil_type;
-            },
-            setUtilityType(res){
-                this.temp.utility_type = res.utility_type;
-            },
-            setUtilityDetail(res){
-                this.temp.utility_detail = res.utility_detail;
+                this.temp.bank_account_number = res.supplier_bank;
+                this.temp.supplier_site = res.supplier_site;
             },
             setBudgetPlan(res){
                 this.temp.budget_plan = res.budget_plan;
@@ -628,51 +784,73 @@
                 this.temp.expense_type = res.expense_type;
                 this.temp.expense_description = res.expense_description;
             },
+            setArReceipt(res){
+                this.temp.ar_receipt_id = res.receipt;
+                this.temp.ar_receipt_number = res.receipt_number;
+            },
+            setTax(res){
+                this.temp.tax_code = res.tax_code;
+                this.tax_percent = res.tax_percent;
+                this.temp.tax_amount = (this.temp.amount * res.tax_percent)/100;
+            },
+            setWht(res){
+                this.temp.wht_code = res.wht_code;
+                this.wht_percent = res.wht_percent;
+                this.temp.wht_amount = (this.temp.amount * res.wht_percent)/100;
+            },
+            changeAmount(){
+                this.temp.tax_amount = (this.temp.amount * this.tax_percent)/100;
+                this.temp.wht_amount = (this.temp.amount * this.wht_percent)/100;
+            },
             setRemainingReceipt(res){
-                this.temp.remaining_receipt = res.remaining_receipt;
+                this.temp.remaining_receipt_id = res.remaining_receipt;
+            },
+            setContract(res){
+                this.temp.contract_number = res.contract;
             },
             updateCoa(res){
                 if (res.name == this.defaultSetName.segment1) { 
-                    this.segment1 = res.segment1;
+                    this.segment1 = res.segment1 == undefined? '': res.segment1;
                 }
                 if (res.name == this.defaultSetName.segment2) {
-                    this.segment2 = res.segment2; 
+                    this.segment2 = res.segment2 == undefined? '': res.segment2; 
                 }
                 if (res.name == this.defaultSetName.segment3) {
-                    this.segment3 = res.segment3;
+                    this.segment3 = res.segment3 == undefined? '': res.segment3;
                 }
                 if (res.name == this.defaultSetName.segment4) {
-                    this.segment4 = res.segment4;
+                    this.segment4 = res.segment4 == undefined? '': res.segment4;
                 }
                 if (res.name == this.defaultSetName.segment5) {
-                    this.segment5 = res.segment5;
+                    this.segment5 = res.segment5 == undefined? '': res.segment5;
                 }
                 if (res.name == this.defaultSetName.segment6) {
-                    this.segment6 = res.segment6; 
+                    this.segment6 = res.segment6 == undefined? '': res.segment6; 
                 }
                 if (res.name == this.defaultSetName.segment7) {
-                    this.segment7 = res.segment7;
+                    this.segment7 = res.segment7 == undefined? '': res.segment7;
                 }
                 if (res.name == this.defaultSetName.segment8) {
-                    this.segment8 = res.segment8;
+                    this.segment8 = res.segment8 == undefined? '': res.segment8;
                 }
                 if (res.name == this.defaultSetName.segment9) {
-                    this.segment9 = res.segment9;
+                    this.segment9 = res.segment9 == undefined? '': res.segment9;
                 }
                 if (res.name == this.defaultSetName.segment10) {
-                    this.segment10 = res.segment10;
+                    this.segment10 = res.segment10 == undefined? '': res.segment10;
+                    this.segment11 = '';
                 }
                 if (res.name == this.defaultSetName.segment11) {
-                    this.segment11 = res.segment11;
+                    this.segment11 = res.segment11 == undefined? '': res.segment11;
                 }
                 if (res.name == this.defaultSetName.segment12) {
-                    this.segment12 = res.segment12;
+                    this.segment12 = res.segment12 == undefined? '': res.segment12;
                 }
                 if (res.name == this.defaultSetName.segment13) {
-                    this.segment13 = res.segment13;
+                    this.segment13 = res.segment13 == undefined? '': res.segment13;
                 }
 
-                let expenseAcc  = this.segment1+'.'+this.segment2+'.'+this.segment3+'.'+this.segment4+'.'+this.segment5+'.'+this.segment6+'.'+this.segment7+'.'+this.segment8+'.'+this.segment9+'.'+this.segment10+'.'+this.segment11+'.'+this.segment12+'.'+this.segmen13;
+                let expenseAcc = this.segment1+'.'+this.segment2+'.'+this.segment3+'.'+this.segment4+'.'+this.segment5+'.'+this.segment6+'.'+this.segment7+'.'+this.segment8+'.'+this.segment9+'.'+this.segment10+'.'+this.segment11+'.'+this.segment12+'.'+this.segment13;
                 this.temp.expense_account = expenseAcc;
             },
             extractAccount(){

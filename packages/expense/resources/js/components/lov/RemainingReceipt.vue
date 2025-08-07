@@ -17,7 +17,7 @@
             <el-option
                 v-for="(row, index) in dataRows"
                 :key="row.cash_receipt_id"
-                :label="row.receipt_number+': '+row.remaining_amount"
+                :label="row.receipt_number+': '+row.description"
                 :value="row.cash_receipt_id"
             >
             </el-option>
@@ -40,7 +40,7 @@ export default {
     mounted() {
         this.loading = true;
         this.value = this.setData;
-        // this.getDataRows(this.value);
+        this.getDataRows(this.value);
     },
     watch: {
         setData() {
@@ -58,7 +58,7 @@ export default {
     methods: {
         getDataRows (query) {
             this.loading = true;
-            axios.get(`/expense/api/get-remaining-receipt`, {
+            axios.get(`/OAGWXP/api/get-remaining-receipt`, {
                 params: {
                     keyword: query
                 }
@@ -66,7 +66,13 @@ export default {
             .then(res => {
                 this.loading = false;
                 this.dataRows = res.data.data;
-                this.$emit('setRemainingReceipt', {remaining_receipt: this.value});
+                let receipt_amount = 0;
+                res.data.data.filter((value) => {
+                        if(value.cash_receipt_id == this.value){
+                            receipt_amount = value.remaining_amount;
+                        }
+                    });
+                this.$emit('setRemainingReceipt', {remaining_receipt: this.value, receipt_amount: receipt_amount});
             })
             .catch((error) => {
                 console.log('มีข้อผิดพลาด', error, 'error');
